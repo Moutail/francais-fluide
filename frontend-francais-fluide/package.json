@@ -1,0 +1,36 @@
+{
+  "name": "francais-fluide",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test:grammar": "node test-grammar-api.js",
+    "test:backend": "npx tsx -e \"import('./src/lib/grammar/test-backend.ts').then(m => m.runAllTests())\""
+  },
+  "dependencies": {
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.18",
+    "autoprefixer": "^10.4.21",
+    "framer-motion": "^10.16.0",
+    "lucide-react": "^0.292.0",
+    "next": "14.0.0",
+    "postcss": "^8.5.6",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-textarea-autosize": "^8.5.0",
+    "tailwindcss": "^3.4.17"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "14.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5"
+  }
+}
