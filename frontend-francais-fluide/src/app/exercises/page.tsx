@@ -2,455 +2,235 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Header } from '@/components/layout/Header';
-import { Sidebar } from '@/components/layout/Sidebar';
+import ExerciseSelector from '@/components/exercises/ExerciseSelector';
+import ExercisePlayer from '@/components/exercises/ExercisePlayer';
 import { Card, Button, Badge } from '@/components/ui';
-import { 
-  BookOpen, 
-  Clock, 
-  Star, 
-  Target, 
-  Play, 
-  CheckCircle, 
-  Lock,
-  Filter,
-  Search,
-  SortAsc,
-  Trophy,
-  Zap
-} from 'lucide-react';
-import Link from 'next/link';
-import type { Exercise, ExerciseType, Difficulty } from '@/types';
+import { exerciseGamification } from '@/lib/exercises/gamification';
+import { exerciseGenerator } from '@/lib/exercises/generator';
+import type { Exercise, ExerciseResult, UserProfile, ExerciseStats } from '@/types';
 
-// Données mockées pour les exercices
-const mockExercises: Exercise[] = [
-  {
-    id: '1',
-    title: 'Accord des adjectifs',
-    description: 'Maîtrisez l\'accord des adjectifs avec les noms masculins et féminins',
-    type: 'grammar',
-    difficulty: 'beginner',
-    category: 'Grammaire',
-    instructions: 'Complétez les phrases avec la forme correcte de l\'adjectif',
-    content: {
-      text: 'Le chat ___ (noir) dort sur le canapé ___ (confortable).',
-      questions: [
-        {
-          id: 'q1',
-          text: 'Complétez la première phrase',
-          type: 'fill-in-the-blank',
-          correctAnswer: 'noir'
-        },
-        {
-          id: 'q2',
-          text: 'Complétez la deuxième phrase',
-          type: 'fill-in-the-blank',
-          correctAnswer: 'confortable'
-        }
-      ]
-    },
-    points: 50,
-    timeLimit: 10,
-    isCompleted: true,
-    completedAt: new Date('2024-01-15'),
-    score: 95
-  },
-  {
-    id: '2',
-    title: 'Conjugaison du présent',
-    description: 'Révisez la conjugaison des verbes réguliers au présent de l\'indicatif',
-    type: 'grammar',
+// Mock user profile - à remplacer par les vraies données
+const mockUserProfile: UserProfile = {
+  id: 'user-1',
+  name: 'Utilisateur Test',
+  email: 'test@example.com',
+  level: 'intermediate',
+  preferences: {
     difficulty: 'intermediate',
-    category: 'Conjugaison',
-    instructions: 'Conjuguez les verbes entre parenthèses au présent',
-    content: {
-      text: 'Je (manger) ___ une pomme. Tu (finir) ___ tes devoirs. Il (vendre) ___ sa voiture.',
-      questions: [
-        {
-          id: 'q1',
-          text: 'Conjuguez "manger"',
-          type: 'fill-in-the-blank',
-          correctAnswer: 'mange'
-        },
-        {
-          id: 'q2',
-          text: 'Conjuguez "finir"',
-          type: 'fill-in-the-blank',
-          correctAnswer: 'finis'
-        },
-        {
-          id: 'q3',
-          text: 'Conjuguez "vendre"',
-          type: 'fill-in-the-blank',
-          correctAnswer: 'vend'
-        }
-      ]
-    },
-    points: 75,
-    timeLimit: 15,
-    isCompleted: false
+    exerciseTypes: ['grammar', 'vocabulary'],
+    notifications: true
   },
-  {
-    id: '3',
-    title: 'Vocabulaire de la cuisine',
-    description: 'Apprenez le vocabulaire essentiel de la cuisine française',
-    type: 'vocabulary',
-    difficulty: 'beginner',
-    category: 'Vocabulaire',
-    instructions: 'Associez les mots à leurs définitions',
-    content: {
-      questions: [
-        {
-          id: 'q1',
-          text: 'Qu\'est-ce qu\'un "économe" ?',
-          type: 'multiple-choice',
-          options: ['Un ustensile pour éplucher', 'Un appareil électrique', 'Une casserole'],
-          correctAnswer: 'Un ustensile pour éplucher'
-        },
-        {
-          id: 'q2',
-          text: 'Que signifie "mijoter" ?',
-          type: 'multiple-choice',
-          options: ['Cuire à feu vif', 'Cuire doucement', 'Mélanger'],
-          correctAnswer: 'Cuire doucement'
-        }
-      ]
-    },
-    points: 40,
-    timeLimit: 8,
-    isCompleted: false
-  },
-  {
-    id: '4',
-    title: 'Rédaction créative',
-    description: 'Écrivez un paragraphe sur votre ville idéale',
-    type: 'writing',
-    difficulty: 'advanced',
-    category: 'Expression écrite',
-    instructions: 'Rédigez un paragraphe de 150-200 mots décrivant votre ville idéale',
-    content: {
-      text: 'Décrivez votre ville idéale en utilisant le vocabulaire approprié et en respectant la structure d\'un paragraphe.'
-    },
-    points: 100,
-    timeLimit: 30,
-    isCompleted: false
-  },
-  {
-    id: '5',
-    title: 'Compréhension orale',
-    description: 'Écoutez et comprenez un dialogue de la vie quotidienne',
-    type: 'listening',
-    difficulty: 'intermediate',
-    category: 'Compréhension',
-    instructions: 'Écoutez le dialogue et répondez aux questions',
-    content: {
-      audioUrl: '/sounds/dialogue-restaurant.mp3',
-      questions: [
-        {
-          id: 'q1',
-          text: 'Où se déroule la conversation ?',
-          type: 'multiple-choice',
-          options: ['Au restaurant', 'À la maison', 'Au bureau'],
-          correctAnswer: 'Au restaurant'
-        }
-      ]
-    },
-    points: 60,
-    timeLimit: 12,
-    isCompleted: false
+  statistics: {
+    totalExercises: 0,
+    averageScore: 0,
+    totalTimeSpent: 0,
+    currentStreak: 0,
+    bestStreak: 0,
+    accuracyRate: 0,
+    level: 1,
+    xp: 0,
+    nextLevelXp: 1000
   }
-];
-
-const difficultyColors = {
-  beginner: 'bg-green-100 text-green-800',
-  intermediate: 'bg-yellow-100 text-yellow-800',
-  advanced: 'bg-red-100 text-red-800'
-};
-
-const typeIcons = {
-  grammar: BookOpen,
-  vocabulary: Target,
-  writing: Zap,
-  comprehension: Play,
-  listening: Play
 };
 
 export default function ExercisesPage() {
-  const [exercises, setExercises] = useState<Exercise[]>(mockExercises);
-  const [filteredExercises, setFilteredExercises] = useState<Exercise[]>(mockExercises);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | 'all'>('all');
-  const [selectedType, setSelectedType] = useState<ExerciseType | 'all'>('all');
-  const [sortBy, setSortBy] = useState<'difficulty' | 'points' | 'title'>('difficulty');
+  const [currentView, setCurrentView] = useState<'selector' | 'player'>('selector');
+  const [currentExercise, setCurrentExercise] = useState<Exercise | null>(null);
+  const [exerciseStats, setExerciseStats] = useState<ExerciseStats>({
+    totalExercises: 0,
+    completedExercises: 0,
+    averageScore: 0,
+    totalTimeSpent: 0,
+    currentStreak: 0,
+    bestStreak: 0,
+    accuracyRate: 0,
+    level: 1,
+    xp: 0,
+    nextLevelXp: 1000
+  });
+  const [recentResults, setRecentResults] = useState<ExerciseResult[]>([]);
 
-  // Filtrage et recherche
+  // Charger les statistiques depuis le localStorage
   useEffect(() => {
-    let filtered = exercises;
-
-    if (searchTerm) {
-      filtered = filtered.filter(exercise =>
-        exercise.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        exercise.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    const savedStats = localStorage.getItem('exercise-stats');
+    if (savedStats) {
+      setExerciseStats(JSON.parse(savedStats));
     }
 
-    if (selectedDifficulty !== 'all') {
-      filtered = filtered.filter(exercise => exercise.difficulty === selectedDifficulty);
+    const savedResults = localStorage.getItem('exercise-results');
+    if (savedResults) {
+      setRecentResults(JSON.parse(savedResults));
     }
+  }, []);
 
-    if (selectedType !== 'all') {
-      filtered = filtered.filter(exercise => exercise.type === selectedType);
-    }
-
-    // Tri
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'difficulty':
-          const difficultyOrder = { beginner: 1, intermediate: 2, advanced: 3 };
-          return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
-        case 'points':
-          return b.points - a.points;
-        case 'title':
-          return a.title.localeCompare(b.title);
-        default:
-          return 0;
-      }
-    });
-
-    setFilteredExercises(filtered);
-  }, [exercises, searchTerm, selectedDifficulty, selectedType, sortBy]);
-
-  const getDifficultyLabel = (difficulty: Difficulty) => {
-    const labels = {
-      beginner: 'Débutant',
-      intermediate: 'Intermédiaire',
-      advanced: 'Avancé'
-    };
-    return labels[difficulty];
+  // Sauvegarder les statistiques
+  const saveStats = (newStats: ExerciseStats) => {
+    setExerciseStats(newStats);
+    localStorage.setItem('exercise-stats', JSON.stringify(newStats));
   };
 
-  const getTypeLabel = (type: ExerciseType) => {
-    const labels = {
-      grammar: 'Grammaire',
-      vocabulary: 'Vocabulaire',
-      writing: 'Expression écrite',
-      comprehension: 'Compréhension',
-      listening: 'Écoute'
-    };
-    return labels[type];
+  // Sauvegarder les résultats
+  const saveResults = (newResults: ExerciseResult[]) => {
+    setRecentResults(newResults);
+    localStorage.setItem('exercise-results', JSON.stringify(newResults));
   };
+
+  // Sélectionner un exercice
+  const handleSelectExercise = (exercise: Exercise) => {
+    setCurrentExercise(exercise);
+    setCurrentView('player');
+  };
+
+  // Générer un exercice adaptatif
+  const handleGenerateAdaptive = () => {
+    const adaptiveExercise = exerciseGenerator.generateAdaptiveExercise(
+      mockUserProfile,
+      undefined,
+      exerciseGamification.calculateRecommendedDifficulty(exerciseStats)
+    );
+    setCurrentExercise(adaptiveExercise);
+    setCurrentView('player');
+  };
+
+  // Compléter un exercice
+  const handleCompleteExercise = (result: ExerciseResult) => {
+    // Mettre à jour les statistiques
+    const newStats = exerciseGamification.updateExerciseStats(
+      exerciseStats,
+      result,
+      currentExercise?.difficulty || 'beginner'
+    );
+    saveStats(newStats);
+
+    // Ajouter le résultat
+    const newResults = [result, ...recentResults].slice(0, 10); // Garder les 10 derniers
+    saveResults(newResults);
+
+    // Vérifier les achievements
+    const achievements = exerciseGamification.checkAchievements(newStats, result);
+    if (achievements.length > 0) {
+      // Afficher les achievements (à implémenter)
+      console.log('Nouveaux achievements:', achievements);
+    }
+
+    // Retourner à la sélection
+    setCurrentView('selector');
+    setCurrentExercise(null);
+  };
+
+  // Passer un exercice
+  const handleSkipExercise = () => {
+    setCurrentView('selector');
+    setCurrentExercise(null);
+  };
+
+  // Rendu du sélecteur d'exercices
+  const renderSelector = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      {/* Statistiques utilisateur */}
+      <Card className="p-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-blue-600">{exerciseStats.level}</div>
+            <div className="text-sm text-gray-600">Niveau</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-green-600">{exerciseStats.xp}</div>
+            <div className="text-sm text-gray-600">XP</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-orange-600">{exerciseStats.currentStreak}</div>
+            <div className="text-sm text-gray-600">Série</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-purple-600">
+              {Math.round(exerciseStats.accuracyRate * 100)}%
+            </div>
+            <div className="text-sm text-gray-600">Précision</div>
+          </div>
+        </div>
+        
+        {/* Barre de progression XP */}
+        <div className="mt-4">
+          <div className="flex justify-between text-sm text-gray-600 mb-2">
+            <span>Progression vers le niveau {exerciseStats.level + 1}</span>
+            <span>{exerciseStats.xp} / {exerciseStats.nextLevelXp}</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <motion.div
+              className="bg-blue-600 h-2 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ 
+                width: `${(exerciseStats.xp / exerciseStats.nextLevelXp) * 100}%` 
+              }}
+              transition={{ duration: 0.5 }}
+            />
+          </div>
+        </div>
+      </Card>
+
+      <ExerciseSelector
+        userProfile={mockUserProfile}
+        onSelectExercise={handleSelectExercise}
+        onGenerateAdaptive={handleGenerateAdaptive}
+      />
+    </motion.div>
+  );
+
+  // Rendu du lecteur d'exercices
+  const renderPlayer = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      {currentExercise && (
+        <ExercisePlayer
+          exercise={currentExercise}
+          onComplete={handleCompleteExercise}
+          onSkip={handleSkipExercise}
+          mode="practice"
+          showHints={true}
+        />
+      )}
+    </motion.div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      
-      <div className="flex">
-        <Sidebar />
-        
-        <main className="flex-1 ml-64">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="p-6"
-          >
-            {/* En-tête */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Exercices de français
-              </h1>
+      {/* En-tête */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Exercices</h1>
               <p className="text-gray-600">
-                Améliorez votre français avec nos exercices interactifs
+                Améliorez votre français avec des exercices adaptatifs
               </p>
             </div>
-
-            {/* Filtres et recherche */}
-            <Card className="p-6 mb-6">
-              <div className="flex flex-col lg:flex-row gap-4">
-                <div className="flex-1">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                    <input
-                      type="text"
-                      placeholder="Rechercher un exercice..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <select
-                    value={selectedDifficulty}
-                    onChange={(e) => setSelectedDifficulty(e.target.value as any)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="all">Tous les niveaux</option>
-                    <option value="beginner">Débutant</option>
-                    <option value="intermediate">Intermédiaire</option>
-                    <option value="advanced">Avancé</option>
-                  </select>
-
-                  <select
-                    value={selectedType}
-                    onChange={(e) => setSelectedType(e.target.value as any)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="all">Tous les types</option>
-                    <option value="grammar">Grammaire</option>
-                    <option value="vocabulary">Vocabulaire</option>
-                    <option value="writing">Expression écrite</option>
-                    <option value="comprehension">Compréhension</option>
-                    <option value="listening">Écoute</option>
-                  </select>
-
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as any)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="difficulty">Trier par difficulté</option>
-                    <option value="points">Trier par points</option>
-                    <option value="title">Trier par titre</option>
-                  </select>
-                </div>
-              </div>
-            </Card>
-
-            {/* Liste des exercices */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <AnimatePresence>
-                {filteredExercises.map((exercise, index) => {
-                  const TypeIcon = typeIcons[exercise.type];
-                  const isCompleted = exercise.isCompleted;
-                  
-                  return (
-                    <motion.div
-                      key={exercise.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <Card className="h-full hover:shadow-lg transition-shadow">
-                        <div className="p-6">
-                          {/* En-tête de la carte */}
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <div className="p-2 bg-blue-100 rounded-lg">
-                                <TypeIcon className="w-5 h-5 text-blue-600" />
-                              </div>
-                              <div>
-                                <h3 className="font-semibold text-gray-900 line-clamp-2">
-                                  {exercise.title}
-                                </h3>
-                                <p className="text-sm text-gray-600">
-                                  {getTypeLabel(exercise.type)}
-                                </p>
-                              </div>
-                            </div>
-
-                            {isCompleted && (
-                              <div className="flex items-center gap-1 text-green-600">
-                                <CheckCircle className="w-5 h-5" />
-                                <span className="text-sm font-medium">Terminé</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Description */}
-                          <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                            {exercise.description}
-                          </p>
-
-                          {/* Métadonnées */}
-                          <div className="flex items-center gap-4 mb-4">
-                            <Badge
-                              className={difficultyColors[exercise.difficulty]}
-                            >
-                              {getDifficultyLabel(exercise.difficulty)}
-                            </Badge>
-
-                            <div className="flex items-center gap-1 text-gray-500">
-                              <Trophy className="w-4 h-4" />
-                              <span className="text-sm">{exercise.points} pts</span>
-                            </div>
-
-                            {exercise.timeLimit && (
-                              <div className="flex items-center gap-1 text-gray-500">
-                                <Clock className="w-4 h-4" />
-                                <span className="text-sm">{exercise.timeLimit}min</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Score si terminé */}
-                          {isCompleted && exercise.score && (
-                            <div className="mb-4">
-                              <div className="flex items-center justify-between text-sm mb-1">
-                                <span className="text-gray-600">Score</span>
-                                <span className="font-medium">{exercise.score}%</span>
-                              </div>
-                              <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div
-                                  className="bg-green-500 h-2 rounded-full"
-                                  style={{ width: `${exercise.score}%` }}
-                                />
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Instructions */}
-                          <p className="text-xs text-gray-500 mb-4 line-clamp-2">
-                            {exercise.instructions}
-                          </p>
-
-                          {/* Bouton d'action */}
-                          <Link href={`/exercises/${exercise.id}`}>
-                            <Button
-                              className="w-full"
-                              variant={isCompleted ? "outline" : "default"}
-                            >
-                              {isCompleted ? (
-                                <>
-                                  <Play className="w-4 h-4 mr-2" />
-                                  Recommencer
-                                </>
-                              ) : (
-                                <>
-                                  <Play className="w-4 h-4 mr-2" />
-                                  Commencer
-                                </>
-                              )}
-                            </Button>
-                          </Link>
-                        </div>
-                      </Card>
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-            </div>
-
-            {/* Message si aucun exercice trouvé */}
-            {filteredExercises.length === 0 && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center py-12"
+            
+            {currentView === 'player' && (
+              <Button
+                onClick={handleSkipExercise}
+                variant="outline"
+                className="flex items-center gap-2"
               >
-                <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Aucun exercice trouvé
-                </h3>
-                <p className="text-gray-600">
-                  Essayez de modifier vos critères de recherche
-                </p>
-              </motion.div>
+                ← Retour à la sélection
+              </Button>
             )}
-          </motion.div>
-        </main>
+          </div>
+        </div>
+      </div>
+
+      {/* Contenu principal */}
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        <AnimatePresence mode="wait">
+          {currentView === 'selector' ? renderSelector() : renderPlayer()}
+        </AnimatePresence>
       </div>
     </div>
   );

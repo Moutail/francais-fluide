@@ -46,21 +46,17 @@ export interface Exercise {
   description: string;
   type: ExerciseType;
   difficulty: Difficulty;
-  category: string;
-  instructions: string;
+  estimatedTime: number; // en minutes
   content: ExerciseContent;
-  expectedResult?: string;
-  hints?: string[];
-  timeLimit?: number; // en minutes
-  points: number;
-  isCompleted?: boolean;
-  completedAt?: Date;
-  score?: number;
+  questions: Question[];
+  scoring: ExerciseScoring;
+  tags?: string[];
+  category?: string;
 }
 
 export interface ExerciseContent {
   text?: string;
-  questions?: Question[];
+  instructions?: string;
   audioUrl?: string;
   imageUrl?: string;
   options?: string[];
@@ -68,11 +64,34 @@ export interface ExerciseContent {
 
 export interface Question {
   id: string;
+  type: 'multiple-choice' | 'fill-blank' | 'correction' | 'true-false' | 'open-ended';
   text: string;
-  type: 'multiple-choice' | 'fill-in-the-blank' | 'true-false' | 'open-ended';
+  correctAnswer: string;
   options?: string[];
-  correctAnswer?: string | string[];
   explanation?: string;
+}
+
+export interface ExerciseScoring {
+  maxPoints: number;
+  timeBonus: number;
+  accuracyWeight: number;
+}
+
+export interface ExerciseAnswer {
+  questionId: string;
+  answer: string;
+  isCorrect: boolean;
+  timeSpent: number;
+}
+
+export interface ExerciseResult {
+  exerciseId: string;
+  score: number;
+  maxScore: number;
+  timeSpent: number; // en secondes
+  answers: ExerciseAnswer[];
+  completedAt: string;
+  accuracy: number;
 }
 
 // Types pour la progression
