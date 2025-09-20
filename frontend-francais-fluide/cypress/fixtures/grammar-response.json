@@ -1,0 +1,36 @@
+{
+  "success": true,
+  "data": {
+    "text": "il manger du pain",
+    "errors": [
+      {
+        "offset": 0,
+        "length": 6,
+        "message": "Le verbe \"manger\" n'est pas conjugué avec \"il\"",
+        "replacements": ["mange"],
+        "rule": {
+          "id": "conjugaison-3p-singulier",
+          "category": "grammar",
+          "severity": "critical"
+        },
+        "context": {
+          "text": "manger",
+          "offset": 0,
+          "length": 6
+        }
+      }
+    ],
+    "statistics": {
+      "wordCount": 3,
+      "sentenceCount": 1,
+      "averageWordLength": 4.3,
+      "averageSentenceLength": 3,
+      "errorCount": 1,
+      "errorDensity": 0.33,
+      "errorsByCategory": {
+        "grammar": 1
+      },
+      "readabilityScore": 85
+    }
+  }
+}

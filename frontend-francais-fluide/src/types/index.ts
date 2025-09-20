@@ -3,6 +3,7 @@ export * from './user';
 export * from './grammar';
 export * from './gamification';
 export * from './api';
+export * from './persistence';
 
 // Types communs
 export interface ApiResponse<T = any> {

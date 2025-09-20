@@ -1,0 +1,38 @@
+{
+  "success": true,
+  "data": {
+    "userId": "test-user",
+    "totalPoints": 150,
+    "currentLevel": 2,
+    "pointsToNextLevel": 150,
+    "streakDays": 3,
+    "perfectStreak": 2,
+    "accuracyRate": 85,
+    "statistics": {
+      "wordsWritten": 500,
+      "exercisesCompleted": 15,
+      "errorsCorrected": 25,
+      "achievementsUnlocked": 3
+    },
+    "weeklyProgress": [
+      {
+        "date": "2024-01-01",
+        "points": 20,
+        "exercises": 2,
+        "words": 100
+      },
+      {
+        "date": "2024-01-02",
+        "points": 25,
+        "exercises": 3,
+        "words": 150
+      },
+      {
+        "date": "2024-01-03",
+        "points": 30,
+        "exercises": 4,
+        "words": 200
+      }
+    ]
+  }
+}
