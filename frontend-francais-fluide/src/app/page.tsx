@@ -21,6 +21,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { SmartEditor } from '@/components/editor/SmartEditor';
+import { Navbar } from '@/components/navigation/Navbar';
 import { cn } from '@/lib/utils/cn';
 
 interface Feature {
@@ -91,69 +92,11 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
-      {/* Header animé */}
-      <motion.header
-        style={{ y: headerY, opacity: headerOpacity }}
-        className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200/50"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <motion.div 
-              className="flex items-center gap-2"
-              whileHover={{ scale: 1.05 }}
-            >
-              <div className="relative">
-                <Sparkles className="w-8 h-8 text-blue-600" />
-                <motion.div
-                  className="absolute inset-0"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                >
-                  <Sparkles className="w-8 h-8 text-blue-400 opacity-50" />
-                </motion.div>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                FrançaisFluide
-              </span>
-            </motion.div>
-
-            <nav className="hidden md:flex items-center gap-6">
-              <motion.a 
-                href="#features" 
-                className="text-gray-600 hover:text-gray-900 transition-colors"
-                whileHover={{ y: -2 }}
-              >
-                Fonctionnalités
-              </motion.a>
-              <motion.a 
-                href="#progress" 
-                className="text-gray-600 hover:text-gray-900 transition-colors"
-                whileHover={{ y: -2 }}
-              >
-                Progression
-              </motion.a>
-              <motion.a 
-                href="#exercises" 
-                className="text-gray-600 hover:text-gray-900 transition-colors"
-                whileHover={{ y: -2 }}
-              >
-                Exercices
-              </motion.a>
-            </nav>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium shadow-lg shadow-blue-500/25"
-            >
-              Se connecter
-            </motion.button>
-          </div>
-        </div>
-      </motion.header>
+      {/* Navigation */}
+      <Navbar currentPage="/" />
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+      <section className="pt-20 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -223,6 +166,7 @@ export default function HomePage() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => window.location.href = '/demo'}
                 className="px-8 py-4 bg-white text-gray-900 rounded-xl font-semibold text-lg border-2 border-gray-200 hover:border-gray-300 transition-colors flex items-center gap-2"
               >
                 <BookOpen className="w-5 h-5" />
@@ -256,7 +200,7 @@ export default function HomePage() {
                   >
                     {stat.value}
                   </motion.div>
-                  {stat.trend > 0 && (
+                  {stat.trend && stat.trend > 0 && (
                     <motion.div
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -402,6 +346,7 @@ export default function HomePage() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => window.location.href = '/auth/login'}
             className="px-8 py-4 bg-white text-blue-600 rounded-xl font-semibold text-lg shadow-2xl"
           >
             Commencer gratuitement

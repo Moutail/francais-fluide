@@ -1,415 +1,246 @@
-# 🚀 FrançaisFluide - Application d'Apprentissage Intelligent du Français
+# 🇫🇷 FrançaisFluide
 
-[![Next.js](https://img.shields.io/badge/Next.js-14.2-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC)](https://tailwindcss.com/)
-[![React](https://img.shields.io/badge/React-18.3-61DAFB)](https://reactjs.org/)
+**L'application intelligente qui transforme l'apprentissage du français en une expérience intuitive et engageante.**
 
-Une application révolutionnaire qui transforme l'apprentissage du français en une expérience intuitive et engageante grâce à l'IA adaptative, la gamification et des corrections en temps réel.
+## 🚀 Fonctionnalités
 
-## ✨ Fonctionnalités principales
+### ✨ Interface Moderne
+- **Design responsive** qui s'adapte à tous les écrans
+- **Animations fluides** avec Framer Motion
+- **Navigation intuitive** avec indicateurs visuels
+- **Thème cohérent** avec gradients et effets visuels
 
-- **🤖 Correction IA en temps réel** - Détection et correction instantanée des fautes pendant la frappe
-- **🎮 Gamification complète** - Système de niveaux, achievements, missions quotidiennes
-- **📊 Analyse adaptative** - Apprentissage personnalisé selon vos forces et faiblesses
-- **⚡ Performance optimale** - Interface ultra-rapide avec animations fluides
-- **🎨 Design moderne** - Interface intuitive avec mode sombre/clair
-- **📱 Responsive** - Fonctionne parfaitement sur tous les appareils
-- **🔄 Synchronisation temps réel** - WebSocket pour collaboration et sync multi-appareils
-- **📈 Statistiques détaillées** - Suivi complet de votre progression
+### 🧠 IA Avancée
+- **Correction en temps réel** avec suggestions intelligentes
+- **Assistant conversationnel** pour répondre aux questions
+- **Génération d'exercices** personnalisés
+- **Analyse de progression** avec métriques détaillées
 
-## 🛠️ Stack Technique
+### 📚 Apprentissage Gamifié
+- **Système de points** et de niveaux
+- **Défis quotidiens** et objectifs personnalisés
+- **Succès et récompenses** pour motiver l'apprentissage
+- **Suivi de progression** avec graphiques interactifs
 
-### Frontend
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript 5.4
-- **Styling**: Tailwind CSS 3.4
-- **State**: Zustand avec persistence
-- **Animations**: Framer Motion 11
-- **Data Fetching**: TanStack Query v5
-- **Forms**: React Hook Form + Zod
-- **Charts**: Recharts
-- **Icons**: Lucide React
+### 🎯 Exercices Adaptatifs
+- **Types variés** : grammaire, vocabulaire, conjugaison, orthographe
+- **Niveaux de difficulté** adaptés au profil utilisateur
+- **Feedback immédiat** avec explications pédagogiques
+- **Exercices personnalisés** basés sur les erreurs
 
-### Backend (À implémenter)
-- **Runtime**: Node.js 20+
-- **Framework**: Express/Fastify ou Next.js API Routes
-- **Database**: PostgreSQL + Prisma ORM
-- **Cache**: Redis
-- **WebSocket**: Socket.io
-- **Auth**: NextAuth.js ou Supabase Auth
+## 🏗️ Architecture
 
-### IA & NLP
-- **Correction**: API Claude/GPT-4 ou LanguageTool
-- **Analyse**: Natural.js pour traitement local
-- **Détection**: Règles regex + ML patterns
+### Frontend (Next.js 14)
+- **App Router** pour la navigation moderne
+- **TypeScript** pour la sécurité des types
+- **Tailwind CSS** pour le styling
+- **Framer Motion** pour les animations
+- **React Query** pour la gestion des données
 
-## 📦 Installation
+### IA et Analytics
+- **OpenAI GPT-4** / **Claude API** pour les corrections avancées
+- **LanguageTool** comme fallback
+- **Sentry** pour le monitoring des erreurs
+- **Google Analytics** / **Plausible** pour les analytics
+
+### Performance
+- **Code splitting** automatique
+- **Lazy loading** des composants
+- **Optimisation des images** avec Next.js
+- **Cache intelligent** pour les corrections IA
+
+## 🛠️ Installation
 
 ### Prérequis
-- Node.js 18+ et npm/yarn/pnpm
+- Node.js 18+ 
+- npm ou yarn
 - Git
-- Éditeur de code (VS Code recommandé)
 
-### 1. Cloner le repository
+### Installation rapide
 
 ```bash
+# Cloner le projet
 git clone https://github.com/votre-username/francais-fluide.git
-cd francais-fluide
-```
+cd francais-fluide/frontend-francais-fluide
 
-### 2. Installer les dépendances
-
-```bash
+# Installer les dépendances
 npm install
-# ou
-yarn install
-# ou
-pnpm install
-```
 
-### 3. Configuration de l'environnement
-
-Créez un fichier `.env.local` à la racine du projet :
-
-```env
-# API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:3000/api
-NEXT_PUBLIC_WEBSOCKET_URL=ws://localhost:3001
-
-# Authentication
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your-secret-key-generate-with-openssl
-
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/francais_fluide
-
-# External Services (optionnel pour commencer)
-OPENAI_API_KEY=your-openai-key
-CLAUDE_API_KEY=your-claude-key
-
-# Analytics (optionnel)
-NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
-```
-
-### 4. Lancer le serveur de développement
-
-```bash
+# Lancer en développement
 npm run dev
-# ou
-yarn dev
-# ou
-pnpm dev
 ```
 
-Ouvrez [http://localhost:3000](http://localhost:3000) dans votre navigateur.
+L'application sera accessible sur [http://localhost:3000](http://localhost:3000)
 
-## 🏗️ Architecture du Projet
+## 📱 Pages Disponibles
 
-```
-francais-fluide/
-├── src/
-│   ├── app/                    # Pages et layouts Next.js
-│   │   ├── layout.tsx          # Layout principal
-│   │   ├── page.tsx            # Page d'accueil
-│   │   ├── dashboard/          # Dashboard utilisateur
-│   │   ├── editor/             # Éditeur intelligent
-│   │   └── api/                # API Routes
-│   │
-│   ├── components/             # Composants React
-│   │   ├── editor/             # Composants éditeur
-│   │   ├── gamification/       # Composants gamification
-│   │   ├── feedback/           # Composants feedback
-│   │   └── ui/                 # Composants UI de base
-│   │
-│   ├── lib/                    # Logique métier
-│   │   ├── grammar/            # Moteur de détection
-│   │   ├── ai/                 # Intégration IA
-│   │   ├── api/                # Client API
-│   │   └── utils/              # Utilitaires
-│   │
-│   ├── hooks/                  # Custom React hooks
-│   ├── store/                  # Stores Zustand
-│   ├── types/                  # Types TypeScript
-│   └── constants/              # Constantes
-│
-├── public/                     # Assets statiques
-├── tests/                      # Tests
-└── [fichiers config]           # Configuration
-```
+### 🏠 Page d'Accueil (`/`)
+- Présentation des fonctionnalités
+- Statistiques animées
+- Démonstration interactive
+- Appels à l'action
 
-## 🚀 Démarrage Rapide
+### 📊 Progression (`/progression`)
+- Tableau de bord complet
+- Graphiques de progression
+- Objectifs et défis
+- Succès et récompenses
 
-### Étape 1 : Explorer l'éditeur intelligent
+### 📚 Exercices (`/exercices`)
+- Catalogue d'exercices
+- Filtres par type et difficulté
+- Interface d'exercice interactive
+- Résultats et explications
 
-1. Cliquez sur "Essayer maintenant" sur la page d'accueil
-2. Commencez à taper du texte avec des fautes volontaires
-3. Observez les corrections en temps réel
-4. Cliquez sur les suggestions pour les appliquer
+### 🎮 Démo Interactive (`/demo`)
+- Parcours guidé des fonctionnalités
+- Exemples pratiques
+- Explications pédagogiques
+- Découverte progressive
 
-### Étape 2 : Tester le système de gamification
+### 🔐 Authentification
+- **Connexion** (`/auth/login`)
+- **Inscription** (`/auth/register`)
+- Validation en temps réel
+- Gestion des erreurs
 
-1. Naviguez vers le Dashboard
-2. Consultez vos statistiques et progression
-3. Complétez des missions quotidiennes
-4. Débloquez des achievements
+## 🎨 Navigation
 
-### Étape 3 : Personnaliser l'expérience
+### Barre de Navigation
+- **Logo animé** avec effet de rotation
+- **Menu responsive** avec animations
+- **Indicateurs d'état** pour la page active
+- **Menu utilisateur** avec actions rapides
 
-1. Accédez aux paramètres
-2. Ajustez le niveau de difficulté
-3. Activez/désactivez les fonctionnalités
-4. Choisissez vos domaines de focus
+### Navigation Mobile
+- **Menu hamburger** avec animations
+- **Navigation tactile** optimisée
+- **Overlay responsive** pour les sous-menus
 
-## 📝 Développement
+## 🔧 Configuration
 
-### Structure des Commandes
+### Variables d'Environnement
+
+Créez un fichier `.env.local` :
 
 ```bash
-# Développement
-npm run dev              # Lance le serveur de développement
+# APIs IA (optionnel)
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
 
-# Build & Production
-npm run build           # Build pour production
-npm run start           # Lance le serveur de production
+# Monitoring (optionnel)
+NEXT_PUBLIC_SENTRY_DSN=https://...
+NEXT_PUBLIC_GA_ID=G-...
 
-# Qualité du Code
-npm run lint            # Vérifie le linting
-npm run type-check      # Vérifie les types TypeScript
-npm run format          # Formate le code avec Prettier
-
-# Tests
-npm run test            # Lance les tests en mode watch
-npm run test:ci         # Lance les tests en mode CI
+# Base de données (optionnel)
+DATABASE_URL=postgresql://...
+REDIS_URL=redis://...
 ```
 
-### Ajout de Nouvelles Fonctionnalités
+### Configuration IA
 
-#### 1. Créer un nouveau composant
+L'application fonctionne parfaitement sans clés API, mais pour activer les fonctionnalités IA avancées :
 
-```tsx
-// src/components/MonComposant.tsx
-import { FC } from 'react';
-import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils/cn';
-
-interface MonComposantProps {
-  title: string;
-  className?: string;
-}
-
-export const MonComposant: FC<MonComposantProps> = ({ 
-  title, 
-  className 
-}) => {
-  return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className={cn("p-4 rounded-lg", className)}
-    >
-      <h2>{title}</h2>
-    </motion.div>
-  );
-};
-```
-
-#### 2. Ajouter une règle de grammaire
-
-```typescript
-// src/lib/grammar/custom-rules.ts
-export const customRule: GrammarRule = {
-  id: 'ma-regle',
-  category: 'grammar',
-  severity: 'warning',
-  pattern: /pattern/gi,
-  check: (match) => {
-    // Logique de vérification
-    return {
-      message: 'Description de l\'erreur',
-      suggestions: ['suggestion1', 'suggestion2']
-    };
-  }
-};
-```
-
-#### 3. Créer un nouveau store
-
-```typescript
-// src/store/monStore.ts
-import { create } from 'zustand';
-
-interface MonState {
-  value: string;
-  setValue: (value: string) => void;
-}
-
-export const useMonStore = create<MonState>((set) => ({
-  value: '',
-  setValue: (value) => set({ value }),
-}));
-```
-
-## 🔧 Configuration Avancée
-
-### Intégration IA Externe
-
-Pour activer les corrections IA avancées :
-
-1. **OpenAI GPT-4**:
-```typescript
-// src/lib/ai/openai-adapter.ts
-const response = await openai.chat.completions.create({
-  model: "gpt-4-turbo",
-  messages: [{ role: "system", content: prompt }],
-});
-```
-
-2. **Anthropic Claude**:
-```typescript
-// src/lib/ai/claude-adapter.ts
-const response = await anthropic.messages.create({
-  model: "claude-3-opus",
-  messages: [{ role: "user", content: text }],
-});
-```
-
-### Optimisation des Performances
-
-1. **Lazy Loading**:
-```tsx
-const MonComposant = dynamic(() => import('./MonComposant'), {
-  loading: () => <Skeleton />,
-  ssr: false
-});
-```
-
-2. **Mémoïzation**:
-```tsx
-const resultat = useMemo(() => 
-  calculComplexe(data), [data]
-);
-```
-
-3. **Debouncing**:
-```tsx
-const debouncedValue = useDebounce(value, 500);
-```
-
-## 🧪 Tests
-
-### Tests Unitaires
-
-```bash
-npm run test
-```
-
-Exemple de test :
-```typescript
-// __tests__/grammar.test.ts
-import { grammarDetector } from '@/lib/grammar/detector';
-
-describe('Grammar Detector', () => {
-  it('détecte les erreurs d\'accord', () => {
-    const result = grammarDetector.analyze('Un belle maison');
-    expect(result.errors).toHaveLength(1);
-    expect(result.errors[0].message).toContain('accord');
-  });
-});
-```
-
-## 📊 Roadmap
-
-### Phase 1 - MVP (En cours) ✅
-- [x] Éditeur intelligent avec corrections basiques
-- [x] Système de gamification
-- [x] Interface responsive
-- [x] Architecture modulaire
-
-### Phase 2 - Intégration IA 🚧
-- [ ] Intégration GPT-4/Claude pour corrections avancées
-- [ ] Analyse contextuelle profonde
-- [ ] Suggestions de reformulation
-- [ ] Génération d'exercices personnalisés
-
-### Phase 3 - Backend & Multi-utilisateurs 📋
-- [ ] API REST complète
-- [ ] Base de données PostgreSQL
-- [ ] Authentification sécurisée
-- [ ] Synchronisation temps réel
-- [ ] Mode collaboratif
-
-### Phase 4 - Mobile & Offline 📱
-- [ ] Application mobile React Native
-- [ ] Mode hors-ligne avec sync
-- [ ] PWA avec service workers
-- [ ] Notifications push
-
-### Phase 5 - Analytics & ML 📈
-- [ ] Dashboard analytics avancé
-- [ ] Modèle ML personnalisé
-- [ ] Prédiction des difficultés
-- [ ] Recommandations adaptatives
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! Pour contribuer :
-
-1. Fork le projet
-2. Créez votre branche (`git checkout -b feature/AmazingFeature`)
-3. Committez vos changements (`git commit -m 'Add AmazingFeature'`)
-4. Push vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrez une Pull Request
-
-### Guidelines de Contribution
-
-- Suivre les conventions de code TypeScript/React
-- Écrire des tests pour les nouvelles fonctionnalités
-- Documenter les changements significatifs
-- Utiliser les conventional commits
-
-## 📄 Licence
-
-Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
-
-## 🙏 Remerciements
-
-- L'équipe Next.js pour le framework incroyable
-- Vercel pour l'hébergement et les outils
-- La communauté open-source pour les librairies utilisées
-- Tous les contributeurs du projet
-
-## 📞 Support
-
-- **Documentation**: [docs.francaisfluide.com](https://docs.francaisfluide.com)
-- **Issues**: [GitHub Issues](https://github.com/votre-username/francais-fluide/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/votre-username/francais-fluide/discussions)
-- **Email**: support@francaisfluide.com
+1. **OpenAI** : Obtenez une clé sur [platform.openai.com](https://platform.openai.com)
+2. **Claude** : Obtenez une clé sur [console.anthropic.com](https://console.anthropic.com)
+3. **LanguageTool** : Utilisé automatiquement comme fallback
 
 ## 🚀 Déploiement
 
 ### Vercel (Recommandé)
+```bash
+# Installer Vercel CLI
+npm i -g vercel
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/votre-username/francais-fluide)
+# Déployer
+vercel
+```
 
 ### Docker
-
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-RUN npm run build
-EXPOSE 3000
-CMD ["npm", "start"]
-```
-
 ```bash
-docker build -t francais-fluide .
-docker run -p 3000:3000 francais-fluide
+# Build de l'image
+docker build -f Dockerfile.production -t francais-fluide .
+
+# Lancement avec Docker Compose
+docker-compose up -d
 ```
+
+### Variables de Production
+- Configurez les variables d'environnement sur votre plateforme
+- Activez les services de monitoring
+- Configurez les CDN pour les assets
+
+## 📊 Monitoring
+
+### Métriques Disponibles
+- **Performance** : Web Vitals, temps de chargement
+- **Utilisation** : Pages vues, interactions utilisateur
+- **Erreurs** : Tracking automatique avec Sentry
+- **IA** : Coûts, quotas, taux de succès
+
+### Dashboards
+- **Performance** : Métriques en temps réel
+- **Analytics** : Comportement utilisateur
+- **IA** : Monitoring des APIs et coûts
+- **Système** : Santé de l'application
+
+## 🧪 Tests
+
+### Tests Unitaires
+```bash
+npm run test
+```
+
+### Tests E2E
+```bash
+npm run test:e2e
+```
+
+### Couverture de Code
+```bash
+npm run test:coverage
+```
+
+## 🤝 Contribution
+
+### Structure du Projet
+```
+src/
+├── app/                 # Pages Next.js
+├── components/          # Composants React
+│   ├── editor/         # Éditeur intelligent
+│   ├── navigation/     # Navigation
+│   └── ui/             # Composants UI
+├── lib/                # Utilitaires
+│   ├── ai/            # Intégrations IA
+│   ├── grammar/       # Moteur de correction
+│   ├── monitoring/    # Monitoring
+│   └── performance/   # Optimisations
+└── hooks/              # Hooks React
+```
+
+### Guidelines
+- **TypeScript** strict
+- **ESLint** et **Prettier** configurés
+- **Conventional Commits** pour les messages
+- **Tests** requis pour les nouvelles fonctionnalités
+
+## 📄 Licence
+
+MIT License - Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+
+## 🆘 Support
+
+### Documentation
+- **Guide utilisateur** : [docs/user-guide.md](docs/user-guide.md)
+- **Guide développeur** : [docs/developer-guide.md](docs/developer-guide.md)
+- **API Reference** : [docs/api.md](docs/api.md)
+
+### Contact
+- **Issues** : [GitHub Issues](https://github.com/votre-username/francais-fluide/issues)
+- **Discussions** : [GitHub Discussions](https://github.com/votre-username/francais-fluide/discussions)
+- **Email** : support@francais-fluide.com
 
 ---
 
-**Fait avec ❤️ pour améliorer l'apprentissage du français**
+**Fait avec ❤️ pour l'apprentissage du français**

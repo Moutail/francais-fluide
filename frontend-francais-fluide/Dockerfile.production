@@ -1,0 +1,77 @@
+# Dockerfile de production pour FrançaisFluide
+# Optimisé pour Vercel et déploiements cloud
+
+# Stage 1: Build
+FROM node:18-alpine AS builder
+
+# Installer les dépendances système
+RUN apk add --no-cache libc6-compat
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Copier les fichiers de configuration
+COPY package*.json ./
+COPY next.config.production.mjs ./next.config.mjs
+
+# Installer les dépendances
+RUN npm ci --only=production --silent
+
+# Copier le code source
+COPY . .
+
+# Variables d'environnement pour le build
+ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV production
+
+# Build de l'application
+RUN npm run build
+
+# Stage 2: Production
+FROM node:18-alpine AS runner
+
+# Installer les dépendances système
+RUN apk add --no-cache \
+    curl \
+    dumb-init \
+    && addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 nextjs
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Variables d'environnement
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+ENV PORT 3000
+
+# Créer les répertoires nécessaires
+RUN mkdir -p /app/logs /app/tmp
+
+# Copier les fichiers nécessaires depuis le builder
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+# Copier les scripts et configurations
+COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/package.json ./package.json
+
+# Changer les permissions
+RUN chown -R nextjs:nodejs /app
+USER nextjs
+
+# Exposer le port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
+
+# Script de démarrage
+COPY --chown=nextjs:nodejs scripts/start.sh ./start.sh
+RUN chmod +x ./start.sh
+
+# Point d'entrée
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["./start.sh"]
