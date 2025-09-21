@@ -17,7 +17,7 @@ import {
   Zap,
   BookOpen
 } from 'lucide-react';
-import { Navbar } from '@/components/navigation/Navbar';
+import Navigation from '@/components/layout/Navigation';
 import { cn } from '@/lib/utils/cn';
 
 interface DemoStep {
@@ -132,7 +132,7 @@ export default function DemoPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       {/* Navigation */}
-      <Navbar currentPage="/demo" />
+      <Navigation />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Contrôles */}

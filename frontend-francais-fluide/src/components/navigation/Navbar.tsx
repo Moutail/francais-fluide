@@ -12,15 +12,18 @@ import {
   Settings,
   TrendingUp,
   BookOpen,
-  Target
+  Target,
+  Crown
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
+import { SimpleAIAssistant } from '@/components/ai/SimpleAIAssistant';
 
 interface NavbarProps {
   currentPage?: string;
+  userPlan?: string;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
+export const Navbar: React.FC<NavbarProps> = ({ currentPage, userPlan = 'free' }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
@@ -29,6 +32,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
     { name: 'Progression', href: '/progression', icon: TrendingUp },
     { name: 'Exercices', href: '/exercices', icon: BookOpen },
     { name: 'Démo', href: '/demo', icon: Target },
+    { name: 'Abonnements', href: '/subscription', icon: Crown },
   ];
 
   const isActive = (href: string) => {
@@ -191,6 +195,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Assistant IA Widget */}
+      <SimpleAIAssistant userPlan={userPlan} />
     </motion.header>
   );
 };

@@ -1,5 +1,5 @@
 // src/components/editor/SmartEditor.tsx
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { AlertCircle, CheckCircle, Lightbulb } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';

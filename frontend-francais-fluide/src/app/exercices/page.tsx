@@ -19,7 +19,8 @@ import {
   Zap,
   Award
 } from 'lucide-react';
-import { Navbar } from '@/components/navigation/Navbar';
+import Navigation from '@/components/layout/Navigation';
+import { useAuth } from '@/hooks/useApi';
 import { cn } from '@/lib/utils/cn';
 
 interface Exercise {
@@ -44,6 +45,7 @@ interface Question {
 }
 
 export default function ExercicesPage() {
+  const { isAuthenticated, loading } = useAuth();
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -52,6 +54,28 @@ export default function ExercicesPage() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [completedQuestions, setCompletedQuestions] = useState<Set<number>>(new Set());
+
+  // Rediriger les utilisateurs non connectés
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      window.location.href = '/auth/login';
+    }
+  }, [loading, isAuthenticated]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const [exercises] = useState<Exercise[]>([
     {
@@ -386,7 +410,7 @@ export default function ExercicesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       {/* Navigation */}
-      <Navbar currentPage="/exercices" />
+      <Navigation />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Filtres */}

@@ -1,0 +1,189 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  progress      UserProgress?
+  subscription  Subscription?
+  achievements  UserAchievement[]
+  submissions   ExerciseSubmission[]
+  conversations Conversation[]
+  usageLogs     UsageLog[]
+
+  @@map("users")
+}
+
+model UserProgress {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  wordsWritten     Int      @default(0)
+  accuracy         Float    @default(0)
+  timeSpent        Int      @default(0) // en minutes
+  exercisesCompleted Int    @default(0)
+  currentStreak    Int      @default(0)
+  level            Int      @default(1)
+  xp               Int      @default(0)
+  lastActivity     DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievements UserAchievement[]
+
+  @@map("user_progress")
+}
+
+model Subscription {
+  id                    String    @id @default(cuid())
+  userId                String    @unique
+  plan                  String    // demo, etudiant, premium, etablissement
+  status                String    // active, pending, cancelled, expired
+  startDate             DateTime
+  endDate               DateTime
+  stripeSubscriptionId  String?
+  stripePaymentIntentId String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  type        String   // words_written, exercises_completed, streak, level, accuracy
+  threshold   Int
+  icon        String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  userAchievements UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  achievementId String
+  earnedAt      DateTime    @default(now())
+
+  // Relations
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  progress    UserProgress? @relation(fields: [userId], references: [userId])
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+model Exercise {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  type        String   // grammar, vocabulary, conjugation, comprehension
+  level       Int      @default(1)
+  difficulty  String   // easy, medium, hard
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  questions   Question[]
+  submissions ExerciseSubmission[]
+
+  @@map("exercises")
+}
+
+model Question {
+  id          String   @id @default(cuid())
+  exerciseId  String
+  question    String
+  options     Json     // Array of options
+  correctAnswer String
+  explanation String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  // Relations
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@map("questions")
+}
+
+model ExerciseSubmission {
+  id          String   @id @default(cuid())
+  userId      String
+  exerciseId  String
+  answers     String   // JSON string of answers
+  score       Int      // Score out of 100
+  timeSpent   Int      @default(0) // en secondes
+  completedAt DateTime @default(now())
+
+  // Relations
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@map("exercise_submissions")
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  role           String   // user, assistant
+  content        String
+  context        String?  // JSON string of context
+  createdAt      DateTime @default(now())
+
+  // Relations
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model UsageLog {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // correction, exercise, ai_chat
+  details   Json?    // Additional details
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("usage_logs")
+}

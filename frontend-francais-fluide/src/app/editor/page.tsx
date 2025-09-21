@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { SmartEditor } from '@/components/editor/SmartEditor';
 // import { EditorToolbar } from '@/components/editor/EditorToolbar';
-import { Header } from '@/components/layout/Header';
+import Navigation from '@/components/layout/Navigation';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Card, Button } from '@/components/ui';
 import { Save, Download, Share2, Settings, RotateCcw } from 'lucide-react';
@@ -42,7 +42,7 @@ export default function EditorPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Navigation />
       
       <div className="flex">
         <Sidebar />

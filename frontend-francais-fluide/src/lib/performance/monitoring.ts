@@ -367,7 +367,7 @@ class PerformanceMonitor {
     Component: T,
     componentName: string
   ): T {
-    return React.forwardRef((props, ref) => {
+    const Monitored = React.forwardRef((props, ref) => {
       const startTime = performance.now();
       const [renderCount, setRenderCount] = React.useState(0);
 
@@ -382,10 +382,12 @@ class PerformanceMonitor {
         });
 
         setRenderCount(prev => prev + 1);
-      });
+      }, [startTime, renderCount]);
 
       return React.createElement(Component, { ...props, ref });
-    }) as T;
+    });
+    Monitored.displayName = `Monitored(${componentName})`;
+    return Monitored as unknown as T;
   }
 
   /**

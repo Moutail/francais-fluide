@@ -164,17 +164,17 @@ class IntelligentLazyLoader {
     const Component = entry.component;
     const config = entry.config;
 
-    return (
-      <Suspense fallback={fallback || config.fallback || this.getDefaultFallback()}>
-        <LazyLoadWrapper
-          id={id}
-          component={Component}
-          props={props}
-          config={config}
-          onLoad={() => this.handleComponentLoad(id)}
-          onError={(error) => this.handleComponentError(id, error)}
-        />
-      </Suspense>
+    return React.createElement(
+      Suspense,
+      { fallback: fallback || config.fallback || this.getDefaultFallback() },
+      React.createElement(LazyLoadWrapper, {
+        id,
+        component: Component,
+        props,
+        config,
+        onLoad: () => this.handleComponentLoad(id),
+        onError: (error: Error) => this.handleComponentError(id, error),
+      })
     );
   }
 
@@ -377,20 +377,19 @@ class IntelligentLazyLoader {
    * Obtient le fallback par défaut
    */
   private getDefaultFallback(): ReactElement {
-    return React.createElement('div', {
-      className: 'flex items-center justify-center p-4',
-      children: [
-        React.createElement('div', {
-          key: 'spinner',
-          className: 'animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'
-        }),
-        React.createElement('span', {
-          key: 'text',
-          className: 'ml-2 text-gray-600',
-          children: 'Chargement...'
-        })
-      ]
-    });
+    return React.createElement(
+      'div',
+      { className: 'flex items-center justify-center p-4' },
+      React.createElement('div', {
+        key: 'spinner',
+        className: 'animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'
+      }),
+      React.createElement(
+        'span',
+        { key: 'text', className: 'ml-2 text-gray-600' },
+        'Chargement...'
+      )
+    );
   }
 
   /**

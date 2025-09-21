@@ -75,7 +75,7 @@ const VirtualizedListItem = memo<{
 VirtualizedListItem.displayName = 'VirtualizedListItem';
 
 // Composant de liste virtualisée principale
-export const VirtualizedList = memo(<T extends any>({
+export const VirtualizedList = memo(<T,>({
   items,
   itemHeight = 50,
   itemRenderer,
@@ -338,7 +338,7 @@ export const VirtualizedExercisesList = memo<{
 VirtualizedExercisesList.displayName = 'VirtualizedExercisesList';
 
 // Hook pour utiliser la virtualisation
-export const useVirtualization = <T extends any>(
+export const useVirtualization = <T,>(
   items: T[],
   options: {
     itemHeight?: number;
