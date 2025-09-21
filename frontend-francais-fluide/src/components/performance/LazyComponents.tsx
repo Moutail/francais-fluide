@@ -129,35 +129,50 @@ intelligentLazyLoader.registerComponent(
 );
 
 // Composants lazy avec React.lazy pour compatibilité
-export const LazySmartEditor = lazy(() => 
-  import('@/components/editor/SmartEditorOptimized').catch(() => ({
-    default: () => <ErrorFallback message="Éditeur intelligent non disponible" />
-  }))
-);
+export const LazySmartEditor = lazy(async () => {
+  try {
+    const mod = await import('@/components/editor/SmartEditorOptimized');
+    return { default: mod.default };
+  } catch {
+    return { default: () => <ErrorFallback message="Éditeur intelligent non disponible" /> };
+  }
+});
 
-export const LazyAnalyticsDashboard = lazy(() =>
-  import('@/components/analytics/AnalyticsDashboard').catch(() => ({
-    default: () => <ErrorFallback message="Tableau de bord non disponible" />
-  }))
-);
+export const LazyAnalyticsDashboard = lazy(async () => {
+  try {
+    const mod = await import('@/components/analytics/AnalyticsDashboard');
+    return { default: mod.default };
+  } catch {
+    return { default: () => <ErrorFallback message="Tableau de bord non disponible" /> };
+  }
+});
 
-export const LazyExercisePlayer = lazy(() =>
-  import('@/components/exercises/ExercisePlayer').catch(() => ({
-    default: () => <ErrorFallback message="Lecteur d'exercices non disponible" />
-  }))
-);
+export const LazyExercisePlayer = lazy(async () => {
+  try {
+    const mod = await import('@/components/exercises/ExercisePlayer');
+    return { default: mod.default };
+  } catch {
+    return { default: () => <ErrorFallback message="Lecteur d'exercices non disponible" /> };
+  }
+});
 
-export const LazyProgressDashboard = lazy(() =>
-  import('@/components/gamification/ProgressDashboard').catch(() => ({
-    default: () => <ErrorFallback message="Tableau de progression non disponible" />
-  }))
-);
+export const LazyProgressDashboard = lazy(async () => {
+  try {
+    const mod = await import('@/components/gamification/ProgressDashboard');
+    return { default: mod.default };
+  } catch {
+    return { default: () => <ErrorFallback message="Tableau de progression non disponible" /> };
+  }
+});
 
-export const LazyCollaborativeEditor = lazy(() =>
-  import('@/components/editor/CollaborativeEditor').catch(() => ({
-    default: () => <ErrorFallback message="Éditeur collaboratif non disponible" />
-  }))
-);
+export const LazyCollaborativeEditor = lazy(async () => {
+  try {
+    const mod = await import('@/components/editor/CollaborativeEditor');
+    return { default: mod.default };
+  } catch {
+    return { default: () => <ErrorFallback message="Éditeur collaboratif non disponible" /> };
+  }
+});
 
 // Composants avec préchargement intelligent
 export const LazyCharts = lazy(() =>

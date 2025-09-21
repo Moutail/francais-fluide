@@ -4,8 +4,12 @@ export interface GrammarError {
   type: 'spelling' | 'grammar' | 'punctuation' | 'style';
   severity: 'critical' | 'warning' | 'suggestion';
   message: string;
-  start: number;
-  end: number;
+  start?: number;
+  end?: number;
+  offset?: number;
+  length?: number;
+  rule?: { id?: string; description?: string };
+  replacements?: string[];
   suggestions: string[];
   explanation?: string;
 }

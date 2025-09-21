@@ -47,12 +47,18 @@ export interface Exercise {
   description: string;
   type: ExerciseType;
   difficulty: Difficulty;
-  estimatedTime: number; // en minutes
+  estimatedTime?: number; // en minutes
   content: ExerciseContent;
-  questions: Question[];
-  scoring: ExerciseScoring;
+  scoring?: ExerciseScoring;
   tags?: string[];
   category?: string;
+  // Champs utilisés dans le code
+  instructions?: string;
+  points?: number;
+  timeLimit?: number;
+  isCompleted?: boolean;
+  completedAt?: Date;
+  score?: number;
 }
 
 export interface ExerciseContent {
@@ -61,11 +67,12 @@ export interface ExerciseContent {
   audioUrl?: string;
   imageUrl?: string;
   options?: string[];
+  questions?: Question[];
 }
 
 export interface Question {
   id: string;
-  type: 'multiple-choice' | 'fill-blank' | 'correction' | 'true-false' | 'open-ended';
+  type: 'multiple-choice' | 'fill-in-the-blank' | 'correction' | 'true-false' | 'open-ended';
   text: string;
   correctAnswer: string;
   options?: string[];

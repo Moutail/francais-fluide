@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
-import { FixedSizeList as List, VariableSizeList } from 'react-window';
+import { FixedSizeList, VariableSizeList } from 'react-window';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export interface VirtualizedListProps<T> {
@@ -75,7 +75,7 @@ const VirtualizedListItem = memo<{
 VirtualizedListItem.displayName = 'VirtualizedListItem';
 
 // Composant de liste virtualisée principale
-export const VirtualizedList = memo(<T extends any>({
+export const VirtualizedList = memo(<T,>({
   items,
   itemHeight = 50,
   itemRenderer,
@@ -99,7 +99,7 @@ export const VirtualizedList = memo(<T extends any>({
     visibleRange: { start: 0, end: 0 }
   });
 
-  const listRef = useRef<List | VariableSizeList>(null);
+  const listRef = useRef<FixedSizeList | VariableSizeList>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout>();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -203,7 +203,7 @@ export const VirtualizedList = memo(<T extends any>({
   }
 
   // Rendu de la liste virtualisée
-  const ListComponent = variableHeight ? VariableSizeList : List;
+  const ListComponent: any = variableHeight ? VariableSizeList : FixedSizeList;
 
   return (
     <div 
@@ -338,7 +338,7 @@ export const VirtualizedExercisesList = memo<{
 VirtualizedExercisesList.displayName = 'VirtualizedExercisesList';
 
 // Hook pour utiliser la virtualisation
-export const useVirtualization = <T extends any>(
+export const useVirtualization = <T,>(
   items: T[],
   options: {
     itemHeight?: number;

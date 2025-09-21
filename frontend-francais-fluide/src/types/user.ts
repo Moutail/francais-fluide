@@ -11,21 +11,22 @@ export interface UserProfile {
       realTimeCorrection: boolean;
       soundEffects: boolean;
       animations: boolean;
-      difficulty: 'easy' | 'medium' | 'hard';
+      difficulty: 'beginner' | 'intermediate' | 'advanced';
+      exerciseTypes?: Array<'grammar' | 'vocabulary' | 'writing' | 'comprehension' | 'listening'>;
     };
     statistics: UserStatistics;
   }
   
   export interface UserStatistics {
-    totalWords: number;
-    totalErrors: number;
-    totalCorrections: number;
-    accuracyRate: number;
-    dailyStreak: number;
+    totalExercises: number;
+    averageScore: number;
+    totalTimeSpent: number;
+    currentStreak: number;
     bestStreak: number;
-    totalPracticeTime: number;
-    lastPracticeDate: Date;
-    progressByCategory: Record<string, number>;
+    accuracyRate: number;
+    level: number;
+    xp: number;
+    nextLevelXp: number;
   }
   
   // src/types/gamification.ts

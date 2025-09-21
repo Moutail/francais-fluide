@@ -97,7 +97,12 @@ class ErrorTracker {
     try {
       // Import dynamique de Sentry
       const Sentry = await import('@sentry/nextjs');
-      
+      // Charger dynamiquement le router Next pour éviter require()
+      let nextRouter: any | undefined;
+      try {
+        nextRouter = (await import('next/router')).default;
+      } catch {}
+
       Sentry.init({
         dsn: SENTRY_CONFIG.dsn,
         environment: SENTRY_CONFIG.environment,
@@ -106,12 +111,14 @@ class ErrorTracker {
         beforeSend: SENTRY_CONFIG.beforeSend,
         beforeBreadcrumb: SENTRY_CONFIG.beforeBreadcrumb,
         integrations: [
-          new Sentry.BrowserTracing({
-            // Tracing des routes Next.js
-            routingInstrumentation: Sentry.nextjsRouterInstrumentation(
-              require('next/router').default
-            ),
-          }),
+          new Sentry.BrowserTracing(
+            nextRouter
+              ? {
+                  // Tracing des routes Next.js
+                  routingInstrumentation: Sentry.nextjsRouterInstrumentation(nextRouter),
+                }
+              : {}
+          ),
           new Sentry.Replay({
             // Replay des sessions
             maskAllText: false,

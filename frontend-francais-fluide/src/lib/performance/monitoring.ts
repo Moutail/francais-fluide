@@ -203,26 +203,31 @@ class PerformanceMonitor {
     const originalXHROpen = XMLHttpRequest.prototype.open;
     const originalXHRSend = XMLHttpRequest.prototype.send;
 
-    XMLHttpRequest.prototype.open = function(method, url, ...args) {
-      this._startTime = performance.now();
-      return originalXHROpen.call(this, method, url, ...args);
-    };
+    XMLHttpRequest.prototype.open = function(method: string, url: string | URL, async?: boolean, username?: string | null, password?: string | null) {
+      (this as any)._startTime = performance.now();
+      return originalXHROpen.call(this, method, url as any, async as any, username as any, password as any);
+    } as any;
 
-    XMLHttpRequest.prototype.send = function(data) {
+    XMLHttpRequest.prototype.send = function(data?: Document | BodyInit | null) {
       this.addEventListener('loadend', () => {
         const endTime = performance.now();
-        const latency = endTime - (this._startTime || 0);
+        const latency = endTime - ((this as any)._startTime || 0);
         
-        this.updateNetworkMetrics({
-          latency,
-          success: this.status >= 200 && this.status < 300,
-          size: this.getResponseHeader('content-length') ? 
-            parseInt(this.getResponseHeader('content-length')!) : 0
-        });
+        const sizeHeader = this.getResponseHeader('content-length');
+        const size = sizeHeader ? parseInt(sizeHeader) : 0;
+        
+        // Proxy vers updateNetworkMetrics
+        try {
+          (performanceMonitor as any).updateNetworkMetrics({
+            latency,
+            success: this.status >= 200 && this.status < 300,
+            size
+          });
+        } catch {}
       });
 
-      return originalXHRSend.call(this, data);
-    };
+      return originalXHRSend.call(this, data as any);
+    } as any;
   }
 
   /**
@@ -367,7 +372,7 @@ class PerformanceMonitor {
     Component: T,
     componentName: string
   ): T {
-    return React.forwardRef((props, ref) => {
+    const Monitored = React.forwardRef((props, ref) => {
       const startTime = performance.now();
       const [renderCount, setRenderCount] = React.useState(0);
 
@@ -382,10 +387,12 @@ class PerformanceMonitor {
         });
 
         setRenderCount(prev => prev + 1);
-      });
+      }, [startTime, renderCount]);
 
       return React.createElement(Component, { ...props, ref });
-    }) as T;
+    });
+    Monitored.displayName = `Monitored(${componentName})`;
+    return Monitored as unknown as T;
   }
 
   /**
