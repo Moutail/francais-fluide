@@ -36,7 +36,7 @@ const mockUserProfile: UserProfile = {
     realTimeCorrection: true,
     soundEffects: true,
     animations: true,
-    difficulty: 'medium'
+    difficulty: 'intermediate'
   },
   statistics: {
     totalWords: 15420,
@@ -318,9 +318,9 @@ export default function ProfilePage() {
                         disabled={!isEditing}
                         className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
                       >
-                        <option value="easy">Facile</option>
-                        <option value="medium">Moyen</option>
-                        <option value="hard">Difficile</option>
+                        <option value="beginner">Débutant</option>
+                        <option value="intermediate">Intermédiaire</option>
+                        <option value="advanced">Avancé</option>
                       </select>
                     </div>
                   </div>

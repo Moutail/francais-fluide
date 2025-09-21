@@ -47,7 +47,10 @@ let mockUserStatistics: UserStatistics = {
     'Conjugaison': 65,
     'Expression écrite': 80,
     'Compréhension': 85
-  }
+  },
+  completedExercises: 0,
+  xp: 0,
+  nextLevelXp: 1000
 };
 
 // Fonction pour calculer les statistiques à partir des données de progression
@@ -106,7 +109,10 @@ function calculateStatistics(userId: string, progressData: ProgressData[]): User
     bestStreak: Math.max(dailyStreak, 28), // Simulation
     totalPracticeTime: Math.round(totalPracticeTime * 10) / 10,
     lastPracticeDate: userProgress.length > 0 ? userProgress[userProgress.length - 1].completedAt : new Date(),
-    progressByCategory
+    progressByCategory,
+    completedExercises: userProgress.length,
+    xp: Math.min(1000, Math.floor(totalWords / 10)),
+    nextLevelXp: 1000
   };
 }
 

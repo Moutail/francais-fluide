@@ -11,19 +11,27 @@ const mockUserProfile: UserProfile = {
   name: 'Utilisateur Test',
   email: 'test@example.com',
   level: 'intermediate',
+  weaknesses: [],
+  strengths: [],
   preferences: {
     difficulty: 'intermediate',
     exerciseTypes: ['grammar', 'vocabulary'],
+    realTimeCorrection: true,
+    soundEffects: true,
+    animations: true,
     notifications: true
   },
   statistics: {
-    totalExercises: 0,
-    averageScore: 0,
-    totalTimeSpent: 0,
-    currentStreak: 0,
-    bestStreak: 0,
+    totalWords: 0,
+    totalErrors: 0,
+    totalCorrections: 0,
     accuracyRate: 0,
-    level: 1,
+    dailyStreak: 0,
+    bestStreak: 0,
+    totalPracticeTime: 0,
+    lastPracticeDate: new Date(),
+    progressByCategory: {},
+    completedExercises: 0,
     xp: 0,
     nextLevelXp: 1000
   }

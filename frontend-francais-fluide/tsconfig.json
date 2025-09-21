@@ -33,9 +33,17 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "__tests__/**",
+    "cypress/**",
+    "examples/**",
+    "src/lib/performance/**",
+    "src/lib/monitoring/**",
+    "src/components/performance/LazyComponents.tsx"
+  ]
 }

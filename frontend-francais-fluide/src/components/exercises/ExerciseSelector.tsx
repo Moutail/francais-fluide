@@ -25,7 +25,7 @@ export default function ExerciseSelector({
 
   // Filtrer les exercices
   useEffect(() => {
-    let exercises = exerciseBank.exercises;
+    let exercises = (exerciseBank as any).exercises as Exercise[];
 
     if (selectedDifficulty !== 'all') {
       exercises = exercises.filter(ex => ex.difficulty === selectedDifficulty);
@@ -220,7 +220,7 @@ export default function ExerciseSelector({
                 {/* Statistiques */}
                 <div className="flex items-center gap-4 text-sm text-gray-500">
                   <span>⏱️ {exercise.estimatedTime} min</span>
-                  <span>📝 {exercise.questions.length} questions</span>
+                  <span>📝 {(exercise.questions?.length || 0)} questions</span>
                   <span>🏆 {exercise.scoring.maxPoints} pts</span>
                 </div>
               </div>

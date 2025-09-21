@@ -29,7 +29,7 @@ export default function ExercisePlayer({
 }: ExercisePlayerProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [questionStates, setQuestionStates] = useState<QuestionState[]>([]);
-  const [timeRemaining, setTimeRemaining] = useState(exercise.estimatedTime * 60);
+  const [timeRemaining, setTimeRemaining] = useState((exercise.estimatedTime || 10) * 60);
   const [isCompleted, setIsCompleted] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [score, setScore] = useState(0);
@@ -37,7 +37,7 @@ export default function ExercisePlayer({
 
   // Initialiser les états des questions
   useEffect(() => {
-    const initialStates = exercise.questions.map(q => ({
+    const initialStates = (exercise.questions || []).map(q => ({
       id: q.id,
       answer: '',
       isCorrect: null,
@@ -69,7 +69,7 @@ export default function ExercisePlayer({
 
   // Vérifier la réponse
   const checkAnswer = useCallback((questionId: string) => {
-    const question = exercise.questions.find(q => q.id === questionId);
+    const question = (exercise.questions || []).find(q => q.id === questionId);
     const questionState = questionStates.find(s => s.id === questionId);
     
     if (!question || !questionState) return;
@@ -86,7 +86,7 @@ export default function ExercisePlayer({
     // Mettre à jour le streak
     if (isCorrect) {
       setStreak(prev => prev + 1);
-      setScore(prev => prev + (exercise.scoring?.maxPoints || 100) / exercise.questions.length);
+      setScore(prev => prev + (exercise.scoring?.maxPoints || 100) / ((exercise.questions || []).length || 1));
     } else {
       setStreak(0);
     }
@@ -97,19 +97,19 @@ export default function ExercisePlayer({
 
   // Passer à la question suivante
   const nextQuestion = useCallback(() => {
-    if (currentQuestionIndex < exercise.questions.length - 1) {
+    if (currentQuestionIndex < ((exercise.questions || []).length - 1)) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
       handleComplete();
     }
-  }, [currentQuestionIndex, exercise.questions.length]);
+  }, [currentQuestionIndex, exercise.questions]);
 
   // Compléter l'exercice
   const handleComplete = useCallback(() => {
     const totalScore = questionStates.reduce((total, state) => {
-      const question = exercise.questions.find(q => q.id === state.id);
+      const question = (exercise.questions || []).find(q => q.id === state.id);
       if (question && state.isCorrect) {
-        return total + (exercise.scoring?.maxPoints || 100) / exercise.questions.length;
+        return total + (exercise.scoring?.maxPoints || 100) / ((exercise.questions || []).length || 1);
       }
       return total;
     }, 0);
@@ -123,7 +123,7 @@ export default function ExercisePlayer({
       exerciseId: exercise.id,
       score: finalScore,
       maxScore: exercise.scoring?.maxPoints || 100,
-      timeSpent: (exercise.estimatedTime * 60) - timeRemaining,
+      timeSpent: ((exercise.estimatedTime || 10) * 60) - timeRemaining,
       answers: questionStates.map(state => ({
         questionId: state.id,
         answer: state.answer,
@@ -131,7 +131,7 @@ export default function ExercisePlayer({
         timeSpent: state.timeSpent
       })),
       completedAt: new Date().toISOString(),
-      accuracy: questionStates.filter(s => s.isCorrect).length / questionStates.length
+      accuracy: questionStates.length ? (questionStates.filter(s => s.isCorrect).length / questionStates.length) : 0
     };
 
     setIsCompleted(true);
@@ -155,7 +155,7 @@ export default function ExercisePlayer({
       >
         <div className="flex items-center justify-between">
           <h3 className="text-xl font-semibold">
-            Question {index + 1} sur {exercise.questions.length}
+            Question {index + 1} sur {(exercise.questions || []).length}
           </h3>
           <Badge variant={questionState?.isCorrect === true ? 'success' : 
                           questionState?.isCorrect === false ? 'destructive' : 'default'}>
@@ -185,7 +185,7 @@ export default function ExercisePlayer({
             </div>
           )}
 
-          {question.type === 'fill-blank' && (
+          {question.type === 'fill-in-the-blank' && (
             <div className="space-y-4">
               <input
                 type="text"

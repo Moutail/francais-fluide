@@ -1,5 +1,5 @@
 // src/lib/grammar/detectorOptimized.ts
-import { GrammarRule, GrammarError, TextAnalysis } from '@/types/grammar';
+import { GrammarError, TextAnalysis } from '@/types/grammar';
 
 /**
  * Système de détection de fautes optimisé pour le français
@@ -84,7 +84,7 @@ const COMPILED_PATTERNS = {
 };
 
 // Base de règles grammaticales optimisées
-export const OPTIMIZED_GRAMMAR_RULES: GrammarRule[] = [
+export const OPTIMIZED_GRAMMAR_RULES = [
   {
     id: 'conjugaison-3p-singulier',
     category: 'grammar',
@@ -183,7 +183,7 @@ export const OPTIMIZED_GRAMMAR_RULES: GrammarRule[] = [
  * Classe de détection grammaticale optimisée
  */
 export class OptimizedGrammarDetector {
-  private rules: GrammarRule[];
+  private rules: any[];
   private customPatterns: Map<string, any>;
   private cache: LRUCache<string, GrammarError[]>;
   private statisticsCache: LRUCache<string, any>;
@@ -240,7 +240,7 @@ export class OptimizedGrammarDetector {
     errors.push(...this.contextualAnalysisOptimized(text));
 
     // Trier les erreurs par position
-    errors.sort((a, b) => a.offset - b.offset);
+    errors.sort((a, b) => ((a.offset ?? a.start ?? 0) - (b.offset ?? b.start ?? 0)));
 
     // Mettre en cache
     this.cache.set(cacheKey, errors);
@@ -481,7 +481,7 @@ export class OptimizedGrammarDetector {
       averageWordLength: words.reduce((acc, w) => acc + w.length, 0) / words.length,
       averageSentenceLength: words.length / sentences.length,
       errorCount: errors.length,
-      errorDensity: errors.length / words.length,
+      errorDensity: errors.length / (words.length || 1),
       errorsByCategory: this.groupErrorsByCategory(errors),
       readabilityScore: this.calculateReadabilityOptimized(text)
     };
@@ -504,7 +504,7 @@ export class OptimizedGrammarDetector {
     }
     
     // Formule de Flesch adaptée au français
-    const score = 206.835 - 1.015 * (words.length / sentences.length) - 84.6 * (syllableCount / words.length);
+    const score = 206.835 - 1.015 * (words.length / Math.max(1, sentences.length)) - 84.6 * (syllableCount / Math.max(1, words.length));
     
     return Math.max(0, Math.min(100, Math.round(score)));
   }
@@ -539,7 +539,8 @@ export class OptimizedGrammarDetector {
     const categories: Record<string, number> = {};
     
     for (const error of errors) {
-      categories[error.rule.category] = (categories[error.rule.category] || 0) + 1;
+      const cat = (error as any).rule?.category || 'unknown';
+      categories[cat] = (categories[cat] || 0) + 1;
     }
     
     return categories;
@@ -590,7 +591,7 @@ export class OptimizedGrammarDetector {
   /**
    * Ajoute une règle personnalisée
    */
-  public addCustomRule(rule: GrammarRule): void {
+  public addCustomRule(rule: any): void {
     this.rules.push(rule);
     this.cache.clear(); // Invalider le cache
   }

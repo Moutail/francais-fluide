@@ -1,12 +1,36 @@
 // src/types/grammar.ts
 export interface GrammarError {
-  id: string;
-  type: 'spelling' | 'grammar' | 'punctuation' | 'style';
-  severity: 'critical' | 'warning' | 'suggestion';
+  id?: string;
+  type?: 'spelling' | 'grammar' | 'punctuation' | 'style';
+  severity?: 'critical' | 'warning' | 'suggestion';
   message: string;
-  start: number;
-  end: number;
-  suggestions: string[];
+
+  // Position - support both start/end and offset/length used across codebase
+  start?: number;
+  end?: number;
+  offset?: number;
+  length?: number;
+
+  // Suggestions (aka replacements)
+  suggestions?: string[];
+  replacements?: string[];
+
+  // Optional rule metadata
+  rule?: {
+    id: string;
+    category: string;
+    severity: 'critical' | 'warning' | 'suggestion';
+  };
+
+  // Optional context information
+  context?: {
+    text: string;
+    offset: number;
+    length: number;
+    before?: string;
+    after?: string;
+  };
+
   explanation?: string;
 }
 

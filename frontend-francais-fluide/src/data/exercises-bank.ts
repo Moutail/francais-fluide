@@ -38,7 +38,7 @@ export const EXERCISES_BANK: Exercise[] = [
     questions: [
       {
         id: 'q1',
-        type: 'fill-blank',
+      type: 'fill-in-the-blank',
         text: 'Le chien et la chatte ___ dans le jardin.',
         correctAnswer: 'sont',
         options: ['est', 'sont', 'êtes'],
@@ -46,7 +46,7 @@ export const EXERCISES_BANK: Exercise[] = [
       },
       {
         id: 'q2',
-        type: 'fill-blank',
+      type: 'fill-in-the-blank',
         text: 'Ils ___ ensemble.',
         correctAnswer: 'jouent',
         options: ['joue', 'joues', 'jouent'],
@@ -114,7 +114,7 @@ export const EXERCISES_BANK: Exercise[] = [
     questions: [
       {
         id: 'q1',
-        type: 'fill-blank',
+      type: 'fill-in-the-blank',
         text: 'Il faut que je ___ tôt demain.',
         correctAnswer: 'parte',
         options: ['parte', 'partes', 'partent'],
@@ -122,7 +122,7 @@ export const EXERCISES_BANK: Exercise[] = [
       },
       {
         id: 'q2',
-        type: 'fill-blank',
+      type: 'fill-in-the-blank',
         text: 'Je veux que tu ___ avec moi.',
         correctAnswer: 'viennes',
         options: ['viens', 'viennes', 'viennent'],
@@ -191,7 +191,7 @@ export const EXERCISES_BANK: Exercise[] = [
     questions: [
       {
         id: 'q1',
-        type: 'fill-blank',
+      type: 'fill-in-the-blank',
         text: 'Hier, quand je ___ à la gare, le train ___ déjà.',
         correctAnswer: 'suis arrivé, était parti',
         options: ['suis arrivé, était parti', 'arrivais, partait', 'arrivai, partit'],
@@ -199,7 +199,7 @@ export const EXERCISES_BANK: Exercise[] = [
       },
       {
         id: 'q2',
-        type: 'fill-blank',
+      type: 'fill-in-the-blank',
         text: 'Je ___ déçu car j\'avais espéré le prendre.',
         correctAnswer: 'étais',
         options: ['étais', 'ai été', 'serais'],

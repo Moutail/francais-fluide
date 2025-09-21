@@ -30,9 +30,9 @@ const mockExercises: Exercise[] = [
     type: 'grammar',
     difficulty: 'beginner',
     category: 'Grammaire',
-    instructions: 'Complétez les phrases avec la forme correcte de l\'adjectif',
     content: {
       text: 'Le chat ___ (noir) dort sur le canapé ___ (confortable).',
+      instructions: 'Complétez les phrases avec la forme correcte de l\'adjectif',
       questions: [
         {
           id: 'q1',
@@ -48,9 +48,11 @@ const mockExercises: Exercise[] = [
         }
       ]
     },
+    estimatedTime: 10,
+    scoring: { maxPoints: 50, timeBonus: 10, accuracyWeight: 0.8 },
+    isCompleted: false,
     points: 50,
-    timeLimit: 10,
-    isCompleted: false
+    timeLimit: 10
   },
   {
     id: '2',
@@ -59,9 +61,9 @@ const mockExercises: Exercise[] = [
     type: 'grammar',
     difficulty: 'intermediate',
     category: 'Conjugaison',
-    instructions: 'Conjuguez les verbes entre parenthèses au présent',
     content: {
       text: 'Je (manger) ___ une pomme. Tu (finir) ___ tes devoirs. Il (vendre) ___ sa voiture.',
+      instructions: 'Conjuguez les verbes entre parenthèses au présent',
       questions: [
         {
           id: 'q1',
@@ -83,9 +85,11 @@ const mockExercises: Exercise[] = [
         }
       ]
     },
+    estimatedTime: 15,
+    scoring: { maxPoints: 75, timeBonus: 15, accuracyWeight: 0.85 },
+    isCompleted: false,
     points: 75,
-    timeLimit: 15,
-    isCompleted: false
+    timeLimit: 15
   }
 ];
 
@@ -239,7 +243,8 @@ export default function ExercisePage() {
   }
 
   const currentQuestion = exercise.content.questions?.[state.currentQuestion];
-  const progress = ((state.currentQuestion + 1) / (exercise.content.questions?.length || 1)) * 100;
+  const totalQuestions = exercise.content.questions ? exercise.content.questions.length : 0;
+  const progress = ((state.currentQuestion + 1) / (totalQuestions || 1)) * 100;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -315,14 +320,14 @@ export default function ExercisePage() {
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">
                     {exercise.title}
                   </h2>
-                  <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-                    {exercise.instructions}
+                      <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+                    {exercise.content.instructions}
                   </p>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                     <div className="text-center p-4 bg-gray-50 rounded-lg">
                       <Target className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                      <p className="font-medium">{exercise.content.questions?.length || 0} questions</p>
+                      <p className="font-medium">{totalQuestions} questions</p>
                     </div>
                     <div className="text-center p-4 bg-gray-50 rounded-lg">
                       <Clock className="w-8 h-8 text-green-600 mx-auto mb-2" />
@@ -423,7 +428,7 @@ export default function ExercisePage() {
                       onClick={nextQuestion}
                       disabled={!state.answers[currentQuestion.id]}
                     >
-                      {state.currentQuestion === (exercise.content.questions?.length || 1) - 1 
+                      {state.currentQuestion === ((totalQuestions || 1) - 1) 
                         ? 'Terminer' 
                         : 'Suivant'
                       }

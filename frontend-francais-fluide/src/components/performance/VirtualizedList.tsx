@@ -74,8 +74,8 @@ const VirtualizedListItem = memo<{
 
 VirtualizedListItem.displayName = 'VirtualizedListItem';
 
-// Composant de liste virtualisée principale
-export const VirtualizedList = memo(<T extends any>({
+// Composant de liste virtualisée principale (implémentation interne générique)
+function VirtualizedListInner<T>({
   items,
   itemHeight = 50,
   itemRenderer,
@@ -91,7 +91,7 @@ export const VirtualizedList = memo(<T extends any>({
   emptyComponent,
   variableHeight = false,
   estimatedItemSize = 50
-}: VirtualizedListProps<T>) => {
+}: VirtualizedListProps<T>) {
   const [state, setState] = useState<VirtualizedListState>({
     scrollTop: 0,
     scrollLeft: 0,
@@ -237,9 +237,13 @@ export const VirtualizedList = memo(<T extends any>({
       )}
     </div>
   );
-});
+}
 
-VirtualizedList.displayName = 'VirtualizedList';
+// Version mémorisée et typée de l'implémentation générique
+export const VirtualizedList = memo(VirtualizedListInner) as unknown as <T>(
+  props: VirtualizedListProps<T>
+) => JSX.Element;
+;
 
 // Composant spécialisé pour les suggestions de grammaire
 export const VirtualizedSuggestionsList = memo<{
@@ -338,14 +342,14 @@ export const VirtualizedExercisesList = memo<{
 VirtualizedExercisesList.displayName = 'VirtualizedExercisesList';
 
 // Hook pour utiliser la virtualisation
-export const useVirtualization = <T extends any>(
+export function useVirtualization<T>(
   items: T[],
   options: {
     itemHeight?: number;
     containerHeight?: number;
     overscan?: number;
   } = {}
-) => {
+) {
   const [scrollTop, setScrollTop] = useState(0);
   const { itemHeight = 50, containerHeight = 400, overscan = 5 } = options;
 
@@ -377,4 +381,4 @@ export const useVirtualization = <T extends any>(
     handleScroll,
     itemHeight
   };
-};
+}

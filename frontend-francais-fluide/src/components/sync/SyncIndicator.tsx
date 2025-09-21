@@ -157,7 +157,7 @@ export default function SyncIndicator({
 
         {/* Badge pour les éléments en attente */}
         {syncStatus.pendingItems > 0 && (
-          <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
+          <Badge variant="default" className="bg-yellow-100 text-yellow-800">
             {syncStatus.pendingItems}
           </Badge>
         )}
@@ -167,7 +167,7 @@ export default function SyncIndicator({
           <Button
             onClick={handleSyncNow}
             size="sm"
-            variant="outline"
+            variant="default"
             className="h-6 px-2 text-xs"
           >
             Sync

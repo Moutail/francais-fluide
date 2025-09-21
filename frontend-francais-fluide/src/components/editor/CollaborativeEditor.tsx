@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, Button, Badge } from '@/components/ui';
 import { useCollaboration } from '@/hooks/useCollaboration';
-import type { UserProfile, CursorPosition, TextSelection } from '@/types';
+import type { UserProfile } from '@/types/user';
+import type { CursorPosition, TextSelection } from '@/lib/websocket/collaboration';
 
 interface CollaborativeEditorProps {
   userProfile: UserProfile;
@@ -340,7 +341,7 @@ export default function CollaborativeEditor({
               </div>
               
               {/* Nombre d'utilisateurs */}
-              <Badge variant="outline">
+              <Badge variant="default">
                 {users.length} utilisateur{users.length > 1 ? 's' : ''}
               </Badge>
             </div>
@@ -392,7 +393,7 @@ export default function CollaborativeEditor({
             onChange={(e) => handleContentChange(e.target.value)}
             onMouseMove={handleCursorMove}
             onMouseUp={handleTextSelection}
-            onKeyUp={handleCursorMove}
+            onKeyUp={handleCursorMove as unknown as React.KeyboardEventHandler<HTMLTextAreaElement>}
             placeholder="Commencez à écrire... Les autres utilisateurs verront vos modifications en temps réel."
             className="w-full h-full p-4 border-0 resize-none focus:outline-none font-mono text-sm leading-relaxed"
             readOnly={readOnly || currentRoom?.isLocked}

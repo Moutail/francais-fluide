@@ -7,7 +7,9 @@ import ExercisePlayer from '@/components/exercises/ExercisePlayer';
 import { Card, Button, Badge } from '@/components/ui';
 import { exerciseGamification } from '@/lib/exercises/gamification';
 import { exerciseGenerator } from '@/lib/exercises/generator';
-import type { Exercise, ExerciseResult, UserProfile, ExerciseStats } from '@/types';
+import type { Exercise, ExerciseResult } from '@/types';
+import type { UserProfile } from '@/types/user';
+import type { ExerciseStats } from '@/lib/exercises/gamification';
 
 // Mock user profile - à remplacer par les vraies données
 const mockUserProfile: UserProfile = {
@@ -15,19 +17,26 @@ const mockUserProfile: UserProfile = {
   name: 'Utilisateur Test',
   email: 'test@example.com',
   level: 'intermediate',
+  weaknesses: [],
+  strengths: [],
   preferences: {
     difficulty: 'intermediate',
     exerciseTypes: ['grammar', 'vocabulary'],
-    notifications: true
+    realTimeCorrection: true,
+    soundEffects: true,
+    animations: true
   },
   statistics: {
-    totalExercises: 0,
-    averageScore: 0,
-    totalTimeSpent: 0,
-    currentStreak: 0,
-    bestStreak: 0,
+    totalWords: 0,
+    totalErrors: 0,
+    totalCorrections: 0,
     accuracyRate: 0,
-    level: 1,
+    dailyStreak: 0,
+    bestStreak: 0,
+    totalPracticeTime: 0,
+    lastPracticeDate: new Date(),
+    progressByCategory: {},
+    completedExercises: 0,
     xp: 0,
     nextLevelXp: 1000
   }
@@ -214,9 +223,9 @@ export default function ExercisesPage() {
             </div>
             
             {currentView === 'player' && (
-              <Button
+            <Button
                 onClick={handleSkipExercise}
-                variant="outline"
+              variant="outline"
                 className="flex items-center gap-2"
               >
                 ← Retour à la sélection

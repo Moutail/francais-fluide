@@ -2,7 +2,7 @@
 export * from './user';
 export * from './grammar';
 export * from './gamification';
-export * from './api';
+// Note: './api' is not a module (may be generated elsewhere); do not export
 export * from './persistence';
 
 // Types communs
@@ -49,10 +49,14 @@ export interface Exercise {
   difficulty: Difficulty;
   estimatedTime: number; // en minutes
   content: ExerciseContent;
-  questions: Question[];
+  questions?: Question[];
   scoring: ExerciseScoring;
   tags?: string[];
   category?: string;
+  points?: number;
+  timeLimit?: number;
+  isCompleted?: boolean;
+  completedAt?: Date;
 }
 
 export interface ExerciseContent {
@@ -61,11 +65,12 @@ export interface ExerciseContent {
   audioUrl?: string;
   imageUrl?: string;
   options?: string[];
+  questions?: Question[];
 }
 
 export interface Question {
   id: string;
-  type: 'multiple-choice' | 'fill-blank' | 'correction' | 'true-false' | 'open-ended';
+  type: 'multiple-choice' | 'fill-in-the-blank' | 'correction' | 'true-false' | 'open-ended';
   text: string;
   correctAnswer: string;
   options?: string[];

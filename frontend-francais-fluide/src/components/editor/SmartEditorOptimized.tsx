@@ -250,12 +250,12 @@ export const SmartEditorOptimized: React.FC<SmartEditorProps> = memo(({
 
         const newErrors = result.errors.map((error, index) => ({
           id: `error-${index}-${Date.now()}`,
-          start: error.offset,
-          end: error.offset + error.length,
-          type: error.rule.category as any,
-          severity: error.rule.severity as any,
+          start: (error.start ?? error.offset ?? 0) as number,
+          end: ((error.start ?? error.offset ?? 0) + (error.length ?? (error.end ? error.end - (error.start ?? 0) : 0))) as number,
+          type: (error as any).rule?.category as any,
+          severity: (error as any).rule?.severity as any,
           message: error.message,
-          suggestions: error.replacements.slice(0, 3)
+          suggestions: (error.suggestions || error.replacements || []).slice(0, 3)
         }));
 
         setErrors(newErrors);

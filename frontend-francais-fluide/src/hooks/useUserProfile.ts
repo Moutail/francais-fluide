@@ -24,7 +24,7 @@ export function useUserProfile() {
           realTimeCorrection: true,
           soundEffects: true,
           animations: true,
-          difficulty: 'medium'
+          difficulty: 'intermediate'
         },
         statistics: {
           totalWords: 0,
@@ -35,7 +35,10 @@ export function useUserProfile() {
           bestStreak: 0,
           totalPracticeTime: 0,
           lastPracticeDate: new Date(),
-          progressByCategory: {}
+          progressByCategory: {},
+          completedExercises: 0,
+          xp: 0,
+          nextLevelXp: 1000
         }
       };
     },

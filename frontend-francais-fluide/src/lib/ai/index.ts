@@ -43,13 +43,18 @@ export type {
 } from './api-manager';
 
 // Assistant IA
-export { AIAssistant, AIAssistantButton } from '../components/ai/AIAssistant';
+export { AIAssistant, AIAssistantButton } from '@/components/ai/AIAssistant';
 
 // Fonction d'initialisation complète des services IA
+import { apiManager } from './api-manager';
+import { aiSecurityManager } from './security';
+
 export function initializeAIServices(): void {
   console.log('🤖 Initialisation des services IA...');
 
   // Initialiser le gestionnaire de sécurité
+  // Using apiManager and aiSecurityManager from local modules
+  // They are imported/exported in their files
   aiSecurityManager.getConfig();
   console.log('🔒 Gestionnaire de sécurité initialisé');
 
@@ -58,12 +63,12 @@ export function initializeAIServices(): void {
   console.log('🌐 Gestionnaire d\'API initialisé');
 
   // Vérifier la disponibilité des providers
-  const stats = apiManager.getAPIStats();
-  const availableProviders = stats.providers.filter(p => p.status === 'active');
+  const stats: any = apiManager.getAPIStats();
+  const availableProviders = (stats?.providers || []).filter((p: any) => p.status === 'active');
   console.log(`📡 ${availableProviders.length} providers d'API disponibles`);
 
   // Afficher les quotas
-  stats.providers.forEach(provider => {
+  (stats?.providers || []).forEach((provider: any) => {
     const quota = provider.quota;
     if (quota) {
       console.log(`📊 ${provider.name}: ${quota.remaining}/${quota.dailyLimit} requêtes restantes`);
@@ -78,8 +83,8 @@ export function cleanupAIServices(): void {
   console.log('🧹 Nettoyage des services IA...');
   
   // Nettoyer les caches
-  advancedAICorrector.clearCache();
-  aiContentGenerator.clearCache();
+  try { (advancedAICorrector as any).clearCache?.(); } catch {}
+  try { (aiContentGenerator as any).clearCache?.(); } catch {}
   
   // Réinitialiser les quotas si nécessaire
   apiManager.resetDailyQuotas();

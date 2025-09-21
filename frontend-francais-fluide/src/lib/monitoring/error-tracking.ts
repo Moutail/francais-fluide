@@ -1,3 +1,4 @@
+import Router from 'next/router';
 // src/lib/monitoring/error-tracking.ts
 
 /**
@@ -109,7 +110,7 @@ class ErrorTracker {
           new Sentry.BrowserTracing({
             // Tracing des routes Next.js
             routingInstrumentation: Sentry.nextjsRouterInstrumentation(
-              require('next/router').default
+              Router
             ),
           }),
           new Sentry.Replay({

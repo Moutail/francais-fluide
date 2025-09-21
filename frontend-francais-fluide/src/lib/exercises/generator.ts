@@ -179,7 +179,7 @@ export const EXERCISE_TEMPLATES: ExerciseTemplate[] = [
       questions: [
         {
           id: 'q1',
-          type: 'fill-blank',
+          type: 'fill-in-the-blank',
           text: 'Je (manger) une pomme.',
           correctAnswer: 'mange',
           options: ['mange', 'manges', 'mangent'],
@@ -187,7 +187,7 @@ export const EXERCISE_TEMPLATES: ExerciseTemplate[] = [
         },
         {
           id: 'q2',
-          type: 'fill-blank',
+          type: 'fill-in-the-blank',
           text: 'Nous (finir) nos devoirs.',
           correctAnswer: 'finissons',
           options: ['finis', 'finissons', 'finissent'],

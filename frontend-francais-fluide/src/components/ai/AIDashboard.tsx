@@ -57,12 +57,12 @@ export const AIDashboard: React.FC<AIDashboardProps> = ({
 
   // Calculer les métriques globales
   const globalMetrics = {
-    totalRequests: apiStats.totalRequests,
-    totalCost: apiStats.totalCost,
-    activeProviders: apiStats.providers.filter(p => p.status === 'active').length,
-    totalProviders: apiStats.providers.length,
-    securityEvents: securityStats.securityEvents.recent,
-    successRate: apiStats.providers.reduce((acc, p) => acc + p.successRate, 0) / apiStats.providers.length
+    totalRequests: apiStats.totalRequests as number,
+    totalCost: apiStats.totalCost as number,
+    activeProviders: (apiStats.providers as any[]).filter((p: any) => p.status === 'active').length,
+    totalProviders: (apiStats.providers as any[]).length,
+    securityEvents: (securityStats.securityEvents?.recent as number) || 0,
+    successRate: ((apiStats.providers as any[]).reduce((acc: number, p: any) => acc + (p.successRate || 0), 0) / ((apiStats.providers as any[]).length || 1))
   };
 
   if (compact) {
@@ -173,7 +173,7 @@ export const AIDashboard: React.FC<AIDashboardProps> = ({
                 {/* Métriques globales */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <MetricCard
-                    icon={<Globe className="w-5 h-5" />}
+                    icon={<Globe className="w-5 h-5" /> as any}
                     title="Providers Actifs"
                     value={globalMetrics.activeProviders}
                     subtitle={`sur ${globalMetrics.totalProviders}`}
@@ -209,7 +209,7 @@ export const AIDashboard: React.FC<AIDashboardProps> = ({
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Taux de Succès par Provider</h3>
                   <div className="space-y-3">
-                    {apiStats.providers.map((provider) => (
+                    {(apiStats.providers as any[]).map((provider: any) => (
                       <div key={provider.id} className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className={`w-3 h-3 rounded-full ${
@@ -247,7 +247,7 @@ export const AIDashboard: React.FC<AIDashboardProps> = ({
                 exit={{ opacity: 0, y: -20 }}
                 className="space-y-4"
               >
-                {apiStats.providers.map((provider) => (
+                {(apiStats.providers as any[]).map((provider: any) => (
                   <ProviderCard
                     key={provider.id}
                     provider={provider}
@@ -318,7 +318,7 @@ export const AIDashboard: React.FC<AIDashboardProps> = ({
                 className="space-y-6"
               >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {apiStats.providers.map((provider) => (
+                  {(apiStats.providers as any[]).map((provider: any) => (
                     <div key={provider.id} className="bg-gray-50 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-medium text-gray-900">{provider.name}</h4>

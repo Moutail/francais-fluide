@@ -367,7 +367,7 @@ class PerformanceMonitor {
     Component: T,
     componentName: string
   ): T {
-    return React.forwardRef((props, ref) => {
+    const Wrapped = React.forwardRef(function WithPerformance(props, ref) {
       const startTime = performance.now();
       const [renderCount, setRenderCount] = React.useState(0);
 
@@ -382,10 +382,15 @@ class PerformanceMonitor {
         });
 
         setRenderCount(prev => prev + 1);
-      });
+      }, [renderCount, startTime]);
 
       return React.createElement(Component, { ...props, ref });
-    }) as T;
+    }) as unknown as T;
+
+    // Provide a display name for better React DevTools and to satisfy linter
+    (Wrapped as any).displayName = `withPerformance(${(Component as any).displayName || componentName})`;
+
+    return Wrapped;
   }
 
   /**

@@ -59,7 +59,7 @@ export async function testGrammarBackend() {
   ];
 
   let passedTests = 0;
-  let totalTests = testCases.length;
+  const totalTests = testCases.length;
 
   for (const testCase of testCases) {
     try {
