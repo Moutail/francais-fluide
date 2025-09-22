@@ -51,9 +51,8 @@ export async function GET(request: NextRequest) {
       currentStreak: userProgress.currentStreak,
       level: userProgress.level,
       xp: userProgress.xp,
-      nextLevelXp: userProgress.level * 1000, // Calculer le prochain niveau
-      averageAccuracy: userProgress.accuracy,
-      recentChecks: userProgress.recentChecks || 0
+      nextLevelXp: userProgress.level * 1000,
+      averageAccuracy: userProgress.accuracy
     };
 
     return NextResponse.json({
@@ -120,4 +119,9 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function PUT(request: NextRequest) {
+  // Reuse POST logic for updates
+  return POST(request);
 }

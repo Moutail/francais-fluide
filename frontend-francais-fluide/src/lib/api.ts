@@ -1,7 +1,8 @@
 // src/lib/api.ts
 // Configuration de l'API pour communiquer avec le backend séparé
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+// Use internal Next.js API by default. Set NEXT_PUBLIC_API_URL to call external backend.
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 class ApiClient {
   private baseURL: string;
@@ -9,7 +10,7 @@ class ApiClient {
 
   constructor(baseURL: string) {
     this.baseURL = baseURL;
-    this.token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    this.token = typeof window !== 'undefined' ? (localStorage.getItem('token') || localStorage.getItem('auth_token')) : null;
   }
 
   setToken(token: string) {
