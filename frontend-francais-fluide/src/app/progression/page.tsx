@@ -58,7 +58,7 @@ interface UserProgress {
   xp: number;
   nextLevelXp: number;
   averageAccuracy: number;
-  recentChecks: number;
+  // recentChecks removed from API
 }
 
 export default function ProgressionPage() {
@@ -77,8 +77,7 @@ export default function ProgressionPage() {
     level: 1,
     xp: 0,
     nextLevelXp: 1000,
-    averageAccuracy: 0,
-    recentChecks: 0
+    averageAccuracy: 0
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -94,7 +93,7 @@ export default function ProgressionPage() {
   useEffect(() => {
     const loadProgressData = async () => {
       try {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
         if (!token) {
           setError('Veuillez vous connecter pour voir votre progression');
           setIsLoading(false);

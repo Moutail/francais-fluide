@@ -141,6 +141,7 @@ export function useAuth() {
 
   const logout = () => {
     apiClient.clearToken();
+    fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
     setUser(null);
   };
 
