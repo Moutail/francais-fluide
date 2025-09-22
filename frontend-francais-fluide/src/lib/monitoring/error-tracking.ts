@@ -1,3 +1,4 @@
+import Router from 'next/router';
 // src/lib/monitoring/error-tracking.ts
 
 /**
@@ -111,6 +112,7 @@ class ErrorTracker {
         beforeSend: SENTRY_CONFIG.beforeSend,
         beforeBreadcrumb: SENTRY_CONFIG.beforeBreadcrumb,
         integrations: [
+<<<<<<< Current (Your changes)
           new Sentry.BrowserTracing(
             nextRouter
               ? {
@@ -119,6 +121,14 @@ class ErrorTracker {
                 }
               : {}
           ),
+=======
+          new Sentry.BrowserTracing({
+            // Tracing des routes Next.js
+            routingInstrumentation: Sentry.nextjsRouterInstrumentation(
+              Router
+            ),
+          }),
+>>>>>>> Incoming (Background Agent changes)
           new Sentry.Replay({
             // Replay des sessions
             maskAllText: false,

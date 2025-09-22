@@ -100,7 +100,11 @@ class AnalyticsTracker {
 
       // Initialiser gtag
       window.dataLayer = window.dataLayer || [];
+<<<<<<< Current (Your changes)
       window.gtag = function(...args: any[]) {
+=======
+      window.gtag = (...args: any[]) => {
+>>>>>>> Incoming (Background Agent changes)
         window.dataLayer.push(args);
       };
 

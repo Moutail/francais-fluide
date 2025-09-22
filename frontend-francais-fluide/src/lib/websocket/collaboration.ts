@@ -145,7 +145,7 @@ export class CollaborationManager {
   private currentRoom: CollaborationRoom | null = null;
   private currentUser: CollaborationUser | null = null;
   private crdt: SimpleCRDT = new SimpleCRDT();
-  private listeners: Map<string, Array<(data?: unknown) => void>> = new Map();
+  private listeners: Map<string, Array<(...args: any[]) => void>> = new Map();
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
@@ -443,14 +443,14 @@ export class CollaborationManager {
   }
 
   // Gestion des écouteurs d'événements
-  on(event: string, callback: (data?: unknown) => void) {
+  on(event: string, callback: (...args: any[]) => void) {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, []);
     }
     this.listeners.get(event)?.push(callback);
   }
 
-  off(event: string, callback: (data?: unknown) => void) {
+  off(event: string, callback: (...args: any[]) => void) {
     const callbacks = this.listeners.get(event);
     if (callbacks) {
       const index = callbacks.indexOf(callback);
@@ -460,7 +460,7 @@ export class CollaborationManager {
     }
   }
 
-  private emit(event: string, data?: unknown) {
+  private emit(event: string, data?: any) {
     const callbacks = this.listeners.get(event);
     if (callbacks) {
       callbacks.forEach(callback => callback(data));

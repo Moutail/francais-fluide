@@ -52,7 +52,7 @@ export class PersistenceManager {
     pendingItems: 0,
     error: null
   };
-  private listeners: Map<string, Array<(data?: unknown) => void>> = new Map();
+  private listeners: Map<string, Array<(...args: any[]) => void>> = new Map();
 
   constructor() {
     this.initializeDatabase();
@@ -428,14 +428,14 @@ export class PersistenceManager {
   }
 
   // Gestion des écouteurs d'événements
-  on(event: string, callback: (data?: unknown) => void): void {
+  on(event: string, callback: (...args: any[]) => void): void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, []);
     }
     this.listeners.get(event)?.push(callback);
   }
 
-  off(event: string, callback: (data?: unknown) => void): void {
+  off(event: string, callback: (...args: any[]) => void): void {
     const callbacks = this.listeners.get(event);
     if (callbacks) {
       const index = callbacks.indexOf(callback);
@@ -445,7 +445,7 @@ export class PersistenceManager {
     }
   }
 
-  private emit(event: string, data?: unknown): void {
+  private emit(event: string, data?: any): void {
     const callbacks = this.listeners.get(event);
     if (callbacks) {
       callbacks.forEach(callback => callback(data));

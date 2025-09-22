@@ -173,7 +173,7 @@ class IntelligentLazyLoader {
         props,
         config,
         onLoad: () => this.handleComponentLoad(id),
-        onError: (error: Error) => this.handleComponentError(id, error),
+        onError: (error: Error) => this.handleComponentError(id, error)
       })
     );
   }
@@ -384,11 +384,10 @@ class IntelligentLazyLoader {
         key: 'spinner',
         className: 'animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'
       }),
-      React.createElement(
-        'span',
-        { key: 'text', className: 'ml-2 text-gray-600' },
-        'Chargement...'
-      )
+      React.createElement('span', {
+        key: 'text',
+        className: 'ml-2 text-gray-600'
+      }, 'Chargement...')
     );
   }
 
