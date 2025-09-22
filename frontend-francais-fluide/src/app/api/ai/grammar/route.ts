@@ -63,14 +63,18 @@ export async function POST(request: NextRequest) {
 
     // Enregistrer la correction dans la base de données
     if (userId) {
-      await prisma.grammarCheck.create({
-        data: {
-          userId,
-          text,
-          errors: corrections.errors,
-          suggestions: corrections.suggestions
-        }
-      });
+      try {
+        await prisma.grammarCheck.create({
+          data: {
+            userId,
+            text,
+            errors: corrections.errors ?? [],
+            suggestions: corrections.suggestions ?? []
+          }
+        });
+      } catch (e) {
+        console.warn('Failed to record grammar check:', e);
+      }
 
       // Mettre à jour les statistiques utilisateur
       await prisma.userProgress.update({

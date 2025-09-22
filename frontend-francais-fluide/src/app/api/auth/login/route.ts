@@ -6,6 +6,9 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || JWT_SECRET + '-refresh';
+const ACCESS_TOKEN_TTL = '15m';
+const REFRESH_TOKEN_TTL = '7d';
 
 export async function POST(request: NextRequest) {
   try {
@@ -44,11 +47,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Générer le token JWT
-    const token = jwt.sign(
+    // Générer le token d'accès court + refresh long
+    const accessToken = jwt.sign(
       { userId: user.id, email: user.email },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: ACCESS_TOKEN_TTL }
+    );
+    const refreshToken = jwt.sign(
+      { userId: user.id, email: user.email, type: 'refresh' },
+      JWT_REFRESH_SECRET,
+      { expiresIn: REFRESH_TOKEN_TTL }
     );
 
     // Mettre à jour la dernière activité
@@ -59,7 +67,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       user: {
         id: user.id,
@@ -67,8 +75,16 @@ export async function POST(request: NextRequest) {
         name: user.name,
         progress: user.progress
       },
-      token
+      token: accessToken
     });
+    res.cookies.set('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60
+    });
+    return res;
 
   } catch (error) {
     console.error('Erreur de connexion:', error);

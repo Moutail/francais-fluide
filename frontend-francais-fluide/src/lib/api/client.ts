@@ -22,7 +22,7 @@ export class APIError extends Error {
 // Intercepteur de requêtes pour ajouter le token
 const requestInterceptor = (config: AxiosRequestConfig): any => {
   // Récupérer le token depuis le localStorage ou les cookies
-  const token = localStorage.getItem('auth_token');
+  const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
   
   if (token && config.headers) {
     config.headers['Authorization'] = `Bearer ${token}`;
@@ -46,6 +46,7 @@ const responseInterceptor = (error: AxiosError): Promise<never> => {
     switch (status) {
       case 401:
         // Token expiré ou invalide
+        localStorage.removeItem('token');
         localStorage.removeItem('auth_token');
         window.location.href = '/login';
         toast.error('Session expirée. Veuillez vous reconnecter.');
