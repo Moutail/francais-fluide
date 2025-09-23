@@ -62,21 +62,7 @@ export default function ExercicesPage() {
     }
   }, [loading, isAuthenticated]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return null;
-  }
-
+  // Données d'exercices
   const [exercises] = useState<Exercise[]>([
     {
       id: 'grammar-1',
@@ -122,6 +108,7 @@ export default function ExercicesPage() {
     }
   ]);
 
+  // Données de questions
   const [questions] = useState<Question[]>([
     {
       id: 'q1',
@@ -149,8 +136,6 @@ export default function ExercicesPage() {
     }
   ]);
 
-  const currentQuestion = questions[currentQuestionIndex];
-
   // Timer effect
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -163,6 +148,23 @@ export default function ExercicesPage() {
     }
     return () => clearInterval(interval);
   }, [isTimerActive, timeLeft]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  const currentQuestion = questions[currentQuestionIndex];
 
   const startExercise = (exercise: Exercise) => {
     setSelectedExercise(exercise);
