@@ -90,9 +90,9 @@ model UserAchievement {
   earnedAt      DateTime    @default(now())
 
   // Relations
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
-  progress    UserProgress? @relation(fields: [userId], references: [userId])
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade, map: "user_achievements_userId_fkey")
+  achievement Achievement  @relation(fields: [achievementId], references: [id], onDelete: Cascade, map: "user_achievements_achievementId_fkey")
+  progress    UserProgress? @relation(fields: [userId], references: [userId], map: "user_achievements_userId_progress_fkey")
 
   @@unique([userId, achievementId])
   @@map("user_achievements")
