@@ -24,12 +24,14 @@ import Navigation from '@/components/layout/Navigation';
 import { useAuth } from '@/hooks/useApi';
 import { cn } from '@/lib/utils/cn';
 import ExerciseGenerator from '@/components/ai/ExerciseGenerator';
+import { EXERCISES_BANK } from '@/data/exercises-bank';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface Exercise {
   id: string;
   title: string;
-  type: 'grammar' | 'vocabulary' | 'conjugation' | 'spelling';
-  difficulty: 'easy' | 'medium' | 'hard';
+  type: string; // étendu pour accepter les types de la banque locale
+  difficulty: string; // étendu pour accepter beginner/intermediate/advanced
   description: string;
   estimatedTime: number;
   completed: boolean;
@@ -48,6 +50,7 @@ interface Question {
 
 export default function ExercicesPage() {
   const { isAuthenticated, loading } = useAuth();
+  const { getRemainingUsage } = useSubscription();
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -69,12 +72,52 @@ export default function ExercicesPage() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loadingExercises, setLoadingExercises] = useState(true);
   const [showGenerator, setShowGenerator] = useState(false);
+  const [generatedToday, setGeneratedToday] = useState(0);
+  // Statistiques réelles de l'utilisateur
+  const [stats, setStats] = useState({
+    exercisesCompleted: 0,
+    averageAccuracy: 0,
+    timeSpent: 0,
+    currentStreak: 0,
+  });
+  const normalizeNumber = (value: unknown, fallback = 0): number => {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : fallback;
+  };
+  const clampPercent = (value: number): number => {
+    if (!Number.isFinite(value)) return 0;
+    return Math.max(0, Math.min(100, value));
+  };
+
+  const mapBankDifficulty = (d: string): 'easy' | 'medium' | 'hard' => {
+    if (d === 'beginner') return 'easy';
+    if (d === 'intermediate') return 'medium';
+    return 'hard';
+  };
+
+  const mapBankToExerciseCard = (ex: any): Exercise => ({
+    id: ex.id,
+    title: ex.title,
+    type: ex.type,
+    difficulty: mapBankDifficulty(ex.difficulty),
+    description: ex.description,
+    estimatedTime: ex.estimatedTime || 10,
+    completed: false,
+    score: undefined,
+    icon: getTypeIcon(ex.type)
+  });
 
   // Charger les exercices depuis la base de données
   useEffect(() => {
     const loadExercises = async () => {
       try {
-        const response = await fetch('/api/exercises');
+        const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || '';
+        const response = await fetch('/api/exercises', {
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          }
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -86,10 +129,20 @@ export default function ExercicesPage() {
               ? exercise.submissions[0].score 
               : undefined
           }));
-          setExercises(exercisesWithIcons);
+          if (!exercisesWithIcons || exercisesWithIcons.length === 0) {
+            const defaults = EXERCISES_BANK.slice(0, 6).map(mapBankToExerciseCard);
+            setExercises(defaults);
+          } else {
+            setExercises(exercisesWithIcons);
+          }
+        } else {
+          const defaults = EXERCISES_BANK.slice(0, 6).map(mapBankToExerciseCard);
+          setExercises(defaults);
         }
       } catch (error) {
         console.error('Erreur chargement exercices:', error);
+        const defaults = EXERCISES_BANK.slice(0, 6).map(mapBankToExerciseCard);
+        setExercises(defaults);
       } finally {
         setLoadingExercises(false);
       }
@@ -100,18 +153,90 @@ export default function ExercicesPage() {
     }
   }, [isAuthenticated]);
 
+  // Initialiser le compteur quotidien de génération IA
+  useEffect(() => {
+    const key = 'generated_exercises_today_v1';
+    const today = new Date().toDateString();
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.date === today) {
+          setGeneratedToday(Number(parsed.count) || 0);
+          return;
+        }
+      }
+    } catch {}
+    localStorage.setItem(key, JSON.stringify({ date: today, count: 0 }));
+    setGeneratedToday(0);
+  }, []);
+
+  // Charger les statistiques réelles depuis l'API backend
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
+        if (!token) return;
+        const response = await fetch('http://localhost:3001/api/progress', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        if (!response.ok) return;
+        const data = await response.json();
+        if (data.success) {
+          setStats({
+            exercisesCompleted: normalizeNumber(data.data?.exercisesCompleted, 0),
+            averageAccuracy: clampPercent(normalizeNumber(data.data?.averageAccuracy ?? data.data?.accuracy, 0)),
+            timeSpent: normalizeNumber(data.data?.timeSpent, 0),
+            currentStreak: normalizeNumber(data.data?.currentStreak, 0),
+          });
+        }
+      } catch (e) {
+        // silencieux: afficherons des valeurs 0 par défaut
+      }
+    };
+    if (isAuthenticated) {
+      loadStats();
+    }
+  }, [isAuthenticated]);
+
   // Charger les questions d'un exercice
   const loadQuestions = async (exerciseId: string) => {
     try {
+      // Si l'exercice provient de la banque locale
+      const bankExercise = EXERCISES_BANK.find(ex => ex.id === exerciseId);
+      if (bankExercise) {
+        const questionsFromBank = (bankExercise.questions || []).map((q: any) => {
+          const options = Array.isArray(q.options) ? q.options : [];
+          const correctIndex = Math.max(0, options.indexOf(q.correctAnswer));
+          return {
+            id: q.id,
+            question: q.text || '',
+            options,
+            correctAnswer: correctIndex,
+            explanation: q.explanation || '',
+            type: (q.type === 'true-false' ? 'true-false' : (q.type === 'fill-blank' ? 'fill-blank' : 'multiple-choice')) as 'multiple-choice' | 'fill-blank' | 'true-false'
+          };
+        });
+        setQuestions(questionsFromBank);
+        return;
+      }
+
+      // Sinon, charger depuis l'API
       const response = await fetch(`/api/exercises/${exerciseId}`);
       const data = await response.json();
-      
       if (data.success) {
-        const questionsWithParsedOptions = data.data.questions.map((q: any) => ({
-          ...q,
-          options: JSON.parse(q.options),
-          correctAnswer: q.options.indexOf(q.correctAnswer)
-        }));
+        const questionsWithParsedOptions = data.data.questions.map((q: any) => {
+          const options = Array.isArray(q.options) ? q.options : JSON.parse(q.options || '[]');
+          const correctIndex = Math.max(0, options.indexOf(q.correctAnswer));
+          return {
+            ...q,
+            options,
+            correctAnswer: correctIndex
+          };
+        });
         setQuestions(questionsWithParsedOptions);
       }
     } catch (error) {
@@ -129,6 +254,12 @@ export default function ExercicesPage() {
     };
     setExercises(prev => [exerciseWithIcon, ...prev]);
     setShowGenerator(false);
+    // Incrémenter le compteur local quotidien
+    const key = 'generated_exercises_today_v1';
+    const today = new Date().toDateString();
+    const nextCount = generatedToday + 1;
+    setGeneratedToday(nextCount);
+    localStorage.setItem(key, JSON.stringify({ date: today, count: nextCount }));
   };
 
   // Timer effect
@@ -461,13 +592,30 @@ export default function ExercicesPage() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <button
-              onClick={() => setShowGenerator(true)}
-              className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all"
-            >
-              <Sparkles className="w-5 h-5" />
-              Générer un exercice avec l'IA
-            </button>
+            {(() => {
+              const planLimit = getRemainingUsage('exercisesPerDay');
+              const remaining = !Number.isFinite(planLimit) ? Infinity : Math.max(0, Number(planLimit) - generatedToday);
+              const disabled = remaining === 0;
+              return (
+                <button
+                  onClick={() => setShowGenerator(true)}
+                  disabled={disabled}
+                  className={cn(
+                    "flex items-center gap-3 px-6 py-3 rounded-xl font-semibold shadow-lg transition-all",
+                    disabled
+                      ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                      : "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 hover:shadow-xl"
+                  )}
+                  title={disabled ? "Limite quotidienne atteinte pour votre plan" : undefined}
+                >
+                  <Sparkles className="w-5 h-5" />
+                  {disabled ? "Limite atteinte aujourd'hui" : "Générer un exercice avec l'IA"}
+                  {!disabled && Number.isFinite(planLimit) && (
+                    <span className="ml-2 text-xs opacity-90">({remaining} restants)</span>
+                  )}
+                </button>
+              );
+            })()}
           </motion.div>
         )}
 
@@ -581,19 +729,19 @@ export default function ExercicesPage() {
           <h3 className="text-xl font-bold text-gray-900 mb-6">Vos statistiques</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600 mb-2">12</div>
+              <div className="text-3xl font-bold text-blue-600 mb-2">{stats.exercisesCompleted}</div>
               <div className="text-sm text-gray-600">Exercices complétés</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600 mb-2">89%</div>
+              <div className="text-3xl font-bold text-green-600 mb-2">{Math.round(stats.averageAccuracy)}%</div>
               <div className="text-sm text-gray-600">Score moyen</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-purple-600 mb-2">156</div>
+              <div className="text-3xl font-bold text-purple-600 mb-2">{stats.timeSpent}</div>
               <div className="text-sm text-gray-600">Minutes de pratique</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-600 mb-2">5</div>
+              <div className="text-3xl font-bold text-yellow-600 mb-2">{stats.currentStreak}</div>
               <div className="text-sm text-gray-600">Série actuelle</div>
             </div>
           </div>

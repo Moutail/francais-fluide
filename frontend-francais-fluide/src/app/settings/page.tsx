@@ -28,6 +28,7 @@ export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [isUnsubscribeOpen, setIsUnsubscribeOpen] = useState(false);
 
   // Données du profil
   const [profileData, setProfileData] = useState({
@@ -129,10 +130,6 @@ export default function SettingsPage() {
   };
 
   const handleUnsubscribe = async () => {
-    if (!confirm('Êtes-vous sûr de vouloir vous désabonner ? Vous perdrez l\'accès aux fonctionnalités premium.')) {
-      return;
-    }
-
     setIsLoading(true);
     try {
       const response = await fetch('/api/subscription/cancel', {
@@ -147,6 +144,7 @@ export default function SettingsPage() {
 
       if (data.success) {
         setMessage('Désabonnement effectué avec succès. Votre abonnement restera actif jusqu\'à la fin de la période de facturation.');
+        setIsUnsubscribeOpen(false);
         // Recharger les données utilisateur
         window.location.reload();
       } else {
@@ -217,6 +215,33 @@ export default function SettingsPage() {
           {/* Contenu principal */}
           <div className="lg:col-span-3">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              {/* Modal de confirmation de désabonnement */}
+              {isUnsubscribeOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/50" onClick={() => setIsUnsubscribeOpen(false)} />
+                  <div className="relative bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmer le désabonnement</h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Êtes-vous sûr de vouloir vous désabonner ? Vous perdrez l'accès aux fonctionnalités premium à la fin de votre période actuelle.
+                    </p>
+                    <div className="flex justify-end gap-3">
+                      <button
+                        onClick={() => setIsUnsubscribeOpen(false)}
+                        className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+                      >
+                        Annuler
+                      </button>
+                      <button
+                        onClick={handleUnsubscribe}
+                        disabled={isLoading}
+                        className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                      >
+                        {isLoading ? 'Traitement...' : 'Confirmer'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
               {/* Messages */}
               {message && (
                 <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
@@ -484,13 +509,22 @@ export default function SettingsPage() {
                       <p className="text-blue-700 mb-4">
                         {getStatus().planName} - {getStatus().isActive ? 'Actif' : 'Inactif'}
                       </p>
-                      <a
-                        href="/subscription"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                      >
-                        <CreditCard className="w-4 h-4" />
-                        Gérer l'abonnement
-                      </a>
+                      <div className="flex gap-3">
+                        <a
+                          href="/subscription"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          <CreditCard className="w-4 h-4" />
+                          Gérer l'abonnement
+                        </a>
+                        <button
+                          onClick={() => setIsUnsubscribeOpen(true)}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Me désabonner
+                        </button>
+                      </div>
                     </div>
 
                     {/* Historique des factures */}

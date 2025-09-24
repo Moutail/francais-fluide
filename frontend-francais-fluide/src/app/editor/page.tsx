@@ -213,42 +213,35 @@ export default function EditorPage() {
                     />
                   </div>
 
-                  {/* Panneau latéral avec infos utilisateur */}
+                  {/* Panneau latéral (progression utilisateur uniquement, données réelles) */}
                   <div className="space-y-4">
-                    {/* Progression utilisateur */}
                     {userProgress && (
                       <Card className="p-4">
                         <div className="flex items-center gap-2 mb-3">
                           <User className="w-5 h-5 text-blue-600" />
                           <h3 className="font-semibold text-gray-900">Votre Progression</h3>
                         </div>
-                        
                         <div className="space-y-3">
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-600">Niveau</span>
                             <span className="font-bold text-blue-600">{userProgress.level}</span>
                           </div>
-                          
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-600">XP Total</span>
                             <span className="font-bold text-purple-600">{userProgress.xp}</span>
                           </div>
-                          
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-600">Mots écrits</span>
                             <span className="font-bold text-green-600">{userProgress.wordsWritten}</span>
                           </div>
-                          
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-600">Exercices</span>
                             <span className="font-bold text-orange-600">{userProgress.exercisesCompleted}</span>
                           </div>
-                          
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-600">Précision</span>
                             <span className="font-bold text-yellow-600">{Math.round(userProgress.accuracy)}%</span>
                           </div>
-                          
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-600">Série actuelle</span>
                             <span className="font-bold text-red-600">{userProgress.currentStreak} jours</span>
@@ -256,62 +249,6 @@ export default function EditorPage() {
                         </div>
                       </Card>
                     )}
-
-                    {/* Objectifs du jour */}
-                    <Card className="p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Target className="w-5 h-5 text-green-600" />
-                        <h3 className="font-semibold text-gray-900">Objectifs du jour</h3>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Mots à écrire</span>
-                          <span className="text-sm font-medium">
-                            {metrics?.wordsWritten || 0}/500
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${Math.min(((metrics?.wordsWritten || 0) / 500) * 100, 100)}%` }}
-                          ></div>
-                        </div>
-                        
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Précision cible</span>
-                          <span className="text-sm font-medium">
-                            {Math.round(metrics?.accuracyRate || 0)}%/90%
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${Math.min(((metrics?.accuracyRate || 0) / 90) * 100, 100)}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    </Card>
-
-                    {/* Achievements récents */}
-                    <Card className="p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Award className="w-5 h-5 text-yellow-600" />
-                        <h3 className="font-semibold text-gray-900">Succès récents</h3>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="text-sm text-gray-600">
-                          🏆 Premier texte
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          📝 100 mots écrits
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          ⚡ Série de 3 jours
-                        </div>
-                      </div>
-                    </Card>
                   </div>
                 </div>
               </div>

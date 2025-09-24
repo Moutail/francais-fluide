@@ -41,7 +41,7 @@ export default function HomePage() {
   }
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Navigation */}
       <Navigation />
 
@@ -49,17 +49,17 @@ export default function HomePage() {
       <div className="py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-              <span className="text-blue-600">FrançaisFluide</span>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
+              <span className="bg-gradient-to-b from-primary-900 to-primary-700 bg-clip-text text-transparent">FrançaisFluide</span>
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto text-balance">
               Plateforme professionnelle de correction grammaticale avancée pour l'apprentissage du français
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 onClick={() => window.location.href = '/auth/login'}
                 size="lg"
-                className="px-8 py-4"
+                className="px-8 py-4 shadow-md"
               >
                 Démarrer l'essai gratuit
               </Button>
@@ -67,7 +67,7 @@ export default function HomePage() {
                 onClick={() => window.location.href = '/demo'}
                 variant="secondary"
                 size="lg"
-                className="px-8 py-4"
+                className="px-8 py-4 shadow-sm"
               >
                 Voir la démonstration
               </Button>
@@ -77,25 +77,25 @@ export default function HomePage() {
           {/* Plans Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
             {/* Plans d'Abonnement */}
-            <Card>
+            <Card className="backdrop-blur-sm bg-white/70 border-white/40 shadow-sm">
               <CardHeader>
                 <CardTitle>Plans d'Abonnement (CAD)</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                  <div className="flex justify-between items-center p-4 bg-gray-50/80 rounded-xl">
                     <span className="font-medium">Démo Gratuite</span>
                     <span className="text-green-600 font-semibold">Gratuit</span>
                   </div>
-                  <div className="flex justify-between items-center p-4 bg-blue-50 rounded-lg">
+                  <div className="flex justify-between items-center p-4 bg-blue-50/80 rounded-xl">
                     <span className="font-medium">Étudiant</span>
                     <span className="text-blue-600 font-semibold">14.99$ CAD/mois</span>
                   </div>
-                  <div className="flex justify-between items-center p-4 bg-purple-50 rounded-lg">
+                  <div className="flex justify-between items-center p-4 bg-purple-50/80 rounded-xl">
                     <span className="font-medium">Premium</span>
                     <span className="text-purple-600 font-semibold">29.99$ CAD/mois</span>
                   </div>
-                  <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg">
+                  <div className="flex justify-between items-center p-4 bg-green-50/80 rounded-xl">
                     <span className="font-medium">Établissement</span>
                     <span className="text-green-600 font-semibold">149.99$ CAD/mois</span>
                   </div>
@@ -104,7 +104,7 @@ export default function HomePage() {
             </Card>
             
             {/* Fonctionnalités */}
-            <Card>
+            <Card className="backdrop-blur-sm bg-white/70 border-white/40 shadow-sm">
               <CardHeader>
                 <CardTitle>Fonctionnalités Premium</CardTitle>
               </CardHeader>
@@ -140,7 +140,7 @@ export default function HomePage() {
           </div>
           
           {/* CTA Section */}
-          <Card className="bg-blue-600 text-white border-blue-600">
+          <Card className="bg-gradient-to-br from-accent-500 to-accent-600 text-white border-transparent rounded-2xl shadow-lg">
             <CardContent className="text-center py-12">
               <h3 className="text-2xl font-bold mb-4">
                 Prêt à améliorer votre français ?
@@ -153,7 +153,7 @@ export default function HomePage() {
                   onClick={() => window.location.href = '/subscription'}
                   variant="secondary"
                   size="lg"
-                  className="px-8 py-4 bg-white text-blue-600 hover:bg-gray-50"
+                  className="px-8 py-4 bg-white text-accent-600 hover:bg-gray-50"
                 >
                   Voir les abonnements
                 </Button>
@@ -161,7 +161,7 @@ export default function HomePage() {
                   onClick={() => window.location.href = '/auth/login'}
                   variant="ghost"
                   size="lg"
-                  className="px-8 py-4 text-white border-white hover:bg-blue-700"
+                  className="px-8 py-4 text-white hover:bg-white/10"
                 >
                   Commencer gratuitement
                 </Button>

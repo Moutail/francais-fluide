@@ -63,6 +63,16 @@ interface UserProgress {
 
 export default function ProgressionPage() {
   const { isAuthenticated, loading } = useAuth();
+  // Helpers pour normaliser les nombres et pourcentage
+  const normalizeNumber = (value: unknown, fallback = 0): number => {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : fallback;
+  };
+
+  const clampPercent = (value: number): number => {
+    if (!Number.isFinite(value)) return 0;
+    return Math.max(0, Math.min(100, value));
+  };
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('week');
   const [isClient, setIsClient] = useState(false);
   const [progressData, setProgressData] = useState<ProgressData[]>([]);
@@ -114,19 +124,40 @@ export default function ProgressionPage() {
 
         const data = await response.json();
         if (data.success) {
-          setCurrentStats(data.data);
+          // Normaliser les données pour éviter NaN et divisions par zéro
+          const normalized: UserProgress = {
+            wordsWritten: normalizeNumber(data.data?.wordsWritten, 0),
+            accuracy: clampPercent(normalizeNumber(data.data?.accuracy, 0)),
+            timeSpent: normalizeNumber(data.data?.timeSpent, 0),
+            exercisesCompleted: normalizeNumber(data.data?.exercisesCompleted, 0),
+            currentStreak: normalizeNumber(data.data?.currentStreak, 0),
+            level: Math.max(1, normalizeNumber(data.data?.level, 1)),
+            xp: Math.max(0, normalizeNumber(data.data?.xp, 0)),
+            nextLevelXp: Math.max(1, normalizeNumber(data.data?.nextLevelXp, 1000)),
+            averageAccuracy: clampPercent(
+              normalizeNumber(
+                data.data?.averageAccuracy ?? data.data?.accuracy ?? 0,
+                0
+              )
+            ),
+          };
+
+          setCurrentStats(normalized);
           
           // Générer des données de progression pour les 7 derniers jours
           const mockProgressData: ProgressData[] = [];
           for (let i = 6; i >= 0; i--) {
             const date = new Date();
             date.setDate(date.getDate() - i);
+            const baseWords = Math.floor(normalized.wordsWritten / 7);
+            const baseTime = Math.floor(normalized.timeSpent / 7);
+            const baseAcc = normalized.averageAccuracy;
             mockProgressData.push({
               date: date.toISOString().split('T')[0],
-              wordsWritten: Math.floor(data.data.wordsWritten / 7) + Math.floor(Math.random() * 200),
-              accuracy: data.data.accuracy + Math.floor(Math.random() * 10) - 5,
-              timeSpent: Math.floor(data.data.timeSpent / 7) + Math.floor(Math.random() * 20),
-              exercisesCompleted: Math.floor(data.data.exercisesCompleted / 7) + Math.floor(Math.random() * 3)
+              wordsWritten: Math.max(0, baseWords) + Math.floor(Math.random() * 200),
+              accuracy: clampPercent(baseAcc + Math.floor(Math.random() * 10) - 5),
+              timeSpent: Math.max(0, baseTime) + Math.floor(Math.random() * 20),
+              exercisesCompleted: Math.max(0, Math.floor(normalized.exercisesCompleted / 7)) + Math.floor(Math.random() * 3)
             });
           }
           setProgressData(mockProgressData);
@@ -137,21 +168,21 @@ export default function ProgressionPage() {
               id: 'words',
               title: 'Mots à écrire',
               target: 10000,
-              current: data.data.wordsWritten,
+              current: normalized.wordsWritten,
               unit: 'mots'
             },
             {
               id: 'time',
               title: 'Temps de pratique',
               target: 300,
-              current: data.data.timeSpent,
+              current: normalized.timeSpent,
               unit: 'minutes'
             },
             {
               id: 'exercises',
               title: 'Exercices complétés',
               target: 50,
-              current: data.data.exercisesCompleted,
+              current: normalized.exercisesCompleted,
               unit: 'exercices'
             }
           ]);
@@ -163,8 +194,8 @@ export default function ProgressionPage() {
               title: 'Série de 7 jours',
               description: 'Pratiquez 7 jours consécutifs',
               icon: Calendar,
-              unlocked: data.data.currentStreak >= 7,
-              progress: Math.min(data.data.currentStreak, 7),
+              unlocked: normalized.currentStreak >= 7,
+              progress: Math.min(normalized.currentStreak, 7),
               maxProgress: 7
             },
             {
@@ -172,8 +203,8 @@ export default function ProgressionPage() {
               title: 'Écrivain prolifique',
               description: 'Écrivez 10,000 mots',
               icon: BookOpen,
-              unlocked: data.data.wordsWritten >= 10000,
-              progress: Math.min(data.data.wordsWritten, 10000),
+              unlocked: normalized.wordsWritten >= 10000,
+              progress: Math.min(normalized.wordsWritten, 10000),
               maxProgress: 10000
             },
             {
@@ -181,8 +212,8 @@ export default function ProgressionPage() {
               title: 'Maître de la précision',
               description: 'Atteignez 95% de précision',
               icon: Target,
-              unlocked: data.data.accuracy >= 95,
-              progress: Math.min(data.data.accuracy, 95),
+              unlocked: normalized.accuracy >= 95,
+              progress: Math.min(normalized.accuracy, 95),
               maxProgress: 95
             },
             {
@@ -190,8 +221,8 @@ export default function ProgressionPage() {
               title: 'Exercices acharné',
               description: 'Complétez 100 exercices',
               icon: Zap,
-              unlocked: data.data.exercisesCompleted >= 100,
-              progress: Math.min(data.data.exercisesCompleted, 100),
+              unlocked: normalized.exercisesCompleted >= 100,
+              progress: Math.min(normalized.exercisesCompleted, 100),
               maxProgress: 100
             }
           ]);
@@ -306,10 +337,10 @@ export default function ProgressionPage() {
               {getTrendIcon(currentStats.averageAccuracy, 89)}
             </div>
             <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
-              {Math.round(currentStats.averageAccuracy)}%
+              {Number.isFinite(currentStats.averageAccuracy) ? Math.round(currentStats.averageAccuracy) : 0}%
             </div>
             <div className="text-xs sm:text-sm text-gray-600">Précision moyenne</div>
-            <div className="text-xs text-green-600 mt-2">+{Math.floor(currentStats.averageAccuracy * 0.05)}% cette semaine</div>
+            <div className="text-xs text-green-600 mt-2">+{Number.isFinite(currentStats.averageAccuracy) ? Math.floor(currentStats.averageAccuracy * 0.05) : 0}% cette semaine</div>
           </div>
 
           <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-xl">
@@ -348,18 +379,18 @@ export default function ProgressionPage() {
             <div className="flex items-center gap-2">
               <Star className="w-5 h-5 text-yellow-500" />
               <span className="text-lg font-semibold text-gray-900">
-                {currentStats.xp} / {currentStats.nextLevelXp} XP
+                {normalizeNumber(currentStats.xp, 0)} / {Math.max(1, normalizeNumber(currentStats.nextLevelXp, 1000))} XP
               </span>
             </div>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
             <div
               className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-500"
-              style={{ width: `${(currentStats.xp / currentStats.nextLevelXp) * 100}%` }}
+              style={{ width: `${clampPercent((normalizeNumber(currentStats.xp, 0) / Math.max(1, normalizeNumber(currentStats.nextLevelXp, 1000))) * 100)}%` }}
             />
           </div>
           <p className="text-sm text-gray-600">
-            {currentStats.nextLevelXp - currentStats.xp} XP jusqu'au niveau {currentStats.level + 1}
+            {Math.max(0, Math.max(1, normalizeNumber(currentStats.nextLevelXp, 1000)) - normalizeNumber(currentStats.xp, 0))} XP jusqu'au niveau {currentStats.level + 1}
           </p>
         </div>
 

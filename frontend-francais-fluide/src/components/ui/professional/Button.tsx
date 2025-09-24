@@ -19,18 +19,18 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent-500/40 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm';
   
   const variantClasses = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-    secondary: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-blue-500',
-    ghost: 'text-gray-600 hover:bg-gray-100 focus:ring-blue-500',
+    primary: 'bg-gradient-to-b from-accent-500 to-accent-600 text-white hover:brightness-105 active:brightness-95',
+    secondary: 'bg-white/80 text-gray-700 border border-gray-300/70 hover:bg-white/90 backdrop-blur-sm',
+    ghost: 'text-gray-700 hover:bg-gray-100/80',
   };
   
   const sizeClasses = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-sm',
-    lg: 'px-6 py-3 text-base',
+    sm: 'px-3 py-1.5 text-sm rounded-full',
+    md: 'px-4 py-2 text-sm rounded-full',
+    lg: 'px-6 py-3 text-base rounded-full',
   };
   
   return (
@@ -46,7 +46,7 @@ export const Button: React.FC<ButtonProps> = ({
       {...props}
     >
       {loading ? (
-        <div className="w-4 h-4 border-2 border-transparent border-t-current rounded-full animate-spin mr-2" />
+        <div className="w-4 h-4 border-2 border-transparent border-t-white/90 rounded-full animate-spin mr-2" />
       ) : null}
       {children}
     </button>

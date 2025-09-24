@@ -187,6 +187,52 @@ async function main() {
     }
   ];
 
+  // Ajouter 2 exercices par défaut supplémentaires (total ≥ 5)
+  exercises.push(
+    {
+      title: 'Compréhension – Texte court',
+      description: 'Questions de compréhension sur un court paragraphe.',
+      type: 'comprehension',
+      difficulty: 'easy',
+      level: 1,
+      questions: [
+        {
+          question: 'Quel est le thème principal du texte ?',
+          options: ['La météo', 'Les transports', 'La cuisine', 'La musique'],
+          correctAnswer: 'La météo',
+          explanation: 'Le paragraphe parle des changements de temps dans la journée.'
+        },
+         {
+          question: 'À quel moment de la journée fait-il le plus chaud ?',
+          options: ['Le matin', 'Le midi', 'Le soir', 'La nuit'],
+          correctAnswer: 'Le midi',
+          explanation: 'Le texte indique que la température monte à midi.'
+        }
+      ]
+    },
+    {
+      title: 'Orthographe – Homophones fréquents',
+      description: 'Choisissez la bonne orthographe entre des homophones courants.',
+      type: 'spelling',
+      difficulty: 'medium',
+      level: 2,
+      questions: [
+        {
+          question: 'Il va __ l\'école tous les jours.',
+          options: ['à', 'a'],
+          correctAnswer: 'à',
+          explanation: '"à" est une préposition, "a" est le verbe avoir.'
+        },
+        {
+          question: 'Elle __ fini ses devoirs.',
+          options: ['a', 'à'],
+          correctAnswer: 'a',
+          explanation: 'Ici, il s\'agit du verbe avoir, 3e personne du singulier.'
+        }
+      ]
+    }
+  );
+
   for (const exerciseData of exercises) {
     const exercise = await prisma.exercise.create({
       data: {

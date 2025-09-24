@@ -86,7 +86,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Navigation */}
       <Navigation />
 
@@ -95,7 +95,7 @@ export default function DashboardPage() {
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">
               Tableau de bord
             </h1>
             <p className="text-gray-600 mb-6">
@@ -104,7 +104,7 @@ export default function DashboardPage() {
             
             
             {/* Plan d'abonnement */}
-            <Card className="mb-8">
+            <Card className="mb-8 backdrop-blur-sm bg-white/70 border-white/40 shadow-sm">
               <CardContent>
                 <div className="flex items-center justify-between">
                   <div>
@@ -126,7 +126,7 @@ export default function DashboardPage() {
                     <p className="text-sm text-gray-600 mb-2">Fonctionnalités disponibles:</p>
                     <div className="flex flex-wrap gap-2">
                       {getStatus().features.slice(0, 3).map((feature, index) => (
-                        <span key={index} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                        <span key={index} className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200/60">
                           {feature}
                         </span>
                       ))}
@@ -144,10 +144,10 @@ export default function DashboardPage() {
 
           {/* Actions Principales */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="hover:shadow-md transition-shadow duration-200 cursor-pointer" onClick={() => window.location.href = '/editor'}>
+            <Card className="hover:shadow-md transition-all duration-200 cursor-pointer backdrop-blur-sm bg-white/70 border-white/40" onClick={() => window.location.href = '/editor'}>
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center ring-1 ring-blue-200/60">
                     <Edit3 className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
@@ -158,10 +158,10 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-md transition-shadow duration-200 cursor-pointer" onClick={() => window.location.href = '/exercices'}>
+            <Card className="hover:shadow-md transition-all duration-200 cursor-pointer backdrop-blur-sm bg-white/70 border-white/40" onClick={() => window.location.href = '/exercices'}>
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center ring-1 ring-green-200/60">
                     <BookOpen className="w-6 h-6 text-green-600" />
                   </div>
                   <div>
@@ -172,10 +172,10 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-md transition-shadow duration-200 cursor-pointer" onClick={() => window.location.href = '/progression'}>
+            <Card className="hover:shadow-md transition-all duration-200 cursor-pointer backdrop-blur-sm bg-white/70 border-white/40" onClick={() => window.location.href = '/progression'}>
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center ring-1 ring-purple-200/60">
                     <BarChart3 className="w-6 h-6 text-purple-600" />
                   </div>
                   <div>
@@ -263,7 +263,7 @@ export default function DashboardPage() {
 
           {/* Actions Rapides et Activités */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
+            <Card className="backdrop-blur-sm bg-white/70 border-white/40">
               <CardHeader>
                 <CardTitle>Actions rapides</CardTitle>
               </CardHeader>
@@ -272,7 +272,7 @@ export default function DashboardPage() {
                   <Button 
                     onClick={() => window.location.href = '/editor'}
                     variant="ghost"
-                    className="w-full justify-start p-3 h-auto"
+                    className="w-full justify-start p-3 h-auto rounded-xl"
                   >
                     <Edit3 className="w-5 h-5 mr-3" />
                     <div className="text-left">
@@ -283,7 +283,7 @@ export default function DashboardPage() {
                   <Button 
                     onClick={() => window.location.href = '/exercices'}
                     variant="ghost"
-                    className="w-full justify-start p-3 h-auto"
+                    className="w-full justify-start p-3 h-auto rounded-xl"
                   >
                     <BookOpen className="w-5 h-5 mr-3" />
                     <div className="text-left">
@@ -294,7 +294,7 @@ export default function DashboardPage() {
                   <Button 
                     onClick={() => window.location.href = '/dictations'}
                     variant="ghost"
-                    className="w-full justify-start p-3 h-auto"
+                    className="w-full justify-start p-3 h-auto rounded-xl"
                   >
                     <Headphones className="w-5 h-5 mr-3" />
                     <div className="text-left">
@@ -305,7 +305,7 @@ export default function DashboardPage() {
                   <Button 
                     onClick={() => window.location.href = '/analytics'}
                     variant="ghost"
-                    className="w-full justify-start p-3 h-auto"
+                    className="w-full justify-start p-3 h-auto rounded-xl"
                   >
                     <BarChart3 className="w-5 h-5 mr-3" />
                     <div className="text-left">
@@ -317,7 +317,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="backdrop-blur-sm bg-white/70 border-white/40">
               <CardHeader>
                 <CardTitle>Activités récentes</CardTitle>
               </CardHeader>

@@ -200,10 +200,10 @@ export default function DemoPage() {
                     Rejoignez des milliers d'utilisateurs qui améliorent déjà leur français
                   </p>
                   <div className="space-y-2">
-                    <Button className="w-full">
+                    <Button className="w-full" onClick={() => (window.location.href = '/auth/login')}>
                       Commencer l'essai gratuit
                     </Button>
-                    <Button variant="secondary" className="w-full">
+                    <Button variant="secondary" className="w-full" onClick={() => (window.location.href = '/subscription')}>
                       Voir les plans d'abonnement
                     </Button>
                   </div>

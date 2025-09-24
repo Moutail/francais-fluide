@@ -33,9 +33,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const institutionMode = process.env.NEXT_PUBLIC_INSTITUTION_MODE === 'true';
   return (
-    <html lang="fr">
-      <body className="font-sans">
+    <html lang="fr" data-institution={institutionMode ? 'true' : 'false'}>
+      <body className="font-sans" data-institution={institutionMode ? 'true' : 'false'}>
         {children}
       </body>
     </html>

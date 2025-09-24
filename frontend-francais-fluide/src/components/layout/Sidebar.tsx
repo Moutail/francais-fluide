@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -79,6 +79,26 @@ const sidebarItems: SidebarItem[] = [
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [userProgress, setUserProgress] = useState<any>(null);
+
+  useEffect(() => {
+    const loadUserProgress = async () => {
+      try {
+        const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
+        if (!token) return;
+        const response = await fetch('http://localhost:3001/api/progress', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) setUserProgress(data.data);
+        }
+      } catch (e) {
+        // silencieux
+      }
+    };
+    loadUserProgress();
+  }, []);
 
   const toggleExpanded = (itemName: string) => {
     setExpandedItems(prev => 
@@ -184,53 +204,59 @@ export const Sidebar: React.FC = () => {
           })}
         </nav>
 
-        {/* Section des statistiques rapides */}
+        {/* Objectifs du jour (données réelles) */}
         <div className="px-4 py-4 border-t border-gray-200">
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Progression du jour</h3>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Mots écrits</span>
-                <span className="font-medium text-gray-900">247</span>
-              </div>
-              
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Exercices</span>
-                <span className="font-medium text-gray-900">3/5</span>
-              </div>
-              
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Précision</span>
-                <span className="font-medium text-green-600">92%</span>
-              </div>
-            </div>
+            <h3 className="text-sm font-medium text-gray-900 mb-3">Objectifs du jour</h3>
 
-            <div className="mt-3">
-              <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-                <span>Objectif quotidien</span>
-                <span>75%</span>
+            <div className="space-y-3">
+              <div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Mots à écrire</span>
+                  <span className="font-medium text-gray-900">{Math.max(0, userProgress?.wordsWritten || 0)}/500</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                  <div
+                    className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(((userProgress?.wordsWritten || 0) / 500) * 100, 100)}%` }}
+                  />
+                </div>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-300"
-                  style={{ width: '75%' }}
-                />
+
+              <div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Précision cible</span>
+                  <span className="font-medium text-gray-900">{Math.round(userProgress?.accuracy || 0)}%/90%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(((userProgress?.accuracy || 0) / 90) * 100, 100)}%` }}
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Section des succès récents */}
+        {/* Succès récents (dérivés) */}
         <div className="px-4 py-4">
           <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-4">
             <div className="flex items-center mb-2">
               <Award className="w-4 h-4 text-yellow-600 mr-2" />
-              <h3 className="text-sm font-medium text-gray-900">Succès récent</h3>
+              <h3 className="text-sm font-medium text-gray-900">Succès récents</h3>
             </div>
-            <p className="text-xs text-gray-600">
-              Série de 7 jours complétée
-            </p>
+            <div className="space-y-1 text-xs text-gray-700">
+              {userProgress?.currentStreak >= 7 && (
+                <p>Série de 7 jours complétée</p>
+              )}
+              {userProgress?.wordsWritten >= 100 && (
+                <p>100 mots écrits</p>
+              )}
+              {!userProgress && (
+                <p>Commencez à écrire pour débloquer vos succès</p>
+              )}
+            </div>
           </div>
         </div>
       </div>

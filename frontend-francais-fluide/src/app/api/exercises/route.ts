@@ -1,51 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+// Proxy vers le backend (port 3001) pour éviter d'utiliser le client Prisma côté frontend
 
 // GET /api/exercises - Récupérer tous les exercices
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type');
-    const difficulty = searchParams.get('difficulty');
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const query = searchParams.toString();
+    const token = request.headers.get('authorization') || '';
 
-    const where: any = {};
-    if (type) where.type = type;
-    if (difficulty) where.difficulty = difficulty;
-
-    const [exercises, total] = await Promise.all([
-      prisma.exercise.findMany({
-        where,
-        include: {
-          questions: true,
-          submissions: {
-            take: 1,
-            orderBy: { completedAt: 'desc' }
-          }
-        },
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: { createdAt: 'desc' }
-      }),
-      prisma.exercise.count({ where })
-    ]);
-
-    return NextResponse.json({
-      success: true,
-      data: exercises,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit)
-      }
+    const resp = await fetch(`http://localhost:3001/api/exercises${query ? `?${query}` : ''}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: token } : {}),
+      },
+      cache: 'no-store',
     });
 
+    const data = await resp.json();
+    return NextResponse.json(data, { status: resp.status });
   } catch (error) {
-    console.error('Erreur récupération exercices:', error);
+    console.error('Erreur proxy exercices:', error);
     return NextResponse.json(
       { success: false, error: 'Erreur interne du serveur' },
       { status: 500 }
@@ -56,38 +30,20 @@ export async function GET(request: NextRequest) {
 // POST /api/exercises - Créer un nouvel exercice
 export async function POST(request: NextRequest) {
   try {
+    const token = request.headers.get('authorization') || '';
     const body = await request.json();
-    const { title, description, type, difficulty, level, questions } = body;
-
-    const exercise = await prisma.exercise.create({
-      data: {
-        title,
-        description,
-        type,
-        difficulty,
-        level: level || 1,
-        questions: {
-          create: questions.map((q: any, index: number) => ({
-            question: q.question,
-            options: JSON.stringify(q.options),
-            correctAnswer: q.correctAnswer,
-            explanation: q.explanation,
-            order: index
-          }))
-        }
+    const resp = await fetch('http://localhost:3001/api/exercises', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: token } : {}),
       },
-      include: {
-        questions: true
-      }
+      body: JSON.stringify(body),
     });
-
-    return NextResponse.json({
-      success: true,
-      data: exercise
-    }, { status: 201 });
-
+    const data = await resp.json();
+    return NextResponse.json(data, { status: resp.status });
   } catch (error) {
-    console.error('Erreur création exercice:', error);
+    console.error('Erreur proxy création exercice:', error);
     return NextResponse.json(
       { success: false, error: 'Erreur interne du serveur' },
       { status: 500 }
