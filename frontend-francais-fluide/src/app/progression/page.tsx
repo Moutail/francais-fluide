@@ -101,7 +101,7 @@ export default function ProgressionPage() {
         }
 
         // Charger la progression utilisateur
-        const response = await fetch('/api/progress', {
+        const response = await fetch('http://localhost:3001/api/progress', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -114,7 +114,7 @@ export default function ProgressionPage() {
 
         const data = await response.json();
         if (data.success) {
-          setCurrentStats(data.progress);
+          setCurrentStats(data.data);
           
           // Générer des données de progression pour les 7 derniers jours
           const mockProgressData: ProgressData[] = [];
@@ -123,10 +123,10 @@ export default function ProgressionPage() {
             date.setDate(date.getDate() - i);
             mockProgressData.push({
               date: date.toISOString().split('T')[0],
-              wordsWritten: Math.floor(data.progress.wordsWritten / 7) + Math.floor(Math.random() * 200),
-              accuracy: data.progress.averageAccuracy + Math.floor(Math.random() * 10) - 5,
-              timeSpent: Math.floor(data.progress.timeSpent / 7) + Math.floor(Math.random() * 20),
-              exercisesCompleted: Math.floor(data.progress.exercisesCompleted / 7) + Math.floor(Math.random() * 3)
+              wordsWritten: Math.floor(data.data.wordsWritten / 7) + Math.floor(Math.random() * 200),
+              accuracy: data.data.accuracy + Math.floor(Math.random() * 10) - 5,
+              timeSpent: Math.floor(data.data.timeSpent / 7) + Math.floor(Math.random() * 20),
+              exercisesCompleted: Math.floor(data.data.exercisesCompleted / 7) + Math.floor(Math.random() * 3)
             });
           }
           setProgressData(mockProgressData);
@@ -137,21 +137,21 @@ export default function ProgressionPage() {
               id: 'words',
               title: 'Mots à écrire',
               target: 10000,
-              current: data.progress.wordsWritten,
+              current: data.data.wordsWritten,
               unit: 'mots'
             },
             {
               id: 'time',
               title: 'Temps de pratique',
               target: 300,
-              current: data.progress.timeSpent,
+              current: data.data.timeSpent,
               unit: 'minutes'
             },
             {
               id: 'exercises',
               title: 'Exercices complétés',
               target: 50,
-              current: data.progress.exercisesCompleted,
+              current: data.data.exercisesCompleted,
               unit: 'exercices'
             }
           ]);
@@ -163,8 +163,8 @@ export default function ProgressionPage() {
               title: 'Série de 7 jours',
               description: 'Pratiquez 7 jours consécutifs',
               icon: Calendar,
-              unlocked: data.progress.currentStreak >= 7,
-              progress: Math.min(data.progress.currentStreak, 7),
+              unlocked: data.data.currentStreak >= 7,
+              progress: Math.min(data.data.currentStreak, 7),
               maxProgress: 7
             },
             {
@@ -172,8 +172,8 @@ export default function ProgressionPage() {
               title: 'Écrivain prolifique',
               description: 'Écrivez 10,000 mots',
               icon: BookOpen,
-              unlocked: data.progress.wordsWritten >= 10000,
-              progress: Math.min(data.progress.wordsWritten, 10000),
+              unlocked: data.data.wordsWritten >= 10000,
+              progress: Math.min(data.data.wordsWritten, 10000),
               maxProgress: 10000
             },
             {
@@ -181,8 +181,8 @@ export default function ProgressionPage() {
               title: 'Maître de la précision',
               description: 'Atteignez 95% de précision',
               icon: Target,
-              unlocked: data.progress.averageAccuracy >= 95,
-              progress: Math.min(data.progress.averageAccuracy, 95),
+              unlocked: data.data.accuracy >= 95,
+              progress: Math.min(data.data.accuracy, 95),
               maxProgress: 95
             },
             {
@@ -190,8 +190,8 @@ export default function ProgressionPage() {
               title: 'Exercices acharné',
               description: 'Complétez 100 exercices',
               icon: Zap,
-              unlocked: data.progress.exercisesCompleted >= 100,
-              progress: Math.min(data.progress.exercisesCompleted, 100),
+              unlocked: data.data.exercisesCompleted >= 100,
+              progress: Math.min(data.data.exercisesCompleted, 100),
               maxProgress: 100
             }
           ]);

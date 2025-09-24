@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   CheckCircle
 } from 'lucide-react';
+import { Button } from '@/components/ui/professional/Button';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -51,10 +52,10 @@ export default function LoginPage() {
       <div className="max-w-md w-full">
         {/* Logo et titre */}
         <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-4">
+          <div className="mx-auto w-16 h-16 bg-accent-500 rounded-2xl flex items-center justify-center mb-4 shadow-sm">
             <span className="text-white font-bold text-2xl">F</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-primary-900 mb-2">
             Connexion
           </h1>
           <p className="text-gray-600">
@@ -117,20 +118,16 @@ export default function LoginPage() {
             )}
 
             {/* Bouton de connexion */}
-            <button
+            <Button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold text-lg shadow-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+              variant="primary"
+              size="lg"
+              className="w-full gap-2"
+              loading={isLoading}
             >
-              {isLoading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Connexion en cours...
-                </>
-              ) : (
-                'Se connecter'
-              )}
-            </button>
+              Se connecter
+            </Button>
           </form>
 
           {/* Lien d'inscription */}
@@ -139,7 +136,7 @@ export default function LoginPage() {
               Pas encore de compte ?{' '}
               <a
                 href="/auth/register"
-                className="text-blue-600 hover:text-blue-700 font-medium"
+                className="text-accent-600 hover:text-accent-500 font-medium"
               >
                 Créer un compte
               </a>

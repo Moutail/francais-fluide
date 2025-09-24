@@ -40,13 +40,13 @@ const sidebarItems: SidebarItem[] = [
   },
   {
     name: 'Exercices',
-    href: '/exercises',
+    href: '/exercices',
     icon: BookOpen,
     badge: '8'
   },
   {
     name: 'Progression',
-    href: '/progress',
+    href: '/progression',
     icon: BarChart3
   },
   {
@@ -229,7 +229,7 @@ export const Sidebar: React.FC = () => {
               <h3 className="text-sm font-medium text-gray-900">Succès récent</h3>
             </div>
             <p className="text-xs text-gray-600">
-              🎉 Série de 7 jours complétée!
+              Série de 7 jours complétée
             </p>
           </div>
         </div>

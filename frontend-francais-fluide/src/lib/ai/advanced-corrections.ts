@@ -1,243 +1,288 @@
 // src/lib/ai/advanced-corrections.ts
+import { SUBSCRIPTION_PLANS } from '@/lib/subscription/plans';
 
-/**
- * Système de corrections avancées avec IA pour FrançaisFluide
- * Intégration OpenAI GPT-4, Claude API avec fallback LanguageTool
- */
-
-import { GrammarError, CorrectionResult, TextAnalysis } from '@/types/grammar';
-
-// Types pour les APIs IA
-export interface AIProvider {
-  name: 'openai' | 'claude' | 'languageTool';
-  priority: number;
-  cost: number;
-  available: boolean;
-}
-
-export interface AICorrectionRequest {
-  text: string;
-  context?: string;
-  level?: 'beginner' | 'intermediate' | 'advanced';
-  focus?: 'grammar' | 'spelling' | 'style' | 'all';
-  maxCorrections?: number;
-}
-
-export interface AICorrectionResponse {
-  provider: string;
-  corrections: AICorrection[];
-  suggestions: string[];
-  explanations: string[];
-  confidence: number;
-  processingTime: number;
-  cost: number;
-}
-
-export interface AICorrection {
-  original: string;
-  corrected: string;
-  type: 'grammar' | 'spelling' | 'style' | 'punctuation';
+export interface AdvancedCorrection {
+  id: string;
+  type: 'grammar' | 'spelling' | 'style' | 'vocabulary' | 'punctuation';
+  severity: 'error' | 'warning' | 'suggestion';
+  position: {
+    start: number;
+    end: number;
+  };
+  originalText: string;
+  suggestedText: string;
   explanation: string;
-  confidence: number;
+  confidence: number; // 0-1
   alternatives?: string[];
+  context?: string;
+  learningTip?: string;
+  relatedRules?: string[];
 }
 
-// Configuration des providers IA
-const AI_PROVIDERS: AIProvider[] = [
-  {
-    name: 'openai',
-    priority: 1,
-    cost: 0.002, // $0.002 per 1K tokens
-    available: true
-  },
-  {
-    name: 'claude',
-    priority: 2,
-    cost: 0.0015, // $0.0015 per 1K tokens
-    available: true
-  },
-  {
-    name: 'languageTool',
-    priority: 3,
-    cost: 0, // Gratuit
-    available: true
+export interface UserProfile {
+  id: string;
+  level: 'beginner' | 'intermediate' | 'advanced';
+  weakPoints: string[];
+  strongPoints: string[];
+  learningStyle: 'visual' | 'auditory' | 'kinesthetic' | 'mixed';
+  preferredDifficulty: 'easy' | 'medium' | 'hard';
+  recentErrors: string[];
+  progressHistory: {
+    date: string;
+    accuracy: number;
+    errorsCount: number;
+    timeSpent: number;
+  }[];
+}
+
+export interface CorrectionContext {
+  text: string;
+  userProfile: UserProfile;
+  subscriptionPlan: string;
+  exerciseType?: 'dictation' | 'free_writing' | 'grammar' | 'vocabulary';
+  timeSpent?: number;
+  previousCorrections?: AdvancedCorrection[];
+}
+
+export class AdvancedCorrectionEngine {
+  private apiKey: string;
+  private baseUrl: string;
+
+  constructor(apiKey: string, baseUrl: string = 'https://api.openai.com/v1') {
+    this.apiKey = apiKey;
+    this.baseUrl = baseUrl;
   }
-];
 
-// Prompts optimisés pour la correction française
-const FRENCH_CORRECTION_PROMPTS = {
-  openai: `Tu es un expert en grammaire française. Analyse ce texte et fournis des corrections précises.
+  /**
+   * Analyse un texte et retourne des corrections avancées
+   */
+  async analyzeText(context: CorrectionContext): Promise<AdvancedCorrection[]> {
+    try {
+      const prompt = this.buildAnalysisPrompt(context);
+      const response = await this.callOpenAI(prompt, context);
+      return this.parseCorrections(response, context);
+    } catch (error) {
+      console.error('Erreur lors de l\'analyse:', error);
+      return this.getFallbackCorrections(context);
+    }
+  }
 
-TEXTE À CORRIGER:
-"{text}"
+  /**
+   * Génère des exercices personnalisés basés sur les erreurs de l'utilisateur
+   */
+  async generatePersonalizedExercises(
+    userProfile: UserProfile,
+    subscriptionPlan: string,
+    count: number = 5
+  ): Promise<Array<{
+    id: string;
+    type: string;
+    title: string;
+    content: string;
+    difficulty: string;
+    targetSkills: string[];
+  }>> {
+    const plan = SUBSCRIPTION_PLANS.find(p => p.id === subscriptionPlan);
+    const maxExercises = plan?.limits.exercisesPerDay || 3;
 
-CONTEXTE: {context}
-NIVEAU: {level}
+    if (count > maxExercises) {
+      count = maxExercises;
+    }
 
-Fournis une réponse JSON avec cette structure:
+    try {
+      const prompt = this.buildExerciseGenerationPrompt(userProfile, count);
+      const response = await this.callOpenAI(prompt, { userProfile, subscriptionPlan });
+      return this.parseExercises(response);
+    } catch (error) {
+      console.error('Erreur lors de la génération d\'exercices:', error);
+      return this.getFallbackExercises(userProfile, count);
+    }
+  }
+
+  /**
+   * Fournit des explications pédagogiques adaptées au niveau de l'utilisateur
+   */
+  async getEducationalExplanation(
+    error: AdvancedCorrection,
+    userProfile: UserProfile
+  ): Promise<{
+    explanation: string;
+    examples: string[];
+    practiceTips: string[];
+    relatedConcepts: string[];
+  }> {
+    try {
+      const prompt = this.buildExplanationPrompt(error, userProfile);
+      const response = await this.callOpenAI(prompt, { error, userProfile });
+      return this.parseExplanation(response);
+    } catch (error) {
+      console.error('Erreur lors de la génération d\'explication:', error);
+      return this.getFallbackExplanation(error, userProfile);
+    }
+  }
+
+  /**
+   * Analyse le niveau de l'utilisateur et suggère des améliorations
+   */
+  async analyzeUserLevel(
+    recentTexts: string[],
+    errorHistory: AdvancedCorrection[]
+  ): Promise<{
+    currentLevel: 'beginner' | 'intermediate' | 'advanced';
+    progress: number; // 0-100
+    recommendations: string[];
+    nextGoals: string[];
+  }> {
+    try {
+      const prompt = this.buildLevelAnalysisPrompt(recentTexts, errorHistory);
+      const response = await this.callOpenAI(prompt, { recentTexts, errorHistory });
+      return this.parseLevelAnalysis(response);
+    } catch (error) {
+      console.error('Erreur lors de l\'analyse de niveau:', error);
+      return this.getFallbackLevelAnalysis();
+    }
+  }
+
+  private buildAnalysisPrompt(context: CorrectionContext): string {
+    const { text, userProfile, subscriptionPlan, exerciseType } = context;
+    
+    return `Tu es un expert en français et un tuteur pédagogique. Analyse ce texte en français et fournis des corrections détaillées.
+
+CONTEXTE UTILISATEUR:
+- Niveau: ${userProfile.level}
+- Points faibles: ${userProfile.weakPoints.join(', ')}
+- Style d'apprentissage: ${userProfile.learningStyle}
+- Type d'exercice: ${exerciseType || 'général'}
+
+TEXTE À ANALYSER:
+"${text}"
+
+INSTRUCTIONS:
+1. Identifie TOUTES les erreurs (grammaire, orthographe, style, ponctuation)
+2. Pour chaque erreur, fournis:
+   - Type d'erreur
+   - Position exacte (caractères)
+   - Texte original et suggestion
+   - Explication pédagogique adaptée au niveau ${userProfile.level}
+   - Conseil d'apprentissage
+   - Règles grammaticales liées
+3. Adapte le niveau de détail selon le plan d'abonnement: ${subscriptionPlan}
+4. Priorise les erreurs les plus importantes pour l'apprentissage
+
+RÉPONSE ATTENDUE (JSON):
 {
   "corrections": [
     {
-      "original": "texte incorrect",
-      "corrected": "texte corrigé",
-      "type": "grammar|spelling|style|punctuation",
+      "type": "grammar|spelling|style|vocabulary|punctuation",
+      "severity": "error|warning|suggestion",
+      "position": {"start": 0, "end": 5},
+      "originalText": "texte original",
+      "suggestedText": "texte corrigé",
       "explanation": "explication pédagogique",
       "confidence": 0.95,
-      "alternatives": ["alternative1", "alternative2"]
+      "alternatives": ["alt1", "alt2"],
+      "learningTip": "conseil d'apprentissage",
+      "relatedRules": ["règle1", "règle2"]
     }
-  ],
-  "suggestions": ["suggestion globale 1", "suggestion globale 2"],
-  "explanations": ["explication détaillée 1", "explication détaillée 2"],
-  "confidence": 0.9
-}
+  ]
+}`;
+  }
 
-Règles:
-- Sois précis et pédagogique
-- Explique pourquoi la correction est nécessaire
-- Propose des alternatives quand approprié
-- Adapte le niveau d'explication au niveau de l'utilisateur`,
+  private buildExerciseGenerationPrompt(userProfile: UserProfile, count: number): string {
+    return `Tu es un expert en pédagogie du français. Génère ${count} exercices personnalisés pour cet utilisateur.
 
-  claude: `En tant qu'expert en français, corrige ce texte avec des explications pédagogiques.
+PROFIL UTILISATEUR:
+- Niveau: ${userProfile.level}
+- Points faibles: ${userProfile.weakPoints.join(', ')}
+- Points forts: ${userProfile.strongPoints.join(', ')}
+- Style d'apprentissage: ${userProfile.learningStyle}
+- Erreurs récentes: ${userProfile.recentErrors.join(', ')}
 
-TEXTE: "{text}"
-CONTEXTE: {context}
-NIVEAU: {level}
+INSTRUCTIONS:
+1. Crée des exercices qui ciblent spécifiquement les points faibles
+2. Adapte la difficulté au niveau ${userProfile.level}
+3. Varie les types d'exercices (QCM, texte à trous, rédaction, etc.)
+4. Inclus des éléments visuels/auditifs selon le style d'apprentissage
+5. Propose des exercices progressifs
 
-Réponds en JSON:
+RÉPONSE ATTENDUE (JSON):
 {
-  "corrections": [
+  "exercises": [
     {
-      "original": "erreur",
-      "corrected": "correction",
-      "type": "grammar|spelling|style|punctuation",
-      "explanation": "Pourquoi cette correction est nécessaire",
-      "confidence": 0.9,
-      "alternatives": ["option1", "option2"]
+      "id": "ex_1",
+      "type": "grammar|vocabulary|conjugation|comprehension",
+      "title": "Titre de l'exercice",
+      "content": "Contenu détaillé de l'exercice",
+      "difficulty": "beginner|intermediate|advanced",
+      "targetSkills": ["compétence1", "compétence2"],
+      "estimatedTime": 5,
+      "instructions": "Instructions claires"
     }
-  ],
-  "suggestions": ["Amélioration globale"],
-  "explanations": ["Explication détaillée"],
-  "confidence": 0.85
-}
-
-Priorités:
-1. Corrections grammaticales essentielles
-2. Explications claires et pédagogiques
-3. Adaptations au niveau de l'utilisateur`,
-
-  languageTool: `Analyse grammaticale française pour: "{text}"`
-};
-
-class AdvancedAICorrector {
-  private providers: AIProvider[];
-  private cache: Map<string, AICorrectionResponse>;
-  private rateLimiters: Map<string, { count: number; resetTime: number }>;
-  private costs: Map<string, number>;
-  private fallbackDetector: any; // LanguageTool instance
-
-  constructor() {
-    this.providers = [...AI_PROVIDERS];
-    this.cache = new Map();
-    this.rateLimiters = new Map();
-    this.costs = new Map();
-    this.initializeFallback();
+  ]
+}`;
   }
 
-  /**
-   * Initialise le fallback LanguageTool
-   */
-  private initializeFallback(): void {
-    // Simulation d'initialisation LanguageTool
-    // En production, utiliser la vraie API LanguageTool
-    this.fallbackDetector = {
-      check: async (text: string) => {
-        // Simulation des corrections LanguageTool
-        return {
-          matches: [],
-          language: { name: 'French', code: 'fr' }
-        };
-      }
-    };
+  private buildExplanationPrompt(error: AdvancedCorrection, userProfile: UserProfile): string {
+    return `Tu es un tuteur de français. Explique cette erreur de manière pédagogique et adaptée.
+
+ERREUR:
+- Type: ${error.type}
+- Texte original: "${error.originalText}"
+- Texte suggéré: "${error.suggestedText}"
+- Explication actuelle: "${error.explanation}"
+
+PROFIL UTILISATEUR:
+- Niveau: ${userProfile.level}
+- Style d'apprentissage: ${userProfile.learningStyle}
+
+INSTRUCTIONS:
+1. Explique l'erreur de manière claire et simple
+2. Donne des exemples concrets adaptés au niveau
+3. Propose des conseils pratiques pour éviter cette erreur
+4. Lie à des concepts plus larges si approprié
+5. Adapte le style selon ${userProfile.learningStyle}
+
+RÉPONSE ATTENDUE (JSON):
+{
+  "explanation": "Explication détaillée et pédagogique",
+  "examples": ["exemple1", "exemple2", "exemple3"],
+  "practiceTips": ["conseil1", "conseil2"],
+  "relatedConcepts": ["concept1", "concept2"]
+}`;
   }
 
-  /**
-   * Effectue une correction avec IA
-   */
-  public async correctText(request: AICorrectionRequest): Promise<AICorrectionResponse> {
-    const startTime = performance.now();
-    const cacheKey = this.generateCacheKey(request);
+  private buildLevelAnalysisPrompt(recentTexts: string[], errorHistory: AdvancedCorrection[]): string {
+    return `Analyse le niveau de français de cet utilisateur basé sur ses textes récents et son historique d'erreurs.
 
-    // Vérifier le cache
-    const cached = this.cache.get(cacheKey);
-    if (cached && this.isCacheValid(cached)) {
-      return { ...cached, processingTime: performance.now() - startTime };
-    }
+TEXTES RÉCENTS (${recentTexts.length}):
+${recentTexts.map((text, i) => `${i + 1}. "${text}"`).join('\n')}
 
-    // Essayer les providers par ordre de priorité
-    for (const provider of this.providers) {
-      if (!provider.available) continue;
+HISTORIQUE D'ERREURS (${errorHistory.length}):
+${errorHistory.map((error, i) => `${i + 1}. ${error.type}: "${error.originalText}" → "${error.suggestedText}"`).join('\n')}
 
-      try {
-        const response = await this.correctWithProvider(provider, request);
-        if (response) {
-          response.processingTime = performance.now() - startTime;
-          
-          // Mettre en cache
-          this.cache.set(cacheKey, response);
-          
-          // Mettre à jour les coûts
-          this.updateCosts(provider.name, response.cost);
-          
-          return response;
-        }
-      } catch (error) {
-        console.error(`Erreur avec ${provider.name}:`, error);
-        provider.available = false;
-        continue;
-      }
-    }
+INSTRUCTIONS:
+1. Évalue le niveau actuel (beginner/intermediate/advanced)
+2. Calcule un pourcentage de progression (0-100)
+3. Identifie les forces et faiblesses
+4. Propose des recommandations spécifiques
+5. Définis des objectifs pour la progression
 
-    // Fallback vers LanguageTool
-    return this.fallbackToLanguageTool(request, startTime);
+RÉPONSE ATTENDUE (JSON):
+{
+  "currentLevel": "beginner|intermediate|advanced",
+  "progress": 75,
+  "strengths": ["force1", "force2"],
+  "weaknesses": ["faiblesse1", "faiblesse2"],
+  "recommendations": ["recommandation1", "recommandation2"],
+  "nextGoals": ["objectif1", "objectif2"]
+}`;
   }
 
-  /**
-   * Corrige avec un provider spécifique
-   */
-  private async correctWithProvider(
-    provider: AIProvider, 
-    request: AICorrectionRequest
-  ): Promise<AICorrectionResponse | null> {
-    // Vérifier le rate limiting
-    if (!this.checkRateLimit(provider.name)) {
-      throw new Error(`Rate limit atteint pour ${provider.name}`);
-    }
-
-    switch (provider.name) {
-      case 'openai':
-        return this.correctWithOpenAI(request);
-      case 'claude':
-        return this.correctWithClaude(request);
-      default:
-        return null;
-    }
-  }
-
-  /**
-   * Correction avec OpenAI GPT-4
-   */
-  private async correctWithOpenAI(request: AICorrectionRequest): Promise<AICorrectionResponse> {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      throw new Error('Clé API OpenAI non configurée');
-    }
-
-    const prompt = this.buildPrompt('openai', request);
-    
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  private async callOpenAI(prompt: string, context: any): Promise<string> {
+    const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${this.apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -245,7 +290,7 @@ class AdvancedAICorrector {
         messages: [
           {
             role: 'system',
-            content: 'Tu es un expert en grammaire française. Réponds uniquement en JSON valide.'
+            content: 'Tu es un expert en français et un tuteur pédagogique. Réponds toujours en JSON valide.'
           },
           {
             role: 'user',
@@ -253,293 +298,112 @@ class AdvancedAICorrector {
           }
         ],
         temperature: 0.3,
-        max_tokens: 2000,
-      }),
+        max_tokens: 2000
+      })
     });
 
     if (!response.ok) {
-      throw new Error(`Erreur OpenAI: ${response.statusText}`);
+      throw new Error(`Erreur API: ${response.status}`);
     }
 
     const data = await response.json();
-    const content = data.choices[0].message.content;
-    
-    // Parser la réponse JSON
-    const parsed = JSON.parse(content);
-    
-    // Estimer le coût (approximatif)
-    const cost = this.estimateCost('openai', prompt.length, content.length);
-
-    return {
-      provider: 'openai',
-      corrections: parsed.corrections || [],
-      suggestions: parsed.suggestions || [],
-      explanations: parsed.explanations || [],
-      confidence: parsed.confidence || 0.8,
-      processingTime: 0, // Sera défini par l'appelant
-      cost
-    };
+    return data.choices[0].message.content;
   }
 
-  /**
-   * Correction avec Claude API
-   */
-  private async correctWithClaude(request: AICorrectionRequest): Promise<AICorrectionResponse> {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      throw new Error('Clé API Claude non configurée');
-    }
-
-    const prompt = this.buildPrompt('claude', request);
-    
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-3-sonnet-20240229',
-        max_tokens: 2000,
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.3,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erreur Claude: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    const content = data.content[0].text;
-    
-    // Parser la réponse JSON
-    const parsed = JSON.parse(content);
-    
-    // Estimer le coût
-    const cost = this.estimateCost('claude', prompt.length, content.length);
-
-    return {
-      provider: 'claude',
-      corrections: parsed.corrections || [],
-      suggestions: parsed.suggestions || [],
-      explanations: parsed.explanations || [],
-      confidence: parsed.confidence || 0.85,
-      processingTime: 0,
-      cost
-    };
-  }
-
-  /**
-   * Fallback vers LanguageTool
-   */
-  private async fallbackToLanguageTool(
-    request: AICorrectionRequest, 
-    startTime: number
-  ): Promise<AICorrectionResponse> {
+  private parseCorrections(response: string, context: CorrectionContext): AdvancedCorrection[] {
     try {
-      const response = await this.fallbackDetector.check(request.text);
-      
-      const corrections: AICorrection[] = response.matches.map((match: any) => ({
-        original: match.context.text,
-        corrected: match.replacements?.[0]?.value || match.context.text,
-        type: this.mapLanguageToolCategory(match.rule.category.id),
-        explanation: match.message,
-        confidence: 0.7,
-        alternatives: match.replacements?.map((r: any) => r.value) || []
-      }));
-
-      return {
-        provider: 'languageTool',
-        corrections,
-        suggestions: ['Utilisez LanguageTool comme fallback'],
-        explanations: ['Corrections basées sur LanguageTool'],
-        confidence: 0.7,
-        processingTime: performance.now() - startTime,
-        cost: 0
-      };
+      const parsed = JSON.parse(response);
+      return parsed.corrections || [];
     } catch (error) {
-      console.error('Erreur LanguageTool fallback:', error);
-      
-      // Dernier recours : corrections basiques
-      return this.getBasicFallback(request, startTime);
+      console.error('Erreur parsing corrections:', error);
+      return this.getFallbackCorrections(context);
     }
   }
 
-  /**
-   * Fallback basique en cas d'échec total
-   */
-  private getBasicFallback(
-    request: AICorrectionRequest, 
-    startTime: number
-  ): AICorrectionResponse {
+  private parseExercises(response: string): Array<any> {
+    try {
+      const parsed = JSON.parse(response);
+      return parsed.exercises || [];
+    } catch (error) {
+      console.error('Erreur parsing exercises:', error);
+      return [];
+    }
+  }
+
+  private parseExplanation(response: string): any {
+    try {
+      const parsed = JSON.parse(response);
+      return parsed;
+    } catch (error) {
+      console.error('Erreur parsing explanation:', error);
+      return this.getFallbackExplanation(null, null);
+    }
+  }
+
+  private parseLevelAnalysis(response: string): any {
+    try {
+      const parsed = JSON.parse(response);
+      return parsed;
+    } catch (error) {
+      console.error('Erreur parsing level analysis:', error);
+      return this.getFallbackLevelAnalysis();
+    }
+  }
+
+  // Méthodes de fallback en cas d'erreur API
+  private getFallbackCorrections(context: CorrectionContext): AdvancedCorrection[] {
+    // Corrections basiques sans IA
+    return [];
+  }
+
+  private getFallbackExercises(userProfile: UserProfile, count: number): Array<any> {
+    // Exercices prédéfinis
+    return [];
+  }
+
+  private getFallbackExplanation(error: AdvancedCorrection | null, userProfile: UserProfile | null): any {
     return {
-      provider: 'fallback',
-      corrections: [],
-      suggestions: ['Service temporairement indisponible'],
-      explanations: ['Veuillez réessayer plus tard'],
-      confidence: 0.1,
-      processingTime: performance.now() - startTime,
-      cost: 0
+      explanation: "Explication non disponible",
+      examples: [],
+      practiceTips: [],
+      relatedConcepts: []
     };
   }
 
-  /**
-   * Construit le prompt pour un provider
-   */
-  private buildPrompt(provider: 'openai' | 'claude' | 'languageTool', request: AICorrectionRequest): string {
-    const template = FRENCH_CORRECTION_PROMPTS[provider];
-    
-    return template
-      .replace('{text}', request.text)
-      .replace('{context}', request.context || 'Général')
-      .replace('{level}', request.level || 'intermediate');
-  }
-
-  /**
-   * Vérifie le rate limiting
-   */
-  private checkRateLimit(provider: string): boolean {
-    const now = Date.now();
-    const limit = this.rateLimiters.get(provider) || { count: 0, resetTime: now + 60000 };
-    
-    if (now > limit.resetTime) {
-      limit.count = 0;
-      limit.resetTime = now + 60000; // Reset toutes les minutes
-    }
-    
-    const maxRequests = provider === 'openai' ? 60 : provider === 'claude' ? 50 : 100;
-    
-    if (limit.count >= maxRequests) {
-      return false;
-    }
-    
-    limit.count++;
-    this.rateLimiters.set(provider, limit);
-    return true;
-  }
-
-  /**
-   * Génère une clé de cache
-   */
-  private generateCacheKey(request: AICorrectionRequest): string {
-    return `${request.text}-${request.level}-${request.focus}-${request.maxCorrections}`;
-  }
-
-  /**
-   * Vérifie si le cache est valide
-   */
-  private isCacheValid(response: AICorrectionResponse): boolean {
-    const maxAge = 30 * 60 * 1000; // 30 minutes
-    return response.processingTime < maxAge;
-  }
-
-  /**
-   * Estime le coût d'une requête
-   */
-  private estimateCost(provider: string, inputTokens: number, outputTokens: number): number {
-    const providerConfig = this.providers.find(p => p.name === provider);
-    if (!providerConfig) return 0;
-    
-    const totalTokens = inputTokens + outputTokens;
-    return (totalTokens / 1000) * providerConfig.cost;
-  }
-
-  /**
-   * Met à jour les coûts
-   */
-  private updateCosts(provider: string, cost: number): void {
-    const current = this.costs.get(provider) || 0;
-    this.costs.set(provider, current + cost);
-  }
-
-  /**
-   * Mappe les catégories LanguageTool vers nos types
-   */
-  private mapLanguageToolCategory(category: string): 'grammar' | 'spelling' | 'style' | 'punctuation' {
-    const mapping: Record<string, 'grammar' | 'spelling' | 'style' | 'punctuation'> = {
-      'GRAMMAR': 'grammar',
-      'SPELLING': 'spelling',
-      'STYLE': 'style',
-      'PUNCTUATION': 'punctuation'
-    };
-    
-    return mapping[category] || 'grammar';
-  }
-
-  /**
-   * Obtient les statistiques des providers
-   */
-  public getProviderStats(): any {
+  private getFallbackLevelAnalysis(): any {
     return {
-      providers: this.providers.map(p => ({
-        name: p.name,
-        available: p.available,
-        cost: this.costs.get(p.name) || 0
-      })),
-      cacheSize: this.cache.size,
-      totalCost: Array.from(this.costs.values()).reduce((sum, cost) => sum + cost, 0)
+      currentLevel: 'beginner',
+      progress: 0,
+      recommendations: [],
+      nextGoals: []
     };
-  }
-
-  /**
-   * Réinitialise un provider
-   */
-  public resetProvider(providerName: string): void {
-    const provider = this.providers.find(p => p.name === providerName);
-    if (provider) {
-      provider.available = true;
-    }
-  }
-
-  /**
-   * Nettoie le cache
-   */
-  public clearCache(): void {
-    this.cache.clear();
   }
 }
 
-// Instance singleton
-export const advancedAICorrector = new AdvancedAICorrector();
+// Hook React pour utiliser l'engine de correction
+export function useAdvancedCorrections(apiKey: string) {
+  const engine = new AdvancedCorrectionEngine(apiKey);
 
-// Hook React pour utiliser le correcteur IA
-export const useAICorrections = () => {
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [lastResponse, setLastResponse] = React.useState<AICorrectionResponse | null>(null);
+  const analyzeText = async (context: CorrectionContext) => {
+    return await engine.analyzeText(context);
+  };
 
-  const correctText = React.useCallback(async (request: AICorrectionRequest) => {
-    setIsLoading(true);
-    try {
-      const response = await advancedAICorrector.correctText(request);
-      setLastResponse(response);
-      return response;
-    } catch (error) {
-      console.error('Erreur correction IA:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const generateExercises = async (userProfile: UserProfile, subscriptionPlan: string, count: number) => {
+    return await engine.generatePersonalizedExercises(userProfile, subscriptionPlan, count);
+  };
 
-  const getStats = React.useCallback(() => {
-    return advancedAICorrector.getProviderStats();
-  }, []);
+  const getExplanation = async (error: AdvancedCorrection, userProfile: UserProfile) => {
+    return await engine.getEducationalExplanation(error, userProfile);
+  };
+
+  const analyzeLevel = async (recentTexts: string[], errorHistory: AdvancedCorrection[]) => {
+    return await engine.analyzeUserLevel(recentTexts, errorHistory);
+  };
 
   return {
-    correctText,
-    isLoading,
-    lastResponse,
-    getStats,
-    clearCache: advancedAICorrector.clearCache.bind(advancedAICorrector)
+    analyzeText,
+    generateExercises,
+    getExplanation,
+    analyzeLevel
   };
-};
-
-// Import React pour les hooks
-import React from 'react';
+}

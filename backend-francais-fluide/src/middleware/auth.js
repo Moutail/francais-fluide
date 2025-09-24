@@ -38,7 +38,11 @@ const authenticateToken = async (req, res, next) => {
       });
     }
 
-    req.user = user;
+    req.user = {
+      userId: user.id,
+      email: user.email,
+      name: user.name
+    };
     next();
   } catch (error) {
     if (error.name === 'JsonWebTokenError') {

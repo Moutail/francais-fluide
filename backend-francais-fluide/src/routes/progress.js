@@ -24,49 +24,34 @@ router.get('/', authenticateToken, async (req, res) => {
     const userId = req.user.userId;
     
     const progress = await prisma.userProgress.findUnique({
-      where: { userId },
-      include: {
-        achievements: true,
-        exercises: {
-          take: 10,
-          orderBy: { completedAt: 'desc' }
-        }
-      }
-    });
-
-    if (!progress) {
-      return res.status(404).json({
-        success: false,
-        error: 'Progression non trouvée'
-      });
-    }
-
-    // Calculer des statistiques supplémentaires
-    const totalExercises = await prisma.exercise.count({
       where: { userId }
     });
 
-    const weeklyProgress = await prisma.userProgress.findMany({
-      where: {
-        userId,
-        updatedAt: {
-          gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    if (!progress) {
+      // Créer une progression par défaut si elle n'existe pas
+      const defaultProgress = await prisma.userProgress.create({
+        data: {
+          userId,
+          wordsWritten: 0,
+          accuracy: 0,
+          timeSpent: 0,
+          exercisesCompleted: 0,
+          currentStreak: 0,
+          level: 1,
+          xp: 0,
+          lastActivity: new Date(),
         }
-      },
-      orderBy: { updatedAt: 'asc' }
-    });
+      });
+      
+      return res.json({
+        success: true,
+        data: defaultProgress
+      });
+    }
 
     res.json({
       success: true,
-      data: {
-        ...progress,
-        statistics: {
-          totalExercises,
-          weeklyProgress: weeklyProgress.length,
-          averageAccuracy: progress.accuracy,
-          totalTimeSpent: progress.timeSpent
-        }
-      }
+      data: progress
     });
 
   } catch (error) {

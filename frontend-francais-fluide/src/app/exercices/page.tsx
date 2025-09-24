@@ -17,11 +17,13 @@ import {
   TrendingUp,
   Brain,
   Zap,
-  Award
+  Award,
+  Sparkles
 } from 'lucide-react';
 import Navigation from '@/components/layout/Navigation';
 import { useAuth } from '@/hooks/useApi';
 import { cn } from '@/lib/utils/cn';
+import ExerciseGenerator from '@/components/ai/ExerciseGenerator';
 
 interface Exercise {
   id: string;
@@ -62,79 +64,72 @@ export default function ExercicesPage() {
     }
   }, [loading, isAuthenticated]);
 
-  // Données d'exercices
-  const [exercises] = useState<Exercise[]>([
-    {
-      id: 'grammar-1',
-      title: 'Accord des participes passés',
-      type: 'grammar',
-      difficulty: 'medium',
-      description: 'Maîtrisez l\'accord des participes passés avec les auxiliaires être et avoir.',
-      estimatedTime: 10,
-      completed: false,
-      icon: Target
-    },
-    {
-      id: 'vocabulary-1',
-      title: 'Vocabulaire avancé',
-      type: 'vocabulary',
-      difficulty: 'hard',
-      description: 'Enrichissez votre vocabulaire avec des mots de niveau avancé.',
-      estimatedTime: 15,
-      completed: true,
-      score: 85,
-      icon: BookOpen
-    },
-    {
-      id: 'conjugation-1',
-      title: 'Subjonctif présent',
-      type: 'conjugation',
-      difficulty: 'hard',
-      description: 'Conjuguez correctement les verbes au subjonctif présent.',
-      estimatedTime: 12,
-      completed: false,
-      icon: Brain
-    },
-    {
-      id: 'spelling-1',
-      title: 'Orthographe d\'usage',
-      type: 'spelling',
-      difficulty: 'easy',
-      description: 'Corrigez les fautes d\'orthographe courantes.',
-      estimatedTime: 8,
-      completed: true,
-      score: 92,
-      icon: Zap
-    }
-  ]);
+  // Données d'exercices (chargées depuis la base de données)
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loadingExercises, setLoadingExercises] = useState(true);
+  const [showGenerator, setShowGenerator] = useState(false);
 
-  // Données de questions
-  const [questions] = useState<Question[]>([
-    {
-      id: 'q1',
-      question: 'Les enfants sont _____ chez leurs grands-parents.',
-      options: ['allés', 'allé', 'allée', 'allées'],
-      correctAnswer: 0,
-      explanation: 'Avec l\'auxiliaire "être", le participe passé s\'accorde avec le sujet "les enfants" (masculin pluriel).',
-      type: 'multiple-choice'
-    },
-    {
-      id: 'q2',
-      question: 'Elle a _____ une lettre à sa mère.',
-      options: ['écrite', 'écrit', 'écrits', 'écrites'],
-      correctAnswer: 1,
-      explanation: 'Avec l\'auxiliaire "avoir", le participe passé ne s\'accorde pas avec le sujet mais avec le COD si celui-ci est placé avant.',
-      type: 'multiple-choice'
-    },
-    {
-      id: 'q3',
-      question: 'Les fleurs que j\'ai _____ hier sont magnifiques.',
-      options: ['cueillies', 'cueilli', 'cueillie', 'cueillis'],
-      correctAnswer: 0,
-      explanation: 'Le COD "que" (qui représente "les fleurs", féminin pluriel) est placé avant le verbe, donc accord obligatoire.',
-      type: 'multiple-choice'
+  // Charger les exercices depuis la base de données
+  useEffect(() => {
+    const loadExercises = async () => {
+      try {
+        const response = await fetch('/api/exercises');
+        const data = await response.json();
+        
+        if (data.success) {
+          const exercisesWithIcons = data.data.map((exercise: any) => ({
+            ...exercise,
+            icon: getTypeIcon(exercise.type),
+            completed: exercise.submissions && exercise.submissions.length > 0,
+            score: exercise.submissions && exercise.submissions.length > 0 
+              ? exercise.submissions[0].score 
+              : undefined
+          }));
+          setExercises(exercisesWithIcons);
+        }
+      } catch (error) {
+        console.error('Erreur chargement exercices:', error);
+      } finally {
+        setLoadingExercises(false);
+      }
+    };
+
+    if (isAuthenticated) {
+      loadExercises();
     }
-  ]);
+  }, [isAuthenticated]);
+
+  // Charger les questions d'un exercice
+  const loadQuestions = async (exerciseId: string) => {
+    try {
+      const response = await fetch(`/api/exercises/${exerciseId}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        const questionsWithParsedOptions = data.data.questions.map((q: any) => ({
+          ...q,
+          options: JSON.parse(q.options),
+          correctAnswer: q.options.indexOf(q.correctAnswer)
+        }));
+        setQuestions(questionsWithParsedOptions);
+      }
+    } catch (error) {
+      console.error('Erreur chargement questions:', error);
+    }
+  };
+
+  // Gérer la génération d'exercices IA
+  const handleExerciseGenerated = (newExercise: any) => {
+    const exerciseWithIcon = {
+      ...newExercise,
+      icon: getTypeIcon(newExercise.type),
+      completed: false,
+      score: undefined
+    };
+    setExercises(prev => [exerciseWithIcon, ...prev]);
+    setShowGenerator(false);
+  };
 
   // Timer effect
   useEffect(() => {
@@ -166,18 +161,21 @@ export default function ExercicesPage() {
 
   const currentQuestion = questions[currentQuestionIndex];
 
-  const startExercise = (exercise: Exercise) => {
+  const startExercise = async (exercise: Exercise) => {
     setSelectedExercise(exercise);
     setCurrentQuestionIndex(0);
     setScore(0);
     setSelectedAnswer(null);
     setShowResult(false);
-    setTimeLeft(exercise.estimatedTime * 60);
+    setTimeLeft(10 * 60); // 10 minutes par défaut
     setIsTimerActive(true);
     setCompletedQuestions(new Set());
+    
+    // Charger les questions de l'exercice
+    await loadQuestions(exercise.id);
   };
 
-  const submitAnswer = () => {
+  const submitAnswer = async () => {
     if (selectedAnswer === null) return;
 
     const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
@@ -199,7 +197,37 @@ export default function ExercicesPage() {
     }
   };
 
-  const finishExercise = () => {
+  const finishExercise = async () => {
+    if (selectedExercise) {
+      // Sauvegarder les résultats dans la base de données
+      try {
+        const answers = questions.reduce((acc, q, index) => {
+          acc[q.id] = selectedAnswer === index ? q.correctAnswer : '';
+          return acc;
+        }, {} as Record<string, string>);
+
+        const response = await fetch('/api/exercises/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            exerciseId: selectedExercise.id,
+            answers,
+            timeSpent: Math.floor((10 * 60 - timeLeft) / 60) // temps en minutes
+          })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          console.log('Exercice sauvegardé:', data.data);
+        }
+      } catch (error) {
+        console.error('Erreur sauvegarde exercice:', error);
+      }
+    }
+
     setIsTimerActive(false);
     setSelectedExercise(null);
   };
@@ -415,6 +443,34 @@ export default function ExercicesPage() {
       <Navigation />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Générateur d'exercices IA */}
+        {showGenerator && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <ExerciseGenerator onExerciseGenerated={handleExerciseGenerated} />
+          </motion.div>
+        )}
+
+        {/* Bouton pour afficher le générateur */}
+        {!showGenerator && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <button
+              onClick={() => setShowGenerator(true)}
+              className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all"
+            >
+              <Sparkles className="w-5 h-5" />
+              Générer un exercice avec l'IA
+            </button>
+          </motion.div>
+        )}
+
         {/* Filtres */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -451,8 +507,13 @@ export default function ExercicesPage() {
         </motion.div>
 
         {/* Grille d'exercices */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {exercises.map((exercise, index) => (
+        {loadingExercises ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {exercises.map((exercise, index) => (
             <motion.div
               key={exercise.id}
               initial={{ opacity: 0, y: 20 }}
@@ -507,7 +568,8 @@ export default function ExercicesPage() {
               </div>
             </motion.div>
           ))}
-        </div>
+          </div>
+        )}
 
         {/* Statistiques */}
         <motion.div

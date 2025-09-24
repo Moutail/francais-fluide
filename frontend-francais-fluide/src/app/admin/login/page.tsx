@@ -12,6 +12,7 @@ import {
   Lock,
   User
 } from 'lucide-react';
+import { Button } from '@/components/ui/professional/Button';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -63,7 +64,7 @@ export default function AdminLoginPage() {
       <div className="max-w-md w-full">
         {/* Logo et titre */}
         <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center mb-4">
+          <div className="mx-auto w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center mb-4 shadow-sm">
             <Shield className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -129,23 +130,17 @@ export default function AdminLoginPage() {
             )}
 
             {/* Bouton de connexion */}
-            <button
+            <Button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg font-semibold text-lg shadow-lg hover:from-red-700 hover:to-red-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+              variant="primary"
+              size="lg"
+              className="w-full gap-2 bg-red-600 hover:bg-red-700 focus:ring-red-500"
+              loading={isLoading}
             >
-              {isLoading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Connexion en cours...
-                </>
-              ) : (
-                <>
-                  <Shield className="w-5 h-5" />
-                  Se connecter
-                </>
-              )}
-            </button>
+              <Shield className="w-5 h-5" />
+              Se connecter
+            </Button>
           </form>
 
           {/* Informations de test */}

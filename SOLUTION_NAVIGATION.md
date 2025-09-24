@@ -61,3 +61,4 @@ Quand vous étiez connecté et cliquiez sur "Accueil", vous étiez déconnecté 
 - ✅ La navigation est cohérente et intuitive
 
 **Le problème de déconnexion involontaire est résolu !** 🎉
+

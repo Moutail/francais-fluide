@@ -187,7 +187,7 @@ router.post('/login', validateLogin, async (req, res) => {
     console.error('Erreur de connexion:', error);
     res.status(500).json({ 
       success: false,
-      error: 'Erreur interne du serveur' 
+      error: 'Erreur interne du serveur'
     });
   }
 });

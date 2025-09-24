@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { email },
       include: {
-        progress: true
+        progress: true,
+        subscription: true
       }
     });
 
@@ -73,7 +74,8 @@ export async function POST(request: NextRequest) {
         id: user.id,
         email: user.email,
         name: user.name,
-        progress: user.progress
+        progress: user.progress,
+        subscription: user.subscription
       },
       token: accessToken
     });

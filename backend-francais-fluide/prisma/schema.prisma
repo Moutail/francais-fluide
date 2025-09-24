@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model User {
@@ -25,6 +25,8 @@ model User {
   submissions   ExerciseSubmission[]
   conversations Conversation[]
   usageLogs     UsageLog[]
+  calendarEvents CalendarEvent[]
+  documents     Document[]
 
   @@map("users")
 }
@@ -45,7 +47,6 @@ model UserProgress {
 
   // Relations
   user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievements UserAchievement[]
 
   @@map("user_progress")
 }
@@ -90,9 +91,8 @@ model UserAchievement {
   earnedAt      DateTime    @default(now())
 
   // Relations
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade, map: "user_achievements_userId_fkey")
-  achievement Achievement  @relation(fields: [achievementId], references: [id], onDelete: Cascade, map: "user_achievements_achievementId_fkey")
-  progress    UserProgress? @relation(fields: [userId], references: [userId], map: "user_achievements_userId_progress_fkey")
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement  @relation(fields: [achievementId], references: [id], onDelete: Cascade)
 
   @@unique([userId, achievementId])
   @@map("user_achievements")
@@ -119,7 +119,7 @@ model Question {
   id          String   @id @default(cuid())
   exerciseId  String
   question    String
-  options     Json     // Array of options
+  options     String   // JSON string of options
   correctAnswer String
   explanation String?
   order       Int      @default(0)
@@ -179,11 +179,66 @@ model UsageLog {
   id        String   @id @default(cuid())
   userId    String
   type      String   // correction, exercise, ai_chat
-  details   Json?    // Additional details
+  details   String?  // JSON string of additional details
   createdAt DateTime @default(now())
 
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("usage_logs")
+}
+
+model Dictation {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  difficulty  String   // beginner, intermediate, advanced
+  duration    Int      // en minutes
+  audioUrl    String?
+  text        String
+  category    String?
+  tags        String?  // JSON string of tags
+  completed   Boolean  @default(false)
+  score       Int?
+  attempts    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("dictations")
+}
+
+model CalendarEvent {
+  id          String    @id @default(cuid())
+  userId      String
+  title       String
+  type        String    // exercise, study, achievement, reminder
+  date        DateTime
+  time        String?
+  description String?
+  points      Int       @default(0)
+  completed   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("calendar_events")
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  content   String
+  type      String   // editor, exercise, dictation
+  metadata  String?  // JSON string of additional data
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+  @@map("documents")
 }

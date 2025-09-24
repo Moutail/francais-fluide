@@ -1,231 +1,162 @@
-// src/app/admin/subscriptions/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import {
-  CreditCard,
+import { motion } from 'framer-motion';
+import { 
+  Users, 
+  Crown, 
+  Star, 
+  GraduationCap, 
+  Building, 
   Search,
   Filter,
-  MoreVertical,
+  Download,
   Eye,
   Edit,
   Trash2,
-  ArrowLeft,
-  Download,
+  Plus,
   TrendingUp,
   DollarSign,
   Calendar,
-  AlertTriangle,
   CheckCircle,
-  Clock,
-  Users
+  XCircle,
+  Clock
 } from 'lucide-react';
+import { cn } from '@/lib/utils/cn';
 
-interface Subscription {
+interface User {
   id: string;
-  userId: string;
-  userName: string;
-  userEmail: string;
-  plan: 'student' | 'premium' | 'enterprise';
-  status: 'active' | 'cancelled' | 'expired' | 'past_due';
-  amount: number;
-  currency: string;
-  billingInterval: 'month' | 'year';
-  currentPeriodStart: string;
-  currentPeriodEnd: string;
-  cancelAtPeriodEnd: boolean;
+  name: string;
+  email: string;
   createdAt: string;
-  lastPaymentDate: string;
-  nextPaymentDate: string;
-  totalPayments: number;
-  totalRevenue: number;
+  subscription: {
+    plan: string;
+    status: string;
+    startDate: string;
+    endDate: string;
+  };
+  progress: {
+    level: number;
+    xp: number;
+    exercisesCompleted: number;
+    wordsWritten: number;
+  };
 }
 
+interface SubscriptionStats {
+  total: number;
+  byPlan: {
+    demo: number;
+    etudiant: number;
+    premium: number;
+    etablissement: number;
+  };
+  revenue: {
+    monthly: number;
+    yearly: number;
+  };
+  active: number;
+  expired: number;
+}
+
+const PLAN_COLORS = {
+  demo: 'bg-gray-100 text-gray-800',
+  etudiant: 'bg-blue-100 text-blue-800',
+  premium: 'bg-purple-100 text-purple-800',
+  etablissement: 'bg-orange-100 text-orange-800'
+};
+
+const PLAN_ICONS = {
+  demo: Users,
+  etudiant: GraduationCap,
+  premium: Star,
+  etablissement: Building
+};
+
+const PLAN_NAMES = {
+  demo: 'Démo Gratuite',
+  etudiant: 'Étudiant',
+  premium: 'Premium',
+  etablissement: 'Établissement'
+};
+
 export default function AdminSubscriptionsPage() {
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  const [filteredSubscriptions, setFilteredSubscriptions] = useState<Subscription[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [stats, setStats] = useState<SubscriptionStats | null>(null);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterPlan, setFilterPlan] = useState<string>('all');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [isLoading, setIsLoading] = useState(true);
+  const [filterPlan, setFilterPlan] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   useEffect(() => {
-    // Simulation du chargement des données
-    const loadSubscriptions = async () => {
-      setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockSubscriptions: Subscription[] = [
-        {
-          id: 'sub_1',
-          userId: 'user_1',
-          userName: 'Jean Dupont',
-          userEmail: 'jean.dupont@email.com',
-          plan: 'premium',
-          status: 'active',
-          amount: 29.99,
-          currency: 'CAD',
-          billingInterval: 'month',
-          currentPeriodStart: '2024-01-01',
-          currentPeriodEnd: '2024-02-01',
-          cancelAtPeriodEnd: false,
-          createdAt: '2024-01-01',
-          lastPaymentDate: '2024-01-01',
-          nextPaymentDate: '2024-02-01',
-          totalPayments: 3,
-          totalRevenue: 89.97
-        },
-        {
-          id: 'sub_2',
-          userId: 'user_2',
-          userName: 'Marie Martin',
-          userEmail: 'marie.martin@email.com',
-          plan: 'student',
-          status: 'active',
-          amount: 14.99,
-          currency: 'CAD',
-          billingInterval: 'month',
-          currentPeriodStart: '2024-01-10',
-          currentPeriodEnd: '2024-02-10',
-          cancelAtPeriodEnd: false,
-          createdAt: '2024-01-10',
-          lastPaymentDate: '2024-01-10',
-          nextPaymentDate: '2024-02-10',
-          totalPayments: 2,
-          totalRevenue: 29.98
-        },
-        {
-          id: 'sub_3',
-          userId: 'user_4',
-          userName: 'Sophie Tremblay',
-          userEmail: 'sophie.tremblay@email.com',
-          plan: 'enterprise',
-          status: 'active',
-          amount: 149.99,
-          currency: 'CAD',
-          billingInterval: 'month',
-          currentPeriodStart: '2024-01-12',
-          currentPeriodEnd: '2024-02-12',
-          cancelAtPeriodEnd: false,
-          createdAt: '2024-01-12',
-          lastPaymentDate: '2024-01-12',
-          nextPaymentDate: '2024-02-12',
-          totalPayments: 1,
-          totalRevenue: 149.99
-        },
-        {
-          id: 'sub_4',
-          userId: 'user_5',
-          userName: 'Alexandre Roy',
-          userEmail: 'alexandre.roy@email.com',
-          plan: 'premium',
-          status: 'cancelled',
-          amount: 29.99,
-          currency: 'CAD',
-          billingInterval: 'month',
-          currentPeriodStart: '2024-01-08',
-          currentPeriodEnd: '2024-02-08',
-          cancelAtPeriodEnd: true,
-          createdAt: '2024-01-08',
-          lastPaymentDate: '2024-01-08',
-          nextPaymentDate: '2024-02-08',
-          totalPayments: 2,
-          totalRevenue: 59.98
-        },
-        {
-          id: 'sub_5',
-          userId: 'user_6',
-          userName: 'Isabelle Gagnon',
-          userEmail: 'isabelle.gagnon@email.com',
-          plan: 'student',
-          status: 'past_due',
-          amount: 14.99,
-          currency: 'CAD',
-          billingInterval: 'month',
-          currentPeriodStart: '2024-01-05',
-          currentPeriodEnd: '2024-02-05',
-          cancelAtPeriodEnd: false,
-          createdAt: '2024-01-05',
-          lastPaymentDate: '2024-01-05',
-          nextPaymentDate: '2024-02-05',
-          totalPayments: 1,
-          totalRevenue: 14.99
-        }
-      ];
-      
-      setSubscriptions(mockSubscriptions);
-      setFilteredSubscriptions(mockSubscriptions);
-      setIsLoading(false);
-    };
-
-    loadSubscriptions();
+    loadUsers();
+    loadStats();
   }, []);
 
-  useEffect(() => {
-    let filtered = subscriptions;
-
-    // Filtrage par recherche
-    if (searchTerm) {
-      filtered = filtered.filter(sub =>
-        sub.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        sub.userEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        sub.id.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Filtrage par plan
-    if (filterPlan !== 'all') {
-      filtered = filtered.filter(sub => sub.plan === filterPlan);
-    }
-
-    // Filtrage par statut
-    if (filterStatus !== 'all') {
-      filtered = filtered.filter(sub => sub.status === filterStatus);
-    }
-
-    setFilteredSubscriptions(filtered);
-  }, [subscriptions, searchTerm, filterPlan, filterStatus]);
-
-  const getPlanColor = (plan: string) => {
-    switch (plan) {
-      case 'student': return 'bg-blue-100 text-blue-800';
-      case 'premium': return 'bg-purple-100 text-purple-800';
-      case 'enterprise': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const loadUsers = async () => {
+    try {
+      const response = await fetch('/api/admin/users');
+      const data = await response.json();
+      
+      if (data.success) {
+        setUsers(data.data);
+      }
+    } catch (error) {
+      console.error('Erreur chargement utilisateurs:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  const loadStats = async () => {
+    try {
+      const response = await fetch('/api/admin/stats');
+      const data = await response.json();
+      
+      if (data.success) {
+        setStats(data.data);
+      }
+    } catch (error) {
+      console.error('Erreur chargement statistiques:', error);
+    }
+  };
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesPlan = filterPlan === 'all' || user.subscription.plan === filterPlan;
+    const matchesStatus = filterStatus === 'all' || user.subscription.status === filterStatus;
+    
+    return matchesSearch && matchesPlan && matchesStatus;
+  });
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-gray-100 text-gray-800';
-      case 'expired': return 'bg-red-100 text-red-800';
-      case 'past_due': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'active': return 'text-green-600 bg-green-100';
+      case 'pending': return 'text-yellow-600 bg-yellow-100';
+      case 'cancelled': return 'text-red-600 bg-red-100';
+      case 'expired': return 'text-gray-600 bg-gray-100';
+      default: return 'text-gray-600 bg-gray-100';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'active': return <CheckCircle className="w-4 h-4" />;
-      case 'cancelled': return <Clock className="w-4 h-4" />;
-      case 'expired': return <AlertTriangle className="w-4 h-4" />;
-      case 'past_due': return <AlertTriangle className="w-4 h-4" />;
-      default: return <Clock className="w-4 h-4" />;
+      case 'active': return CheckCircle;
+      case 'pending': return Clock;
+      case 'cancelled': return XCircle;
+      case 'expired': return XCircle;
+      default: return Clock;
     }
   };
 
-  const totalRevenue = subscriptions.reduce((sum, sub) => sum + sub.totalRevenue, 0);
-  const activeSubscriptions = subscriptions.filter(sub => sub.status === 'active').length;
-  const cancelledSubscriptions = subscriptions.filter(sub => sub.status === 'cancelled').length;
-  const pastDueSubscriptions = subscriptions.filter(sub => sub.status === 'past_due').length;
-
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement des abonnements...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement des données...</p>
         </div>
       </div>
     );
@@ -233,143 +164,177 @@ export default function AdminSubscriptionsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <a href="/admin" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
-                <ArrowLeft className="w-5 h-5" />
-                Retour
-              </a>
-              <div className="h-6 w-px bg-gray-300" />
-              <div className="flex items-center gap-3">
-                <CreditCard className="w-6 h-6 text-green-600" />
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900">Gestion des abonnements</h1>
-                  <p className="text-sm text-gray-600">{filteredSubscriptions.length} abonnements trouvés</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                <Download className="w-4 h-4" />
-                Exporter
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Métriques */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <DollarSign className="w-6 h-6 text-green-600" />
-              </div>
-              <span className="text-sm text-gray-500">Total</span>
-            </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">
-              ${totalRevenue.toLocaleString()}
-            </div>
-            <div className="text-sm text-gray-600">Revenus totaux</div>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Users className="w-6 h-6 text-blue-600" />
-              </div>
-              <span className="text-sm text-gray-500">Actifs</span>
-            </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">
-              {activeSubscriptions}
-            </div>
-            <div className="text-sm text-gray-600">Abonnements actifs</div>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-gray-100 rounded-lg">
-                <Clock className="w-6 h-6 text-gray-600" />
-              </div>
-              <span className="text-sm text-gray-500">Annulés</span>
-            </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">
-              {cancelledSubscriptions}
-            </div>
-            <div className="text-sm text-gray-600">Abonnements annulés</div>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-yellow-100 rounded-lg">
-                <AlertTriangle className="w-6 h-6 text-yellow-600" />
-              </div>
-              <span className="text-sm text-gray-500">En retard</span>
-            </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">
-              {pastDueSubscriptions}
-            </div>
-            <div className="text-sm text-gray-600">Paiements en retard</div>
-          </div>
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Gestion des Abonnements
+          </h1>
+          <p className="text-gray-600">
+            Gérez les comptes utilisateurs et leurs niveaux d'abonnement
+          </p>
         </div>
+
+        {/* Statistiques */}
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-xl p-6 shadow-lg"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Utilisateurs</p>
+                  <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
+                </div>
+                <Users className="w-8 h-8 text-blue-600" />
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white rounded-xl p-6 shadow-lg"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Abonnements Actifs</p>
+                  <p className="text-3xl font-bold text-green-600">{stats.active}</p>
+                </div>
+                <CheckCircle className="w-8 h-8 text-green-600" />
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white rounded-xl p-6 shadow-lg"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Revenus Mensuels</p>
+                  <p className="text-3xl font-bold text-purple-600">${stats.revenue.monthly}</p>
+                </div>
+                <DollarSign className="w-8 h-8 text-purple-600" />
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-white rounded-xl p-6 shadow-lg"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Taux de Conversion</p>
+                  <p className="text-3xl font-bold text-orange-600">
+                    {Math.round((stats.active / stats.total) * 100)}%
+                  </p>
+                </div>
+                <TrendingUp className="w-8 h-8 text-orange-600" />
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Répartition par plan */}
+        {stats && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-white rounded-xl p-6 shadow-lg mb-8"
+          >
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Répartition par Plan d'Abonnement
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {Object.entries(stats.byPlan).map(([plan, count]) => {
+                const Icon = PLAN_ICONS[plan as keyof typeof PLAN_ICONS];
+                const percentage = Math.round((count / stats.total) * 100);
+                
+                return (
+                  <div key={plan} className="text-center">
+                    <div className={cn(
+                      "inline-flex items-center gap-2 px-4 py-2 rounded-lg mb-2",
+                      PLAN_COLORS[plan as keyof typeof PLAN_COLORS]
+                    )}>
+                      <Icon className="w-5 h-5" />
+                      <span className="font-medium">{PLAN_NAMES[plan as keyof typeof PLAN_NAMES]}</span>
+                    </div>
+                    <p className="text-2xl font-bold text-gray-900">{count}</p>
+                    <p className="text-sm text-gray-600">{percentage}%</p>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
 
         {/* Filtres et recherche */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Rechercher par nom, email ou ID..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="bg-white rounded-xl p-6 shadow-lg mb-8"
+        >
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Rechercher par nom ou email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
             </div>
             
-            <select
-              value={filterPlan}
-              onChange={(e) => setFilterPlan(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="all">Tous les plans</option>
-              <option value="student">Étudiant</option>
-              <option value="premium">Premium</option>
-              <option value="enterprise">Établissement</option>
-            </select>
-
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="all">Tous les statuts</option>
-              <option value="active">Actif</option>
-              <option value="cancelled">Annulé</option>
-              <option value="expired">Expiré</option>
-              <option value="past_due">En retard</option>
-            </select>
-
-            <button className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-              <Filter className="w-4 h-4" />
-              Plus de filtres
-            </button>
+            <div className="flex gap-4">
+              <select
+                value={filterPlan}
+                onChange={(e) => setFilterPlan(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">Tous les plans</option>
+                <option value="demo">Démo</option>
+                <option value="etudiant">Étudiant</option>
+                <option value="premium">Premium</option>
+                <option value="etablissement">Établissement</option>
+              </select>
+              
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">Tous les statuts</option>
+                <option value="active">Actif</option>
+                <option value="pending">En attente</option>
+                <option value="cancelled">Annulé</option>
+                <option value="expired">Expiré</option>
+              </select>
+            </div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Tableau des abonnements */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        {/* Tableau des utilisateurs */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-white rounded-xl shadow-lg overflow-hidden"
+        >
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Abonnement
-                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Utilisateur
                   </th>
@@ -380,120 +345,151 @@ export default function AdminSubscriptionsPage() {
                     Statut
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Montant
+                    Progression
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Période
+                    Date d'inscription
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Prochain paiement
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Revenus
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
-                {filteredSubscriptions.map((subscription) => (
-                  <tr key={subscription.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        {subscription.id}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        Créé le {new Date(subscription.createdAt).toLocaleDateString('fr-FR')}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        {subscription.userName}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {subscription.userEmail}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPlanColor(subscription.plan)}`}>
-                        {subscription.plan === 'student' ? 'Étudiant' :
-                         subscription.plan === 'premium' ? 'Premium' : 'Établissement'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(subscription.status)}
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(subscription.status)}`}>
-                          {subscription.status === 'active' ? 'Actif' :
-                           subscription.status === 'cancelled' ? 'Annulé' :
-                           subscription.status === 'expired' ? 'Expiré' : 'En retard'}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      ${subscription.amount.toFixed(2)} {subscription.currency}
-                      <div className="text-xs text-gray-500">
-                        /{subscription.billingInterval === 'month' ? 'mois' : 'an'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      <div>{new Date(subscription.currentPeriodStart).toLocaleDateString('fr-FR')}</div>
-                      <div>au {new Date(subscription.currentPeriodEnd).toLocaleDateString('fr-FR')}</div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {subscription.cancelAtPeriodEnd ? (
-                        <span className="text-yellow-600">Annulation à la fin</span>
-                      ) : (
-                        new Date(subscription.nextPaymentDate).toLocaleDateString('fr-FR')
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      ${subscription.totalRevenue.toFixed(2)}
-                      <div className="text-xs text-gray-500">
-                        {subscription.totalPayments} paiement{subscription.totalPayments > 1 ? 's' : ''}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button className="p-1 text-gray-400 hover:text-gray-600" title="Voir">
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button className="p-1 text-gray-400 hover:text-gray-600" title="Modifier">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button className="p-1 text-gray-400 hover:text-gray-600" title="Plus">
-                          <MoreVertical className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredUsers.map((user, index) => {
+                  const StatusIcon = getStatusIcon(user.subscription.status);
+                  
+                  return (
+                    <motion.tr
+                      key={user.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="hover:bg-gray-50"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                              <span className="text-sm font-medium text-blue-600">
+                                {user.name.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                            <div className="text-sm text-gray-500">{user.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className={cn(
+                          "inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium",
+                          PLAN_COLORS[user.subscription.plan as keyof typeof PLAN_COLORS]
+                        )}>
+                          {React.createElement(PLAN_ICONS[user.subscription.plan as keyof typeof PLAN_ICONS], { className: "w-4 h-4" })}
+                          {PLAN_NAMES[user.subscription.plan as keyof typeof PLAN_NAMES]}
+                        </div>
+                      </td>
+                      
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className={cn(
+                          "inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium",
+                          getStatusColor(user.subscription.status)
+                        )}>
+                          <StatusIcon className="w-4 h-4" />
+                          {user.subscription.status}
+                        </div>
+                      </td>
+                      
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          Niveau {user.progress.level}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {user.progress.exercisesCompleted} exercices
+                        </div>
+                      </td>
+                      
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(user.createdAt).toLocaleDateString('fr-FR')}
+                      </td>
+                      
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setSelectedUser(user)}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button className="text-gray-600 hover:text-gray-900">
+                            <Edit className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Pagination */}
-        <div className="mt-6 flex items-center justify-between">
-          <div className="text-sm text-gray-700">
-            Affichage de 1 à {filteredSubscriptions.length} sur {subscriptions.length} abonnements
+        {/* Modal de détails utilisateur */}
+        {selectedUser && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-gray-900">
+                  Détails de l'utilisateur
+                </h3>
+                <button
+                  onClick={() => setSelectedUser(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <XCircle className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <div className="space-y-6">
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Informations personnelles</h4>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p><strong>Nom:</strong> {selectedUser.name}</p>
+                    <p><strong>Email:</strong> {selectedUser.email}</p>
+                    <p><strong>Date d'inscription:</strong> {new Date(selectedUser.createdAt).toLocaleDateString('fr-FR')}</p>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Abonnement</h4>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p><strong>Plan:</strong> {PLAN_NAMES[selectedUser.subscription.plan as keyof typeof PLAN_NAMES]}</p>
+                    <p><strong>Statut:</strong> {selectedUser.subscription.status}</p>
+                    <p><strong>Début:</strong> {new Date(selectedUser.subscription.startDate).toLocaleDateString('fr-FR')}</p>
+                    <p><strong>Fin:</strong> {new Date(selectedUser.subscription.endDate).toLocaleDateString('fr-FR')}</p>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Progression</h4>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p><strong>Niveau:</strong> {selectedUser.progress.level}</p>
+                    <p><strong>XP:</strong> {selectedUser.progress.xp}</p>
+                    <p><strong>Exercices complétés:</strong> {selectedUser.progress.exercisesCompleted}</p>
+                    <p><strong>Mots écrits:</strong> {selectedUser.progress.wordsWritten}</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </div>
-          <div className="flex items-center gap-2">
-            <button className="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
-              Précédent
-            </button>
-            <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm">
-              1
-            </button>
-            <button className="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
-              2
-            </button>
-            <button className="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
-              Suivant
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -3,8 +3,9 @@ import React, { useState, useCallback, useEffect, useRef, useMemo, memo } from '
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, CheckCircle, Lightbulb, TrendingUp, Sparkles } from 'lucide-react';
 import TextareaAutosize from 'react-textarea-autosize';
-import { useGrammarCheck } from '@/hooks/useGrammarCheck';
+import { useLanguageTool } from '@/hooks/useLanguageTool';
 import { useDebounce } from '@/hooks/useDebounce';
+import { LanguageToolStatus } from './LanguageToolStatus';
 import { cn } from '@/lib/utils/cn';
 import type { GrammarError, Suggestion, CorrectionResult } from '@/types/grammar';
 
@@ -160,7 +161,36 @@ const ERROR_COLORS = {
   critical: 'bg-red-200 border-red-500',
   warning: 'bg-yellow-200 border-yellow-500',
   suggestion: 'bg-blue-200 border-blue-500'
-} as const;
+};
+
+// Fonctions utilitaires pour mapper les types d'erreurs LanguageTool
+const getErrorType = (categoryId: string): 'spelling' | 'grammar' | 'punctuation' | 'style' => {
+  switch (categoryId) {
+    case 'TYPOS':
+      return 'spelling';
+    case 'GRAMMAR':
+      return 'grammar';
+    case 'STYLE':
+      return 'style';
+    case 'PUNCTUATION':
+      return 'punctuation';
+    default:
+      return 'grammar';
+  }
+};
+
+const getErrorSeverity = (issueType: string): 'critical' | 'warning' | 'suggestion' => {
+  switch (issueType) {
+    case 'misspelling':
+    case 'grammar':
+      return 'critical';
+    case 'style':
+    case 'typography':
+      return 'warning';
+    default:
+      return 'suggestion';
+  }
+}; as const;
 
 export const SmartEditorOptimized: React.FC<SmartEditorProps> = memo(({
   initialValue = '',
@@ -186,8 +216,8 @@ export const SmartEditorOptimized: React.FC<SmartEditorProps> = memo(({
   
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
-  const debouncedText = useDebounce(text, 500);
-  const { checkGrammar, isChecking } = useGrammarCheck();
+  const debouncedText = useDebounce(text, 1000);
+  const { checkGrammarDebounced, isChecking, isReady, isAvailable } = useLanguageTool();
 
   // Mémorisation des callbacks pour éviter les re-renders
   const handleTextChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -235,38 +265,38 @@ export const SmartEditorOptimized: React.FC<SmartEditorProps> = memo(({
     setShowSuggestions(true);
   }, []);
 
-  // Analyse du texte avec debounce - optimisé
+  // Analyse du texte avec LanguageTool - optimisé
   useEffect(() => {
-    if (!realTimeCorrection || debouncedText.length < 3) return;
+    if (!realTimeCorrection || debouncedText.length < 3 || !isReady) return;
 
     const analyzeText = async () => {
       setIsAnalyzing(true);
       try {
-        const result = await checkGrammar(debouncedText);
+        const result = await checkGrammarDebounced(debouncedText);
         
-        if (result.errors.length === 0 && debouncedText.split(' ').length > 5) {
+        if (result.metrics.totalErrors === 0 && debouncedText.split(' ').length > 5) {
           setPerfectStreak(prev => prev + 1);
         }
 
         const newErrors = result.errors.map((error, index) => ({
-          id: `error-${index}-${Date.now()}`,
+          id: `lt-${index}-${error.rule?.id || index}`,
           start: error.offset,
           end: error.offset + error.length,
-          type: error.rule.category as any,
-          severity: error.rule.severity as any,
+          type: getErrorType(error.rule?.category?.id || 'GRAMMAR'),
+          severity: getErrorSeverity(error.rule?.issueType || 'grammar'),
           message: error.message,
-          suggestions: error.replacements.slice(0, 3)
+          suggestions: error.replacements?.slice(0, 3).map(r => r.value) || []
         }));
 
         setErrors(newErrors);
 
         // Mise à jour des métriques
         const wordCount = debouncedText.split(/\s+/).filter(w => w.length > 0).length;
-        const accuracy = wordCount > 0 ? Math.max(0, 100 - (result.errors.length / wordCount) * 100) : 100;
+        const accuracy = result.metrics.accuracy;
         
         const newMetrics = {
           wordsWritten: wordCount,
-          errorsDetected: result.errors.length,
+          errorsDetected: result.metrics.totalErrors,
           errorsCorrected: metrics.errorsCorrected,
           accuracyRate: Math.round(accuracy),
           streakCount: perfectStreak
@@ -328,11 +358,17 @@ export const SmartEditorOptimized: React.FC<SmartEditorProps> = memo(({
   return (
     <div className={cn("relative", className)}>
       <div className="relative bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <PerformanceIndicator 
-          isAnalyzing={isAnalyzing}
-          perfectStreak={perfectStreak}
-          accuracyRate={metrics.accuracyRate}
-        />
+        <div className="absolute top-2 right-2 flex items-center gap-2">
+          <LanguageToolStatus 
+            isAvailable={isAvailable}
+            isChecking={isChecking}
+          />
+          <PerformanceIndicator 
+            isAnalyzing={isAnalyzing}
+            perfectStreak={perfectStreak}
+            accuracyRate={metrics.accuracyRate}
+          />
+        </div>
         
         <div className="relative">
           <TextareaAutosize

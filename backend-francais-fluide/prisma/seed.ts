@@ -1,100 +1,261 @@
-import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
-  const testUsers = [
-    { name: 'Demo User', email: 'test+demo@francais-fluide.local', plan: 'demo' as const },
-    { name: 'Etudiant User', email: 'test+etudiant@francais-fluide.local', plan: 'etudiant' as const },
-    { name: 'Premium User', email: 'test+premium@francais-fluide.local', plan: 'premium' as const },
-    { name: 'Etablissement User', email: 'test+etablissement@francais-fluide.local', plan: 'etablissement' as const },
-  ]
+  console.log('🌱 Début du seeding...');
 
-  const password = 'Test!1234'
-  const hashedPassword = await bcrypt.hash(password, 12)
+  // Créer des utilisateurs de test
+  const hashedPassword = await bcrypt.hash('Test!1234', 12);
 
-  for (const tu of testUsers) {
-    const existing = await prisma.user.findUnique({ where: { email: tu.email } })
-    let user = existing
-    if (!existing) {
-      user = await prisma.user.create({
-        data: {
-          email: tu.email,
-          name: tu.name,
-          password: hashedPassword,
-        },
-      })
+  const user1 = await prisma.user.upsert({
+    where: { email: 'test@example.com' },
+    update: {},
+    create: {
+      email: 'test@example.com',
+      name: 'Utilisateur Test',
+      password: hashedPassword,
+    },
+  });
 
-      await prisma.userProgress.create({
-        data: {
-          userId: user!.id,
-          wordsWritten: 0,
-          accuracy: 0,
-          timeSpent: 0,
-          exercisesCompleted: 0,
-          currentStreak: 0,
-          level: 1,
-          xp: 0,
-          lastActivity: new Date(),
-        },
-      })
-    } else {
-      // Ensure userProgress exists and lastActivity is not null
-      const up = await prisma.userProgress.findUnique({ where: { userId: user!.id } })
-      if (!up) {
-        await prisma.userProgress.create({
-          data: {
-            userId: user!.id,
-            wordsWritten: 0,
-            accuracy: 0,
-            timeSpent: 0,
-            exercisesCompleted: 0,
-            currentStreak: 0,
-            level: 1,
-            xp: 0,
-            lastActivity: new Date(),
-          },
-        })
-      } else if (up.lastActivity === null) {
-        await prisma.userProgress.update({
-          where: { userId: user!.id },
-          data: { lastActivity: new Date() },
-        })
-      }
+  const user2 = await prisma.user.upsert({
+    where: { email: 'admin@example.com' },
+    update: {},
+    create: {
+      email: 'admin@example.com',
+      name: 'Administrateur',
+      password: hashedPassword,
+    },
+  });
+
+  console.log('✅ Utilisateurs créés');
+
+  // Créer des progressions
+  await prisma.userProgress.upsert({
+    where: { userId: user1.id },
+    update: {},
+    create: {
+      userId: user1.id,
+      wordsWritten: 150,
+      accuracy: 78,
+      timeSpent: 120,
+      exercisesCompleted: 2,
+      currentStreak: 5,
+      level: 3,
+      xp: 250,
+    },
+  });
+
+  await prisma.userProgress.upsert({
+    where: { userId: user2.id },
+    update: {},
+    create: {
+      userId: user2.id,
+      wordsWritten: 500,
+      accuracy: 92,
+      timeSpent: 300,
+      exercisesCompleted: 8,
+      currentStreak: 12,
+      level: 5,
+      xp: 750,
+    },
+  });
+
+  console.log('✅ Progressions créées');
+
+  // Créer des achievements
+  const achievements = [
+    {
+      name: 'Premier Pas',
+      description: 'Complétez votre premier exercice',
+      type: 'exercises_completed',
+      threshold: 1,
+      icon: '🎯'
+    },
+    {
+      name: 'Écrivain',
+      description: 'Écrivez 100 mots',
+      type: 'words_written',
+      threshold: 100,
+      icon: '✍️'
+    },
+    {
+      name: 'Maître de la Précision',
+      description: 'Atteignez 90% de précision',
+      type: 'accuracy',
+      threshold: 90,
+      icon: '🎯'
+    },
+    {
+      name: 'Série de 7 jours',
+      description: 'Connectez-vous 7 jours consécutifs',
+      type: 'streak',
+      threshold: 7,
+      icon: '🔥'
+    },
+    {
+      name: 'Niveau Expert',
+      description: 'Atteignez le niveau 10',
+      type: 'level',
+      threshold: 10,
+      icon: '⭐'
     }
+  ];
 
-    const now = new Date()
-    const in30Days = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-
-    await prisma.subscription.upsert({
-      where: { userId: user!.id },
-      update: {
-        plan: tu.plan,
-        status: 'active',
-        startDate: now,
-        endDate: in30Days,
-      },
+  for (const achievement of achievements) {
+    await prisma.achievement.upsert({
+      where: { id: achievement.name.toLowerCase().replace(/\s+/g, '-') },
+      update: {},
       create: {
-        userId: user!.id,
-        plan: tu.plan,
-        status: 'active',
-        startDate: now,
-        endDate: in30Days,
+        id: achievement.name.toLowerCase().replace(/\s+/g, '-'),
+        name: achievement.name,
+        description: achievement.description,
+        type: achievement.type,
+        threshold: achievement.threshold,
+        icon: achievement.icon,
       },
-    })
-
-    console.log(`Seeded user ${tu.email} with plan ${tu.plan}`)
+    });
   }
 
-  console.log('Comptes de test créés/mis à jour. Mot de passe: Test!1234')
+  console.log('✅ Achievements créés');
+
+  // Créer des exercices
+  const exercises = [
+    {
+      title: 'Accord des participes passés',
+      description: 'Maîtrisez l\'accord des participes passés avec les auxiliaires être et avoir.',
+      type: 'grammar',
+      difficulty: 'medium',
+      level: 2,
+      questions: [
+        {
+          question: 'Les enfants sont _____ chez leurs grands-parents.',
+          options: ['allés', 'allé', 'allée', 'allées'],
+          correctAnswer: 'allés',
+          explanation: 'Avec l\'auxiliaire "être", le participe passé s\'accorde avec le sujet "les enfants" (masculin pluriel).',
+        },
+        {
+          question: 'Elle a _____ une lettre à sa mère.',
+          options: ['écrite', 'écrit', 'écrits', 'écrites'],
+          correctAnswer: 'écrit',
+          explanation: 'Avec l\'auxiliaire "avoir", le participe passé ne s\'accorde pas avec le sujet mais avec le COD si celui-ci est placé avant.',
+        },
+        {
+          question: 'Les fleurs que j\'ai _____ hier sont magnifiques.',
+          options: ['cueillies', 'cueilli', 'cueillie', 'cueillis'],
+          correctAnswer: 'cueillies',
+          explanation: 'Le COD "que" (qui représente "les fleurs", féminin pluriel) est placé avant le verbe, donc accord obligatoire.',
+        }
+      ]
+    },
+    {
+      title: 'Vocabulaire avancé',
+      description: 'Enrichissez votre vocabulaire avec des mots de niveau avancé.',
+      type: 'vocabulary',
+      difficulty: 'hard',
+      level: 4,
+      questions: [
+        {
+          question: 'Quel est le synonyme de "mélancolique" ?',
+          options: ['joyeux', 'triste', 'énergique', 'calme'],
+          correctAnswer: 'triste',
+          explanation: 'Mélancolique signifie triste, nostalgique.',
+        },
+        {
+          question: 'Que signifie "éphémère" ?',
+          options: ['permanent', 'temporaire', 'éternel', 'durable'],
+          correctAnswer: 'temporaire',
+          explanation: 'Éphémère signifie qui ne dure qu\'un temps très court.',
+        }
+      ]
+    },
+    {
+      title: 'Subjonctif présent',
+      description: 'Conjuguez correctement les verbes au subjonctif présent.',
+      type: 'conjugation',
+      difficulty: 'hard',
+      level: 5,
+      questions: [
+        {
+          question: 'Il faut que je _____ à l\'heure.',
+          options: ['arrive', 'arrives', 'arrivons', 'arrivent'],
+          correctAnswer: 'arrive',
+          explanation: 'Au subjonctif présent, "arriver" se conjugue : que j\'arrive, que tu arrives, qu\'il arrive, etc.',
+        }
+      ]
+    }
+  ];
+
+  for (const exerciseData of exercises) {
+    const exercise = await prisma.exercise.create({
+      data: {
+        title: exerciseData.title,
+        description: exerciseData.description,
+        type: exerciseData.type,
+        difficulty: exerciseData.difficulty,
+        level: exerciseData.level,
+        questions: {
+          create: exerciseData.questions.map((q, index) => ({
+            question: q.question,
+            options: JSON.stringify(q.options),
+            correctAnswer: q.correctAnswer,
+            explanation: q.explanation,
+            order: index
+          }))
+        }
+      }
+    });
+
+    console.log(`✅ Exercice créé: ${exercise.title}`);
+  }
+
+  // Créer des dictées
+  const dictations = [
+    {
+      title: 'La vie quotidienne',
+      description: 'Une dictée sur les activités de la vie quotidienne',
+      difficulty: 'beginner',
+      duration: 5,
+      text: 'Chaque matin, je me lève à sept heures. Je prends ma douche et je m\'habille. Ensuite, je prends mon petit-déjeuner avec ma famille. Nous mangeons du pain, du beurre et de la confiture. Après le petit-déjeuner, je vais à l\'école en bus.',
+      category: 'quotidien',
+      tags: ['quotidien', 'famille', 'école']
+    },
+    {
+      title: 'Les saisons',
+      description: 'Découvrez les quatre saisons en français',
+      difficulty: 'intermediate',
+      duration: 8,
+      text: 'Le printemps est une saison magnifique. Les arbres fleurissent et les oiseaux chantent. L\'été apporte la chaleur et les longues journées ensoleillées. L\'automne colore les feuilles en rouge et en orange. L\'hiver recouvre tout de neige blanche.',
+      category: 'nature',
+      tags: ['saisons', 'nature', 'couleurs']
+    }
+  ];
+
+  for (const dictationData of dictations) {
+    await prisma.dictation.create({
+      data: {
+        title: dictationData.title,
+        description: dictationData.description,
+        difficulty: dictationData.difficulty,
+        duration: dictationData.duration,
+        text: dictationData.text,
+        category: dictationData.category,
+        tags: JSON.stringify(dictationData.tags)
+      }
+    });
+
+    console.log(`✅ Dictée créée: ${dictationData.title}`);
+  }
+
+  console.log('🎉 Seeding terminé avec succès !');
 }
 
 main()
   .catch((e) => {
-    console.error(e)
-    process.exit(1)
+    console.error('❌ Erreur lors du seeding:', e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });

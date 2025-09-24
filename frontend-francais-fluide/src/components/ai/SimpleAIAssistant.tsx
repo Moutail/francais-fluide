@@ -15,7 +15,26 @@ export const SimpleAIAssistant: React.FC<SimpleAIAssistantProps> = ({
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Array<{id: string, text: string, isUser: boolean}>>([]);
 
-  const canUseAI = userPlan !== 'free';
+  // Mapping des plans backend vers frontend
+  const getFrontendPlanId = (backendPlan: string) => {
+    const mapping: { [key: string]: string } = {
+      'demo': 'free',
+      'etudiant': 'student', 
+      'premium': 'premium',
+      'etablissement': 'enterprise',
+    };
+    return mapping[backendPlan] || 'free';
+  };
+
+  const frontendPlanId = getFrontendPlanId(userPlan);
+  const canUseAI = frontendPlanId && frontendPlanId !== 'free';
+  
+  // Debug
+  console.log('🤖 SimpleAIAssistant Debug:', {
+    userPlan,
+    frontendPlanId,
+    canUseAI
+  });
 
   const handleSend = () => {
     if (!message.trim() || !canUseAI) return;
@@ -51,13 +70,13 @@ export const SimpleAIAssistant: React.FC<SimpleAIAssistantProps> = ({
         className={`fixed w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-white transition-all z-40 ${
           canUseAI 
             ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" 
-            : "bg-gradient-to-r from-gray-400 to-gray-500"
+            : "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
         }`}
         style={{ 
           bottom: '80px',
           right: '24px'
         }}
-        title="Assistant IA"
+        title={canUseAI ? "Assistant IA" : "Assistant IA - Upgrade requis"}
       >
         <MessageCircle className="w-6 h-6" />
       </button>
@@ -142,10 +161,24 @@ export const SimpleAIAssistant: React.FC<SimpleAIAssistantProps> = ({
             {/* Input */}
             <div className="p-4 border-t border-gray-200">
               {!canUseAI && (
-                <div className="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-xs text-yellow-800 text-center">
-                    Upgradez pour utiliser l'assistant IA
-                  </p>
+                <div className="mb-3 p-3 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg">
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-orange-800 mb-1">
+                      🚀 Assistant IA Premium
+                    </p>
+                    <p className="text-xs text-orange-700">
+                      {frontendPlanId === 'free' 
+                        ? "Votre plan démo ne permet pas l'accès à l'assistant IA" 
+                        : "Upgradez vers un plan Étudiant (14.99$/mois) ou supérieur pour utiliser l'assistant IA"
+                      }
+                    </p>
+                    <button 
+                      onClick={() => window.location.href = '/subscription'}
+                      className="mt-2 px-3 py-1 bg-orange-600 text-white text-xs rounded-lg hover:bg-orange-700 transition-colors"
+                    >
+                      Voir les plans
+                    </button>
+                  </div>
                 </div>
               )}
               

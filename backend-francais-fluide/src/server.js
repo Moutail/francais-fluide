@@ -5,11 +5,31 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const morgan = require('morgan');
-require('dotenv').config();
+// Charger les variables d'environnement
+require('dotenv').config({ path: '.env' });
+
+// Vérifier et définir les variables d'environnement essentielles
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = 'postgresql://postgres:postgres123@localhost:5432/francais_fluide?schema=public';
+}
+if (!process.env.JWT_SECRET) {
+  process.env.JWT_SECRET = 'votre-secret-jwt-super-securise-ici-changez-moi';
+}
+if (!process.env.PORT) {
+  process.env.PORT = 3001;
+}
+if (!process.env.NODE_ENV) {
+  process.env.NODE_ENV = 'development';
+}
+
+console.log('🔧 Variables d\'environnement chargées:');
+console.log('DATABASE_URL:', process.env.DATABASE_URL ? '✅ Définie' : '❌ Manquante');
+console.log('JWT_SECRET:', process.env.JWT_SECRET ? '✅ Défini' : '❌ Manquant');
+console.log('PORT:', process.env.PORT);
 
 // Import des routes
 const authRoutes = require('./routes/auth');
-const progressRoutes = require('./routes/progress');
+const progressRoutes = require('./routes/progress-simple');
 const aiRoutes = require('./routes/ai');
 const subscriptionRoutes = require('./routes/subscription');
 const grammarRoutes = require('./routes/grammar');
@@ -18,6 +38,7 @@ const exercisesRoutes = require('./routes/exercises');
 // Import des middlewares
 const { errorHandler } = require('./middleware/errorHandler');
 const { requestLogger } = require('./middleware/requestLogger');
+const subscriptionChecker = require('./middleware/subscriptionChecker');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -48,6 +69,9 @@ app.use(compression());
 // Logging
 app.use(morgan('combined'));
 app.use(requestLogger);
+
+// Vérification des abonnements (à chaque requête) - Temporairement désactivé
+// app.use(subscriptionChecker);
 
 // Rate limiting
 const limiter = rateLimit({

@@ -58,6 +58,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     features: [
       'Corrections IA illimitées',
       'Exercices personnalisés (20/jour)',
+      'Dictées audio (10/jour)',
+      'Tuteur IA intelligent',
       'Analytics avancées',
       'Assistant IA basique',
       'Export des données',
@@ -66,12 +68,15 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     limits: {
       aiCorrections: -1, // illimité
       exercisesPerDay: 20,
+      dictationsPerDay: 10,
       advancedAnalytics: true,
       prioritySupport: true,
       exportData: true,
       customExercises: false,
-      voiceAssistant: false,
-      offlineMode: false
+      voiceAssistant: true,
+      offlineMode: false,
+      intelligentTutor: true,
+      personalizedLearning: true
     }
   },
   {
@@ -86,7 +91,9 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     features: [
       'Tout de l\'Étudiant',
       'Exercices illimités',
+      'Dictées audio illimitées',
       'Assistant IA avancé',
+      'Tuteur IA premium',
       'Mode hors ligne',
       'Exercices personnalisés',
       'Assistant vocal',
@@ -96,12 +103,15 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     limits: {
       aiCorrections: -1,
       exercisesPerDay: -1,
+      dictationsPerDay: -1,
       advancedAnalytics: true,
       prioritySupport: true,
       exportData: true,
       customExercises: true,
       voiceAssistant: true,
-      offlineMode: true
+      offlineMode: true,
+      intelligentTutor: true,
+      personalizedLearning: true
     }
   },
   {

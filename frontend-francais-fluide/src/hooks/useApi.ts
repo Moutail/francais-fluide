@@ -86,6 +86,9 @@ export function useAuth() {
       }
 
       try {
+        // S’assurer que l’apiClient utilise le token courant pour les requêtes
+        apiClient.setToken(token);
+
         const response = await apiClient.getProfile();
         if (response.success) {
           setUser(response.user);
@@ -155,11 +158,20 @@ export function useAuth() {
   };
 }
 
-// Hook pour la progression
+// Hook pour la progression avec gestion d'erreur améliorée
 export function useProgress() {
   const { data: progress, loading, error, refetch } = useApi(
     () => apiClient.getProgress(),
-    { immediate: true }
+    { 
+      immediate: true,
+      onError: (error) => {
+        console.error('Erreur useProgress:', error);
+        // Ne pas afficher l'erreur dans la console si c'est juste un problème de token
+        if (error?.message?.includes('Token')) {
+          console.warn('Token d\'authentification manquant ou invalide');
+        }
+      }
+    }
   );
 
   const updateProgress = async (data: any) => {
@@ -171,9 +183,24 @@ export function useProgress() {
       }
       return { success: false, error: response.error };
     } catch (error) {
+      console.error('Erreur updateProgress:', error);
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Erreur de mise à jour' 
+      };
+    }
+  };
+
+  // Fonction pour forcer le rechargement avec gestion d'erreur
+  const forceRefresh = async () => {
+    try {
+      await refetch();
+      return { success: true };
+    } catch (error) {
+      console.error('Erreur forceRefresh:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Erreur de rechargement' 
       };
     }
   };
@@ -183,7 +210,7 @@ export function useProgress() {
     loading,
     error,
     updateProgress,
-    refetch,
+    refetch: forceRefresh,
   };
 }
 
