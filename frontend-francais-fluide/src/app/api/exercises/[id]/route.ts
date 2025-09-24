@@ -1,55 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
-
-// GET /api/exercises/[id] - Récupérer un exercice spécifique
+// GET /api/exercises/[id] - Proxy vers backend
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const exercise = await prisma.exercise.findUnique({
-      where: { id: params.id },
-      include: {
-        questions: {
-          orderBy: { order: 'asc' }
-        },
-        submissions: {
-          take: 5,
-          orderBy: { completedAt: 'desc' },
-          include: {
-            user: {
-              select: { name: true, email: true }
-            }
-          }
-        }
-      }
+    const token = request.headers.get('authorization') || '';
+    const resp = await fetch(`http://localhost:3001/api/exercises/${params.id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: token } : {}),
+      },
+      cache: 'no-store',
     });
-
-    if (!exercise) {
-      return NextResponse.json(
-        { success: false, error: 'Exercice non trouvé' },
-        { status: 404 }
-      );
-    }
-
-    // Parser les options JSON
-    const exerciseWithParsedQuestions = {
-      ...exercise,
-      questions: exercise.questions.map(q => ({
-        ...q,
-        options: JSON.parse(q.options)
-      }))
-    };
-
-    return NextResponse.json({
-      success: true,
-      data: exerciseWithParsedQuestions
-    });
-
+    const data = await resp.json();
+    return NextResponse.json(data, { status: resp.status });
   } catch (error) {
-    console.error('Erreur récupération exercice:', error);
+    console.error('Erreur récupération exercice (proxy):', error);
     return NextResponse.json(
       { success: false, error: 'Erreur interne du serveur' },
       { status: 500 }
@@ -57,46 +25,26 @@ export async function GET(
   }
 }
 
-// PUT /api/exercises/[id] - Mettre à jour un exercice
+// PUT /api/exercises/[id] - Proxy vers backend
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const token = request.headers.get('authorization') || '';
     const body = await request.json();
-    const { title, description, type, difficulty, level, questions } = body;
-
-    const exercise = await prisma.exercise.update({
-      where: { id: params.id },
-      data: {
-        title,
-        description,
-        type,
-        difficulty,
-        level: level || 1,
-        questions: {
-          deleteMany: {},
-          create: questions.map((q: any, index: number) => ({
-            question: q.question,
-            options: JSON.stringify(q.options),
-            correctAnswer: q.correctAnswer,
-            explanation: q.explanation,
-            order: index
-          }))
-        }
+    const resp = await fetch(`http://localhost:3001/api/exercises/${params.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: token } : {}),
       },
-      include: {
-        questions: true
-      }
+      body: JSON.stringify(body),
     });
-
-    return NextResponse.json({
-      success: true,
-      data: exercise
-    });
-
+    const data = await resp.json();
+    return NextResponse.json(data, { status: resp.status });
   } catch (error) {
-    console.error('Erreur mise à jour exercice:', error);
+    console.error('Erreur mise à jour exercice (proxy):', error);
     return NextResponse.json(
       { success: false, error: 'Erreur interne du serveur' },
       { status: 500 }
@@ -104,23 +52,23 @@ export async function PUT(
   }
 }
 
-// DELETE /api/exercises/[id] - Supprimer un exercice
+// DELETE /api/exercises/[id] - Proxy vers backend
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    await prisma.exercise.delete({
-      where: { id: params.id }
+    const token = request.headers.get('authorization') || '';
+    const resp = await fetch(`http://localhost:3001/api/exercises/${params.id}`, {
+      method: 'DELETE',
+      headers: {
+        ...(token ? { Authorization: token } : {}),
+      },
     });
-
-    return NextResponse.json({
-      success: true,
-      message: 'Exercice supprimé avec succès'
-    });
-
+    const data = await resp.json();
+    return NextResponse.json(data, { status: resp.status });
   } catch (error) {
-    console.error('Erreur suppression exercice:', error);
+    console.error('Erreur suppression exercice (proxy):', error);
     return NextResponse.json(
       { success: false, error: 'Erreur interne du serveur' },
       { status: 500 }

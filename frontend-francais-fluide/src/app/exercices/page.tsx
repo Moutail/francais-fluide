@@ -95,13 +95,20 @@ export default function ExercicesPage() {
     return 'hard';
   };
 
+  const normalizeEstimatedMinutes = (ex: any): number => {
+    const raw = Number((ex && (ex.estimatedTime as any)) ?? NaN);
+    if (Number.isFinite(raw) && raw > 0) return Math.round(raw);
+    const qLen = Array.isArray(ex?.questions) ? ex.questions.length : 0;
+    return Math.max(3, qLen > 0 ? qLen * 2 : 10);
+  };
+
   const mapBankToExerciseCard = (ex: any): Exercise => ({
     id: ex.id,
     title: ex.title,
     type: ex.type,
     difficulty: mapBankDifficulty(ex.difficulty),
     description: ex.description,
-    estimatedTime: ex.estimatedTime || 10,
+    estimatedTime: normalizeEstimatedMinutes(ex),
     completed: false,
     score: undefined,
     icon: getTypeIcon(ex.type)
@@ -121,14 +128,19 @@ export default function ExercicesPage() {
         const data = await response.json();
         
         if (data.success) {
-          const exercisesWithIcons = data.data.map((exercise: any) => ({
-            ...exercise,
-            icon: getTypeIcon(exercise.type),
-            completed: exercise.submissions && exercise.submissions.length > 0,
-            score: exercise.submissions && exercise.submissions.length > 0 
-              ? exercise.submissions[0].score 
-              : undefined
-          }));
+          const exercisesWithIcons = data.data.map((exercise: any) => {
+            const hasSubmissions = Array.isArray(exercise.submissions) && exercise.submissions.length > 0;
+            const countSubmissions = typeof exercise._count?.submissions === 'number' ? exercise._count.submissions : 0;
+            const completed = hasSubmissions || countSubmissions > 0;
+            const lastScore = hasSubmissions ? exercise.submissions[0]?.score : undefined;
+            return {
+              ...exercise,
+              estimatedTime: normalizeEstimatedMinutes(exercise),
+              icon: getTypeIcon(exercise.type),
+              completed,
+              score: lastScore,
+            };
+          });
           if (!exercisesWithIcons || exercisesWithIcons.length === 0) {
             const defaults = EXERCISES_BANK.slice(0, 6).map(mapBankToExerciseCard);
             setExercises(defaults);
@@ -224,8 +236,14 @@ export default function ExercicesPage() {
         return;
       }
 
-      // Sinon, charger depuis l'API
-      const response = await fetch(`/api/exercises/${exerciseId}`);
+      // Sinon, charger depuis l'API (avec jeton)
+      const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || '';
+      const response = await fetch(`/api/exercises/${exerciseId}` , {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        }
+      });
       const data = await response.json();
       if (data.success) {
         const questionsWithParsedOptions = data.data.questions.map((q: any) => {
@@ -298,7 +316,8 @@ export default function ExercicesPage() {
     setScore(0);
     setSelectedAnswer(null);
     setShowResult(false);
-    setTimeLeft(10 * 60); // 10 minutes par défaut
+    // Initialiser le minuteur à la durée prévue (fallback 10 min) et démarrer dès l'entrée dans l'exercice
+    setTimeLeft(Math.max(1, (exercise.estimatedTime || 10)) * 60);
     setIsTimerActive(true);
     setCompletedQuestions(new Set());
     
@@ -328,6 +347,13 @@ export default function ExercicesPage() {
     }
   };
 
+  // Lancer explicitement le minuteur lorsque l'utilisateur commence vraiment
+  const beginTimer = () => {
+    if (!isTimerActive && timeLeft > 0) {
+      setIsTimerActive(true);
+    }
+  };
+
   const finishExercise = async () => {
     if (selectedExercise) {
       // Sauvegarder les résultats dans la base de données
@@ -337,11 +363,12 @@ export default function ExercicesPage() {
           return acc;
         }, {} as Record<string, string>);
 
+        const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || '';
         const response = await fetch('/api/exercises/submit', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
           },
           body: JSON.stringify({
             exerciseId: selectedExercise.id,
@@ -353,6 +380,8 @@ export default function ExercicesPage() {
         const data = await response.json();
         if (data.success) {
           console.log('Exercice sauvegardé:', data.data);
+          // Marquer l'exercice comme complété localement
+          setExercises(prev => prev.map(ex => ex.id === selectedExercise.id ? { ...ex, completed: true, score: data.data?.score ?? ex.score } : ex));
         }
       } catch (error) {
         console.error('Erreur sauvegarde exercice:', error);
@@ -455,74 +484,92 @@ export default function ExercicesPage() {
             </div>
           </motion.div>
 
-          {/* Question */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white rounded-2xl p-8 shadow-xl mb-6"
-          >
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              {currentQuestion.question}
-            </h2>
-
-            <div className="space-y-3">
-              {currentQuestion.options.map((option, index) => (
-                <motion.button
-                  key={index}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => !showResult && setSelectedAnswer(index)}
-                  disabled={showResult}
-                  className={cn(
-                    "w-full p-4 text-left rounded-xl border-2 transition-all",
-                    selectedAnswer === index
-                      ? "border-blue-500 bg-blue-50 text-blue-900"
-                      : "border-gray-200 hover:border-gray-300 bg-white text-gray-900",
-                    showResult && index === currentQuestion.correctAnswer
-                      ? "border-green-500 bg-green-50 text-green-900"
-                      : showResult && selectedAnswer === index && index !== currentQuestion.correctAnswer
-                      ? "border-red-500 bg-red-50 text-red-900"
-                      : ""
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={cn(
-                      "w-6 h-6 rounded-full border-2 flex items-center justify-center text-sm font-medium",
-                      selectedAnswer === index
-                        ? "border-blue-500 bg-blue-500 text-white"
-                        : "border-gray-300 text-gray-500",
-                      showResult && index === currentQuestion.correctAnswer
-                        ? "border-green-500 bg-green-500 text-white"
-                        : showResult && selectedAnswer === index && index !== currentQuestion.correctAnswer
-                        ? "border-red-500 bg-red-500 text-white"
-                        : ""
-                    )}>
-                      {String.fromCharCode(65 + index)}
-                    </div>
-                    <span className="font-medium">{option}</span>
-                    {showResult && index === currentQuestion.correctAnswer && (
-                      <CheckCircle className="w-5 h-5 text-green-600 ml-auto" />
-                    )}
-                    {showResult && selectedAnswer === index && index !== currentQuestion.correctAnswer && (
-                      <XCircle className="w-5 h-5 text-red-600 ml-auto" />
-                    )}
-                  </div>
-                </motion.button>
-              ))}
+          {/* Alerte si aucune question */}
+          {questions.length === 0 && (
+            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl p-4 mb-6">
+              Aucune question disponible pour cet exercice pour le moment.
             </div>
+          )}
 
-            {showResult && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200"
-              >
-                <h3 className="font-semibold text-blue-900 mb-2">Explication :</h3>
-                <p className="text-blue-800">{currentQuestion.explanation}</p>
-              </motion.div>
-            )}
-          </motion.div>
+          {/* Question */}
+          {currentQuestion ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white rounded-2xl p-8 shadow-xl mb-6"
+            >
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                {currentQuestion.question}
+              </h2>
+
+              <div className="space-y-3">
+                {(currentQuestion.options || []).map((option: string, index: number) => (
+                  <motion.button
+                    key={index}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => !showResult && setSelectedAnswer(index)}
+                    disabled={showResult}
+                    className={cn(
+                      "w-full p-4 text-left rounded-xl border-2 transition-all",
+                      selectedAnswer === index
+                        ? "border-blue-500 bg-blue-50 text-blue-900"
+                        : "border-gray-200 hover:border-gray-300 bg-white text-gray-900",
+                      showResult && index === currentQuestion.correctAnswer
+                        ? "border-green-500 bg-green-50 text-green-900"
+                        : showResult && selectedAnswer === index && index !== currentQuestion.correctAnswer
+                        ? "border-red-500 bg-red-50 text-red-900"
+                        : ""
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        "w-6 h-6 rounded-full border-2 flex items-center justify-center text-sm font-medium",
+                        selectedAnswer === index
+                          ? "border-blue-500 bg-blue-500 text-white"
+                          : "border-gray-300 text-gray-500",
+                        showResult && index === currentQuestion.correctAnswer
+                          ? "border-green-500 bg-green-500 text-white"
+                          : showResult && selectedAnswer === index && index !== currentQuestion.correctAnswer
+                          ? "border-red-500 bg-red-500 text-white"
+                          : ""
+                      )}>
+                        {String.fromCharCode(65 + index)}
+                      </div>
+                      <span className="font-medium">{option}</span>
+                      {showResult && index === currentQuestion.correctAnswer && (
+                        <CheckCircle className="w-5 h-5 text-green-600 ml-auto" />
+                      )}
+                      {showResult && selectedAnswer === index && index !== currentQuestion.correctAnswer && (
+                        <XCircle className="w-5 h-5 text-red-600 ml-auto" />
+                      )}
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+
+              {showResult && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200"
+                >
+                  <h3 className="font-semibold text-blue-900 mb-2">Explication :</h3>
+                  <p className="text-blue-800">{currentQuestion.explanation}</p>
+                </motion.div>
+              )}
+            </motion.div>
+          ) : (
+            <div className="bg-white rounded-2xl p-8 shadow-xl mb-6">
+              <div className="h-5 w-48 bg-gray-200 rounded mb-6 animate-pulse" />
+              <div className="space-y-3">
+                {[0,1,2,3].map((i) => (
+                  <div key={i} className="w-full p-4 rounded-xl border-2 border-gray-200 bg-gray-50 animate-pulse" />
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Actions */}
           <motion.div
@@ -540,7 +587,7 @@ export default function ExercicesPage() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={submitAnswer}
+                  onClick={() => { beginTimer(); submitAnswer(); }}
                   disabled={selectedAnswer === null}
                   className={cn(
                     "px-6 py-3 rounded-xl font-semibold transition-all",
@@ -711,7 +758,7 @@ export default function ExercicesPage() {
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
                 >
                   <Play className="w-4 h-4" />
-                  {exercise.completed ? 'Recommencer' : 'Commencer'}
+                  {exercise.completed ? 'Reprendre' : 'Commencer'}
                 </motion.button>
               </div>
             </motion.div>
