@@ -1,6 +1,9 @@
 // src/services/aiService.js
 const OpenAI = require('openai');
 const Anthropic = require('@anthropic-ai/sdk');
+const { PrismaClient } = require('@prisma/client');
+
+const prisma = new PrismaClient();
 
 class AIService {
   constructor() {
@@ -11,6 +14,8 @@ class AIService {
     this.anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic({
       apiKey: process.env.ANTHROPIC_API_KEY
     }) : null;
+    
+    this.provider = process.env.AI_PROVIDER || 'openai';
   }
 
   async generateResponse(message, options = {}) {
@@ -21,14 +26,18 @@ class AIService {
     } = options;
 
     try {
-      // Essayer d'abord avec OpenAI
-      if (this.openai) {
-        return await this.generateWithOpenAI(message, context, conversationHistory);
-      }
+      // Récupérer le profil utilisateur et les données de télémétrie
+      const userProfile = await this.getUserProfile(userId);
+      const errorPatterns = await this.getUserErrorPatterns(userId);
       
-      // Sinon utiliser Anthropic
-      if (this.anthropic) {
-        return await this.generateWithAnthropic(message, context, conversationHistory);
+      // Construire le contexte enrichi
+      const enrichedContext = this.buildEnrichedContext(userProfile, errorPatterns, context);
+
+      // Choisir le provider selon la configuration
+      if (this.provider === 'anthropic' && this.anthropic) {
+        return await this.generateWithAnthropic(message, enrichedContext, conversationHistory, userProfile);
+      } else if (this.openai) {
+        return await this.generateWithOpenAI(message, enrichedContext, conversationHistory, userProfile);
       }
       
       // Fallback sur une réponse basique
@@ -40,14 +49,8 @@ class AIService {
     }
   }
 
-  async generateWithOpenAI(message, context, conversationHistory) {
-    const systemPrompt = `Vous êtes un assistant IA spécialisé dans l'apprentissage du français. 
-    Vous aidez les utilisateurs à améliorer leur français en fournissant des explications claires, 
-    des corrections grammaticales et des conseils pédagogiques.
-    
-    Contexte: ${context}
-    
-    Répondez de manière pédagogique et encourageante.`;
+  async generateWithOpenAI(message, context, conversationHistory, userProfile) {
+    const systemPrompt = this.buildSystemPrompt(userProfile, context);
 
     const messages = [
       { role: 'system', content: systemPrompt },
@@ -74,12 +77,8 @@ class AIService {
     };
   }
 
-  async generateWithAnthropic(message, context, conversationHistory) {
-    const systemPrompt = `Vous êtes un assistant IA spécialisé dans l'apprentissage du français. 
-    Vous aidez les utilisateurs à améliorer leur français en fournissant des explications claires, 
-    des corrections grammaticales et des conseils pédagogiques.
-    
-    Contexte: ${context}`;
+  async generateWithAnthropic(message, context, conversationHistory, userProfile) {
+    const systemPrompt = this.buildSystemPrompt(userProfile, context);
 
     const conversationText = conversationHistory
       .map(msg => `${msg.role}: ${msg.content}`)
@@ -103,6 +102,152 @@ class AIService {
         tokens: response.usage?.input_tokens + response.usage?.output_tokens || 0
       }
     };
+  }
+
+  // Méthodes utilitaires pour enrichir le contexte
+  async getUserProfile(userId) {
+    if (!userId) return null;
+    
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: { 
+          progress: true,
+          subscription: true 
+        }
+      });
+      
+      return user ? {
+        level: user.progress?.level || 1,
+        accuracy: user.progress?.accuracy || 0,
+        exercisesCompleted: user.progress?.exercisesCompleted || 0,
+        currentStreak: user.progress?.currentStreak || 0,
+        plan: user.subscription?.plan || 'demo'
+      } : null;
+    } catch (error) {
+      console.error('Erreur récupération profil utilisateur:', error);
+      return null;
+    }
+  }
+
+  async getUserErrorPatterns(userId) {
+    if (!userId) return [];
+    
+    try {
+      const errorEvents = await prisma.telemetryEvent.findMany({
+        where: {
+          userId,
+          type: 'question_completed',
+          createdAt: {
+            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // 30 derniers jours
+          }
+        },
+        take: 50
+      });
+
+      const errorPatterns = {};
+      errorEvents.forEach(event => {
+        try {
+          const data = JSON.parse(event.data);
+          if (!data.isCorrect) {
+            const key = `${event.exerciseId}_error`;
+            if (!errorPatterns[key]) {
+              errorPatterns[key] = { count: 0, exerciseId: event.exerciseId };
+            }
+            errorPatterns[key].count++;
+          }
+        } catch (e) {
+          // Ignorer les données malformées
+        }
+      });
+
+      return Object.values(errorPatterns).sort((a, b) => b.count - a.count).slice(0, 5);
+    } catch (error) {
+      console.error('Erreur récupération patterns erreur:', error);
+      return [];
+    }
+  }
+
+  buildEnrichedContext(userProfile, errorPatterns, originalContext) {
+    let context = originalContext || '';
+    
+    if (userProfile) {
+      context += `\n\nProfil utilisateur:
+- Niveau: ${userProfile.level}
+- Précision: ${Math.round(userProfile.accuracy)}%
+- Exercices complétés: ${userProfile.exercisesCompleted}
+- Série actuelle: ${userProfile.currentStreak} jours
+- Plan: ${userProfile.plan}`;
+    }
+
+    if (errorPatterns.length > 0) {
+      context += `\n\nErreurs fréquentes détectées:
+${errorPatterns.map(pattern => `- Exercice ${pattern.exerciseId}: ${pattern.count} erreurs`).join('\n')}`;
+    }
+
+    return context;
+  }
+
+  buildSystemPrompt(userProfile, context) {
+    const basePrompt = `Vous êtes un tuteur de français expert et bienveillant. Votre mission est d'aider l'utilisateur à améliorer son français de manière personnalisée et efficace.
+
+RÈGLES IMPORTANTES:
+1. Adaptez votre niveau de langue au niveau de l'utilisateur
+2. Soyez encourageant et positif dans vos réponses
+3. Donnez des explications claires et concises
+4. Proposez des exemples pratiques
+5. Corrigez les erreurs avec bienveillance
+6. Répondez UNIQUEMENT en français
+7. Si l'utilisateur pose une question en anglais, répondez en français mais mentionnez que vous préférez le français
+
+STYLE DE COMMUNICATION:
+- Utilisez un ton amical et professionnel
+- Employez des phrases courtes et claires
+- Donnez des exemples concrets
+- Encouragez la pratique régulière
+- Félicitez les progrès`;
+
+    if (userProfile) {
+      const levelGuidance = this.getLevelGuidance(userProfile.level);
+      const accuracyGuidance = this.getAccuracyGuidance(userProfile.accuracy);
+      
+      return `${basePrompt}
+
+PROFIL DE L'UTILISATEUR:
+${levelGuidance}
+${accuracyGuidance}
+
+CONTEXTE SPÉCIFIQUE:
+${context}
+
+Répondez en tenant compte de ce profil pour personnaliser votre aide.`;
+    }
+
+    return `${basePrompt}
+
+CONTEXTE:
+${context}
+
+Aidez l'utilisateur à améliorer son français de manière adaptée à son niveau.`;
+  }
+
+  getLevelGuidance(level) {
+    const guidance = {
+      1: "Niveau débutant: Utilisez un vocabulaire simple, des phrases courtes, et expliquez les concepts de base.",
+      2: "Niveau intermédiaire: Vous pouvez utiliser un vocabulaire plus riche et aborder des concepts plus complexes.",
+      3: "Niveau avancé: Vous pouvez discuter de nuances linguistiques et de subtilités du français."
+    };
+    return guidance[level] || guidance[1];
+  }
+
+  getAccuracyGuidance(accuracy) {
+    if (accuracy < 50) {
+      return "L'utilisateur a des difficultés importantes. Concentrez-vous sur les bases et encouragez beaucoup.";
+    } else if (accuracy < 75) {
+      return "L'utilisateur progresse bien. Vous pouvez introduire des concepts plus avancés progressivement.";
+    } else {
+      return "L'utilisateur a un bon niveau. Vous pouvez aborder des subtilités et des nuances du français.";
+    }
   }
 
   generateBasicResponse(message) {

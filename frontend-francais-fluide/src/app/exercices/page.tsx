@@ -26,6 +26,7 @@ import { cn } from '@/lib/utils/cn';
 import ExerciseGenerator from '@/components/ai/ExerciseGenerator';
 import { EXERCISES_BANK } from '@/data/exercises-bank';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useTelemetry } from '@/lib/telemetry';
 
 interface Exercise {
   id: string;
@@ -51,14 +52,19 @@ interface Question {
 export default function ExercicesPage() {
   const { isAuthenticated, loading } = useAuth();
   const { getRemainingUsage } = useSubscription();
+  const telemetry = useTelemetry();
+
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [completedQuestions, setCompletedQuestions] = useState<Set<number>>(new Set());
+  const [questionStartTime, setQuestionStartTime] = useState<number>(0);
+  const [answerAttempts, setAnswerAttempts] = useState<number[]>([]);
 
   // Rediriger les utilisateurs non connectés
   useEffect(() => {
@@ -73,12 +79,21 @@ export default function ExercicesPage() {
   const [loadingExercises, setLoadingExercises] = useState(true);
   const [showGenerator, setShowGenerator] = useState(false);
   const [generatedToday, setGeneratedToday] = useState(0);
+  const [selectedType, setSelectedType] = useState<string>('all');
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   // Statistiques réelles de l'utilisateur
   const [stats, setStats] = useState({
     exercisesCompleted: 0,
     averageAccuracy: 0,
     timeSpent: 0,
     currentStreak: 0,
+  });
+
+  // Filtrage des exercices
+  const filteredExercises = exercises.filter(exercise => {
+    if (selectedType && selectedType !== 'all' && exercise.type !== selectedType) return false;
+    if (selectedDifficulty && selectedDifficulty !== 'all' && exercise.difficulty !== selectedDifficulty) return false;
+    return true;
   });
   const normalizeNumber = (value: unknown, fallback = 0): number => {
     const n = Number(value);
@@ -233,6 +248,7 @@ export default function ExercicesPage() {
           };
         });
         setQuestions(questionsFromBank);
+        setSelectedAnswers(new Array(questionsFromBank.length).fill(-1));
         return;
       }
 
@@ -256,6 +272,7 @@ export default function ExercicesPage() {
           };
         });
         setQuestions(questionsWithParsedOptions);
+        setSelectedAnswers(new Array(questionsWithParsedOptions.length).fill(-1));
       }
     } catch (error) {
       console.error('Erreur chargement questions:', error);
@@ -315,11 +332,21 @@ export default function ExercicesPage() {
     setCurrentQuestionIndex(0);
     setScore(0);
     setSelectedAnswer(null);
+    setSelectedAnswers([]);
     setShowResult(false);
     // Initialiser le minuteur à la durée prévue (fallback 10 min) et démarrer dès l'entrée dans l'exercice
     setTimeLeft(Math.max(1, (exercise.estimatedTime || 10)) * 60);
     setIsTimerActive(true);
     setCompletedQuestions(new Set());
+    setQuestionStartTime(Date.now());
+    setAnswerAttempts([]);
+    
+    // Télémétrie: exercice démarré
+    telemetry.trackExerciseStarted(exercise.id, {
+      type: exercise.type,
+      difficulty: exercise.difficulty,
+      estimatedTime: exercise.estimatedTime
+    });
     
     // Charger les questions de l'exercice
     await loadQuestions(exercise.id);
@@ -329,9 +356,21 @@ export default function ExercicesPage() {
     if (selectedAnswer === null) return;
 
     const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+    const responseTime = Date.now() - questionStartTime;
+    const attempts = answerAttempts[currentQuestionIndex] || 0;
+
     if (isCorrect) {
       setScore(score + 1);
     }
+
+    // Télémétrie: question complétée
+    telemetry.trackQuestionCompleted(
+      selectedExercise!.id,
+      currentQuestion.id,
+      isCorrect,
+      responseTime,
+      attempts
+    );
 
     setShowResult(true);
     setCompletedQuestions(new Set([...completedQuestions, currentQuestionIndex]));
@@ -342,6 +381,7 @@ export default function ExercicesPage() {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedAnswer(null);
       setShowResult(false);
+      setQuestionStartTime(Date.now());
     } else {
       finishExercise();
     }
@@ -356,12 +396,28 @@ export default function ExercicesPage() {
 
   const finishExercise = async () => {
     if (selectedExercise) {
+      const finalScore = Math.round((score / questions.length) * 100);
+      const timeSpent = Math.floor((10 * 60 - timeLeft) / 60);
+      
+      // Télémétrie: exercice terminé
+      telemetry.trackExerciseFinished(
+        selectedExercise.id,
+        finalScore,
+        questions.length,
+        timeSpent * 60, // en secondes
+        finalScore
+      );
+
       // Sauvegarder les résultats dans la base de données
       try {
-        const answers = questions.reduce((acc, q, index) => {
-          acc[q.id] = selectedAnswer === index ? q.correctAnswer : '';
-          return acc;
-        }, {} as Record<string, string>);
+        // Construire les réponses utilisateur sous forme de tableau, dans l'ordre des questions
+        const userAnswers: string[] = questions.map((q, i) => {
+          const sel = selectedAnswers[i];
+          if (typeof sel === 'number' && sel >= 0 && Array.isArray(q.options)) {
+            return q.options[sel] as string;
+          }
+          return '';
+        });
 
         const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || '';
         const response = await fetch('/api/exercises/submit', {
@@ -372,8 +428,8 @@ export default function ExercicesPage() {
           },
           body: JSON.stringify({
             exerciseId: selectedExercise.id,
-            answers,
-            timeSpent: Math.floor((10 * 60 - timeLeft) / 60) // temps en minutes
+            answers: userAnswers,
+            timeSpent: timeSpent // temps en minutes
           })
         });
 
@@ -509,7 +565,37 @@ export default function ExercicesPage() {
                     key={index}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => !showResult && setSelectedAnswer(index)}
+                    onClick={() => {
+                    if (showResult) return;
+                    const previousAnswer = selectedAnswer;
+                    setSelectedAnswer(index);
+                    
+                    // Télémétrie: sélection de réponse
+                    telemetry.trackAnswerSelected(
+                      selectedExercise!.id,
+                      currentQuestion.id,
+                      index,
+                      currentQuestion.options || []
+                    );
+                    
+                    // Télémétrie: changement de réponse
+                    if (previousAnswer !== null && previousAnswer !== index) {
+                      telemetry.trackAnswerChanged(
+                        selectedExercise!.id,
+                        currentQuestion.id,
+                        previousAnswer,
+                        index,
+                        currentQuestion.options || []
+                      );
+                      
+                      // Incrémenter le compteur de tentatives
+                      setAnswerAttempts(prev => {
+                        const newAttempts = [...prev];
+                        newAttempts[currentQuestionIndex] = (newAttempts[currentQuestionIndex] || 0) + 1;
+                        return newAttempts;
+                      });
+                    }
+                  }}
                     disabled={showResult}
                     className={cn(
                       "w-full p-4 text-left rounded-xl border-2 transition-all",
@@ -628,7 +714,10 @@ export default function ExercicesPage() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <ExerciseGenerator onExerciseGenerated={handleExerciseGenerated} />
+            <ExerciseGenerator 
+              onExerciseGenerated={handleExerciseGenerated} 
+              onClose={() => setShowGenerator(false)}
+            />
           </motion.div>
         )}
 
@@ -675,12 +764,24 @@ export default function ExercicesPage() {
           <div className="bg-white rounded-xl p-4 shadow-lg">
             <h3 className="font-semibold text-gray-900 mb-3">Filtrer par type</h3>
             <div className="flex gap-2">
-              {['Tous', 'Grammaire', 'Vocabulaire', 'Conjugaison', 'Orthographe'].map((type) => (
+              {[
+                { value: 'all', label: 'Tous' },
+                { value: 'grammar', label: 'Grammaire' },
+                { value: 'vocabulary', label: 'Vocabulaire' },
+                { value: 'conjugation', label: 'Conjugaison' },
+                { value: 'spelling', label: 'Orthographe' }
+              ].map((type) => (
                 <button
-                  key={type}
-                  className="px-3 py-1 text-sm rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                  key={type.value}
+                  onClick={() => setSelectedType(type.value)}
+                  className={cn(
+                    "px-3 py-1 text-sm rounded-lg transition-colors",
+                    selectedType === type.value
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  )}
                 >
-                  {type}
+                  {type.label}
                 </button>
               ))}
             </div>
@@ -689,12 +790,23 @@ export default function ExercicesPage() {
           <div className="bg-white rounded-xl p-4 shadow-lg">
             <h3 className="font-semibold text-gray-900 mb-3">Filtrer par difficulté</h3>
             <div className="flex gap-2">
-              {['Tous', 'Facile', 'Moyen', 'Difficile'].map((difficulty) => (
+              {[
+                { value: 'all', label: 'Tous' },
+                { value: 'easy', label: 'Facile' },
+                { value: 'medium', label: 'Moyen' },
+                { value: 'hard', label: 'Difficile' }
+              ].map((difficulty) => (
                 <button
-                  key={difficulty}
-                  className="px-3 py-1 text-sm rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                  key={difficulty.value}
+                  onClick={() => setSelectedDifficulty(difficulty.value)}
+                  className={cn(
+                    "px-3 py-1 text-sm rounded-lg transition-colors",
+                    selectedDifficulty === difficulty.value
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  )}
                 >
-                  {difficulty}
+                  {difficulty.label}
                 </button>
               ))}
             </div>
@@ -708,7 +820,7 @@ export default function ExercicesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {exercises.map((exercise, index) => (
+            {filteredExercises.map((exercise, index) => (
             <motion.div
               key={exercise.id}
               initial={{ opacity: 0, y: 20 }}
@@ -728,6 +840,11 @@ export default function ExercicesPage() {
                   )}>
                     {getDifficultyText(exercise.difficulty)}
                   </span>
+                  {('isAI' in exercise) && (exercise as any).isAI && (
+                    <span className="px-2 py-1 rounded-full text-[10px] font-medium bg-purple-100 text-purple-700 border border-purple-200">
+                      IA
+                    </span>
+                  )}
                   {exercise.completed && (
                     <div className="flex items-center gap-1">
                       <Trophy className="w-4 h-4 text-yellow-500" />

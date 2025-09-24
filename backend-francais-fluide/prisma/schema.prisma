@@ -27,6 +27,7 @@ model User {
   usageLogs     UsageLog[]
   calendarEvents CalendarEvent[]
   documents     Document[]
+  telemetryEvents TelemetryEvent[]
 
   @@map("users")
 }
@@ -241,4 +242,20 @@ model Document {
 
   @@unique([userId, type])
   @@map("documents")
+}
+
+model TelemetryEvent {
+  id         String   @id @default(cuid())
+  userId     String
+  type       String   // answer_selected, answer_changed, question_completed, question_skipped, exercise_started, exercise_finished
+  timestamp  DateTime
+  data       String   // JSON string of event data
+  exerciseId String?
+  questionId String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("telemetry_events")
 }

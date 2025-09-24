@@ -7,10 +7,13 @@ import { cn } from '@/lib/utils/cn';
 
 interface ExerciseGeneratorProps {
   onExerciseGenerated: (exercise: any) => void;
+  onClose?: () => void;
 }
 
-export default function ExerciseGenerator({ onExerciseGenerated }: ExerciseGeneratorProps) {
+export default function ExerciseGenerator({ onExerciseGenerated, onClose }: ExerciseGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string>('');
+  const [successMsg, setSuccessMsg] = useState<string>('');
   const [formData, setFormData] = useState({
     type: 'grammar',
     difficulty: 'medium',
@@ -21,25 +24,62 @@ export default function ExerciseGenerator({ onExerciseGenerated }: ExerciseGener
   const handleGenerate = async () => {
     setIsGenerating(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/exercises/generate', {
+      setErrorMsg('');
+      setSuccessMsg('');
+      const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
+      if (!token) {
+        setErrorMsg('Vous devez être connecté pour générer un exercice.');
+        return;
+      }
+
+      // Utiliser l'API IA améliorée
+      const response = await fetch('http://localhost:3001/api/ai-enhanced/generate-exercises', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          count: 1,
+          focusAreas: [formData.type],
+          difficulty: formData.difficulty,
+          userProfile: {
+            level: formData.level,
+            preferredTypes: [formData.type],
+            topic: formData.topic
+          }
+        })
       });
 
       const data = await response.json();
+      if (!response.ok) {
+        setErrorMsg(data?.message || 'Erreur lors de la génération.');
+        return;
+      }
       
-      if (data.success) {
-        onExerciseGenerated(data.data);
+      if (data.success && data.data.exercises.length > 0) {
+        const exercise = data.data.exercises[0];
+        // Adapter le format pour le frontend
+        const adaptedExercise = {
+          id: `ai_${Date.now()}`,
+          title: exercise.title,
+          description: exercise.description,
+          type: exercise.type,
+          difficulty: exercise.difficulty,
+          level: formData.level,
+          estimatedTime: 10, // Par défaut
+          questions: exercise.questions || [],
+          completed: false,
+          isAI: true,
+          score: undefined
+        };
+        onExerciseGenerated(adaptedExercise);
+        setSuccessMsg('Exercice IA généré !');
       } else {
-        console.error('Erreur génération exercice:', data.error);
+        setErrorMsg(data.message || 'Aucun exercice généré.');
       }
     } catch (error) {
-      console.error('Erreur génération exercice:', error);
+      setErrorMsg('Erreur réseau lors de la génération.');
     } finally {
       setIsGenerating(false);
     }
@@ -51,13 +91,26 @@ export default function ExerciseGenerator({ onExerciseGenerated }: ExerciseGener
       animate={{ opacity: 1, y: 0 }}
       className="bg-white rounded-2xl p-6 shadow-xl border border-gray-200"
     >
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-purple-100 rounded-lg">
-          <Sparkles className="w-6 h-6 text-purple-600" />
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-purple-100 rounded-lg">
+            <Sparkles className="w-6 h-6 text-purple-600" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900">
+            Générateur d'exercices IA
+          </h3>
         </div>
-        <h3 className="text-xl font-bold text-gray-900">
-          Générateur d'exercices IA
-        </h3>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Fermer"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -146,7 +199,14 @@ export default function ExerciseGenerator({ onExerciseGenerated }: ExerciseGener
         )}
       </button>
 
-      <div className="mt-4 text-sm text-gray-600 text-center">
+      {errorMsg && (
+        <div className="mt-4 text-sm text-red-600 text-center">{errorMsg}</div>
+      )}
+      {successMsg && (
+        <div className="mt-4 text-sm text-green-600 text-center">{successMsg}</div>
+      )}
+
+      <div className="mt-2 text-sm text-gray-600 text-center">
         L'IA va créer un exercice personnalisé basé sur vos critères
       </div>
     </motion.div>

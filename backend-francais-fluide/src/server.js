@@ -33,7 +33,10 @@ const progressRoutes = require('./routes/progress-simple');
 const aiRoutes = require('./routes/ai');
 const subscriptionRoutes = require('./routes/subscription');
 const grammarRoutes = require('./routes/grammar');
+const grammarEnhancedRoutes = require('./routes/grammar-enhanced');
 const exercisesRoutes = require('./routes/exercises');
+const telemetryRoutes = require('./routes/telemetry');
+const aiEnhancedRoutes = require('./routes/ai-enhanced');
 
 // Import des middlewares
 const { errorHandler } = require('./middleware/errorHandler');
@@ -96,7 +99,10 @@ app.use('/api/progress', progressRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/grammar', grammarRoutes);
+app.use('/api/grammar-enhanced', grammarEnhancedRoutes);
 app.use('/api/exercises', exercisesRoutes);
+app.use('/api/telemetry', telemetryRoutes);
+app.use('/api/ai-enhanced', aiEnhancedRoutes);
 
 // Route de santé
 app.get('/health', (req, res) => {

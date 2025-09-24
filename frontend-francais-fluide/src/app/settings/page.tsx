@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useApi';
+import ErrorAnalytics from '@/components/analytics/ErrorAnalytics';
+import PersonalizedRecommendations from '@/components/ai/PersonalizedRecommendations';
 import { useSubscriptionSimple } from '@/hooks/useSubscriptionSimple';
 import Navigation from '@/components/layout/Navigation';
 import {
@@ -17,7 +19,8 @@ import {
   Eye,
   EyeOff,
   CheckCircle,
-  AlertTriangle
+  AlertTriangle,
+  BarChart3
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -178,6 +181,7 @@ export default function SettingsPage() {
     { id: 'security', label: 'Sécurité', icon: Shield },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'billing', label: 'Facturation', icon: CreditCard },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'privacy', label: 'Confidentialité', icon: Globe }
   ];
 
@@ -535,6 +539,21 @@ export default function SettingsPage() {
                         <p>Aucune facture disponible</p>
                       </div>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Onglet Analytics */}
+              {activeTab === 'analytics' && (
+                <div className="space-y-8">
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Analytics et Performance</h2>
+                    <ErrorAnalytics />
+                  </div>
+                  
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Recommandations IA</h2>
+                    <PersonalizedRecommendations />
                   </div>
                 </div>
               )}
