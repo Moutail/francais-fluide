@@ -17,12 +17,18 @@ export default function HomePage() {
     setMounted(true);
   }, []);
 
-  // Rediriger les utilisateurs connectés vers le dashboard
+  // Rediriger les utilisateurs connectés vers le dashboard approprié
   useEffect(() => {
-    if (mounted && isAuthenticated) {
-      window.location.href = '/dashboard';
+    if (mounted && isAuthenticated && user) {
+      // Rediriger les admins vers l'interface d'administration
+      if (user.role && ['admin', 'super_admin'].includes(user.role)) {
+        window.location.href = '/admin';
+      } else {
+        // Rediriger les utilisateurs normaux vers le dashboard
+        window.location.href = '/dashboard';
+      }
     }
-  }, [mounted, isAuthenticated]);
+  }, [mounted, isAuthenticated, user]);
 
   if (!mounted || loading) {
     return (

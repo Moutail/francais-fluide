@@ -9,6 +9,9 @@ interface User {
   id: string;
   email: string;
   name: string;
+  role?: string;
+  isActive?: boolean;
+  lastLogin?: string;
   progress?: any;
   subscription?: any;
 }
