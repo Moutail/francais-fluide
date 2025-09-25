@@ -45,7 +45,37 @@ export default function LoginPage() {
     const result = await login(formData.email, formData.password);
     
     if (result.success) {
-      // Connexion réussie - redirection vers le dashboard
+      // Attendre un peu pour que le contexte auth soit mis à jour
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Récupérer les informations utilisateur mises à jour
+      try {
+        const response = await refreshToken();
+        if (response) {
+          // Vérifier le rôle pour rediriger appropriément
+          const token = localStorage.getItem('token');
+          if (token) {
+            const profileResponse = await fetch('/api/auth/me', {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (profileResponse.ok) {
+              const profileData = await profileResponse.json();
+              const userRole = profileData.user?.role;
+              
+              // Rediriger les admins vers l'interface d'administration
+              if (['admin', 'super_admin'].includes(userRole)) {
+                router.push('/admin');
+                return;
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.log('Erreur récupération profil:', err);
+      }
+      
+      // Redirection par défaut vers le dashboard
       router.push('/dashboard');
     } else {
       // Erreur de connexion

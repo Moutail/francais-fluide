@@ -16,7 +16,8 @@ import {
   HelpCircle,
   Menu,
   X,
-  Sparkles
+  Sparkles,
+  Shield
 } from 'lucide-react';
 
 export default function Navigation() {
