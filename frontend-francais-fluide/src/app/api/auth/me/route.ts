@@ -1,46 +1,25 @@
+// src/app/api/auth/me/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
+// GET /api/auth/me - Proxy vers le backend
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Token requis' }, { status: 401 });
-    }
-
-    const token = authHeader.substring(7);
-    let decoded: any;
-    try {
-      decoded = jwt.verify(token, JWT_SECRET) as any;
-    } catch {
-      return NextResponse.json({ error: 'Token invalide' }, { status: 401 });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      include: { progress: true }
+    const token = request.headers.get('authorization') || '';
+    const resp = await fetch('http://localhost:3001/api/auth/me', {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: token } : {}),
+      },
+      cache: 'no-store',
     });
 
-    if (!user) {
-      return NextResponse.json({ error: 'Utilisateur non trouvé' }, { status: 404 });
-    }
-
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        progress: user.progress
-      }
-    });
+    const data = await resp.json();
+    return NextResponse.json(data, { status: resp.status });
   } catch (error) {
-    console.error('Erreur /me:', error);
-    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
+    console.error('Erreur proxy auth/me:', error);
+    return NextResponse.json(
+      { success: false, error: 'Erreur interne du serveur' },
+      { status: 500 }
+    );
   }
 }
-

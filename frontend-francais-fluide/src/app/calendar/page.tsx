@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useApi';
+import { useAuth } from '@/contexts/AuthContext';
 import Navigation from '@/components/layout/Navigation';
 import {
   Calendar,

@@ -1,6 +1,7 @@
 // src/hooks/useApi.ts
 import { useState, useEffect } from 'react';
 import { apiClient, type ApiResponse } from '@/lib/api';
+import { errorLogger, logAuthError } from '@/lib/errorLogger';
 
 interface UseApiState<T> {
   data: T | null;
@@ -86,7 +87,7 @@ export function useAuth() {
       }
 
       try {
-        // S’assurer que l’apiClient utilise le token courant pour les requêtes
+        // S'assurer que l'apiClient utilise le token courant pour les requêtes
         apiClient.setToken(token);
 
         const response = await apiClient.getProfile();
@@ -98,31 +99,103 @@ export function useAuth() {
           setUser(null);
         }
       } catch (error) {
+        logAuthError('init_auth', error, { token: !!token });
         console.error('Erreur initialisation auth:', error);
         // En cas d'erreur, supprimer le token et considérer comme non connecté
         localStorage.removeItem('token');
         setUser(null);
+        
+        // Ne pas rediriger automatiquement si c'est juste un problème de réseau
+        if (error instanceof Error && !error.message.includes('Session expirée')) {
+          console.warn('Problème de connexion réseau, réessayez plus tard');
+        }
       } finally {
         setLoading(false);
       }
     };
 
     initAuth();
-  }, []);
+  }, []); // Supprimer la dépendance [user] pour éviter la boucle infinie
+
+  // Vérifier périodiquement la validité du token (toutes les 30 minutes)
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const token = localStorage.getItem('token');
+      if (token && user) {
+        try {
+          const response = await apiClient.getProfile();
+          if (!response.success) {
+            // Token expiré, déconnecter
+            logAuthError('token_verification_failed', new Error('Token expiré lors de la vérification'), { userId: user.id });
+            localStorage.removeItem('token');
+            setUser(null);
+            // Ne pas rediriger automatiquement, laisser l'utilisateur continuer
+            console.warn('Token expiré, reconnexion nécessaire');
+          }
+        } catch (error) {
+          // En cas d'erreur réseau, ne pas déconnecter
+          console.warn('Vérification token échouée (réseau):', error);
+        }
+      }
+    }, 30 * 60 * 1000); // 30 minutes au lieu de 10
+
+    return () => clearInterval(interval);
+  }, [user]);
 
   const login = async (email: string, password: string) => {
     try {
+      errorLogger.info('AUTH', 'Tentative de connexion', { email });
       const response = await apiClient.login({ email, password });
+      
+      errorLogger.debug('AUTH', 'Réponse API login', { 
+        success: response.success, 
+        hasUser: !!response.user,
+        hasToken: !!response.token,
+        error: response.error 
+      });
+      
       if (response.success) {
         setUser(response.user);
+        errorLogger.info('AUTH', 'Connexion réussie', { 
+          email, 
+          userId: response.user?.id,
+          userName: response.user?.name 
+        });
         return { success: true };
       }
+      
+      logAuthError('login_failed', new Error(response.error || 'Erreur de connexion'), { 
+        email, 
+        response: {
+          success: response.success,
+          error: response.error,
+          hasUser: !!response.user
+        }
+      });
       return { success: false, error: response.error };
     } catch (error) {
+      logAuthError('login_error', error, { email });
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Erreur de connexion' 
       };
+    }
+  };
+
+  const refreshToken = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return false;
+      
+      const response = await apiClient.getProfile();
+      if (response.success) {
+        setUser(response.user);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.warn('Erreur refresh token:', error);
+      return false;
     }
   };
 
@@ -154,6 +227,7 @@ export function useAuth() {
     login,
     register,
     logout,
+    refreshToken,
     isAuthenticated: !!user,
   };
 }

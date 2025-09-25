@@ -20,7 +20,13 @@ router.get('/', authenticateToken, async (req, res) => {
     const { level, type, limit = 10 } = req.query;
     const userId = req.user.userId;
 
-    const whereClause = {};
+    const whereClause = {
+      OR: [
+        { userId: userId }, // Exercices de l'utilisateur
+        { userId: null }    // Exercices par défaut (sans userId)
+      ]
+    };
+    
     if (level) whereClause.level = parseInt(level);
     if (type) whereClause.type = type;
 

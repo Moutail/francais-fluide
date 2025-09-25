@@ -163,13 +163,17 @@ router.post('/login', validateLogin, async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    // Mettre à jour la dernière activité
-    if (user.progress) {
-      await prisma.userProgress.update({
+    // Mettre à jour la dernière activité et connexion
+    await Promise.all([
+      user.progress ? prisma.userProgress.update({
         where: { userId: user.id },
         data: { lastActivity: new Date() }
-      });
-    }
+      }) : Promise.resolve(),
+      prisma.user.update({
+        where: { id: user.id },
+        data: { lastLogin: new Date() }
+      })
+    ]);
 
     res.json({
       success: true,
@@ -177,6 +181,9 @@ router.post('/login', validateLogin, async (req, res) => {
         id: user.id,
         email: user.email,
         name: user.name,
+        role: user.role,
+        isActive: user.isActive,
+        lastLogin: user.lastLogin,
         progress: user.progress,
         subscription: user.subscription
       },
@@ -240,6 +247,9 @@ router.get('/me', authenticateToken, async (req, res) => {
         id: user.id,
         email: user.email,
         name: user.name,
+        role: user.role,
+        isActive: user.isActive,
+        lastLogin: user.lastLogin,
         progress: user.progress,
         subscription: user.subscription
       }

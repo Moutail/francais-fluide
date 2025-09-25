@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/professional/Button';
-import { useAuth } from '@/hooks/useApi';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   Home, 
   TrendingUp, 
@@ -15,7 +15,8 @@ import {
   BarChart3,
   HelpCircle,
   Menu,
-  X
+  X,
+  Sparkles
 } from 'lucide-react';
 
 export default function Navigation() {
@@ -63,10 +64,16 @@ export default function Navigation() {
                   <span className="hidden xl:inline">Exercices</span>
                   <span className="xl:hidden">Exos</span>
                 </a>
-                <a href="/dictations" className="flex items-center gap-1.5 text-gray-600 hover:text-primary-900 hover:bg-white/70 px-2.5 py-2 rounded-full transition-all duration-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent-500/40 whitespace-nowrap">
+                <a href="/dictation" className="flex items-center gap-1.5 text-gray-600 hover:text-primary-900 hover:bg-white/70 px-2.5 py-2 rounded-full transition-all duration-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent-500/40 whitespace-nowrap">
                   <Volume2 className="w-4 h-4 flex-shrink-0" />
                   <span className="hidden xl:inline">Dictées</span>
                   <span className="xl:hidden">Audio</span>
+                </a>
+                <a href="/dissertation" className="flex items-center gap-1.5 text-gray-600 hover:text-primary-900 hover:bg-white/70 px-2.5 py-2 rounded-full transition-all duration-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent-500/40 whitespace-nowrap relative">
+                  <Sparkles className="w-4 h-4 flex-shrink-0" />
+                  <span className="hidden xl:inline">Dissertations</span>
+                  <span className="xl:hidden">Dissert</span>
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"></div>
                 </a>
                 <a href="/analytics" className="flex items-center gap-1.5 text-gray-600 hover:text-primary-900 hover:bg-white/70 px-2.5 py-2 rounded-full transition-all duration-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent-500/40 whitespace-nowrap">
                   <BarChart3 className="w-4 h-4 flex-shrink-0" />
@@ -206,12 +213,21 @@ export default function Navigation() {
                     Exercices
                   </a>
                   <a 
-                    href="/dictations" 
+                    href="/dictation" 
                     onClick={closeMobileMenu}
                     className="flex items-center gap-3 text-gray-700 hover:text-primary-900 hover:bg-white/70 px-3 py-3 rounded-xl transition-all duration-200 text-base font-medium"
                   >
                     <Volume2 className="w-5 h-5" />
                     Dictées
+                  </a>
+                  <a 
+                    href="/dissertation" 
+                    onClick={closeMobileMenu}
+                    className="flex items-center gap-3 text-gray-700 hover:text-primary-900 hover:bg-white/70 px-3 py-3 rounded-xl transition-all duration-200 text-base font-medium relative"
+                  >
+                    <Sparkles className="w-5 h-5" />
+                    Dissertations
+                    <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"></div>
                   </a>
                   <a 
                     href="/analytics" 

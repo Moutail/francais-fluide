@@ -15,6 +15,9 @@ model User {
   email     String   @unique
   name      String
   password  String
+  role      String   @default("user") // user, admin, super_admin, tester, teacher
+  isActive  Boolean  @default(true)
+  lastLogin DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -28,6 +31,9 @@ model User {
   calendarEvents CalendarEvent[]
   documents     Document[]
   telemetryEvents TelemetryEvent[]
+  supportTickets SupportTicket[]
+  exercises     Exercise[]
+  dailyUsage    DailyUsage[]
 
   @@map("users")
 }
@@ -106,12 +112,15 @@ model Exercise {
   type        String   // grammar, vocabulary, conjugation, comprehension
   level       Int      @default(1)
   difficulty  String   // easy, medium, hard
+  userId      String?  // ID de l'utilisateur qui a créé l'exercice (null pour les exercices par défaut)
+  isGenerated Boolean  @default(false) // true si généré par l'IA
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   // Relations
   questions   Question[]
   submissions ExerciseSubmission[]
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("exercises")
 }
@@ -258,4 +267,38 @@ model TelemetryEvent {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("telemetry_events")
+}
+
+model SupportTicket {
+  id          String   @id @default(cuid())
+  userId      String
+  subject     String
+  category    String   // technical, billing, feature, bug, other
+  priority    String   // low, medium, high
+  status      String   // open, in_progress, resolved, closed
+  description String
+  response    String?  // Réponse de l'équipe support
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("support_tickets")
+}
+
+model DailyUsage {
+  id        String   @id @default(cuid())
+  userId    String
+  date      DateTime @default(now())
+  aiExercisesGenerated Int @default(0)
+  aiCorrectionsUsed    Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@map("daily_usage")
 }

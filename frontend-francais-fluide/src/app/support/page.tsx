@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useAuth } from '@/hooks/useApi';
+import { useAuth } from '@/contexts/AuthContext';
 import { useSubscriptionSimple } from '@/hooks/useSubscriptionSimple';
 import Navigation from '@/components/layout/Navigation';
 import {
@@ -54,6 +54,33 @@ export default function SupportPage() {
       window.location.href = '/auth/login';
     }
   }, [loading, isAuthenticated]);
+
+  // Charger les tickets au montage du composant
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      loadTickets();
+    }
+  }, [isAuthenticated]);
+
+  const loadTickets = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await fetch('/api/support/tickets', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setTickets(data.data || []);
+      }
+    } catch (error) {
+      console.error('Erreur chargement tickets:', error);
+    }
+  };
 
   const faqItems = [
     {
@@ -116,26 +143,36 @@ export default function SupportPage() {
     setMessage('');
 
     try {
-      // Simulation d'envoi de ticket
-      const newTicket: SupportTicket = {
-        id: `ticket-${Date.now()}`,
-        subject: contactForm.subject,
-        description: contactForm.description,
-        category: contactForm.category,
-        priority: contactForm.priority as any,
-        status: 'open',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Vous devez être connecté pour envoyer une demande.');
+        return;
+      }
 
-      setTickets(prev => [newTicket, ...prev]);
-      setMessage('Votre demande a été envoyée avec succès ! Nous vous répondrons dans les 24h.');
-      setContactForm({
-        subject: '',
-        category: '',
-        priority: 'medium',
-        description: ''
+      const response = await fetch('/api/support/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(contactForm)
       });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage('Votre demande a été envoyée avec succès ! Nous vous répondrons dans les 24h.');
+        setContactForm({
+          subject: '',
+          category: '',
+          priority: 'medium',
+          description: ''
+        });
+        // Recharger les tickets
+        loadTickets();
+      } else {
+        setError(data.message || 'Erreur lors de l\'envoi de votre demande.');
+      }
     } catch (err) {
       setError('Erreur lors de l\'envoi de votre demande. Veuillez réessayer.');
     } finally {
@@ -388,7 +425,7 @@ export default function SupportPage() {
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Ressources utiles</h3>
                     
                     <div className="space-y-3">
-                      <a href="/analytics" className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                      <a href="/guide" className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
                         <BookOpen className="w-5 h-5 text-blue-600" />
                         <span className="text-blue-700">Guide d'utilisation</span>
                       </a>
@@ -398,7 +435,7 @@ export default function SupportPage() {
                         <span className="text-green-700">Plans d'abonnement</span>
                       </a>
                       
-                      <a href="/settings" className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                      <a href="/tutorials" className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
                         <Video className="w-5 h-5 text-purple-600" />
                         <span className="text-purple-700">Tutoriels vidéo</span>
                       </a>

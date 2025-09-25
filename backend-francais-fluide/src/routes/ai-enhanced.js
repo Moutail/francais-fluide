@@ -12,6 +12,77 @@ router.post('/generate-exercises', authenticateToken, async (req, res) => {
     const { count = 3, focusAreas = [], difficulty = 'medium', userProfile } = req.body;
     const userId = req.user.userId;
 
+    // Vérifier les limites d'abonnement
+    const subscription = await prisma.subscription.findUnique({
+      where: { userId },
+      include: { user: true }
+    });
+
+    if (!subscription || subscription.status !== 'active') {
+      return res.status(403).json({
+        success: false,
+        error: 'Abonnement requis pour générer des exercices',
+        upgradeRequired: true
+      });
+    }
+
+    // Définir les limites selon le plan
+    const limits = {
+      'demo': { exercisesPerDay: 3, aiCorrections: 10 },
+      'etudiant': { exercisesPerDay: 20, aiCorrections: 50 },
+      'premium': { exercisesPerDay: 100, aiCorrections: 200 },
+      'etablissement': { exercisesPerDay: -1, aiCorrections: -1 } // Illimité
+    };
+
+    const userLimits = limits[subscription.plan] || limits['demo'];
+
+    // Vérifier l'utilisation quotidienne
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    let dailyUsage = await prisma.dailyUsage.findUnique({
+      where: {
+        userId_date: {
+          userId,
+          date: today
+        }
+      }
+    });
+
+    if (!dailyUsage) {
+      dailyUsage = await prisma.dailyUsage.create({
+        data: {
+          userId,
+          date: today,
+          aiExercisesGenerated: 0,
+          aiCorrectionsUsed: 0
+        }
+      });
+    }
+
+    // Vérifier si l'utilisateur a atteint sa limite
+    if (userLimits.exercisesPerDay !== -1 && dailyUsage.aiExercisesGenerated >= userLimits.exercisesPerDay) {
+      return res.status(429).json({
+        success: false,
+        error: `Limite quotidienne atteinte (${userLimits.exercisesPerDay} exercices/jour)`,
+        upgradeRequired: true,
+        currentUsage: dailyUsage.aiExercisesGenerated,
+        limit: userLimits.exercisesPerDay
+      });
+    }
+
+    // Vérifier si l'utilisateur peut générer le nombre demandé d'exercices
+    if (userLimits.exercisesPerDay !== -1 && (dailyUsage.aiExercisesGenerated + count) > userLimits.exercisesPerDay) {
+      return res.status(429).json({
+        success: false,
+        error: `Impossible de générer ${count} exercices. Limite restante: ${userLimits.exercisesPerDay - dailyUsage.aiExercisesGenerated}`,
+        upgradeRequired: true,
+        currentUsage: dailyUsage.aiExercisesGenerated,
+        limit: userLimits.exercisesPerDay,
+        requested: count
+      });
+    }
+
     // Récupérer les données de télémétrie de l'utilisateur
     const telemetryData = await prisma.telemetryEvent.findMany({
       where: {
@@ -47,6 +118,8 @@ router.post('/generate-exercises', authenticateToken, async (req, res) => {
             type: exercise.type,
             difficulty: exercise.difficulty,
             level: userProfile?.level || 2,
+            userId: userId, // Ajouter l'ID de l'utilisateur
+            isGenerated: true, // Marquer comme généré par l'IA
             questions: {
               create: exercise.questions.map((q, index) => ({
                 question: q.question,
@@ -68,10 +141,44 @@ router.post('/generate-exercises', authenticateToken, async (req, res) => {
       }
     }
 
+    // Mettre à jour le compteur d'utilisation quotidienne
+    await prisma.dailyUsage.update({
+      where: {
+        userId_date: {
+          userId,
+          date: today
+        }
+      },
+      data: {
+        aiExercisesGenerated: dailyUsage.aiExercisesGenerated + savedExercises.length
+      }
+    });
+
+    // Adapter les exercices sauvegardés pour le frontend
+    const adaptedExercises = savedExercises.map(exercise => ({
+      id: exercise.id,
+      title: exercise.title,
+      description: exercise.description,
+      type: exercise.type,
+      difficulty: exercise.difficulty,
+      level: exercise.level,
+      estimatedTime: 10, // Par défaut
+      questions: exercise.questions.map(q => ({
+        id: q.id,
+        question: q.question,
+        options: JSON.parse(q.options),
+        correctAnswer: parseInt(q.correctAnswer),
+        explanation: q.explanation
+      })),
+      completed: false,
+      isAI: true,
+      score: undefined
+    }));
+
     res.json({
       success: true,
       data: {
-        exercises: savedExercises,
+        exercises: adaptedExercises,
         analysis: errorAnalysis,
         recommendations: generateRecommendations(errorAnalysis)
       }

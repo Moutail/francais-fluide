@@ -1,8 +1,9 @@
 // src/components/editor/SmartEditor.tsx
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { AlertCircle, CheckCircle, Lightbulb } from 'lucide-react';
+import { AlertCircle, CheckCircle, Lightbulb, Wand2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
+import { GrammarCheckService, type GrammarError, type GrammarCheckResult } from '@/lib/grammar-check';
 
 interface SmartEditorProps {
   initialValue?: string;
@@ -31,6 +32,12 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
 }) => {
   const [text, setText] = useState(initialValue);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [grammarErrors, setGrammarErrors] = useState<GrammarError[]>([]);
+  const [correctedText, setCorrectedText] = useState('');
+  const [isCheckingGrammar, setIsCheckingGrammar] = useState(false);
+  const [showCorrections, setShowCorrections] = useState(false);
+  const [isFallbackMode, setIsFallbackMode] = useState(false);
+  const [serviceUsed, setServiceUsed] = useState('');
 
   const handleTextChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newText = e.target.value;
@@ -39,14 +46,85 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
     if (onProgressUpdate) {
       const metrics: ProgressMetrics = {
         wordsWritten: newText.trim().split(/\s+/).length,
-        errorsDetected: 0,
+        errorsDetected: grammarErrors.length,
         errorsCorrected: 0,
-        accuracyRate: 95,
+        accuracyRate: grammarErrors.length > 0 ? Math.max(0, 100 - (grammarErrors.length * 10)) : 100,
         streakCount: 3
       };
       onProgressUpdate(metrics);
     }
-  }, [onProgressUpdate]);
+  }, [onProgressUpdate, grammarErrors.length]);
+
+  const checkGrammar = async () => {
+    if (!text.trim()) return;
+    
+    setIsCheckingGrammar(true);
+    try {
+      const result = await GrammarCheckService.checkText(text);
+      
+      if (result.success && result.data) {
+        setGrammarErrors(result.data.errors);
+        setCorrectedText(result.data.correctedText);
+        setShowCorrections(true);
+        setIsFallbackMode(result.data.fallback || false);
+        setServiceUsed(result.service || 'fallback');
+        
+        if (onProgressUpdate) {
+          const metrics: ProgressMetrics = {
+            wordsWritten: text.trim().split(/\s+/).length,
+            errorsDetected: result.data.errors.length,
+            errorsCorrected: 0,
+            accuracyRate: result.data.errors.length > 0 ? Math.max(0, 100 - (result.data.errors.length * 10)) : 100,
+            streakCount: 3
+          };
+          onProgressUpdate(metrics);
+        }
+      } else {
+        console.error('Erreur correction grammaticale:', result.error);
+      }
+    } catch (error) {
+      console.error('Erreur correction grammaticale:', error);
+    } finally {
+      setIsCheckingGrammar(false);
+    }
+  };
+
+  const applyCorrection = (error: GrammarError) => {
+    // Remplacer seulement la première occurrence de l'erreur
+    const newText = text.replace(error.original, error.corrected);
+    setText(newText);
+    setGrammarErrors(prev => prev.filter(e => e !== error));
+    
+    // Mettre à jour les métriques
+    if (onProgressUpdate) {
+      const metrics: ProgressMetrics = {
+        wordsWritten: newText.trim().split(/\s+/).length,
+        errorsDetected: grammarErrors.length - 1,
+        errorsCorrected: 1,
+        accuracyRate: Math.max(0, 100 - ((grammarErrors.length - 1) * 10)),
+        streakCount: 3
+      };
+      onProgressUpdate(metrics);
+    }
+  };
+
+  const applyAllCorrections = () => {
+    setText(correctedText);
+    setGrammarErrors([]);
+    setShowCorrections(false);
+    
+    // Mettre à jour les métriques
+    if (onProgressUpdate) {
+      const metrics: ProgressMetrics = {
+        wordsWritten: correctedText.trim().split(/\s+/).length,
+        errorsDetected: 0,
+        errorsCorrected: grammarErrors.length,
+        accuracyRate: 100,
+        streakCount: 3
+      };
+      onProgressUpdate(metrics);
+    }
+  };
 
   return (
     <div className={cn("w-full", className)}>
@@ -75,6 +153,53 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
         )}
       </div>
 
+      {/* Bouton de correction grammaticale */}
+      <div className="mt-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={checkGrammar}
+            disabled={!text.trim() || isCheckingGrammar}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isCheckingGrammar ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Wand2 className="w-4 h-4" />
+            )}
+            {isCheckingGrammar ? 'Vérification...' : 'Vérifier la grammaire'}
+          </button>
+          
+          {serviceUsed && (
+            <div className={`flex items-center gap-1 px-2 py-1 text-xs rounded ${
+              serviceUsed === 'openai' ? 'bg-green-100 text-green-800' :
+              serviceUsed === 'anthropic' ? 'bg-blue-100 text-blue-800' :
+              serviceUsed === 'languagetool' ? 'bg-purple-100 text-purple-800' :
+              'bg-yellow-100 text-yellow-800'
+            }`}>
+              <AlertCircle className="w-3 h-3" />
+              {serviceUsed === 'openai' ? 'GPT-4' :
+               serviceUsed === 'anthropic' ? 'Claude' :
+               serviceUsed === 'languagetool' ? 'LanguageTool' :
+               'Mode basique'}
+            </div>
+          )}
+        </div>
+        
+        {grammarErrors.length > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-red-600 font-medium">
+              {grammarErrors.length} erreur{grammarErrors.length > 1 ? 's' : ''} détectée{grammarErrors.length > 1 ? 's' : ''}
+            </span>
+            <button
+              onClick={applyAllCorrections}
+              className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors"
+            >
+              Corriger tout
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Indicateurs de performance */}
       <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
         <div className="flex items-center gap-4">
@@ -84,7 +209,7 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
           </div>
           <div className="flex items-center gap-1">
             <Lightbulb className="w-4 h-4 text-yellow-500" />
-            <span>95% de précision</span>
+            <span>{grammarErrors.length > 0 ? Math.max(0, 100 - (grammarErrors.length * 10)) : 100}% de précision</span>
           </div>
         </div>
         
@@ -94,20 +219,69 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
         </div>
       </div>
 
-      {/* Suggestions simulées */}
-      {text.length > 10 && (
+      {/* Affichage des erreurs grammaticales */}
+      {showCorrections && grammarErrors.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-200"
+          className="mt-4 space-y-3"
         >
-          <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
-            <Lightbulb className="w-4 h-4" />
-            Suggestions
+          <h4 className="font-medium text-gray-900 flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-red-500" />
+            Erreurs détectées ({grammarErrors.length})
           </h4>
-          <p className="text-blue-800 text-sm">
-            Votre texte semble correct ! Continuez à écrire pour obtenir plus de suggestions personnalisées.
-          </p>
+          
+          <div className="space-y-2">
+            {grammarErrors.map((error, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="p-3 bg-red-50 border border-red-200 rounded-lg"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className={`px-2 py-1 text-xs font-medium rounded ${GrammarCheckService.getErrorTypeColor(error.type)}`}>
+                        {error.type}
+                      </span>
+                    </div>
+                    <div className="text-sm">
+                      <span className="text-red-600 font-medium">"{error.original}"</span>
+                      <span className="text-gray-500 mx-2">→</span>
+                      <span className="text-green-600 font-medium">"{error.corrected}"</span>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-1">{error.explanation}</p>
+                  </div>
+                  <button
+                    onClick={() => applyCorrection(error)}
+                    className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition-colors"
+                  >
+                    Corriger
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Message de succès si aucune erreur */}
+      {showCorrections && grammarErrors.length === 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg"
+        >
+          <div className="flex items-center gap-3">
+            <CheckCircle className="w-5 h-5 text-green-600" />
+            <div>
+              <h4 className="font-medium text-green-900">Excellent !</h4>
+              <p className="text-sm text-green-700">
+                Aucune erreur grammaticale détectée dans votre texte.
+              </p>
+            </div>
+          </div>
         </motion.div>
       )}
     </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useApi';
+import { useAuth } from '@/contexts/AuthContext';
 import ErrorAnalytics from '@/components/analytics/ErrorAnalytics';
 import PersonalizedRecommendations from '@/components/ai/PersonalizedRecommendations';
 import { useSubscriptionSimple } from '@/hooks/useSubscriptionSimple';

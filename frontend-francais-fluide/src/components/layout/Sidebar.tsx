@@ -27,7 +27,7 @@ interface SidebarItem {
   children?: SidebarItem[];
 }
 
-const sidebarItems: SidebarItem[] = [
+const getSidebarItems = (exerciseCount: number): SidebarItem[] => [
   {
     name: 'Tableau de bord',
     href: '/dashboard',
@@ -42,7 +42,7 @@ const sidebarItems: SidebarItem[] = [
     name: 'Exercices',
     href: '/exercices',
     icon: BookOpen,
-    badge: '8'
+    badge: exerciseCount > 0 ? exerciseCount.toString() : undefined
   },
   {
     name: 'Progression',
@@ -80,18 +80,32 @@ export const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [userProgress, setUserProgress] = useState<any>(null);
+  const [exerciseCount, setExerciseCount] = useState(0);
 
   useEffect(() => {
     const loadUserProgress = async () => {
       try {
         const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
         if (!token) return;
-        const response = await fetch('http://localhost:3001/api/progress', {
+        
+        // Charger la progression
+        const progressResponse = await fetch('/api/progress', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (response.ok) {
-          const data = await response.json();
+        if (progressResponse.ok) {
+          const data = await progressResponse.json();
           if (data.success) setUserProgress(data.data);
+        }
+
+        // Charger le nombre d'exercices
+        const exercisesResponse = await fetch('/api/exercises', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (exercisesResponse.ok) {
+          const exercisesData = await exercisesResponse.json();
+          if (exercisesData.success) {
+            setExerciseCount(exercisesData.data.length);
+          }
         }
       } catch (e) {
         // silencieux
@@ -119,7 +133,7 @@ export const Sidebar: React.FC = () => {
     <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:pt-16 lg:bg-white lg:border-r lg:border-gray-200">
       <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
         <nav className="flex-1 px-4 py-6 space-y-1">
-          {sidebarItems.map((item) => {
+          {getSidebarItems(exerciseCount).map((item) => {
             const isItemActive = isActive(item.href);
             const hasChildren = item.children && item.children.length > 0;
             const isExpanded = expandedItems.includes(item.name);

@@ -1,332 +1,320 @@
-// src/app/admin/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
-import {
+import { useAuth } from '@/contexts/AuthContext';
+import { Card } from '@/components/ui/professional/Card';
+import { Button } from '@/components/ui/professional/Button';
+import { 
+  LayoutDashboard,
   Users,
   CreditCard,
-  TrendingUp,
+  MessageCircle,
+  BookOpen,
   Settings,
-  BarChart3,
+  LogOut,
+  Menu,
+  X,
   Shield,
   AlertTriangle,
-  CheckCircle,
-  Clock,
-  DollarSign,
-  BookOpen,
-  MessageSquare,
-  FileText,
-  Database,
-  Server,
-  Activity
+  Crown,
+  BarChart3
 } from 'lucide-react';
+import AdminDashboard from '@/components/admin/AdminDashboard';
+import UserManagement from '@/components/admin/UserManagement';
+import CreateUserForm from '@/components/admin/CreateUserForm';
 
-interface AdminStats {
-  totalUsers: number;
-  activeSubscriptions: number;
-  monthlyRevenue: number;
-  totalRevenue: number;
-  newUsersToday: number;
-  activeUsersToday: number;
-  averageSessionTime: number;
-  conversionRate: number;
-  grammarChecksToday: number;
-  exercisesCompleted: number;
-  supportTickets: number;
-  systemHealth: 'healthy' | 'warning' | 'critical';
-}
+export default function AdminPage() {
+  const { user, loading, isAuthenticated, logout } = useAuth();
+  const [currentSection, setCurrentSection] = useState('dashboard');
+  const [sectionData, setSectionData] = useState<any>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [checkingPermissions, setCheckingPermissions] = useState(true);
+  const [hasAdminAccess, setHasAdminAccess] = useState(false);
 
-export default function AdminDashboard() {
-  const { isAuthenticated, isLoading: authLoading, session, logout } = useAdminAuth();
-  const [stats, setStats] = useState<AdminStats>({
-    totalUsers: 0,
-    activeSubscriptions: 0,
-    monthlyRevenue: 0,
-    totalRevenue: 0,
-    newUsersToday: 0,
-    activeUsersToday: 0,
-    averageSessionTime: 0,
-    conversionRate: 0,
-    grammarChecksToday: 0,
-    exercisesCompleted: 0,
-    supportTickets: 0,
-    systemHealth: 'healthy'
-  });
-
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Rediriger si non authentifié
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      window.location.href = '/admin/login';
+    if (!loading && isAuthenticated && user) {
+      // Vérifier les permissions admin
+      checkAdminPermissions();
+    } else if (!loading && !isAuthenticated) {
+      // Rediriger vers la connexion si pas authentifié
+      window.location.href = '/auth/login';
     }
-  }, [isAuthenticated, authLoading]);
+  }, [user, loading, isAuthenticated]);
 
-  useEffect(() => {
-    // Simulation du chargement des données
-    const loadStats = async () => {
-      setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setStats({
-        totalUsers: 1247,
-        activeSubscriptions: 892,
-        monthlyRevenue: 26750.50,
-        totalRevenue: 156789.25,
-        newUsersToday: 23,
-        activeUsersToday: 156,
-        averageSessionTime: 18.5,
-        conversionRate: 12.3,
-        grammarChecksToday: 3421,
-        exercisesCompleted: 892,
-        supportTickets: 7,
-        systemHealth: 'healthy'
+  const checkAdminPermissions = async () => {
+    try {
+      // Essayer d'accéder au dashboard admin pour vérifier les permissions
+      const response = await fetch('/api/admin/dashboard', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
       });
-      setIsLoading(false);
-    };
-
-    loadStats();
-  }, []);
-
-  const getHealthColor = (health: string) => {
-    switch (health) {
-      case 'healthy': return 'text-green-600 bg-green-100';
-      case 'warning': return 'text-yellow-600 bg-yellow-100';
-      case 'critical': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      
+      if (response.ok) {
+        setHasAdminAccess(true);
+      } else {
+        setHasAdminAccess(false);
+      }
+    } catch (error) {
+      console.error('Erreur vérification permissions:', error);
+      setHasAdminAccess(false);
+    } finally {
+      setCheckingPermissions(false);
     }
   };
 
-  const getHealthIcon = (health: string) => {
-    switch (health) {
-      case 'healthy': return <CheckCircle className="w-5 h-5" />;
-      case 'warning': return <AlertTriangle className="w-5 h-5" />;
-      case 'critical': return <AlertTriangle className="w-5 h-5" />;
-      default: return <Activity className="w-5 h-5" />;
+  const navigationItems = [
+    {
+      id: 'dashboard',
+      label: 'Tableau de bord',
+      icon: LayoutDashboard,
+      description: 'Vue d\'ensemble et statistiques'
+    },
+    {
+      id: 'users',
+      label: 'Utilisateurs',
+      icon: Users,
+      description: 'Gestion des comptes utilisateurs'
+    },
+    {
+      id: 'subscriptions',
+      label: 'Abonnements',
+      icon: CreditCard,
+      description: 'Gestion des plans et facturations'
+    },
+    {
+      id: 'support',
+      label: 'Support',
+      icon: MessageCircle,
+      description: 'Messages et tickets de support'
+    },
+    {
+      id: 'dictations',
+      label: 'Dictées',
+      icon: BookOpen,
+      description: 'Gestion du contenu pédagogique'
+    },
+    {
+      id: 'analytics',
+      label: 'Analytics',
+      icon: BarChart3,
+      description: 'Statistiques détaillées'
+    },
+    {
+      id: 'settings',
+      label: 'Paramètres',
+      icon: Settings,
+      description: 'Configuration de la plateforme'
     }
+  ];
+
+  const handleNavigate = (section: string, data?: any) => {
+    setCurrentSection(section);
+    setSectionData(data);
   };
 
-  if (authLoading || isLoading) {
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/';
+  };
+
+  // Loading state
+  if (loading || checkingPermissions) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement du tableau de bord...</p>
-        </div>
+        <Card className="p-8 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Vérification des permissions...</p>
+        </Card>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
-    return null; // Redirection en cours
+  // Pas d'accès admin
+  if (!hasAdminAccess) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="p-8 text-center max-w-md">
+          <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Accès non autorisé
+          </h1>
+          <p className="text-gray-600 mb-6">
+            Vous n'avez pas les permissions nécessaires pour accéder à cette section.
+            Seuls les administrateurs peuvent accéder au panneau d'administration.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => window.location.href = '/dashboard'} variant="outline">
+              Retour au tableau de bord
+            </Button>
+            <Button onClick={handleLogout}>
+              Se déconnecter
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-                <Shield className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">Tableau de bord Admin</h1>
-                <p className="text-sm text-gray-600">FrançaisFluide - Administration</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${getHealthColor(stats.systemHealth)}`}>
-                {getHealthIcon(stats.systemHealth)}
-                Système {stats.systemHealth === 'healthy' ? 'Opérationnel' : 'Problème'}
-              </div>
-              <button 
-                onClick={logout}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Déconnexion
-              </button>
-            </div>
+  const renderCurrentSection = () => {
+    switch (currentSection) {
+      case 'dashboard':
+        return <AdminDashboard onNavigate={handleNavigate} />;
+      
+      case 'users':
+        return <UserManagement onNavigate={handleNavigate} />;
+      
+      case 'users-create':
+        return (
+          <CreateUserForm
+            onBack={() => handleNavigate('users')}
+            onSuccess={() => handleNavigate('users')}
+          />
+        );
+      
+      case 'users-edit':
+        return (
+          <div className="text-center py-12">
+            <p className="text-gray-600">Modification d'utilisateur - À implémenter</p>
+            <Button onClick={() => handleNavigate('users')} className="mt-4">
+              Retour à la liste
+            </Button>
           </div>
+        );
+      
+      case 'subscriptions':
+        return (
+          <div className="text-center py-12">
+            <Crown className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Gestion des abonnements</h2>
+            <p className="text-gray-600 mb-4">Interface de gestion des abonnements - À implémenter</p>
+            <Button onClick={() => handleNavigate('dashboard')}>
+              Retour au tableau de bord
+            </Button>
+          </div>
+        );
+      
+      case 'support':
+        return (
+          <div className="text-center py-12">
+            <MessageCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Support client</h2>
+            <p className="text-gray-600 mb-4">Interface de gestion du support - À implémenter</p>
+            <Button onClick={() => handleNavigate('dashboard')}>
+              Retour au tableau de bord
+            </Button>
+          </div>
+        );
+      
+      case 'dictations':
+        return (
+          <div className="text-center py-12">
+            <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Gestion des dictées</h2>
+            <p className="text-gray-600 mb-4">Interface de gestion du contenu - À implémenter</p>
+            <Button onClick={() => handleNavigate('dashboard')}>
+              Retour au tableau de bord
+            </Button>
+          </div>
+        );
+      
+      default:
+        return <AdminDashboard onNavigate={handleNavigate} />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar */}
+      <div className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 bg-white border-r border-gray-200 flex flex-col`}>
+        {/* Header */}
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            {sidebarOpen && (
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">Administration</h1>
+                <p className="text-sm text-gray-600">FrançaisFluide</p>
+              </div>
+            )}
+            <Button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              variant="outline"
+              size="sm"
+              className="p-2"
+            >
+              {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            </Button>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 p-4">
+          <div className="space-y-2">
+            {navigationItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = currentSection === item.id || 
+                             (currentSection.startsWith(item.id + '-') && item.id !== 'dashboard');
+              
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavigate(item.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                    isActive
+                      ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                  title={!sidebarOpen ? item.label : ''}
+                >
+                  <Icon className="w-5 h-5 flex-shrink-0" />
+                  {sidebarOpen && (
+                    <div>
+                      <div className="font-medium">{item.label}</div>
+                      <div className="text-xs text-gray-500">{item.description}</div>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+
+        {/* User info */}
+        <div className="p-4 border-t border-gray-200">
+          <div className={`flex items-center gap-3 ${!sidebarOpen && 'justify-center'}`}>
+            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+              <span className="text-sm font-medium text-blue-700">
+                {user?.name?.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            {sidebarOpen && (
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-gray-900 truncate">
+                  {user?.name}
+                </div>
+                <div className="text-xs text-gray-500">Administrateur</div>
+              </div>
+            )}
+          </div>
+          
+          {sidebarOpen && (
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              size="sm"
+              className="w-full mt-3 flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <LogOut className="w-4 h-4" />
+              Se déconnecter
+            </Button>
+          )}
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Métriques principales */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Users className="w-6 h-6 text-blue-600" />
-              </div>
-              <span className="text-sm text-gray-500">+{stats.newUsersToday} aujourd'hui</span>
-            </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">
-              {stats.totalUsers.toLocaleString()}
-            </div>
-            <div className="text-sm text-gray-600">Utilisateurs total</div>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <CreditCard className="w-6 h-6 text-green-600" />
-              </div>
-              <span className="text-sm text-gray-500">{stats.conversionRate}% conversion</span>
-            </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">
-              {stats.activeSubscriptions.toLocaleString()}
-            </div>
-            <div className="text-sm text-gray-600">Abonnements actifs</div>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <DollarSign className="w-6 h-6 text-purple-600" />
-              </div>
-              <span className="text-sm text-gray-500">Ce mois</span>
-            </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">
-              ${stats.monthlyRevenue.toLocaleString()}
-            </div>
-            <div className="text-sm text-gray-600">Revenus mensuels</div>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <Activity className="w-6 h-6 text-orange-600" />
-              </div>
-              <span className="text-sm text-gray-500">Aujourd'hui</span>
-            </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">
-              {stats.activeUsersToday}
-            </div>
-            <div className="text-sm text-gray-600">Utilisateurs actifs</div>
-          </div>
-        </div>
-
-        {/* Graphiques et analyses */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Revenus */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenus</h3>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Revenus totaux</span>
-                <span className="font-semibold text-gray-900">${stats.totalRevenue.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Ce mois</span>
-                <span className="font-semibold text-gray-900">${stats.monthlyRevenue.toLocaleString()}</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full" style={{ width: '75%' }}></div>
-              </div>
-              <p className="text-sm text-gray-500">Objectif mensuel: $35,000</p>
-            </div>
-          </div>
-
-          {/* Activité */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Activité</h3>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Corrections aujourd'hui</span>
-                <span className="font-semibold text-gray-900">{stats.grammarChecksToday.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Exercices complétés</span>
-                <span className="font-semibold text-gray-900">{stats.exercisesCompleted}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Temps de session moyen</span>
-                <span className="font-semibold text-gray-900">{stats.averageSessionTime} min</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Actions rapides */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <a href="/admin/users" className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Users className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Gestion des utilisateurs</h3>
-                <p className="text-sm text-gray-600">Voir et gérer les comptes</p>
-              </div>
-            </div>
-          </a>
-
-          <a href="/admin/subscriptions" className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-100 rounded-lg">
-                <CreditCard className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Abonnements</h3>
-                <p className="text-sm text-gray-600">Gérer les paiements</p>
-              </div>
-            </div>
-          </a>
-
-          <a href="/admin/analytics" className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-100 rounded-lg">
-                <BarChart3 className="w-6 h-6 text-purple-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Analytics</h3>
-                <p className="text-sm text-gray-600">Statistiques détaillées</p>
-              </div>
-            </div>
-          </a>
-
-          <a href="/admin/settings" className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-gray-100 rounded-lg">
-                <Settings className="w-6 h-6 text-gray-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Paramètres</h3>
-                <p className="text-sm text-gray-600">Configuration du site</p>
-              </div>
-            </div>
-          </a>
-        </div>
-
-        {/* Notifications et alertes */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Notifications</h3>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <AlertTriangle className="w-5 h-5 text-yellow-600" />
-              <div>
-                <p className="font-medium text-yellow-800">Tickets de support en attente</p>
-                <p className="text-sm text-yellow-700">{stats.supportTickets} tickets nécessitent votre attention</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <Clock className="w-5 h-5 text-blue-600" />
-              <div>
-                <p className="font-medium text-blue-800">Maintenance programmée</p>
-                <p className="text-sm text-blue-700">Mise à jour prévue dimanche à 2h00</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-              <div>
-                <p className="font-medium text-green-800">Système opérationnel</p>
-                <p className="text-sm text-green-700">Tous les services fonctionnent normalement</p>
-              </div>
-            </div>
-          </div>
+      {/* Main content */}
+      <div className="flex-1 overflow-auto">
+        <div className="p-8">
+          {renderCurrentSection()}
         </div>
       </div>
     </div>

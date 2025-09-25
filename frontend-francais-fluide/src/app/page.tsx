@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useApi';
+import { useAuth } from '@/contexts/AuthContext';
 import { SimpleAIAssistant } from '@/components/ai/SimpleAIAssistant';
 import Navigation from '@/components/layout/Navigation';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/professional/Card';

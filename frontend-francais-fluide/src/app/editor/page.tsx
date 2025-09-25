@@ -9,7 +9,7 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { Card, Button } from '@/components/ui';
 import { Save, Download, Share2, Settings, RotateCcw, User, Target, Award } from 'lucide-react';
 import type { ProgressMetrics } from '@/types';
-import { useAuth } from '@/hooks/useApi';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function EditorPage() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -28,7 +28,7 @@ export default function EditorPage() {
 
   const loadUserProgress = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/progress', {
+      const response = await fetch('/api/progress', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -56,7 +56,7 @@ export default function EditorPage() {
 
   const saveProgress = async (newMetrics: ProgressMetrics) => {
     try {
-      await fetch('http://localhost:3001/api/progress', {
+      await fetch('/api/progress', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

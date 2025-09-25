@@ -1,9 +1,9 @@
 // src/app/auth/login/page.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useApi';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   Mail,
   Lock,
@@ -11,13 +11,21 @@ import {
   EyeOff,
   ArrowLeft,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
+  Bug
 } from 'lucide-react';
 import { Button } from '@/components/ui/professional/Button';
+import ErrorDebugPanel from '@/components/debug/ErrorDebugPanel';
+import ErrorNotification from '@/components/ui/ErrorNotification';
+import { useErrorContext } from '@/components/ErrorProvider';
+import RateLimitDebug from '@/components/debug/RateLimitDebug';
+import TokenExpiredNotification from '@/components/TokenExpiredNotification';
+import { useIsMounted } from '@/hooks/useIsMounted';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, refreshToken } = useAuth();
+  const { showErrorLog, getErrorCount } = useErrorContext();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -25,26 +33,37 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
+  const [showErrorNotification, setShowErrorNotification] = useState(false);
+  const isMounted = useIsMounted();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    try {
-      await login(formData.email, formData.password);
-      // Redirection vers le dashboard après connexion réussie
+    const result = await login(formData.email, formData.password);
+    
+    if (result.success) {
+      // Connexion réussie - redirection vers le dashboard
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'Erreur de connexion. Veuillez réessayer.');
-    } finally {
-      setIsLoading(false);
+    } else {
+      // Erreur de connexion
+      const errorMessage = result.error || 'Erreur de connexion. Veuillez réessayer.';
+      setError(errorMessage);
+      setShowErrorNotification(true);
     }
+    
+    setIsLoading(false);
   };
+
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    if (error) setError('');
+    if (error) {
+      setError('');
+      setShowErrorNotification(false);
+    }
   };
 
   return (
@@ -153,8 +172,56 @@ export default function LoginPage() {
               Retour à l'accueil
             </a>
           </div>
+
+          {/* Boutons de debug (en mode développement) */}
+          {isMounted && process.env.NODE_ENV === 'development' && (
+            <div className="mt-4 text-center space-y-2">
+              <button
+                onClick={() => setShowDebugPanel(true)}
+                className="flex items-center justify-center gap-2 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <Bug className="w-4 h-4" />
+                Voir les erreurs de debug
+              </button>
+              
+              {getErrorCount() > 0 && (
+                <button
+                  onClick={showErrorLog}
+                  className="flex items-center justify-center gap-2 text-xs text-red-600 hover:text-red-700 transition-colors"
+                >
+                  <Bug className="w-4 h-4" />
+                  Journal d'erreurs ({getErrorCount()})
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Panneau de debug */}
+      <ErrorDebugPanel 
+        isOpen={showDebugPanel} 
+        onClose={() => setShowDebugPanel(false)} 
+      />
+
+      {/* Notification d'erreur persistante */}
+      {showErrorNotification && error && (
+        <ErrorNotification
+          error={error}
+          onClose={() => setShowErrorNotification(false)}
+          onShowDebug={() => setShowDebugPanel(true)}
+          persistent={true}
+        />
+      )}
+
+      {/* Debug Rate Limiting */}
+      <RateLimitDebug />
+
+      {/* Notification token expiré */}
+      <TokenExpiredNotification
+        onRefresh={refreshToken}
+        onLogin={() => router.push('/auth/login')}
+      />
     </div>
   );
 }

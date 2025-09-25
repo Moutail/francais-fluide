@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import Navigation from '@/components/layout/Navigation';
-import { useAuth } from '@/hooks/useApi';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ProgressData {
   date: string;
@@ -111,7 +111,7 @@ export default function ProgressionPage() {
         }
 
         // Charger la progression utilisateur
-        const response = await fetch('http://localhost:3001/api/progress', {
+        const response = await fetch('/api/progress', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

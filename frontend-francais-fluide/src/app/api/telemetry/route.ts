@@ -1,66 +1,44 @@
-// src/app/api/telemetry/route.ts - Proxy pour la télémétrie
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const token = request.headers.get('authorization');
+    const { events } = body;
 
-    if (!token) {
+    // Récupérer le token d'authentification
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader) {
       return NextResponse.json(
-        { success: false, message: 'Token d\'authentification requis' },
+        { success: false, message: 'Token d\'authentification manquant' },
         { status: 401 }
       );
     }
 
-    // Proxifier vers le backend
+    // Envoyer les événements au backend
     const response = await fetch('http://localhost:3001/api/telemetry', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': token,
+        'Authorization': authHeader
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ events })
     });
 
     const data = await response.json();
-    
-    return NextResponse.json(data, { status: response.status });
-  } catch (error) {
-    console.error('Erreur proxy télémétrie:', error);
-    return NextResponse.json(
-      { success: false, message: 'Erreur serveur' },
-      { status: 500 }
-    );
-  }
-}
 
-export async function GET(request: NextRequest) {
-  try {
-    const token = request.headers.get('authorization');
-
-    if (!token) {
+    if (!response.ok) {
       return NextResponse.json(
-        { success: false, message: 'Token d\'authentification requis' },
-        { status: 401 }
+        { success: false, message: data.message || 'Erreur lors de l\'envoi de la télémétrie' },
+        { status: response.status }
       );
     }
 
-    // Proxifier vers le backend
-    const response = await fetch('http://localhost:3001/api/telemetry/analytics', {
-      method: 'GET',
-      headers: {
-        'Authorization': token,
-      },
-    });
+    return NextResponse.json(data);
 
-    const data = await response.json();
-    
-    return NextResponse.json(data, { status: response.status });
   } catch (error) {
-    console.error('Erreur proxy analytics:', error);
+    console.error('Erreur API télémétrie:', error);
     return NextResponse.json(
-      { success: false, message: 'Erreur serveur' },
+      { success: false, message: 'Erreur interne du serveur' },
       { status: 500 }
     );
   }

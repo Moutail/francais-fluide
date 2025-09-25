@@ -14,7 +14,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import { useAuth } from '@/hooks/useApi';
+import { useAuth } from '@/contexts/AuthContext';
 import { hasAccess, canAccessPage, getPlanLimits, SUBSCRIPTION_PLANS } from '@/lib/subscription/accessControl';
 import { cn } from '@/lib/utils/cn';
 

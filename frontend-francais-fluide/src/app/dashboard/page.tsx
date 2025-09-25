@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useApi';
+import { useAuth } from '@/contexts/AuthContext';
 import { useProgress } from '@/hooks/useApi';
 import { useSubscriptionSimple } from '@/hooks/useSubscriptionSimple';
 import Navigation from '@/components/layout/Navigation';
@@ -292,7 +292,7 @@ export default function DashboardPage() {
                     </div>
                   </Button>
                   <Button 
-                    onClick={() => window.location.href = '/dictations'}
+                    onClick={() => window.location.href = '/dictation'}
                     variant="ghost"
                     className="w-full justify-start p-3 h-auto rounded-xl"
                   >

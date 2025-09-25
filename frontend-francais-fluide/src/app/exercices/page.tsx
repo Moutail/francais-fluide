@@ -21,12 +21,13 @@ import {
   Sparkles
 } from 'lucide-react';
 import Navigation from '@/components/layout/Navigation';
-import { useAuth } from '@/hooks/useApi';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils/cn';
 import ExerciseGenerator from '@/components/ai/ExerciseGenerator';
 import { EXERCISES_BANK } from '@/data/exercises-bank';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useTelemetry } from '@/lib/telemetry';
+import { captureError } from '@/lib/globalErrorHandler';
 
 interface Exercise {
   id: string;
@@ -140,6 +141,17 @@ export default function ExercicesPage() {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           }
         });
+        
+        // Ne pas déconnecter automatiquement en cas d'erreur 401
+        if (response.status === 401) {
+          console.warn('Token expiré, utilisation des exercices par défaut');
+          captureError('Token expiré lors du chargement des exercices', undefined, 'Exercices API');
+          const defaults = EXERCISES_BANK.slice(0, 6).map(mapBankToExerciseCard);
+          setExercises(defaults);
+          setLoadingExercises(false);
+          return;
+        }
+        
         const data = await response.json();
         
         if (data.success) {
@@ -168,6 +180,7 @@ export default function ExercicesPage() {
         }
       } catch (error) {
         console.error('Erreur chargement exercices:', error);
+        captureError('Erreur lors du chargement des exercices', error as Error, 'Exercices API');
         const defaults = EXERCISES_BANK.slice(0, 6).map(mapBankToExerciseCard);
         setExercises(defaults);
       } finally {
@@ -198,29 +211,70 @@ export default function ExercicesPage() {
     setGeneratedToday(0);
   }, []);
 
-  // Charger les statistiques réelles depuis l'API backend
+  // Charger les statistiques réelles depuis l'API Next.js (avec cache)
   useEffect(() => {
     const loadStats = async () => {
       try {
         const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
         if (!token) return;
-        const response = await fetch('http://localhost:3001/api/progress', {
+        
+        // Vérifier le cache (5 minutes)
+        const cacheKey = 'user_stats_cache';
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          try {
+            const { data, timestamp } = JSON.parse(cached);
+            const now = Date.now();
+            const fiveMinutes = 5 * 60 * 1000;
+            
+            if (now - timestamp < fiveMinutes) {
+              console.log('Utilisation des statistiques en cache');
+              setStats({
+                exercisesCompleted: normalizeNumber(data?.exercisesCompleted, 0),
+                averageAccuracy: clampPercent(normalizeNumber(data?.averageAccuracy ?? data?.accuracy, 0)),
+                timeSpent: normalizeNumber(data?.timeSpent, 0),
+                currentStreak: normalizeNumber(data?.currentStreak, 0),
+              });
+              return;
+            }
+          } catch (e) {
+            // Cache invalide, continuer avec l'API
+          }
+        }
+        
+        const response = await fetch('/api/progress', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
-        if (!response.ok) return;
+        
+        if (!response.ok) {
+          console.warn('Erreur chargement stats:', response.status);
+          captureError(`Erreur ${response.status} lors du chargement des statistiques`, undefined, 'Stats API');
+          return;
+        }
+        
         const data = await response.json();
         if (data.success) {
-          setStats({
+          const statsData = {
             exercisesCompleted: normalizeNumber(data.data?.exercisesCompleted, 0),
             averageAccuracy: clampPercent(normalizeNumber(data.data?.averageAccuracy ?? data.data?.accuracy, 0)),
             timeSpent: normalizeNumber(data.data?.timeSpent, 0),
             currentStreak: normalizeNumber(data.data?.currentStreak, 0),
-          });
+          };
+          
+          setStats(statsData);
+          
+          // Mettre en cache
+          localStorage.setItem(cacheKey, JSON.stringify({
+            data: data.data,
+            timestamp: Date.now()
+          }));
         }
       } catch (e) {
+        console.warn('Erreur chargement stats:', e);
+        captureError('Erreur lors du chargement des statistiques', e as Error, 'Stats API');
         // silencieux: afficherons des valeurs 0 par défaut
       }
     };
@@ -260,6 +314,13 @@ export default function ExercicesPage() {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         }
       });
+      
+      // Ne pas déconnecter automatiquement en cas d'erreur 401
+      if (response.status === 401) {
+        console.warn('Token expiré, impossible de charger les questions');
+        return;
+      }
+      
       const data = await response.json();
       if (data.success) {
         const questionsWithParsedOptions = data.data.questions.map((q: any) => {
@@ -433,14 +494,27 @@ export default function ExercicesPage() {
           })
         });
 
+        // Ne pas déconnecter automatiquement en cas d'erreur 401
+        if (response.status === 401) {
+          console.warn('Token expiré, exercice marqué comme complété localement');
+          // Marquer l'exercice comme complété localement même sans sauvegarde
+          setExercises(prev => prev.map(ex => ex.id === selectedExercise.id ? { ...ex, completed: true, score: finalScore } : ex));
+          return;
+        }
+
         const data = await response.json();
         if (data.success) {
           console.log('Exercice sauvegardé:', data.data);
           // Marquer l'exercice comme complété localement
           setExercises(prev => prev.map(ex => ex.id === selectedExercise.id ? { ...ex, completed: true, score: data.data?.score ?? ex.score } : ex));
+        } else {
+          // Marquer comme complété localement même si la sauvegarde échoue
+          setExercises(prev => prev.map(ex => ex.id === selectedExercise.id ? { ...ex, completed: true, score: finalScore } : ex));
         }
       } catch (error) {
         console.error('Erreur sauvegarde exercice:', error);
+        // Marquer comme complété localement même en cas d'erreur
+        setExercises(prev => prev.map(ex => ex.id === selectedExercise.id ? { ...ex, completed: true, score: finalScore } : ex));
       }
     }
 

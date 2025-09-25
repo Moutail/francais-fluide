@@ -33,7 +33,7 @@ export default function ExerciseGenerator({ onExerciseGenerated, onClose }: Exer
       }
 
       // Utiliser l'API IA améliorée
-      const response = await fetch('http://localhost:3001/api/ai-enhanced/generate-exercises', {
+      const response = await fetch('/api/ai-enhanced/generate-exercises', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,22 +59,9 @@ export default function ExerciseGenerator({ onExerciseGenerated, onClose }: Exer
       
       if (data.success && data.data.exercises.length > 0) {
         const exercise = data.data.exercises[0];
-        // Adapter le format pour le frontend
-        const adaptedExercise = {
-          id: `ai_${Date.now()}`,
-          title: exercise.title,
-          description: exercise.description,
-          type: exercise.type,
-          difficulty: exercise.difficulty,
-          level: formData.level,
-          estimatedTime: 10, // Par défaut
-          questions: exercise.questions || [],
-          completed: false,
-          isAI: true,
-          score: undefined
-        };
-        onExerciseGenerated(adaptedExercise);
-        setSuccessMsg('Exercice IA généré !');
+        // L'exercice est déjà dans le bon format depuis le backend
+        onExerciseGenerated(exercise);
+        setSuccessMsg('Exercice IA généré et sauvegardé !');
       } else {
         setErrorMsg(data.message || 'Aucun exercice généré.');
       }

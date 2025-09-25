@@ -37,16 +37,41 @@ const grammarEnhancedRoutes = require('./routes/grammar-enhanced');
 const exercisesRoutes = require('./routes/exercises');
 const telemetryRoutes = require('./routes/telemetry');
 const aiEnhancedRoutes = require('./routes/ai-enhanced');
+const supportRoutes = require('./routes/support');
+const editorRoutes = require('./routes/editor');
+const grammarCheckRoutes = require('./routes/grammar-check');
+const dictationsRoutes = require('./routes/dictations');
+const calendarRoutes = require('./routes/calendar');
+const achievementsRoutes = require('./routes/achievements');
+const adminRoutes = require('./routes/admin');
+const adminSubscriptionsRoutes = require('./routes/admin-subscriptions');
+const adminSupportRoutes = require('./routes/admin-support');
+const adminDictationsRoutes = require('./routes/admin-dictations');
+const dissertationRoutes = require('./routes/dissertation');
 
 // Import des middlewares
 const { errorHandler } = require('./middleware/errorHandler');
 const { requestLogger } = require('./middleware/requestLogger');
 const subscriptionChecker = require('./middleware/subscriptionChecker');
+const { smartRateLimiter, suspiciousActivityLogger, bruteForcePrevention } = require('./middleware/rateLimiting');
+const { advancedSanitization } = require('./middleware/validation');
+const { 
+  sqlInjectionProtection, 
+  xssProtection, 
+  pathTraversalProtection,
+  securityHeadersValidation,
+  securityLogger
+} = require('./middleware/security');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware de sécurité
+// Middleware de sécurité avancée
+app.use(securityHeadersValidation);
+app.use(securityLogger);
+app.use(suspiciousActivityLogger);
+
+// Helmet avec configuration renforcée
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -54,44 +79,72 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
       imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", process.env.FRONTEND_URL || 'http://localhost:3000'],
+      fontSrc: ["'self'", "https:", "data:"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"]
     },
   },
+  crossOriginEmbedderPolicy: false, // Désactivé pour compatibilité
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
 }));
 
-// CORS configuration
+// CORS configuration sécurisée
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  process.env.FRONTEND_URL,
+  process.env.ALLOWED_ORIGIN
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    // Permettre les requêtes sans origine (ex: applications mobiles, Postman)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    console.warn(`[CORS BLOCKED] Origin: ${origin}`);
+    return callback(new Error('Non autorisé par CORS'), false);
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
+  exposedHeaders: ['X-CSRF-Token']
 }));
 
 // Compression
 app.use(compression());
 
-// Logging
+// Logging avancé
 app.use(morgan('combined'));
 app.use(requestLogger);
+
+// Middlewares de sécurité
+app.use(sqlInjectionProtection);
+app.use(xssProtection);
+app.use(pathTraversalProtection);
+app.use(bruteForcePrevention);
+
+// Rate limiting intelligent
+app.use(smartRateLimiter);
 
 // Vérification des abonnements (à chaque requête) - Temporairement désactivé
 // app.use(subscriptionChecker);
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
-  message: {
-    error: 'Trop de requêtes depuis cette IP, réessayez plus tard.',
-    retryAfter: Math.ceil((parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 900000) / 1000)
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-app.use(limiter);
-
 // Middleware de parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Sanitization avancée après le parsing
+app.use(advancedSanitization);
 
 // Routes API
 app.use('/api/auth', authRoutes);
@@ -103,6 +156,17 @@ app.use('/api/grammar-enhanced', grammarEnhancedRoutes);
 app.use('/api/exercises', exercisesRoutes);
 app.use('/api/telemetry', telemetryRoutes);
 app.use('/api/ai-enhanced', aiEnhancedRoutes);
+app.use('/api/editor', editorRoutes);
+app.use('/api/support', supportRoutes);
+app.use('/api/grammar-check', grammarCheckRoutes);
+app.use('/api/dictations', dictationsRoutes);
+app.use('/api/calendar', calendarRoutes);
+app.use('/api/achievements', achievementsRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/admin/subscriptions', adminSubscriptionsRoutes);
+app.use('/api/admin/support', adminSupportRoutes);
+app.use('/api/admin/dictations', adminDictationsRoutes);
+app.use('/api/dissertation', dissertationRoutes);
 
 // Route de santé
 app.get('/health', (req, res) => {
@@ -127,7 +191,12 @@ app.get('/api', (req, res) => {
       ai: '/api/ai',
       subscription: '/api/subscription',
       grammar: '/api/grammar',
-      exercises: '/api/exercises'
+      exercises: '/api/exercises',
+      dictations: '/api/dictations',
+      calendar: '/api/calendar',
+      achievements: '/api/achievements',
+      support: '/api/support',
+      telemetry: '/api/telemetry'
     },
     documentation: '/api/docs'
   });

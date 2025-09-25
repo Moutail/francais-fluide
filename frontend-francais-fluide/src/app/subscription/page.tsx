@@ -17,7 +17,7 @@ import {
 import { SUBSCRIPTION_PLANS, type SubscriptionPlan } from '@/lib/subscription/plans';
 import { formatPrice, calculateAnnualPrice } from '@/lib/config/pricing';
 import Navigation from '@/components/layout/Navigation';
-import { useAuth } from '@/hooks/useApi';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils/cn';
 
 export default function SubscriptionPage() {

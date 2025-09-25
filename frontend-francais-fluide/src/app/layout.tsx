@@ -1,8 +1,12 @@
 // src/app/layout.tsx
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import ErrorProvider from '@/components/ErrorProvider';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   title: 'FrançaisFluide - Écrivez sans fautes, naturellement',
   description: 'L\'application intelligente qui transforme l\'apprentissage du français en une expérience intuitive et engageante. Fini les fautes, bonjour la confiance !',
   keywords: 'français, grammaire, orthographe, apprentissage, IA, correction, exercices',
@@ -12,6 +16,8 @@ export const metadata: Metadata = {
     description: 'L\'application intelligente qui transforme l\'apprentissage du français en une expérience intuitive et engageante.',
     type: 'website',
     locale: 'fr_FR',
+    url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+    siteName: 'FrançaisFluide',
   },
   twitter: {
     card: 'summary_large_image',
@@ -22,10 +28,11 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -37,7 +44,13 @@ export default function RootLayout({
   return (
     <html lang="fr" data-institution={institutionMode ? 'true' : 'false'}>
       <body className="font-sans" data-institution={institutionMode ? 'true' : 'false'}>
-        {children}
+        <ErrorBoundary>
+          <ErrorProvider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </ErrorProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

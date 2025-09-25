@@ -16,7 +16,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import { aiRecommendations, AIRecommendation } from '@/lib/ai-recommendations';
-import { useAuth } from '@/hooks/useApi';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function PersonalizedRecommendations() {
   const { user } = useAuth();

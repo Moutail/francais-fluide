@@ -1,8 +1,10 @@
 // src/lib/api.ts
 // Configuration de l'API pour communiquer avec le backend séparé
 
+import { errorLogger, logApiError, logAuthError } from './errorLogger';
+
 // Use internal Next.js API by default. Set NEXT_PUBLIC_API_URL to call external backend.
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 class ApiClient {
   private baseURL: string;
@@ -50,16 +52,51 @@ class ApiClient {
     try {
       const response = await fetch(url, config);
       
+      // Gestion des erreurs d'authentification
+      if (response.status === 401) {
+        // Token expiré ou invalide
+        logAuthError('token_expired', new Error('Token expiré'), { url, status: 401 });
+        this.clearToken();
+        // Ne pas rediriger automatiquement, laisser l'utilisateur continuer
+        console.warn('Token expiré, reconnexion nécessaire');
+        throw new Error('Session expirée. Veuillez vous reconnecter.');
+      }
+
+      if (response.status === 403) {
+        logApiError(url, new Error('Accès refusé'), { status: 403 });
+        throw new Error('Accès refusé. Vérifiez vos permissions.');
+      }
+
+      if (response.status === 429) {
+        logApiError(url, new Error('Trop de requêtes'), { status: 429 });
+        throw new Error('Trop de tentatives de connexion. Veuillez attendre quelques minutes avant de réessayer.');
+      }
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP ${response.status}`);
+        const errorMessage = errorData.error || errorData.message || `HTTP ${response.status}`;
+        logApiError(url, new Error(errorMessage), { 
+          status: response.status, 
+          errorData,
+          config: { method: config.method, headers: config.headers }
+        });
+        throw new Error(errorMessage);
       }
 
       return await response.json();
     } catch (error) {
-      console.error('API Error:', error);
+      // Logger l'erreur avec plus de détails
+      logApiError(url, error, { 
+        config: { method: config.method, headers: config.headers },
+        body: config.body
+      });
       throw error;
     }
+  }
+
+  // Méthode publique pour les requêtes génériques
+  async makeRequest<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    return this.request<T>(endpoint, options);
   }
 
   // Authentification
@@ -314,7 +351,7 @@ class ApiClient {
 }
 
 // Instance singleton
-export const apiClient = new ApiClient(API_BASE_URL);
+export const apiClient = new ApiClient(API_BASE_URL || '/api');
 
 // Export des types
 export type ApiResponse<T = any> = {

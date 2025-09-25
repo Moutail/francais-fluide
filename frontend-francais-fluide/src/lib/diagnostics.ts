@@ -13,7 +13,7 @@ export class ServerDiagnostics {
   private token: string | null;
 
   constructor() {
-    this.baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    this.baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
     this.token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   }
 

@@ -21,7 +21,7 @@ interface AIRecommendation {
 }
 
 class AIRecommendationService {
-  private baseUrl = 'http://localhost:3001/api/ai-enhanced';
+  private baseUrl = '/api/ai-enhanced';
 
   // Analyser les données de télémétrie pour créer un profil utilisateur
   async analyzeUserProfile(userId: string): Promise<UserProfile> {

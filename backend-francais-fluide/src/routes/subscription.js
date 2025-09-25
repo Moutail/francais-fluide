@@ -65,6 +65,9 @@ router.get('/plans', async (req, res) => {
           'Corrections illimitées',
           'Exercices illimités',
           'Assistant IA avancé',
+          'Assistant de rédaction de dissertations',
+          'Entraînement dissertations (argumentative, comparative, poème)',
+          'Correction intelligente avec feedback personnalisé',
           'Analytics avancées',
           'Support prioritaire'
         ],
@@ -82,6 +85,9 @@ router.get('/plans', async (req, res) => {
         interval: 'month',
         features: [
           'Gestion multi-utilisateurs',
+          'Assistant de rédaction de dissertations',
+          'Outils pédagogiques avancés',
+          'Suivi de progression par classe',
           'API complète',
           'Support prioritaire 24/7',
           'Analytics institutionnelles',
