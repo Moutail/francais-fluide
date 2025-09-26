@@ -36,7 +36,7 @@ export default function AdminPage() {
       // Vérifier les permissions admin
       checkAdminPermissions();
     } else if (!loading && !isAuthenticated) {
-      // Rediriger vers la connexion si pas authentifié
+      // Rediriger vers la connexion principale si pas authentifié
       window.location.href = '/auth/login';
     }
   }, [user, loading, isAuthenticated]);

@@ -35,6 +35,8 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [showErrorNotification, setShowErrorNotification] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
+  const [redirectMessage, setRedirectMessage] = useState('');
   const isMounted = useIsMounted();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,19 +44,20 @@ export default function LoginPage() {
     setIsLoading(true);
     setError('');
 
-    const result = await login(formData.email, formData.password);
-    
-    if (result.success) {
-      // Attendre un peu pour que le contexte auth soit mis à jour
-      await new Promise(resolve => setTimeout(resolve, 100));
+    try {
+      const result = await login(formData.email, formData.password);
       
-      // Récupérer les informations utilisateur mises à jour
-      try {
-        const response = await refreshToken();
-        if (response) {
-          // Vérifier le rôle pour rediriger appropriément
-          const token = localStorage.getItem('token');
-          if (token) {
+      if (result.success) {
+        setRedirecting(true);
+        setRedirectMessage('Connexion réussie ! Redirection en cours...');
+        
+        // Attendre que le contexte auth soit mis à jour
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Faire un appel direct à l'API pour récupérer le rôle
+        const token = localStorage.getItem('token');
+        if (token) {
+          try {
             const profileResponse = await fetch('/api/auth/me', {
               headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -63,28 +66,39 @@ export default function LoginPage() {
               const profileData = await profileResponse.json();
               const userRole = profileData.user?.role;
               
-              // Rediriger les admins vers l'interface d'administration
+              console.log('Rôle détecté:', userRole);
+              
+              // Redirection selon le rôle
               if (['admin', 'super_admin'].includes(userRole)) {
-                router.push('/admin');
+                setRedirectMessage('Redirection vers l\'interface d\'administration...');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                window.location.href = '/admin';
                 return;
               }
             }
+          } catch (profileError) {
+            console.error('Erreur récupération profil:', profileError);
           }
         }
-      } catch (err) {
-        console.log('Erreur récupération profil:', err);
+        
+        // Redirection par défaut vers dashboard
+        setRedirectMessage('Redirection vers le tableau de bord...');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        window.location.href = '/dashboard';
+      } else {
+        // Erreur de connexion
+        const errorMessage = result.error || 'Erreur de connexion. Veuillez réessayer.';
+        setError(errorMessage);
+        setShowErrorNotification(true);
       }
-      
-      // Redirection par défaut vers le dashboard
-      router.push('/dashboard');
-    } else {
-      // Erreur de connexion
-      const errorMessage = result.error || 'Erreur de connexion. Veuillez réessayer.';
-      setError(errorMessage);
+    } catch (loginError) {
+      console.error('Erreur lors de la connexion:', loginError);
+      setError('Erreur de connexion. Veuillez réessayer.');
       setShowErrorNotification(true);
+    } finally {
+      setIsLoading(false);
+      setRedirecting(false);
     }
-    
-    setIsLoading(false);
   };
 
 
@@ -163,6 +177,14 @@ export default function LoginPage() {
               <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
                 <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
                 <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+
+            {/* Message de redirection */}
+            {redirecting && (
+              <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                <p className="text-sm text-blue-700">{redirectMessage}</p>
               </div>
             )}
 
