@@ -27,6 +27,8 @@ const authenticateToken = async (req, res, next) => {
         id: true,
         email: true,
         name: true,
+        role: true,
+        isActive: true,
         subscription: true,
         progress: true
       }
@@ -41,7 +43,11 @@ const authenticateToken = async (req, res, next) => {
     req.user = {
       userId: user.id,
       email: user.email,
-      name: user.name
+      name: user.name,
+      role: user.role,
+      isActive: user.isActive,
+      subscription: user.subscription,
+      progress: user.progress
     };
     next();
   } catch (error) {
@@ -91,7 +97,7 @@ const requireSubscription = (requiredPlan) => {
 // Middleware de vérification des quotas
 const checkQuota = async (req, res, next) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 

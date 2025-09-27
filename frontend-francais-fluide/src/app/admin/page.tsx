@@ -22,6 +22,11 @@ import {
 import AdminDashboard from '@/components/admin/AdminDashboard';
 import UserManagement from '@/components/admin/UserManagement';
 import CreateUserForm from '@/components/admin/CreateUserForm';
+import AdminAnalytics from '@/components/admin/AdminAnalytics';
+import AdminSubscriptions from '@/components/admin/AdminSubscriptions';
+import AdminSupport from '@/components/admin/AdminSupport';
+import AdminDictations from '@/components/admin/AdminDictations';
+import AdminSettings from '@/components/admin/AdminSettings';
 
 export default function AdminPage() {
   const { user, loading, isAuthenticated, logout } = useAuth();
@@ -183,41 +188,20 @@ export default function AdminPage() {
         );
       
       case 'subscriptions':
-        return (
-          <div className="text-center py-12">
-            <Crown className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Gestion des abonnements</h2>
-            <p className="text-gray-600 mb-4">Interface de gestion des abonnements - À implémenter</p>
-            <Button onClick={() => handleNavigate('dashboard')}>
-              Retour au tableau de bord
-            </Button>
-          </div>
-        );
-      
+        return <AdminSubscriptions />;
+
       case 'support':
-        return (
-          <div className="text-center py-12">
-            <MessageCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Support client</h2>
-            <p className="text-gray-600 mb-4">Interface de gestion du support - À implémenter</p>
-            <Button onClick={() => handleNavigate('dashboard')}>
-              Retour au tableau de bord
-            </Button>
-          </div>
-        );
-      
+        return <AdminSupport />;
+
       case 'dictations':
-        return (
-          <div className="text-center py-12">
-            <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Gestion des dictées</h2>
-            <p className="text-gray-600 mb-4">Interface de gestion du contenu - À implémenter</p>
-            <Button onClick={() => handleNavigate('dashboard')}>
-              Retour au tableau de bord
-            </Button>
-          </div>
-        );
+        return <AdminDictations />;
       
+      case 'analytics':
+        return <AdminAnalytics />;
+
+      case 'settings':
+        return <AdminSettings />;
+
       default:
         return <AdminDashboard onNavigate={handleNavigate} />;
     }

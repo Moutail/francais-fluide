@@ -94,6 +94,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => clearInterval(interval);
   }, [user]);
 
+  // S'assurer que la session admin est présente si l'utilisateur a le rôle admin/super_admin
+  useEffect(() => {
+    if (user?.role === 'admin' || user?.role === 'super_admin') {
+      try {
+        const session = {
+          role: user.role,
+          userId: user.id,
+          loginTime: new Date().toISOString()
+        };
+        document.cookie = `adminSession=${encodeURIComponent(JSON.stringify(session))}; Max-Age=${8 * 60 * 60}; Path=/; SameSite=Lax`;
+      } catch {
+        // Ignore cookie errors
+      }
+    }
+  }, [user?.id, user?.role]);
+
   const login = async (email: string, password: string) => {
     try {
       errorLogger.info('AUTH', 'Tentative de connexion', { email });
@@ -103,6 +119,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('token', response.token);
         apiClient.setToken(response.token);
         setUser(response.user);
+
+        // Créer une session admin (cookie) si l'utilisateur a les droits admin
+        const role = response.user?.role;
+        if (role && (role === 'admin' || role === 'super_admin')) {
+          const session = {
+            role,
+            userId: response.user?.id,
+            loginTime: new Date().toISOString()
+          };
+          // Cookie valable 8h
+          document.cookie = `adminSession=${encodeURIComponent(JSON.stringify(session))}; Max-Age=${8 * 60 * 60}; Path=/; SameSite=Lax`;
+        } else {
+          // Nettoyer toute éventuelle session admin précédente
+          document.cookie = `adminSession=; Max-Age=0; Path=/; SameSite=Lax`;
+        }
+
         errorLogger.info('AUTH', 'Connexion réussie', { userId: response.user?.id });
         return { success: true };
       } else {
@@ -119,6 +151,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('token');
     apiClient.setToken('');
     setUser(null);
+    // Supprimer la session admin
+    document.cookie = `adminSession=; Max-Age=0; Path=/; SameSite=Lax`;
   };
 
   const refreshToken = async () => {

@@ -34,7 +34,7 @@ router.post('/register', validateRegister, async (req, res) => {
       });
     }
 
-    const { name, email, password } = req.body;
+    const { name, email, password, role, adminInviteCode } = req.body;
 
     // Vérifier si l'utilisateur existe déjà
     const existingUser = await prisma.user.findUnique({
@@ -48,6 +48,14 @@ router.post('/register', validateRegister, async (req, res) => {
       });
     }
 
+    // Déterminer le rôle à attribuer (sécurisé par un code d'invitation)
+    const allowedAdminRoles = ['admin', 'super_admin'];
+    const canAssignAdmin = allowedAdminRoles.includes(role) 
+      && adminInviteCode 
+      && adminInviteCode === process.env.ADMIN_INVITE_CODE;
+
+    const assignedRole = canAssignAdmin ? role : 'user';
+
     // Hacher le mot de passe
     const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -57,7 +65,8 @@ router.post('/register', validateRegister, async (req, res) => {
         data: {
           email,
           password: hashedPassword,
-          name
+          name,
+          role: assignedRole
         }
       });
 
@@ -89,9 +98,9 @@ router.post('/register', validateRegister, async (req, res) => {
       return user;
     });
 
-    // Générer le token JWT
+    // Générer le token JWT (inclure le rôle)
     const token = jwt.sign(
-      { userId: result.id, email: result.email },
+      { userId: result.id, email: result.email, role: result.role },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -101,7 +110,8 @@ router.post('/register', validateRegister, async (req, res) => {
       user: {
         id: result.id,
         email: result.email,
-        name: result.name
+        name: result.name,
+        role: result.role
       },
       token
     });
@@ -158,7 +168,7 @@ router.post('/login', validateLogin, async (req, res) => {
 
     // Générer le token JWT
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user.id, email: user.email, role: user.role },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
