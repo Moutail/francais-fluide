@@ -2,7 +2,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { PrismaClient } = require('@prisma/client');
-const { authenticateToken, checkQuota } = require('../middleware/auth');
+const { authenticateToken, checkQuota, checkDictationQuota } = require('../middleware/auth');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -21,7 +21,7 @@ const validateDictationAttempt = [
 ];
 
 // GET /api/dictations - Récupérer toutes les dictées
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', authenticateToken, checkDictationQuota, async (req, res) => {
   try {
     const { difficulty, limit = 10, page = 1 } = req.query;
     
@@ -75,7 +75,7 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // GET /api/dictations/:id - Récupérer une dictée spécifique
-router.get('/:id', authenticateToken, async (req, res) => {
+router.get('/:id', authenticateToken, checkDictationQuota, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -117,7 +117,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 });
 
 // POST /api/dictations/:id/attempt - Soumettre une tentative de dictée
-router.post('/:id/attempt', authenticateToken, checkQuota, validateDictationAttempt, async (req, res) => {
+router.post('/:id/attempt', authenticateToken, checkDictationQuota, validateDictationAttempt, async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

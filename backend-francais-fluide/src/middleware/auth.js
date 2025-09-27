@@ -109,10 +109,10 @@ const checkQuota = async (req, res, next) => {
 
     const plan = user.subscription?.plan || 'demo';
     const quotas = {
-      'demo': { corrections: 10, exercises: 5 },
-      'etudiant': { corrections: 100, exercises: 50 },
-      'premium': { corrections: -1, exercises: -1 }, // Illimité
-      'etablissement': { corrections: -1, exercises: -1 }
+      'demo': { corrections: 10, exercises: 5, dictations: 0 }, // 0 dictées pour le plan gratuit
+      'etudiant': { corrections: 100, exercises: 50, dictations: 10 },
+      'premium': { corrections: -1, exercises: -1, dictations: -1 }, // Illimité
+      'etablissement': { corrections: -1, exercises: -1, dictations: -1 }
     };
 
     const userQuota = quotas[plan];
@@ -149,8 +149,76 @@ const checkQuota = async (req, res, next) => {
   }
 };
 
+// Middleware spécifique pour les dictées
+const checkDictationQuota = async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Récupérer les quotas de l'utilisateur
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { subscription: true }
+    });
+
+    const plan = user.subscription?.plan || 'demo';
+    const quotas = {
+      'demo': { dictations: 0 }, // 0 dictées pour le plan gratuit
+      'etudiant': { dictations: 10 },
+      'premium': { dictations: -1 }, // Illimité
+      'etablissement': { dictations: -1 }
+    };
+
+    const userQuota = quotas[plan];
+    
+    // Vérifier si l'utilisateur a accès aux dictées
+    if (userQuota.dictations === 0) {
+      return res.status(403).json({
+        error: 'Les dictées ne sont pas disponibles avec le plan gratuit',
+        type: 'feature_not_available',
+        currentPlan: plan,
+        upgradeUrl: '/subscription',
+        message: 'Passez à un plan payant pour accéder aux dictées audio'
+      });
+    }
+
+    // Vérifier les quotas (si pas illimité)
+    if (userQuota.dictations !== -1) {
+      const todayUsage = await prisma.usageLog.count({
+        where: {
+          userId,
+          type: 'dictation',
+          createdAt: {
+            gte: today
+          }
+        }
+      });
+
+      if (todayUsage >= userQuota.dictations) {
+        return res.status(429).json({
+          error: 'Quota de dictées atteint',
+          quota: userQuota.dictations,
+          used: todayUsage,
+          resetTime: new Date(today.getTime() + 24 * 60 * 60 * 1000),
+          upgradeUrl: '/subscription'
+        });
+      }
+    }
+
+    req.userQuota = userQuota;
+    next();
+  } catch (error) {
+    console.error('Erreur de vérification des quotas de dictée:', error);
+    res.status(500).json({ 
+      error: 'Erreur de vérification des quotas' 
+    });
+  }
+};
+
 module.exports = {
   authenticateToken,
   requireSubscription,
-  checkQuota
+  checkQuota,
+  checkDictationQuota
 };

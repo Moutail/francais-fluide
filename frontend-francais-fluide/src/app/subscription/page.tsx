@@ -12,7 +12,10 @@ import {
   Zap,
   Shield,
   Users,
-  TrendingUp
+  TrendingUp,
+  Target,
+  CheckCircle,
+  BookOpen
 } from 'lucide-react';
 import { SUBSCRIPTION_PLANS, type SubscriptionPlan } from '@/lib/subscription/plans';
 import { formatPrice, calculateAnnualPrice } from '@/lib/config/pricing';
@@ -80,12 +83,12 @@ export default function SubscriptionPage() {
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
             <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
-              Passez au niveau supérieur
+              Maîtrisez le français avec l'IA
             </span>
           </h1>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto mb-6 sm:mb-8">
-            Débloquez tout le potentiel de FrançaisFluide avec nos plans premium. 
-            Transformez votre apprentissage du français avec l'IA avancée.
+          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto mb-6 sm:mb-8">
+            Accédez aux dictées audio interactives, aux corrections IA avancées et à un tuteur personnel. 
+            Transformez votre apprentissage du français avec des outils d'IA de nouvelle génération.
           </p>
 
           {/* Toggle de facturation */}
@@ -217,6 +220,170 @@ export default function SubscriptionPage() {
           ))}
         </div>
 
+        {/* Section spéciale pour les dictées audio */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 sm:p-8 mb-8 sm:mb-12">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full mb-4">
+              <Sparkles className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-medium text-blue-900">
+                Fonctionnalité vedette
+              </span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+              Dictées Audio Interactives
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Améliorez votre compréhension orale et votre orthographe avec nos dictées audio 
+              alimentées par l'IA. Disponibles uniquement avec les plans payants.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <X className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2 text-center">Plan Gratuit</h3>
+              <p className="text-gray-600 text-sm text-center mb-4">
+                Dictées audio non disponibles
+              </p>
+              <div className="text-center">
+                <span className="inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
+                  Accès refusé
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-lg border-2 border-blue-200">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Check className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2 text-center">Plan Étudiant</h3>
+              <p className="text-gray-600 text-sm text-center mb-4">
+                10 dictées audio par jour
+              </p>
+              <div className="text-center">
+                <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                  10/jour
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-lg border-2 border-purple-200">
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Zap className="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2 text-center">Plan Premium+</h3>
+              <p className="text-gray-600 text-sm text-center mb-4">
+                Dictées audio illimitées
+              </p>
+              <div className="text-center">
+                <span className="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
+                  Illimité
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section spéciale pour l'assistant de dissertation */}
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 sm:p-8 mb-8 sm:mb-12">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 rounded-full mb-4">
+              <Crown className="w-4 h-4 text-purple-600" />
+              <span className="text-sm font-medium text-purple-900">
+                Fonctionnalité Premium Exclusive
+              </span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+              Assistant de Dissertation IA
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Maîtrisez l'art de la dissertation française avec un assistant IA intelligent. 
+              Génération de plans, analyse complète et feedback personnalisé.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <X className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2 text-center">Plan Gratuit</h3>
+              <p className="text-gray-600 text-sm text-center mb-4">
+                Assistant de dissertation non disponible
+              </p>
+              <div className="text-center">
+                <span className="inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
+                  Accès refusé
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <X className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2 text-center">Plan Étudiant</h3>
+              <p className="text-gray-600 text-sm text-center mb-4">
+                Assistant de dissertation non disponible
+              </p>
+              <div className="text-center">
+                <span className="inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
+                  Accès refusé
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-lg border-2 border-purple-200">
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Crown className="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2 text-center">Plan Premium+</h3>
+              <p className="text-gray-600 text-sm text-center mb-4">
+                Assistant de dissertation IA complet
+              </p>
+              <div className="text-center">
+                <span className="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
+                  ✅ Disponible
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Fonctionnalités de l'assistant */}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <Target className="w-5 h-5 text-blue-600" />
+              </div>
+              <h4 className="font-medium text-gray-900 mb-1">Plans Intelligents</h4>
+              <p className="text-xs text-gray-600">Génération automatique de plans détaillés</p>
+            </div>
+            <div className="text-center">
+              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+              </div>
+              <h4 className="font-medium text-gray-900 mb-1">Correction Avancée</h4>
+              <p className="text-xs text-gray-600">Analyse de structure et argumentation</p>
+            </div>
+            <div className="text-center">
+              <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <BookOpen className="w-5 h-5 text-purple-600" />
+              </div>
+              <h4 className="font-medium text-gray-900 mb-1">Types Variés</h4>
+              <p className="text-xs text-gray-600">Argumentative, comparative, poétique</p>
+            </div>
+            <div className="text-center">
+              <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <Sparkles className="w-5 h-5 text-yellow-600" />
+              </div>
+              <h4 className="font-medium text-gray-900 mb-1">IA Avancée</h4>
+              <p className="text-xs text-gray-600">Powered by GPT-4 et Claude</p>
+            </div>
+          </div>
+        </div>
+
         {/* Section de comparaison détaillée */}
         <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 mb-8 sm:mb-12">
           <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
@@ -240,13 +407,15 @@ export default function SubscriptionPage() {
               <tbody className="divide-y divide-gray-200">
                 {[
                   { feature: 'Corrections IA par jour', free: '5', student: 'Illimité', premium: 'Illimité', enterprise: 'Illimité' },
-                  { feature: 'Exercices personnalisés', free: '3', student: '20', premium: 'Illimité', enterprise: 'Illimité' },
-                  { feature: 'Assistant IA avancé', free: false, student: 'Basique', premium: 'Avancé', enterprise: 'Avancé' },
-                  { feature: 'Analytics détaillées', free: false, student: true, premium: true, enterprise: true },
-                  { feature: 'Mode hors ligne', free: false, student: false, premium: true, enterprise: true },
-                  { feature: 'Assistant vocal', free: false, student: false, premium: true, enterprise: true },
-                  { feature: 'Support prioritaire', free: false, student: true, premium: true, enterprise: 'Dédié' },
-                  { feature: 'Export des données', free: false, student: true, premium: true, enterprise: true },
+                  { feature: 'Exercices quotidiens', free: '3', student: '20/jour', premium: 'Illimité', enterprise: 'Illimité' },
+                  { feature: 'Dictées audio', free: '❌ Non disponible', student: '10/jour', premium: 'Illimité', enterprise: 'Illimité' },
+                  { feature: 'Assistant de dissertation IA', free: '❌ Non disponible', student: '❌ Non disponible', premium: '✅ Disponible', enterprise: '✅ Disponible' },
+                  { feature: 'Tuteur IA', free: false, student: 'Basique', premium: 'Premium', enterprise: 'Premium' },
+                  { feature: 'Assistant IA', free: false, student: 'Basique', premium: 'Avancé', enterprise: 'Avancé' },
+                  { feature: 'Analytics détaillées', free: false, student: true, premium: 'Premium', enterprise: 'Premium' },
+                  { feature: 'Exercices personnalisés', free: false, student: '20/jour', premium: 'Illimité', enterprise: 'Illimité' },
+                  { feature: 'Export des données', free: false, student: true, premium: true, enterprise: 'Avancé' },
+                  { feature: 'Gestion multi-utilisateurs', free: false, student: false, premium: false, enterprise: true },
                 ].map((row, index) => (
                   <tr key={index}>
                     <td className="py-4 px-6 font-medium text-gray-900">
@@ -255,6 +424,10 @@ export default function SubscriptionPage() {
                     <td className="py-4 px-6 text-center">
                       {row.free === false ? (
                         <X className="w-5 h-5 text-red-500 mx-auto" />
+                      ) : row.free === true ? (
+                        <Check className="w-5 h-5 text-green-500 mx-auto" />
+                      ) : row.free.includes('❌') ? (
+                        <span className="text-red-600 font-medium">{row.free}</span>
                       ) : (
                         <span className="text-gray-900">{row.free}</span>
                       )}
@@ -265,7 +438,7 @@ export default function SubscriptionPage() {
                       ) : row.student === true ? (
                         <Check className="w-5 h-5 text-green-500 mx-auto" />
                       ) : (
-                        <span className="text-gray-900">{row.student}</span>
+                        <span className="text-gray-900 font-medium">{row.student}</span>
                       )}
                     </td>
                     <td className="py-4 px-6 text-center">
@@ -274,7 +447,7 @@ export default function SubscriptionPage() {
                       ) : row.premium === true ? (
                         <Check className="w-5 h-5 text-green-500 mx-auto" />
                       ) : (
-                        <span className="text-gray-900">{row.premium}</span>
+                        <span className="text-gray-900 font-medium">{row.premium}</span>
                       )}
                     </td>
                     <td className="py-4 px-6 text-center">
@@ -283,7 +456,7 @@ export default function SubscriptionPage() {
                       ) : row.enterprise === true ? (
                         <Check className="w-5 h-5 text-green-500 mx-auto" />
                       ) : (
-                        <span className="text-gray-900">{row.enterprise}</span>
+                        <span className="text-gray-900 font-medium">{row.enterprise}</span>
                       )}
                     </td>
                   </tr>
@@ -301,20 +474,32 @@ export default function SubscriptionPage() {
           <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {[
               {
+                question: 'Pourquoi les dictées audio ne sont-elles pas disponibles avec le plan gratuit ?',
+                answer: 'Les dictées audio sont notre fonctionnalité premium qui nécessite des ressources IA avancées. Elles sont disponibles à partir du plan Étudiant (14.99 CAD/mois) avec 10 dictées par jour.'
+              },
+              {
+                question: 'L\'assistant de dissertation est-il disponible avec tous les plans ?',
+                answer: 'L\'assistant de dissertation IA est exclusivement réservé aux plans Premium et Établissement. Cette fonctionnalité avancée nécessite des modèles IA sophistiqués pour générer des plans détaillés et analyser vos dissertations.'
+              },
+              {
                 question: 'Puis-je changer de plan à tout moment ?',
                 answer: 'Oui, vous pouvez upgrader ou downgrader votre plan à tout moment. Les changements prennent effet immédiatement.'
               },
               {
-                question: 'Y a-t-il un essai gratuit ?',
-                answer: 'Le plan gratuit vous permet de découvrir toutes les fonctionnalités de base. Aucune carte de crédit requise.'
+                question: 'Comment fonctionnent les quotas de dictées ?',
+                answer: 'Les quotas se réinitialisent chaque jour à minuit. Le plan Étudiant inclut 10 dictées par jour, tandis que les plans Premium et Établissement offrent un accès illimité.'
               },
               {
                 question: 'Les données sont-elles sécurisées ?',
-                answer: 'Absolument. Nous utilisons un chiffrement de niveau bancaire et respectons le RGPD.'
+                answer: 'Absolument. Nous utilisons un chiffrement de niveau bancaire et respectons le RGPD pour protéger vos données personnelles et vos progrès d\'apprentissage.'
               },
               {
                 question: 'Puis-je annuler à tout moment ?',
-                answer: 'Oui, vous pouvez annuler votre abonnement à tout moment depuis votre tableau de bord.'
+                answer: 'Oui, vous pouvez annuler votre abonnement à tout moment depuis votre tableau de bord. Aucun frais d\'annulation.'
+              },
+              {
+                question: 'Y a-t-il un essai gratuit ?',
+                answer: 'Le plan gratuit vous permet de découvrir les corrections IA de base (5/jour) et les exercices simples (3/jour). Pour les dictées audio et l\'IA avancée, un abonnement est requis.'
               }
             ].map((faq, index) => (
               <div key={index} className="bg-white rounded-xl p-4 sm:p-6 shadow-lg text-left">

@@ -113,7 +113,7 @@ async function createTestUsers() {
             exercisesCompleted: progress.exercisesCompleted,
             wordsWritten: progress.wordsWritten,
             accuracy: 75 + Math.random() * 20, // Entre 75% et 95%
-            timeSpent: 30 + Math.random() * 120, // Entre 30 et 150 minutes
+            timeSpent: Math.floor(3 + Math.random() * 12), // Entre 3 et 15 minutes (dictées courtes)
             currentStreak: Math.floor(Math.random() * 15) + 1, // Entre 1 et 15 jours
             lastActivity: new Date()
           }

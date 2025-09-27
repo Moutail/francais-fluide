@@ -59,21 +59,20 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Corrections IA illimitées',
       'Exercices personnalisés (20/jour)',
       'Dictées audio (10/jour)',
-      'Tuteur IA intelligent',
+      'Tuteur IA basique',
       'Analytics avancées',
       'Assistant IA basique',
-      'Export des données',
-      'Support prioritaire'
+      'Export des données'
     ],
     limits: {
       aiCorrections: -1, // illimité
       exercisesPerDay: 20,
       dictationsPerDay: 10,
       advancedAnalytics: true,
-      prioritySupport: true,
+      prioritySupport: false,
       exportData: true,
       customExercises: false,
-      voiceAssistant: true,
+      voiceAssistant: false,
       offlineMode: false,
       intelligentTutor: true,
       personalizedLearning: true
@@ -92,24 +91,23 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Tout de l\'Étudiant',
       'Exercices illimités',
       'Dictées audio illimitées',
+      'Assistant de dissertation IA',
       'Assistant IA avancé',
       'Tuteur IA premium',
-      'Mode hors ligne',
       'Exercices personnalisés',
-      'Assistant vocal',
       'Analytics premium',
-      'Support prioritaire 24/7'
+      'Export des données'
     ],
     limits: {
       aiCorrections: -1,
       exercisesPerDay: -1,
       dictationsPerDay: -1,
       advancedAnalytics: true,
-      prioritySupport: true,
+      prioritySupport: false,
       exportData: true,
       customExercises: true,
-      voiceAssistant: true,
-      offlineMode: true,
+      voiceAssistant: false,
+      offlineMode: false,
       intelligentTutor: true,
       personalizedLearning: true
     }
@@ -124,22 +122,24 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     color: 'from-green-500 to-emerald-500',
     features: [
       'Tout de Premium',
+      'Assistant de dissertation IA',
       'Gestion multi-utilisateurs',
       'Tableau de bord administrateur',
-      'Intégration LMS',
       'Rapports personnalisés',
-      'Support dédié',
-      'Formation personnalisée'
+      'Export des données avancé'
     ],
     limits: {
       aiCorrections: -1,
       exercisesPerDay: -1,
+      dictationsPerDay: -1,
       advancedAnalytics: true,
-      prioritySupport: true,
+      prioritySupport: false,
       exportData: true,
       customExercises: true,
-      voiceAssistant: true,
-      offlineMode: true
+      voiceAssistant: false,
+      offlineMode: false,
+      intelligentTutor: true,
+      personalizedLearning: true
     }
   }
 ];

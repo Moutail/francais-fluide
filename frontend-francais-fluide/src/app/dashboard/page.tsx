@@ -10,12 +10,12 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/profes
 import { Button } from '@/components/ui/professional/Button';
 import { MetricCard } from '@/components/ui/professional/MetricCard';
 import { ServerDiagnosticPanel } from '@/components/diagnostics/ServerDiagnosticPanel';
-import { 
-  Edit3, 
-  BookOpen, 
-  BarChart3, 
-  FileText, 
-  Headphones, 
+import {
+  Edit3,
+  BookOpen,
+  BarChart3,
+  FileText,
+  Headphones,
   TrendingUp,
   CheckCircle,
   XCircle,
@@ -28,11 +28,11 @@ import {
 
 export default function DashboardPage() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
-  const { progress, loading: progressLoading, error: progressError, refetch: refetchProgress } = useProgress();
-  const { getStatus, canUseFeature, isActive } = useSubscriptionSimple();
+  const { progress, error: progressError, refetch: refetchProgress } = useProgress();
+  const { getStatus, isActive, canUseFeature } = useSubscriptionSimple();
   const [mounted, setMounted] = useState(false);
   const [showDiagnostics, setShowDiagnostics] = useState(false);
-  
+
   // Données par défaut en cas d'erreur
   const defaultProgress = {
     wordsWritten: 0,
@@ -40,21 +40,15 @@ export default function DashboardPage() {
     exercisesCompleted: 0,
     currentStreak: 0
   };
-  
+
   // Le hook useApi extrait déjà response.data, donc progress contient directement les données
   const currentProgress = progress || defaultProgress;
-
-  // Fonction pour gérer les erreurs de progression
-  const handleProgressError = () => {
-    console.warn('Erreur de chargement de la progression, utilisation des données par défaut');
-    // Optionnel: afficher une notification à l'utilisateur
-  };
 
   // Afficher les erreurs de progression dans la console seulement si c'est critique
   useEffect(() => {
     if (progressError && typeof progressError === 'string' && !progressError.includes('Token')) {
       console.error('Erreur critique de progression:', progressError);
-    } else if (progressError && typeof progressError === 'object' && progressError.message && !progressError.message.includes('Token')) {
+    } else if (progressError && typeof progressError === 'object' && (progressError as any)?.message && !(progressError as any)?.message.includes('Token')) {
       console.error('Erreur critique de progression:', progressError);
     }
   }, [progressError]);
@@ -101,8 +95,7 @@ export default function DashboardPage() {
             <p className="text-gray-600 mb-6">
               Bonjour {user?.name || 'Utilisateur'}, voici un aperçu de votre progression.
             </p>
-            
-            
+
             {/* Plan d'abonnement */}
             <Card className="mb-8 backdrop-blur-sm bg-white/70 border-white/40 shadow-sm">
               <CardContent>
@@ -125,7 +118,7 @@ export default function DashboardPage() {
                   <div className="text-right">
                     <p className="text-sm text-gray-600 mb-2">Fonctionnalités disponibles:</p>
                     <div className="flex flex-wrap gap-2">
-                      {getStatus().features.slice(0, 3).map((feature, index) => (
+                      {getStatus().features.slice(0, 3).map((feature: string, index: number) => (
                         <span key={index} className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200/60">
                           {feature}
                         </span>
@@ -144,7 +137,7 @@ export default function DashboardPage() {
 
           {/* Actions Principales */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="hover:shadow-md transition-all duration-200 cursor-pointer backdrop-blur-sm bg-white/70 border-white/40" onClick={() => window.location.href = '/editor'}>
+            <Card className="hover:shadow-md transition-all duration-200 cursor-pointer backdrop-blur-sm bg-white/70 border-white/40" onClick={() => (window.location.href = '/editor')}>
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center ring-1 ring-blue-200/60">
@@ -158,7 +151,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-md transition-all duration-200 cursor-pointer backdrop-blur-sm bg-white/70 border-white/40" onClick={() => window.location.href = '/exercices'}>
+            <Card className="hover:shadow-md transition-all duration-200 cursor-pointer backdrop-blur-sm bg-white/70 border-white/40" onClick={() => (window.location.href = '/exercices')}>
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center ring-1 ring-green-200/60">
@@ -172,7 +165,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-md transition-all duration-200 cursor-pointer backdrop-blur-sm bg-white/70 border-white/40" onClick={() => window.location.href = '/progression'}>
+            <Card className="hover:shadow-md transition-all duration-200 cursor-pointer backdrop-blur-sm bg-white/70 border-white/40" onClick={() => (window.location.href = '/progression')}>
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center ring-1 ring-purple-200/60">
@@ -192,25 +185,25 @@ export default function DashboardPage() {
             <MetricCard
               title="Mots écrits"
               value={currentProgress.wordsWritten}
-              change={{ value: "+12% ce mois", type: "positive" }}
+              change={{ value: '+12% ce mois', type: 'positive' }}
               icon={FileText}
             />
             <MetricCard
               title="Précision"
               value={`${currentProgress.accuracy}%`}
-              change={{ value: "+2.3% ce mois", type: "positive" }}
+              change={{ value: '+2.3% ce mois', type: 'positive' }}
               icon={TrendingUp}
             />
             <MetricCard
               title="Exercices"
               value={currentProgress.exercisesCompleted}
-              change={{ value: "3 cette semaine", type: "neutral" }}
+              change={{ value: '3 cette semaine', type: 'neutral' }}
               icon={BookOpen}
             />
             <MetricCard
               title="Série actuelle"
               value={`${currentProgress.currentStreak} jours`}
-              change={{ value: "Record: 15 jours", type: "neutral" }}
+              change={{ value: 'Record: 15 jours', type: 'neutral' }}
               icon={Calendar}
             />
           </div>
@@ -231,19 +224,11 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button
-                        onClick={() => refetchProgress()}
-                        variant="secondary"
-                        size="sm"
-                      >
+                      <Button onClick={() => refetchProgress()} variant="secondary" size="sm">
                         <RefreshCw className="w-4 h-4 mr-2" />
                         Réessayer
                       </Button>
-                      <Button
-                        onClick={() => setShowDiagnostics(!showDiagnostics)}
-                        variant="ghost"
-                        size="sm"
-                      >
+                      <Button onClick={() => setShowDiagnostics(!showDiagnostics)} variant="ghost" size="sm">
                         <Server className="w-4 h-4 mr-2" />
                         Diagnostic
                       </Button>
@@ -269,8 +254,8 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <Button 
-                    onClick={() => window.location.href = '/editor'}
+                  <Button
+                    onClick={() => (window.location.href = '/editor')}
                     variant="ghost"
                     className="w-full justify-start p-3 h-auto rounded-xl"
                   >
@@ -280,8 +265,8 @@ export default function DashboardPage() {
                       <div className="text-sm text-gray-600">Corrigez vos textes avec l'IA</div>
                     </div>
                   </Button>
-                  <Button 
-                    onClick={() => window.location.href = '/exercices'}
+                  <Button
+                    onClick={() => (window.location.href = '/exercices')}
                     variant="ghost"
                     className="w-full justify-start p-3 h-auto rounded-xl"
                   >
@@ -291,8 +276,8 @@ export default function DashboardPage() {
                       <div className="text-sm text-gray-600">Pratiquez la grammaire</div>
                     </div>
                   </Button>
-                  <Button 
-                    onClick={() => window.location.href = '/dictation'}
+                  <Button
+                    onClick={() => (window.location.href = '/dictation')}
                     variant="ghost"
                     className="w-full justify-start p-3 h-auto rounded-xl"
                   >
@@ -302,8 +287,8 @@ export default function DashboardPage() {
                       <div className="text-sm text-gray-600">Améliorez votre écoute</div>
                     </div>
                   </Button>
-                  <Button 
-                    onClick={() => window.location.href = '/analytics'}
+                  <Button
+                    onClick={() => (window.location.href = '/analytics')}
                     variant="ghost"
                     className="w-full justify-start p-3 h-auto rounded-xl"
                   >
@@ -316,7 +301,7 @@ export default function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card className="backdrop-blur-sm bg-white/70 border-white/40">
               <CardHeader>
                 <CardTitle>Activités récentes</CardTitle>

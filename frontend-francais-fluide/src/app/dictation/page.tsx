@@ -3,9 +3,11 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Volume2, BookOpen, Clock, Target } from 'lucide-react';
+import { Volume2, BookOpen, Clock, Target, Lock, Crown, Sparkles } from 'lucide-react';
 import Navigation from '@/components/layout/Navigation';
 import SimpleDictationExercise from '@/components/exercises/SimpleDictationExercise';
+import SubscriptionGuard from '@/components/SubscriptionGuard';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface DictationText {
   id: string;
@@ -44,6 +46,7 @@ const DICTATION_TEXTS: DictationText[] = [
 ];
 
 export default function DictationPage() {
+  const { user } = useAuth();
   const [selectedText, setSelectedText] = useState<DictationText | null>(null);
   const [completedDictations, setCompletedDictations] = useState<string[]>([]);
   const [results, setResults] = useState<Array<{
@@ -53,6 +56,8 @@ export default function DictationPage() {
     timeSpent: number;
     accuracy: number;
   }>>([]);
+
+  const userPlan = user?.subscription?.plan || 'demo';
 
   const handleDictationComplete = (textId: string, userText: string, isCorrect: boolean, timeSpent: number) => {
     const accuracy = calculateAccuracy(userText, selectedText?.text || '');
@@ -104,6 +109,141 @@ export default function DictationPage() {
     }
   };
 
+  // Composant de fallback pour les utilisateurs du plan gratuit
+  const DictationUpgradePrompt = () => (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+      <Navigation />
+      
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-12"
+        >
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-3 bg-blue-100 rounded-lg">
+              <Volume2 className="w-8 h-8 text-blue-600" />
+            </div>
+            <h1 className="text-4xl font-bold text-gray-900">Dictées Audio</h1>
+          </div>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Améliorez votre compréhension orale et votre orthographe avec nos dictées interactives
+          </p>
+        </motion.div>
+
+        {/* Message d'upgrade */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white rounded-2xl p-8 shadow-xl border border-blue-200"
+        >
+          <div className="text-center">
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Lock className="w-10 h-10 text-white" />
+            </div>
+            
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Dictées Audio - Fonctionnalité Premium
+            </h2>
+            
+            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+              Les dictées audio ne sont pas disponibles avec le plan gratuit. 
+              Passez à un plan payant pour accéder à cette fonctionnalité et améliorer votre français.
+            </p>
+
+            {/* Avantages des dictées */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Volume2 className="w-6 h-6 text-blue-600" />
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">Écoute Active</h3>
+                <p className="text-gray-600 text-sm">Développez votre compréhension orale</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <BookOpen className="w-6 h-6 text-green-600" />
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">Orthographe</h3>
+                <p className="text-gray-600 text-sm">Améliorez votre précision orthographique</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Target className="w-6 h-6 text-purple-600" />
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">Progression</h3>
+                <p className="text-gray-600 text-sm">Suivez vos améliorations en temps réel</p>
+              </div>
+            </div>
+
+            {/* Bouton d'upgrade */}
+            <button
+              onClick={() => window.location.href = '/subscription'}
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              <Crown className="w-5 h-5" />
+              Voir les Plans d'Abonnement
+              <Sparkles className="w-5 h-5" />
+            </button>
+
+            <p className="text-sm text-gray-500 mt-4">
+              À partir de 14.99 CAD/mois • Annulation possible à tout moment
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Aperçu des dictées */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mt-12 bg-blue-50 rounded-2xl p-8"
+        >
+          <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+            Aperçu des Dictées Disponibles
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {DICTATION_TEXTS.map((dictation, index) => (
+              <div
+                key={dictation.id}
+                className="bg-white rounded-xl p-6 shadow-lg border border-blue-200 opacity-75"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <BookOpen className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(dictation.difficulty)}`}>
+                    {getDifficultyText(dictation.difficulty)}
+                  </span>
+                </div>
+
+                <h4 className="text-lg font-bold text-gray-900 mb-2">{dictation.title}</h4>
+                <p className="text-gray-600 mb-4 text-sm">{dictation.description}</p>
+
+                <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {dictation.estimatedTime} min
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Target className="w-3 h-3" />
+                    {dictation.text.split(' ').length} mots
+                  </div>
+                </div>
+
+                <div className="text-center py-2 text-sm text-blue-600 font-medium">
+                  Disponible avec un abonnement
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+
   if (selectedText) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
@@ -124,140 +264,145 @@ export default function DictationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
-      <Navigation />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* En-tête */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Volume2 className="w-8 h-8 text-blue-600" />
-            </div>
-            <h1 className="text-4xl font-bold text-gray-900">Dictées Audio</h1>
-          </div>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Améliorez votre compréhension orale et votre orthographe avec nos dictées interactives
-          </p>
-        </motion.div>
-
-
-        {/* Statistiques */}
-        {results.length > 0 && (
+    <SubscriptionGuard 
+      requiredPlan="etudiant" 
+      fallback={<DictationUpgradePrompt />}
+    >
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+        <Navigation />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* En-tête */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl p-6 shadow-xl mb-8"
+            className="text-center mb-12"
           >
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Vos résultats</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <Volume2 className="w-8 h-8 text-blue-600" />
+              </div>
+              <h1 className="text-4xl font-bold text-gray-900">Dictées Audio</h1>
+            </div>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Améliorez votre compréhension orale et votre orthographe avec nos dictées interactives
+            </p>
+          </motion.div>
+
+
+          {/* Statistiques */}
+          {results.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-2xl p-6 shadow-xl mb-8"
+            >
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Vos résultats</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600">{results.length}</div>
+                  <div className="text-gray-600">Dictées terminées</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-600">
+                    {Math.round(results.reduce((acc, r) => acc + r.accuracy, 0) / results.length)}%
+                  </div>
+                  <div className="text-gray-600">Précision moyenne</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-purple-600">
+                    {Math.round(results.reduce((acc, r) => acc + r.timeSpent, 0) / results.length / 60)}min
+                  </div>
+                  <div className="text-gray-600">Temps moyen</div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Liste des dictées */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {DICTATION_TEXTS.map((dictation, index) => (
+              <motion.div
+                key={dictation.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ y: -5 }}
+                className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="p-3 bg-blue-100 rounded-lg">
+                    <BookOpen className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(dictation.difficulty)}`}>
+                      {getDifficultyText(dictation.difficulty)}
+                    </span>
+                    {completedDictations.includes(dictation.id) && (
+                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Terminé
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{dictation.title}</h3>
+                <p className="text-gray-600 mb-4">{dictation.description}</p>
+
+                <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    {dictation.estimatedTime} min
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Target className="w-4 h-4" />
+                    {dictation.text.split(' ').length} mots
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setSelectedText(dictation)}
+                  className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  {completedDictations.includes(dictation.id) ? 'Refaire la dictée' : 'Commencer la dictée'}
+                </button>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Instructions */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-12 bg-blue-50 rounded-2xl p-8"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Comment ça marche ?</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600">{results.length}</div>
-                <div className="text-gray-600">Dictées terminées</div>
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Volume2 className="w-6 h-6 text-blue-600" />
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">1. Écoutez</h3>
+                <p className="text-gray-600">Cliquez sur le bouton play pour écouter le texte. Vous pouvez le réécouter autant de fois que nécessaire.</p>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-green-600">
-                  {Math.round(results.reduce((acc, r) => acc + r.accuracy, 0) / results.length)}%
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <BookOpen className="w-6 h-6 text-blue-600" />
                 </div>
-                <div className="text-gray-600">Précision moyenne</div>
+                <h3 className="font-semibold text-gray-900 mb-2">2. Écrivez</h3>
+                <p className="text-gray-600">Tapez ce que vous entendez dans la zone de texte. Prenez votre temps pour bien orthographier.</p>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600">
-                  {Math.round(results.reduce((acc, r) => acc + r.timeSpent, 0) / results.length / 60)}min
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Target className="w-6 h-6 text-blue-600" />
                 </div>
-                <div className="text-gray-600">Temps moyen</div>
+                <h3 className="font-semibold text-gray-900 mb-2">3. Vérifiez</h3>
+                <p className="text-gray-600">Obtenez votre score de précision et comparez avec le texte original pour progresser.</p>
               </div>
             </div>
           </motion.div>
-        )}
-
-        {/* Liste des dictées */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {DICTATION_TEXTS.map((dictation, index) => (
-            <motion.div
-              key={dictation.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ y: -5 }}
-              className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-3 bg-blue-100 rounded-lg">
-                  <BookOpen className="w-6 h-6 text-blue-600" />
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(dictation.difficulty)}`}>
-                    {getDifficultyText(dictation.difficulty)}
-                  </span>
-                  {completedDictations.includes(dictation.id) && (
-                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      Terminé
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{dictation.title}</h3>
-              <p className="text-gray-600 mb-4">{dictation.description}</p>
-
-              <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
-                <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  {dictation.estimatedTime} min
-                </div>
-                <div className="flex items-center gap-1">
-                  <Target className="w-4 h-4" />
-                  {dictation.text.split(' ').length} mots
-                </div>
-              </div>
-
-              <button
-                onClick={() => setSelectedText(dictation)}
-                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-              >
-                {completedDictations.includes(dictation.id) ? 'Refaire la dictée' : 'Commencer la dictée'}
-              </button>
-            </motion.div>
-          ))}
         </div>
-
-        {/* Instructions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-12 bg-blue-50 rounded-2xl p-8"
-        >
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Comment ça marche ?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Volume2 className="w-6 h-6 text-blue-600" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">1. Écoutez</h3>
-              <p className="text-gray-600">Cliquez sur le bouton play pour écouter le texte. Vous pouvez le réécouter autant de fois que nécessaire.</p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <BookOpen className="w-6 h-6 text-blue-600" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">2. Écrivez</h3>
-              <p className="text-gray-600">Tapez ce que vous entendez dans la zone de texte. Prenez votre temps pour bien orthographier.</p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Target className="w-6 h-6 text-blue-600" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">3. Vérifiez</h3>
-              <p className="text-gray-600">Obtenez votre score de précision et comparez avec le texte original pour progresser.</p>
-            </div>
-          </div>
-        </motion.div>
       </div>
-    </div>
+    </SubscriptionGuard>
   );
 }

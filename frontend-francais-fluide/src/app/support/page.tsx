@@ -1,5 +1,306 @@
 'use client';
+'use client';
 
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import { 
+  MessageCircle, 
+  Send, 
+  HelpCircle, 
+  BookOpen, 
+  Mail,
+  CheckCircle,
+  Clock,
+  AlertTriangle
+} from 'lucide-react';
+
+export default function SupportPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState({
+    subject: '',
+    description: '',
+    category: 'general',
+    priority: 'medium'
+  });
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth/login');
+      return;
+    }
+    if (user) {
+      loadTickets();
+    }
+  }, [user, loading, router]);
+
+  const loadTickets = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/support', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTickets(data.data || []);
+      }
+    } catch (error) {
+      console.error('Erreur chargement tickets:', error);
+    }
+  };
+
+  const submitTicket = async () => {
+    if (!form.subject.trim() || !form.description.trim()) return;
+
+    setSubmitting(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/support', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(form)
+      });
+
+      if (res.ok) {
+        setForm({ subject: '', description: '', category: 'general', priority: 'medium' });
+        setCreating(false);
+        await loadTickets();
+      }
+    } catch (error) {
+      console.error('Erreur envoi ticket:', error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch(status) {
+      case 'resolved': return CheckCircle;
+      case 'in_progress': return Clock;
+      case 'open': return MessageCircle;
+      default: return AlertTriangle;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch(status) {
+      case 'resolved': return 'text-green-600 bg-green-100';
+      case 'in_progress': return 'text-yellow-600 bg-yellow-100';
+      case 'open': return 'text-blue-600 bg-blue-100';
+      default: return 'text-gray-600 bg-gray-100';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ← Retour
+              </button>
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900">Support</h1>
+                <p className="text-sm text-gray-500">Centre d'aide et assistance</p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setCreating(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              <MessageCircle className="w-4 h-4" />
+              Nouveau ticket
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Contenu principal */}
+          <div className="lg:col-span-2 space-y-6">
+            {creating && (
+              <div className="bg-white rounded-xl p-6 shadow-sm border">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Nouveau ticket de support</h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Sujet
+                    </label>
+                    <input
+                      type="text"
+                      value={form.subject}
+                      onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Résumez votre problème en quelques mots"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Catégorie
+                      </label>
+                      <select
+                        value={form.category}
+                        onChange={(e) => setForm({ ...form, category: e.target.value })}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="general">Question générale</option>
+                        <option value="technical">Problème technique</option>
+                        <option value="billing">Facturation</option>
+                        <option value="feature">Nouvelle fonctionnalité</option>
+                        <option value="bug">Signaler un bug</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Priorité
+                      </label>
+                      <select
+                        value={form.priority}
+                        onChange={(e) => setForm({ ...form, priority: e.target.value })}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="low">Faible</option>
+                        <option value="medium">Moyenne</option>
+                        <option value="high">Élevée</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Description détaillée
+                    </label>
+                    <textarea
+                      value={form.description}
+                      onChange={(e) => setForm({ ...form, description: e.target.value })}
+                      rows={6}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Décrivez votre problème en détail..."
+                    />
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={submitTicket}
+                      disabled={submitting || !form.subject.trim() || !form.description.trim()}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Send className="w-4 h-4" />
+                      {submitting ? 'Envoi...' : 'Envoyer'}
+                    </button>
+                    <button
+                      onClick={() => setCreating(false)}
+                      className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    >
+                      Annuler
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Liste des tickets */}
+            <div className="bg-white rounded-xl shadow-sm border">
+              <div className="p-6 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Mes demandes de support</h2>
+              </div>
+
+              <div className="divide-y divide-gray-200">
+                {tickets.length === 0 ? (
+                  <div className="p-8 text-center">
+                    <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <p className="text-gray-500">Aucun ticket de support pour le moment</p>
+                  </div>
+                ) : tickets.map((ticket) => {
+                  const StatusIcon = getStatusIcon(ticket.status);
+                  return (
+                    <div key={ticket.id} className="p-6 hover:bg-gray-50">
+                      <div className="flex items-start gap-4">
+                        <div className={`p-2 rounded-lg ${getStatusColor(ticket.status)}`}>
+                          <StatusIcon className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="font-medium text-gray-900">{ticket.subject}</h3>
+                            <span className="text-sm text-gray-500">
+                              {ticket.createdAt ? new Date(ticket.createdAt).toLocaleDateString() : ''}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-2">{ticket.description}</p>
+                          {ticket.response && (
+                            <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                              <p className="text-sm text-blue-900"><strong>Réponse :</strong></p>
+                              <p className="text-sm text-blue-800">{ticket.response}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl p-6 shadow-sm border">
+              <h3 className="font-semibold text-gray-900 mb-4">Aide rapide</h3>
+              <div className="space-y-3">
+                <a
+                  href="/guide"
+                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <BookOpen className="w-5 h-5 text-gray-600" />
+                  <span className="text-sm font-medium">Guide d'utilisation</span>
+                </a>
+                <a
+                  href="#faq"
+                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <HelpCircle className="w-5 h-5 text-gray-600" />
+                  <span className="text-sm font-medium">Questions fréquentes</span>
+                </a>
+                <a
+                  href="mailto:support@francaisfluide.com"
+                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <Mail className="w-5 h-5 text-gray-600" />
+                  <span className="text-sm font-medium">Email direct</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscriptionSimple } from '@/hooks/useSubscriptionSimple';
