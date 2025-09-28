@@ -149,7 +149,7 @@ export default function AdminPage() {
             Seuls les administrateurs peuvent accéder au panneau d'administration.
           </p>
           <div className="flex gap-3 justify-center">
-            <Button onClick={() => window.location.href = '/dashboard'} variant="outline">
+            <Button onClick={() => window.location.href = '/dashboard'} variant="secondary">
               Retour au tableau de bord
             </Button>
             <Button onClick={handleLogout}>
@@ -222,7 +222,7 @@ export default function AdminPage() {
             )}
             <Button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              variant="outline"
+              variant="secondary"
               size="sm"
               className="p-2"
             >
@@ -284,7 +284,7 @@ export default function AdminPage() {
           {sidebarOpen && (
             <Button
               onClick={handleLogout}
-              variant="outline"
+              variant="secondary"
               size="sm"
               className="w-full mt-3 flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
             >
