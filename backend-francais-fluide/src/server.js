@@ -94,7 +94,7 @@ app.use(helmet({
   }
 }));
 
-// CORS configuration sécurisée
+// CORS configuration sécurisée (supporte les previews Vercel)
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
@@ -106,11 +106,22 @@ app.use(cors({
   origin: (origin, callback) => {
     // Permettre les requêtes sans origine (ex: applications mobiles, Postman)
     if (!origin) return callback(null, true);
-    
+
+    // Autoriser les origins explicitement configurés
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    
+
+    // Autoriser les domaines de preview Vercel (*.vercel.app)
+    try {
+      const url = new URL(origin);
+      if (url.hostname.endsWith('.vercel.app')) {
+        return callback(null, true);
+      }
+    } catch (_) {
+      // ignore parsing errors
+    }
+
     console.warn(`[CORS BLOCKED] Origin: ${origin}`);
     return callback(new Error('Non autorisé par CORS'), false);
   },

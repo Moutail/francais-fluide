@@ -16,6 +16,19 @@ const nextConfig = {
   // Configuration des métadonnées
   env: {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || '',
+  },
+  async rewrites() {
+    // En production, si un backend externe est fourni, on proxifie /api/*
+    if (process.env.NEXT_PUBLIC_BACKEND_URL) {
+      return [
+        {
+          source: '/api/:path*',
+          destination: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/:path*`,
+        },
+      ];
+    }
+    return [];
   },
 };
 
