@@ -156,3 +156,26 @@ export function useSubscriptionLimits(userPlan: string = 'free') {
     getUpgradePrompt: (feature: string) => limiter.getUpgradePrompt(feature)
   };
 }
+
+// Utilitaire non-hook pour les contextes non-React (classes, libs)
+export function getSubscriptionLimits(userPlan: string = 'free') {
+  const usage: UsageStats = {
+    aiCorrections: 2,
+    exercisesCompleted: 1,
+    lastResetDate: new Date().toISOString(),
+    planId: userPlan,
+  };
+
+  const limiter = new SubscriptionLimiter(usage);
+  return {
+    limiter,
+    usage,
+    canUseAI: limiter.checkAICorrections().allowed,
+    canUseExercises: limiter.checkExercises().allowed,
+    hasAdvancedAnalytics: limiter.checkFeature('advancedAnalytics'),
+    hasVoiceAssistant: limiter.checkFeature('voiceAssistant'),
+    hasOfflineMode: limiter.checkFeature('offlineMode'),
+    hasCustomExercises: limiter.checkFeature('customExercises'),
+    getUpgradePrompt: (feature: string) => limiter.getUpgradePrompt(feature),
+  };
+}

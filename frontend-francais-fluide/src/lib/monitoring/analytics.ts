@@ -100,11 +100,7 @@ class AnalyticsTracker {
 
       // Initialiser gtag
       window.dataLayer = window.dataLayer || [];
-<<<<<<< Current (Your changes)
-      window.gtag = function(...args: any[]) {
-=======
       window.gtag = (...args: any[]) => {
->>>>>>> Incoming (Background Agent changes)
         window.dataLayer.push(args);
       };
 
@@ -131,9 +127,14 @@ class AnalyticsTracker {
     if (typeof window === 'undefined') return;
 
     try {
+      const domain = ANALYTICS_CONFIG.plausible.domain;
+      if (!domain) {
+        // Domaine non configuré, ignorer l'init Plausible
+        return;
+      }
       const script = document.createElement('script');
       script.defer = true;
-      script.setAttribute('data-domain', ANALYTICS_CONFIG.plausible.domain);
+      script.setAttribute('data-domain', domain as string);
       script.src = `${ANALYTICS_CONFIG.plausible.apiHost}/js/script.js`;
       document.head.appendChild(script);
 

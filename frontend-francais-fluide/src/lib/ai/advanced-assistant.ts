@@ -1,5 +1,5 @@
 // src/lib/ai/advanced-assistant.ts
-import { useSubscriptionLimits } from '../subscription/limits';
+import { getSubscriptionLimits } from '../subscription/limits';
 
 export interface AIAssistantMessage {
   id: string;
@@ -31,7 +31,7 @@ export class AIAssistant {
   }
 
   async askQuestion(question: string, userPlan: string = 'free'): Promise<AIAssistantMessage> {
-    const { limiter } = useSubscriptionLimits(userPlan);
+    const { limiter } = getSubscriptionLimits(userPlan);
     
     // Vérifier les limites d'abonnement
     if (!limiter.checkAICorrections().allowed) {
@@ -160,7 +160,7 @@ export class AIAssistant {
     explanation: string;
     difficulty: 'easy' | 'medium' | 'hard';
   }> {
-    const { limiter } = useSubscriptionLimits(userPlan);
+    const { limiter } = getSubscriptionLimits(userPlan);
     
     if (!limiter.checkFeature('customExercises') && userPlan === 'free') {
       throw new Error('Génération d\'exercices personnalisés disponible uniquement avec un abonnement premium');

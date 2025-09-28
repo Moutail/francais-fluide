@@ -35,9 +35,9 @@ class ApiClient {
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...(options.headers as Record<string, string> | undefined),
     };
 
     if (this.token) {
@@ -46,7 +46,7 @@ class ApiClient {
 
     const config: RequestInit = {
       ...options,
-      headers,
+      headers: headers as HeadersInit,
     };
 
     try {
@@ -126,6 +126,28 @@ class ApiClient {
     }
 
     return response;
+  }
+
+  // Profil utilisateur
+  async updateProfile(data: any) {
+    return this.request<{
+      success: boolean;
+      user: any;
+      error?: string;
+    }>(`/api/auth/profile`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async changePassword(data: { currentPassword: string; newPassword: string }) {
+    return this.request<{
+      success: boolean;
+      error?: string;
+    }>(`/api/auth/change-password`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
   async getProfile() {

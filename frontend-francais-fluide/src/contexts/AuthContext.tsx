@@ -20,6 +20,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAuthenticated: boolean;
+  register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   refreshToken: () => Promise<boolean>;
@@ -138,12 +139,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         errorLogger.info('AUTH', 'Connexion réussie', { userId: response.user?.id });
         return { success: true };
       } else {
-        errorLogger.warn('AUTH', 'Échec de connexion', { email, error: response.error });
-        return { success: false, error: response.error || 'Erreur de connexion' };
+        errorLogger.warn('AUTH', 'Échec de connexion', { email });
+        return { success: false, error: 'Erreur de connexion' };
       }
     } catch (error) {
       logAuthError('login_error', error, { email });
       return { success: false, error: 'Erreur de connexion' };
+    }
+  };
+
+  const register = async (name: string, email: string, password: string) => {
+    try {
+      errorLogger.info('AUTH', 'Tentative d\'inscription', { email });
+      const response = await apiClient.register({ name, email, password });
+
+      if (response.success && (response as any).token) {
+        const token = (response as any).token as string;
+        localStorage.setItem('token', token);
+        apiClient.setToken(token);
+        setUser((response as any).user as any);
+
+        // Nettoyer toute éventuelle session admin précédente (inscription = user standard)
+        document.cookie = `adminSession=; Max-Age=0; Path=/; SameSite=Lax`;
+
+        return { success: true };
+      } else {
+        return { success: false, error: 'Erreur d\'inscription' };
+      }
+    } catch (error) {
+      logAuthError('register_error', error, { email });
+      return { success: false, error: 'Erreur d\'inscription' };
     }
   };
 
@@ -197,6 +222,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       loading,
       isAuthenticated,
+      register,
       login,
       logout,
       refreshToken,

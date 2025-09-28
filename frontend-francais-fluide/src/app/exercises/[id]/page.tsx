@@ -30,27 +30,26 @@ const mockExercises: Exercise[] = [
     type: 'grammar',
     difficulty: 'beginner',
     category: 'Grammaire',
-    instructions: 'Complétez les phrases avec la forme correcte de l\'adjectif',
     content: {
       text: 'Le chat ___ (noir) dort sur le canapé ___ (confortable).',
-      questions: [
-        {
-          id: 'q1',
-          text: 'Complétez la première phrase',
-          type: 'fill-in-the-blank',
-          correctAnswer: 'noir'
-        },
-        {
-          id: 'q2',
-          text: 'Complétez la deuxième phrase',
-          type: 'fill-in-the-blank',
-          correctAnswer: 'confortable'
-        }
-      ]
+      instructions: 'Complétez les phrases avec la forme correcte de l\'adjectif',
     },
-    points: 50,
-    timeLimit: 10,
-    isCompleted: false
+    questions: [
+      {
+        id: 'q1',
+        text: 'Complétez la première phrase',
+        type: 'fill-blank',
+        correctAnswer: 'noir'
+      },
+      {
+        id: 'q2',
+        text: 'Complétez la deuxième phrase',
+        type: 'fill-blank',
+        correctAnswer: 'confortable'
+      }
+    ],
+    estimatedTime: 10,
+    scoring: { maxPoints: 100, timeBonus: 0, accuracyWeight: 1 }
   },
   {
     id: '2',
@@ -59,33 +58,32 @@ const mockExercises: Exercise[] = [
     type: 'grammar',
     difficulty: 'intermediate',
     category: 'Conjugaison',
-    instructions: 'Conjuguez les verbes entre parenthèses au présent',
     content: {
       text: 'Je (manger) ___ une pomme. Tu (finir) ___ tes devoirs. Il (vendre) ___ sa voiture.',
-      questions: [
-        {
-          id: 'q1',
-          text: 'Conjuguez "manger"',
-          type: 'fill-in-the-blank',
-          correctAnswer: 'mange'
-        },
-        {
-          id: 'q2',
-          text: 'Conjuguez "finir"',
-          type: 'fill-in-the-blank',
-          correctAnswer: 'finis'
-        },
-        {
-          id: 'q3',
-          text: 'Conjuguez "vendre"',
-          type: 'fill-in-the-blank',
-          correctAnswer: 'vend'
-        }
-      ]
+      instructions: 'Conjuguez les verbes entre parenthèses au présent',
     },
-    points: 75,
-    timeLimit: 15,
-    isCompleted: false
+    questions: [
+      {
+        id: 'q1',
+        text: 'Conjuguez "manger"',
+        type: 'fill-blank',
+        correctAnswer: 'mange'
+      },
+      {
+        id: 'q2',
+        text: 'Conjuguez "finir"',
+        type: 'fill-blank',
+        correctAnswer: 'finis'
+      },
+      {
+        id: 'q3',
+        text: 'Conjuguez "vendre"',
+        type: 'fill-blank',
+        correctAnswer: 'vend'
+      }
+    ],
+    estimatedTime: 15,
+    scoring: { maxPoints: 100, timeBonus: 0, accuracyWeight: 1 }
   }
 ];
 
@@ -122,7 +120,7 @@ export default function ExercisePage() {
       setExercise(foundExercise);
       setState(prev => ({
         ...prev,
-        timeRemaining: foundExercise.timeLimit || 0
+        timeRemaining: Math.max(0, ((foundExercise.estimatedTime || 0) * 60))
       }));
     }
   }, [exerciseId]);
@@ -173,7 +171,7 @@ export default function ExercisePage() {
     
     setState(prev => {
       const nextIndex = prev.currentQuestion + 1;
-      if (nextIndex >= exercise.content.questions!.length) {
+      if (nextIndex >= (exercise.questions?.length || 0)) {
         // Fin de l'exercice
         const score = calculateScore();
         return {
@@ -200,8 +198,8 @@ export default function ExercisePage() {
   const calculateScore = () => {
     if (!exercise) return 0;
     
-    const questions = exercise.content.questions || [];
-    const correctAnswers = questions.filter(q => {
+    const questions = exercise.questions || [];
+    const correctAnswers = questions.filter((q: Question) => {
       const userAnswer = state.answers[q.id];
       return userAnswer === q.correctAnswer;
     }).length;
@@ -213,7 +211,7 @@ export default function ExercisePage() {
     setState({
       currentQuestion: 0,
       answers: {},
-      timeRemaining: exercise?.timeLimit || 0,
+      timeRemaining: (exercise?.estimatedTime || 0) * 60,
       isStarted: false,
       isCompleted: false,
       score: 0,
@@ -238,8 +236,8 @@ export default function ExercisePage() {
     );
   }
 
-  const currentQuestion = exercise.content.questions?.[state.currentQuestion];
-  const progress = ((state.currentQuestion + 1) / (exercise.content.questions?.length || 1)) * 100;
+  const currentQuestion = exercise.questions?.[state.currentQuestion];
+  const progress = ((state.currentQuestion + 1) / (exercise.questions?.length || 1)) * 100;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -281,10 +279,10 @@ export default function ExercisePage() {
                   
                   <div className="flex items-center gap-2 text-gray-600">
                     <Trophy className="w-4 h-4" />
-                    <span>{exercise.points} pts</span>
+                    <span>{exercise.scoring.maxPoints} pts</span>
                   </div>
                   
-                  {exercise.timeLimit && (
+                  {exercise.estimatedTime && (
                     <div className="flex items-center gap-2 text-gray-600">
                       <Clock className="w-4 h-4" />
                       <span>{formatTime(state.timeRemaining)}</span>
@@ -303,7 +301,7 @@ export default function ExercisePage() {
                 />
               </div>
               <p className="text-sm text-gray-600 mt-2">
-                Question {state.currentQuestion + 1} sur {exercise.content.questions?.length || 0}
+                Question {state.currentQuestion + 1} sur {exercise.questions?.length || 0}
               </p>
             </div>
 
@@ -316,21 +314,21 @@ export default function ExercisePage() {
                     {exercise.title}
                   </h2>
                   <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-                    {exercise.instructions}
+                    {exercise.content.instructions}
                   </p>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                     <div className="text-center p-4 bg-gray-50 rounded-lg">
                       <Target className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                      <p className="font-medium">{exercise.content.questions?.length || 0} questions</p>
+                      <p className="font-medium">{exercise.questions?.length || 0} questions</p>
                     </div>
                     <div className="text-center p-4 bg-gray-50 rounded-lg">
                       <Clock className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                      <p className="font-medium">{exercise.timeLimit} minutes</p>
+                      <p className="font-medium">{exercise.estimatedTime} minutes</p>
                     </div>
                     <div className="text-center p-4 bg-gray-50 rounded-lg">
                       <Trophy className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
-                      <p className="font-medium">{exercise.points} points</p>
+                      <p className="font-medium">{exercise.scoring.maxPoints} points</p>
                     </div>
                   </div>
 
@@ -378,7 +376,7 @@ export default function ExercisePage() {
                       {currentQuestion.text}
                     </h3>
                     
-                    {currentQuestion.type === 'fill-in-the-blank' ? (
+                    {currentQuestion.type === 'fill-blank' ? (
                       <div className="space-y-4">
                         <input
                           type="text"
@@ -390,7 +388,7 @@ export default function ExercisePage() {
                       </div>
                     ) : currentQuestion.type === 'multiple-choice' ? (
                       <div className="space-y-3">
-                        {currentQuestion.options?.map((option, index) => (
+                        {currentQuestion.options?.map((option: string, index: number) => (
                           <label
                             key={index}
                             className="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50"
@@ -406,6 +404,16 @@ export default function ExercisePage() {
                             <span>{option}</span>
                           </label>
                         ))}
+                      </div>
+                    ) : currentQuestion.type === 'fill-blank' ? (
+                      <div className="space-y-4">
+                        <input
+                          type="text"
+                          value={state.answers[currentQuestion.id] || ''}
+                          onChange={(e) => handleAnswer(currentQuestion.id, e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Votre réponse..."
+                        />
                       </div>
                     ) : null}
                   </div>
@@ -423,7 +431,7 @@ export default function ExercisePage() {
                       onClick={nextQuestion}
                       disabled={!state.answers[currentQuestion.id]}
                     >
-                      {state.currentQuestion === (exercise.content.questions?.length || 1) - 1 
+                      {state.currentQuestion === (exercise.questions?.length || 1) - 1 
                         ? 'Terminer' 
                         : 'Suivant'
                       }

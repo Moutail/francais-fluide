@@ -60,21 +60,21 @@ export default function EditorPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
           wordsWritten: newMetrics.wordsWritten,
           accuracy: newMetrics.accuracyRate,
-          timeSpent: Math.floor(newMetrics.timeSpent || 0),
-          exercisesCompleted: newMetrics.exercisesCompleted || 0,
+          // Champs non présents dans ProgressMetrics côté éditeur : valeurs par défaut
+          timeSpent: 0,
+          exercisesCompleted: 0,
           currentStreak: newMetrics.streakCount
         })
-      });
+      })
     } catch (error) {
       console.error('Erreur sauvegarde progression:', error);
     }
   };
-
   const handleSave = async () => {
     setIsSaving(true);
     try {

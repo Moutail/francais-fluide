@@ -434,7 +434,11 @@ export default function ExercicesPage() {
     );
 
     setShowResult(true);
-    setCompletedQuestions(new Set([...completedQuestions, currentQuestionIndex]));
+    // Éviter l'itération via spread sur Set pour compatibilité TS/target
+    const nextCompleted = new Set<number>();
+    completedQuestions.forEach((v) => nextCompleted.add(v));
+    nextCompleted.add(currentQuestionIndex);
+    setCompletedQuestions(nextCompleted);
   };
 
   const nextQuestion = () => {
