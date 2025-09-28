@@ -1,30 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const token = searchParams.get('token');
-    if (!token) {
-      return NextResponse.json({ error: 'Token requis' }, { status: 400 });
+    const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backend) {
+      return NextResponse.json({ error: 'NEXT_PUBLIC_BACKEND_URL non configuré' }, { status: 500 });
     }
 
-    const record = await prisma.emailVerificationToken.findFirst({ where: { token } });
-    if (!record || record.expiresAt < new Date()) {
-      return NextResponse.json({ error: 'Token invalide ou expiré' }, { status: 400 });
-    }
-
-    await prisma.$transaction(async (tx) => {
-      await tx.user.update({ where: { id: record.userId }, data: { emailVerifiedAt: new Date() } });
-      await tx.emailVerificationToken.delete({ where: { userId: record.userId } });
+    const url = new URL(request.url);
+    const query = url.search ? url.search : '';
+    const res = await fetch(`${backend}/api/auth/verify-email${query}`, {
+      method: 'GET',
     });
-
-    return NextResponse.json({ success: true });
+    const data = await res.json().catch(() => ({ error: 'Réponse invalide du backend' }));
+    return NextResponse.json(data, { status: res.status });
   } catch (error) {
-    console.error('Erreur verify-email:', error);
-    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
+    console.error('Erreur proxy verify-email:', error);
+    return NextResponse.json({ error: 'Erreur interne du serveur (proxy verify-email)' }, { status: 500 });
   }
 }
 

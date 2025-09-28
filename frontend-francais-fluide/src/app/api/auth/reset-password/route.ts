@@ -1,31 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
-    const { token, password } = await request.json();
-    if (!token || !password) {
-      return NextResponse.json({ error: 'Token et nouveau mot de passe requis' }, { status: 400 });
+    const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backend) {
+      return NextResponse.json({ error: 'NEXT_PUBLIC_BACKEND_URL non configuré' }, { status: 500 });
     }
 
-    const record = await prisma.passwordResetToken.findFirst({ where: { token } });
-    if (!record || record.expiresAt < new Date()) {
-      return NextResponse.json({ error: 'Token invalide ou expiré' }, { status: 400 });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 12);
-    await prisma.$transaction(async (tx) => {
-      await tx.user.update({ where: { id: record.userId }, data: { password: hashedPassword } });
-      await tx.passwordResetToken.delete({ where: { userId: record.userId } });
+    const body = await request.json().catch(() => ({}));
+    const res = await fetch(`${backend}/api/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
     });
-
-    return NextResponse.json({ success: true });
+    const data = await res.json().catch(() => ({ error: 'Réponse invalide du backend' }));
+    return NextResponse.json(data, { status: res.status });
   } catch (error) {
-    console.error('Erreur reset-password:', error);
-    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
+    console.error('Erreur proxy reset-password:', error);
+    return NextResponse.json({ error: 'Erreur interne du serveur (proxy reset-password)' }, { status: 500 });
   }
 }
 
