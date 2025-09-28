@@ -8,10 +8,18 @@ import AdminBanner from '@/components/admin/AdminBanner';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
-  title: 'FrançaisFluide - Écrivez sans fautes, naturellement',
+  title: {
+    default: 'FrançaisFluide',
+    template: '%s - FrançaisFluide',
+  },
   description: 'L\'application intelligente qui transforme l\'apprentissage du français en une expérience intuitive et engageante. Fini les fautes, bonjour la confiance !',
   keywords: 'français, grammaire, orthographe, apprentissage, IA, correction, exercices',
   authors: [{ name: 'FrançaisFluide Team' }],
+  icons: {
+    icon: '/icons/francaifluide.svg',
+    shortcut: '/icons/francaifluide.svg',
+    apple: '/icons/francaifluide.svg',
+  },
   openGraph: {
     title: 'FrançaisFluide - Écrivez sans fautes, naturellement',
     description: 'L\'application intelligente qui transforme l\'apprentissage du français en une expérience intuitive et engageante.',

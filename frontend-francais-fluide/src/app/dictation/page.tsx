@@ -109,6 +109,21 @@ export default function DictationPage() {
     }
   };
 
+  // Durée réaliste depuis le nombre de mots (approx. 2 mots/sec à rate TTS 0.7)
+  const getDurationSecondsFromText = (text: string) => {
+    const words = text.trim().split(/\s+/).filter(Boolean).length;
+    return Math.max(5, Math.ceil(words / 2)); // minimum 5s pour l'UX
+  };
+
+  const formatDurationLabel = (seconds: number) => {
+    return seconds < 60 ? `${seconds} s` : `${Math.round(seconds / 60)} min`;
+  };
+
+  const getTimeLimitMinutesFromText = (text: string) => {
+    const seconds = getDurationSecondsFromText(text);
+    return Math.max(1, Math.round(seconds / 60));
+  };
+
   // Composant de fallback pour les utilisateurs du plan gratuit
   const DictationUpgradePrompt = () => (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
@@ -225,7 +240,7 @@ export default function DictationPage() {
                 <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
                   <div className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
-                    {dictation.estimatedTime} min
+                    {formatDurationLabel(getDurationSecondsFromText(dictation.text))}
                   </div>
                   <div className="flex items-center gap-1">
                     <Target className="w-3 h-3" />
@@ -250,13 +265,21 @@ export default function DictationPage() {
         <Navigation />
         
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-4">
+            <button
+              onClick={() => setSelectedText(null)}
+              className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700"
+            >
+              ← Retour aux dictées
+            </button>
+          </div>
           <SimpleDictationExercise
             text={selectedText.text}
             onComplete={(userText, isCorrect, timeSpent) => 
               handleDictationComplete(selectedText.id, userText, isCorrect, timeSpent)
             }
             onNext={() => setSelectedText(null)}
-            timeLimit={selectedText.estimatedTime}
+            timeLimit={getTimeLimitMinutesFromText(selectedText.text)}
           />
         </div>
       </div>
@@ -352,7 +375,7 @@ export default function DictationPage() {
                 <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
                   <div className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
-                    {dictation.estimatedTime} min
+                    {formatDurationLabel(getDurationSecondsFromText(dictation.text))}
                   </div>
                   <div className="flex items-center gap-1">
                     <Target className="w-4 h-4" />

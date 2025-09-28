@@ -80,13 +80,28 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       {/* Navigation */}
       <Navigation />
 
       {/* Dashboard Content */}
       <div className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
+          {/* Hero */}
+          <Card className="mb-8 backdrop-blur-sm bg-white/70 border-white/40 shadow-sm">
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
+                    Bonjour {user?.name || 'Utilisateur'} 👋
+                  </h1>
+                  <p className="text-gray-600">
+                    Heureux de vous revoir. Continuez votre progression aujourd'hui.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">

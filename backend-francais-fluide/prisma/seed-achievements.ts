@@ -165,15 +165,15 @@ async function seedAchievements() {
   ];
 
   for (const achievement of achievements) {
-    await prisma.achievement.upsert({
-      where: {
-        // Utiliser une combinaison unique pour éviter les doublons
-        name: achievement.name
-      },
-      update: {},
-      create: achievement
+    const existing = await prisma.achievement.findFirst({
+      where: { name: achievement.name }
     });
-    console.log(`✅ Succès créé: ${achievement.name}`);
+    if (!existing) {
+      await prisma.achievement.create({ data: achievement });
+      console.log(`✅ Succès créé: ${achievement.name}`);
+    } else {
+      console.log(`↪️  Succès déjà présent: ${achievement.name}`);
+    }
   }
 
   console.log(`\n🎉 ${achievements.length} succès créés avec succès !`);

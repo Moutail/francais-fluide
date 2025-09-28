@@ -25,8 +25,9 @@ export default function AdminDictations() {
   const [difficulty, setDifficulty] = useState('');
   const [category, setCategory] = useState('');
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState<any>({ title: '', description: '', difficulty: 'beginner', duration: 60, text: '', audioUrl: '', category: '', tags: [] });
+  const [form, setForm] = useState<any>({ title: '', description: '', difficulty: 'beginner', duration: 10, text: '', audioUrl: '', category: '', tags: [] });
   const [editing, setEditing] = useState<any | null>(null);
+  const [audioDurations, setAudioDurations] = useState<Record<string, number>>({}); // seconds by id
 
   const query = useMemo(() => {
     const q = new URLSearchParams();
@@ -52,6 +53,42 @@ export default function AdminDictations() {
   }
 
   useEffect(() => { if (token) load(); }, [token, query]);
+
+  // Load audio metadata durations for rows that have audioUrl
+  useEffect(() => {
+    const controllers: Array<{ id: string; audio: HTMLAudioElement; onLoad: () => void; onError: () => void; }> = [];
+    items.forEach(d => {
+      if (d?.audioUrl && typeof d.audioUrl === 'string' && !audioDurations[d.id]) {
+        const audio = new Audio();
+        audio.src = d.audioUrl;
+        const onLoad = () => {
+          if (!isFinite(audio.duration) || audio.duration <= 0) return;
+          setAudioDurations(prev => ({ ...prev, [d.id]: Math.round(audio.duration) }));
+        };
+        const onError = () => {
+          // ignore errors; keep est. fallback
+        };
+        audio.addEventListener('loadedmetadata', onLoad);
+        audio.addEventListener('error', onError);
+        controllers.push({ id: d.id, audio, onLoad, onError });
+      }
+    });
+    return () => {
+      controllers.forEach(({ audio, onLoad, onError }) => {
+        audio.removeEventListener('loadedmetadata', onLoad);
+        audio.removeEventListener('error', onError);
+        audio.src = '';
+      });
+    };
+  }, [items, audioDurations]);
+
+  // Utilities
+  const getWordCountFromText = (text: string) => (text || '').trim().split(/\s+/).filter(Boolean).length;
+  const getDurationSecondsFromText = (text: string) => {
+    const words = getWordCountFromText(text);
+    return Math.max(5, Math.ceil(words / 2));
+  };
+  const formatDurationLabel = (seconds: number) => seconds < 60 ? `${seconds}s` : `${Math.round(seconds / 60)} min`;
 
   async function create() {
     try {
@@ -177,7 +214,10 @@ export default function AdminDictations() {
               <option value="intermediate">intermediate</option>
               <option value="advanced">advanced</option>
             </select>
-            <input type="number" min={10} max={600} value={form.duration} onChange={e=>setForm({ ...form, duration: Number(e.target.value) })} className="border rounded px-2 py-1" />
+            <div className="flex items-center gap-2">
+              <input type="number" min={1} max={60} value={form.duration} onChange={e=>setForm({ ...form, duration: Number(e.target.value) })} className="border rounded px-2 py-1 w-24" />
+              <span className="text-sm text-gray-600">min</span>
+            </div>
           </div>
           <textarea placeholder="Description" value={form.description} onChange={e=>setForm({ ...form, description: e.target.value })} className="border rounded px-2 py-1 w-full h-20" />
           <textarea placeholder="Texte de la dictée" value={form.text} onChange={e=>setForm({ ...form, text: e.target.value })} className="border rounded px-2 py-1 w-full h-32" />
@@ -196,6 +236,7 @@ export default function AdminDictations() {
               <th className="px-3 py-2">Titre</th>
               <th className="px-3 py-2">Difficulté</th>
               <th className="px-3 py-2">Catégorie</th>
+              <th className="px-3 py-2">Mots</th>
               <th className="px-3 py-2">Durée</th>
               <th className="px-3 py-2">Actions</th>
             </tr>
@@ -207,22 +248,60 @@ export default function AdminDictations() {
               <tr><td colSpan={5} className="px-3 py-4">Aucune dictée</td></tr>
             ) : items.map(d => (
               <tr key={d.id} className="border-t">
-                <td className="px-3 py-2">{editing?.id === d.id ? (
-                  <input value={editing.title} onChange={e=>setEditing({ ...editing, title: e.target.value })} className="border rounded px-2 py-1" />
-                ) : d.title}</td>
-                <td className="px-3 py-2">{editing?.id === d.id ? (
-                  <select value={editing.difficulty} onChange={e=>setEditing({ ...editing, difficulty: e.target.value })} className="border rounded px-2 py-1">
-                    <option value="beginner">beginner</option>
-                    <option value="intermediate">intermediate</option>
-                    <option value="advanced">advanced</option>
-                  </select>
-                ) : d.difficulty}</td>
-                <td className="px-3 py-2">{editing?.id === d.id ? (
-                  <input value={editing.category || ''} onChange={e=>setEditing({ ...editing, category: e.target.value })} className="border rounded px-2 py-1" />
-                ) : (d.category || '-')}</td>
-                <td className="px-3 py-2">{editing?.id === d.id ? (
-                  <input type="number" value={editing.duration} onChange={e=>setEditing({ ...editing, duration: Number(e.target.value) })} className="border rounded px-2 py-1 w-24" />
-                ) : d.duration}</td>
+                {/* Titre */}
+                <td className="px-3 py-2">
+                  {editing?.id === d.id ? (
+                    <input value={editing.title} onChange={e=>setEditing({ ...editing, title: e.target.value })} className="border rounded px-2 py-1" />
+                  ) : d.title}
+                </td>
+                {/* Difficulté */}
+                <td className="px-3 py-2">
+                  {editing?.id === d.id ? (
+                    <select value={editing.difficulty} onChange={e=>setEditing({ ...editing, difficulty: e.target.value })} className="border rounded px-2 py-1">
+                      <option value="beginner">beginner</option>
+                      <option value="intermediate">intermediate</option>
+                      <option value="advanced">advanced</option>
+                    </select>
+                  ) : d.difficulty}
+                </td>
+                {/* Catégorie */}
+                <td className="px-3 py-2">
+                  {editing?.id === d.id ? (
+                    <input value={editing.category || ''} onChange={e=>setEditing({ ...editing, category: e.target.value })} className="border rounded px-2 py-1" />
+                  ) : (d.category || '-')}
+                </td>
+                {/* Mots */}
+                <td className="px-3 py-2">
+                  {getWordCountFromText(d.text || '')}
+                </td>
+                {/* Durée */}
+                <td className="px-3 py-2">
+                  {editing?.id === d.id ? (
+                    <input type="number" value={editing.duration} onChange={e=>setEditing({ ...editing, duration: Number(e.target.value) })} className="border rounded px-2 py-1 w-24" />
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      {(() => {
+                        const audioSec = audioDurations[d.id];
+                        if (audioSec && Number.isFinite(audioSec)) {
+                          return (
+                            <>
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800">Durée audio</span>
+                              <span>{formatDurationLabel(audioSec)}</span>
+                            </>
+                          );
+                        }
+                        const estSec = getDurationSecondsFromText(d.text || '');
+                        return (
+                          <>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700">Durée estimée</span>
+                            <span>{formatDurationLabel(estSec)}</span>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </td>
+                {/* Actions */}
                 <td className="px-3 py-2 space-x-2">
                   {editing?.id === d.id ? (
                     <>

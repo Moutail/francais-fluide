@@ -1,14 +1,14 @@
 'use client';
 
 import React from 'react';
+import Navigation from '@/components/layout/Navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import DissertationAssistant from '@/components/dissertation/DissertationAssistant';
 import { Card } from '@/components/ui/professional/Card';
 import { Button } from '@/components/ui/professional/Button';
-import { 
+import {
   Crown,
   Sparkles,
-  ArrowRight,
   CheckCircle,
   BookOpen,
   Target,
@@ -18,44 +18,53 @@ import {
 export default function DissertationPage() {
   const { user, loading, isAuthenticated } = useAuth();
 
+  // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="p-8 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement...</p>
-        </Card>
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div className="flex items-center justify-center pt-24">
+          <Card className="p-8 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600">Chargement...</p>
+          </Card>
+        </div>
       </div>
     );
   }
 
+  // Not authenticated
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="p-8 text-center max-w-md">
-          <BookOpen className="w-16 h-16 text-blue-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Connexion requise
-          </h1>
-          <p className="text-gray-600 mb-6">
-            Vous devez être connecté pour accéder à l'assistant de dissertation.
-          </p>
-          <Button onClick={() => window.location.href = '/auth/login'}>
-            Se connecter
-          </Button>
-        </Card>
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div className="flex items-center justify-center pt-24">
+          <Card className="p-8 text-center max-w-md">
+            <BookOpen className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Connexion requise</h1>
+            <p className="text-gray-600 mb-6">
+              Vous devez être connecté pour accéder à l'assistant de dissertation.
+            </p>
+            <Button onClick={() => (window.location.href = '/auth/login')}>
+              Se connecter
+            </Button>
+          </Card>
+        </div>
       </div>
     );
   }
 
-  // Vérifier l'abonnement (côté client pour l'UX, la vérification réelle est côté serveur)
+  // Subscription check
   const hasSubscription = user?.subscription?.status === 'active';
-  const isPremium = hasSubscription && ['premium', 'etablissement'].includes(user?.subscription?.plan);
+  const isPremium =
+    hasSubscription && ['premium', 'etablissement'].includes(user?.subscription?.plan || '');
 
+  // Non-premium: show premium prompt
   if (!isPremium) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
-        <div className="max-w-4xl mx-auto p-6 pt-20">
+        <Navigation />
+        <div className="max-w-4xl mx-auto p-6 pt-24">
           <Card className="p-12 text-center">
             <div className="mb-8">
               <div className="flex items-center justify-center gap-3 mb-6">
@@ -66,7 +75,7 @@ export default function DissertationPage() {
                   <Crown className="w-8 h-8 text-white" />
                 </div>
               </div>
-              
+
               <h1 className="text-4xl font-bold text-gray-900 mb-4">
                 Assistant de Dissertation IA
               </h1>
@@ -75,7 +84,7 @@ export default function DissertationPage() {
               </p>
             </div>
 
-            {/* Fonctionnalités */}
+            {/* Features */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
               <div className="text-left p-6 bg-white rounded-lg border border-gray-200">
                 <div className="flex items-center gap-3 mb-4">
@@ -162,7 +171,7 @@ export default function DissertationPage() {
               </div>
             </div>
 
-            {/* Call to action */}
+            {/* CTA */}
             <div className="space-y-6">
               <div className="p-6 bg-gradient-to-r from-purple-100 to-blue-100 rounded-lg">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -171,14 +180,14 @@ export default function DissertationPage() {
                 <p className="text-gray-700 mb-4">
                   L'assistant de dissertation est disponible avec les abonnements Premium et Établissement.
                 </p>
-                
+
                 {hasSubscription ? (
                   <div className="text-center">
                     <p className="text-lg text-gray-800 mb-4">
                       Votre plan actuel : <strong>{user?.subscription?.plan}</strong>
                     </p>
-                    <Button 
-                      onClick={() => window.location.href = '/subscription'}
+                    <Button
+                      onClick={() => (window.location.href = '/subscription')}
                       className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                     >
                       <Crown className="w-5 h-5 mr-2" />
@@ -187,11 +196,9 @@ export default function DissertationPage() {
                   </div>
                 ) : (
                   <div className="text-center">
-                    <p className="text-gray-700 mb-4">
-                      Aucun abonnement actif
-                    </p>
-                    <Button 
-                      onClick={() => window.location.href = '/subscription'}
+                    <p className="text-gray-700 mb-4">Aucun abonnement actif</p>
+                    <Button
+                      onClick={() => (window.location.href = '/subscription')}
                       className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                     >
                       <Crown className="w-5 h-5 mr-2" />
@@ -202,16 +209,10 @@ export default function DissertationPage() {
               </div>
 
               <div className="flex gap-4 justify-center">
-                <Button
-                  onClick={() => window.location.href = '/dashboard'}
-                  variant="outline"
-                >
+                <Button onClick={() => (window.location.href = '/dashboard')} variant="secondary">
                   Retour au tableau de bord
                 </Button>
-                <Button
-                  onClick={() => window.location.href = '/demo'}
-                  variant="outline"
-                >
+                <Button onClick={() => (window.location.href = '/demo')} variant="secondary">
                   Essayer la démo
                 </Button>
               </div>
@@ -222,9 +223,13 @@ export default function DissertationPage() {
     );
   }
 
+  // Premium view
   return (
     <div className="min-h-screen bg-gray-50">
-      <DissertationAssistant />
+      <Navigation />
+      <div className="pt-20">
+        <DissertationAssistant />
+      </div>
     </div>
   );
 }

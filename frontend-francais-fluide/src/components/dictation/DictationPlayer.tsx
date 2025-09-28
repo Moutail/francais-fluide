@@ -34,6 +34,7 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
   const [timeSpent, setTimeSpent] = useState(0);
   const [playCount, setPlayCount] = useState(0);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+  const [audioDurationSec, setAudioDurationSec] = useState<number | null>(null);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -93,7 +94,7 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
       // Simuler la durée de lecture
       setTimeout(() => {
         setIsPlaying(false);
-      }, dictation.duration * 1000);
+      }, dictation.duration * 60 * 1000);
       
       return;
     }
@@ -112,7 +113,7 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
         console.error('Erreur lecture audio:', error);
         // Fallback: mode simulation
         setIsPlaying(true);
-        setTimeout(() => setIsPlaying(false), dictation.duration * 1000);
+        setTimeout(() => setIsPlaying(false), dictation.duration * 60 * 1000);
       }
     }
   };
@@ -154,7 +155,7 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
   };
 
   const wordCount = userText.trim().split(/\s+/).filter(word => word.length > 0).length;
-  const estimatedDuration = dictation.duration;
+  const estimatedDuration = dictation.duration; // en minutes
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -177,8 +178,14 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
         <div className="flex items-center gap-6 text-sm text-gray-500">
           <div className="flex items-center gap-1">
             <Clock className="w-4 h-4" />
-            <span>Durée estimée: {estimatedDuration}s</span>
+            <span>Durée estimée: {estimatedDuration} min</span>
           </div>
+          {audioDurationSec !== null && (
+            <div className="flex items-center gap-1">
+              <Clock className="w-4 h-4" />
+              <span>Durée audio: {Math.max(1, Math.round(audioDurationSec / 60))} min</span>
+            </div>
+          )}
           <div className="flex items-center gap-1">
             <Volume2 className="w-4 h-4" />
             <span>Écoutes: {playCount}</span>
@@ -200,6 +207,11 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
           <audio
             ref={audioRef}
             onEnded={handleAudioEnd}
+            onLoadedMetadata={() => {
+              if (audioRef.current && !isNaN(audioRef.current.duration)) {
+                setAudioDurationSec(Math.round(audioRef.current.duration));
+              }
+            }}
             preload="metadata"
           >
             <source src={dictation.audioUrl} type="audio/mpeg" />
