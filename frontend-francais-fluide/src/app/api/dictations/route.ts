@@ -1,65 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
-
-// GET /api/dictations - Récupérer toutes les dictées
+// GET /api/dictations - Proxy vers backend
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const difficulty = searchParams.get('difficulty');
-    const category = searchParams.get('category');
+    const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backend) {
+      return NextResponse.json(
+        { success: false, error: 'NEXT_PUBLIC_BACKEND_URL non configuré' },
+        { status: 500 }
+      );
+    }
 
-    const where: any = {};
-    if (difficulty) where.difficulty = difficulty;
-    if (category) where.category = category;
-
-    const dictations = await prisma.dictation.findMany({
-      where,
-      orderBy: { createdAt: 'desc' }
+    const url = new URL(request.url);
+    const query = url.search ? url.search : '';
+    const res = await fetch(`${backend}/api/dictations${query}`, {
+      method: 'GET',
     });
-
-    return NextResponse.json({
-      success: true,
-      data: dictations
-    });
-
+    const data = await res.json().catch(() => ({ success: false, error: 'Réponse invalide du backend' }));
+    return NextResponse.json(data, { status: res.status });
   } catch (error) {
-    console.error('Erreur récupération dictées:', error);
+    console.error('Erreur proxy récupération dictées:', error);
     return NextResponse.json(
-      { success: false, error: 'Erreur interne du serveur' },
+      { success: false, error: 'Erreur interne du serveur (proxy dictations GET)' },
       { status: 500 }
     );
   }
 }
 
-// POST /api/dictations - Créer une nouvelle dictée
+// POST /api/dictations - Proxy vers backend
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { title, description, difficulty, duration, text, category, tags } = body;
+    const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backend) {
+      return NextResponse.json(
+        { success: false, error: 'NEXT_PUBLIC_BACKEND_URL non configuré' },
+        { status: 500 }
+      );
+    }
 
-    const dictation = await prisma.dictation.create({
-      data: {
-        title,
-        description,
-        difficulty,
-        duration,
-        text,
-        category,
-        tags: JSON.stringify(tags || [])
-      }
+    const body = await request.json().catch(() => ({}));
+    const res = await fetch(`${backend}/api/dictations`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
     });
-
-    return NextResponse.json({
-      success: true,
-      data: dictation
-    }, { status: 201 });
-
+    const data = await res.json().catch(() => ({ success: false, error: 'Réponse invalide du backend' }));
+    return NextResponse.json(data, { status: res.status });
   } catch (error) {
-    console.error('Erreur création dictée:', error);
+    console.error('Erreur proxy création dictée:', error);
     return NextResponse.json(
-      { success: false, error: 'Erreur interne du serveur' },
+      { success: false, error: 'Erreur interne du serveur (proxy dictations POST)' },
       { status: 500 }
     );
   }
