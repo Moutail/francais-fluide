@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ExerciseSelector from '@/components/exercises/ExerciseSelector';
 import ExercisePlayer from '@/components/exercises/ExercisePlayer';
 import { Card, Button, Badge } from '@/components/ui';
-import { exerciseGamification } from '@/lib/exercises/gamification';
+import { exerciseGamification, ExerciseStats } from '@/lib/exercises/gamification';
 import { exerciseGenerator } from '@/lib/exercises/generator';
-import type { Exercise, ExerciseResult, UserProfile, ExerciseStats } from '@/types';
+import type { Exercise, ExerciseResult, UserProfile } from '@/types';
 
 // Mock user profile - à remplacer par les vraies données
 const mockUserProfile: UserProfile = {
@@ -15,21 +15,25 @@ const mockUserProfile: UserProfile = {
   name: 'Utilisateur Test',
   email: 'test@example.com',
   level: 'intermediate',
+  nativeLanguage: 'fr',
+  weaknesses: [],
+  strengths: [],
   preferences: {
-    difficulty: 'intermediate',
-    exerciseTypes: ['grammar', 'vocabulary'],
-    notifications: true
+    realTimeCorrection: true,
+    soundEffects: false,
+    animations: true,
+    difficulty: 'medium'
   },
   statistics: {
-    totalExercises: 0,
-    averageScore: 0,
-    totalTimeSpent: 0,
-    currentStreak: 0,
-    bestStreak: 0,
+    totalWords: 0,
+    totalErrors: 0,
+    totalCorrections: 0,
     accuracyRate: 0,
-    level: 1,
-    xp: 0,
-    nextLevelXp: 1000
+    dailyStreak: 0,
+    bestStreak: 0,
+    totalPracticeTime: 0,
+    lastPracticeDate: new Date(),
+    progressByCategory: {}
   }
 };
 

@@ -18,6 +18,8 @@ export interface GrammarCheckResult {
     limit: number;
     remaining: number;
   };
+  // Certains chemins backend incluent "fallback" dans data
+  fallback?: boolean;
 }
 
 export class GrammarCheckService {
@@ -26,13 +28,18 @@ export class GrammarCheckService {
     data?: GrammarCheckResult;
     error?: string;
     upgradeRequired?: boolean;
+    // Le backend renvoie parfois ces champs au niveau racine
+    service?: 'openai' | 'anthropic' | 'languagetool' | 'fallback' | string;
+    fallback?: boolean;
   }> {
     try {
-      const response = await apiClient.request<{
+      const response = await apiClient.makeRequest<{
         success: boolean;
         data: GrammarCheckResult;
         error?: string;
         upgradeRequired?: boolean;
+        service?: 'openai' | 'anthropic' | 'languagetool' | 'fallback' | string;
+        fallback?: boolean;
       }>('/api/grammar-check/check', {
         method: 'POST',
         body: JSON.stringify({ text, language })

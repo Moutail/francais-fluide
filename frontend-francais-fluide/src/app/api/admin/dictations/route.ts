@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-const BACKEND_BASE = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { backendUrl } from '../../_utils/backend';
 
 export async function GET(request: NextRequest) {
   const qs = request.nextUrl.search;
-  const res = await fetch(`${BACKEND_BASE}/api/admin/dictations${qs}`, {
+  const res = await fetch(backendUrl(`/api/admin/dictations${qs}`), {
     headers: { Authorization: request.headers.get('authorization') || '' }
   });
   const data = await res.json();
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
-  const res = await fetch(`${BACKEND_BASE}/api/admin/dictations`, {
+  const res = await fetch(backendUrl('/api/admin/dictations'), {
     method: 'POST',
     headers: {
       Authorization: request.headers.get('authorization') || '',

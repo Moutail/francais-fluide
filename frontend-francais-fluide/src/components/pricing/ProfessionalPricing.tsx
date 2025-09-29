@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/professional/Card';
 import { Button } from '@/components/ui/professional/Button';
-import { Check, Star, Users, Building } from 'lucide-react';
+import { Check, Star, Users, Building, FileText } from 'lucide-react';
 
 interface PricingPlan {
   id: string;

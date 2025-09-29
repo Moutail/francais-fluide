@@ -1,4 +1,4 @@
-import type { ExerciseResult, UserProfile, Achievement } from '@/types';
+import type { ExerciseResult, UserProfile, Difficulty } from '@/types';
 import { exerciseGenerator } from './generator';
 
 // Types pour la gamification des exercices
@@ -15,8 +15,14 @@ export interface ExerciseStats {
   nextLevelXp: number;
 }
 
-export interface ExerciseAchievement extends Achievement {
+export interface ExerciseAchievement {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
   category: 'exercise';
+  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+  xp: number;
   criteria: {
     type: 'score' | 'streak' | 'time' | 'accuracy' | 'completion';
     value: number;
@@ -237,7 +243,7 @@ export class ExerciseGamification {
   }
 
   // Calculer la difficulté recommandée
-  calculateRecommendedDifficulty(stats: ExerciseStats): string {
+  calculateRecommendedDifficulty(stats: ExerciseStats): Difficulty {
     if (stats.averageScore >= 90 && stats.accuracyRate >= 0.9) {
       return 'advanced';
     } else if (stats.averageScore >= 70 && stats.accuracyRate >= 0.7) {

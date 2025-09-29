@@ -75,7 +75,7 @@ class LazyErrorBoundary extends React.Component<
 // Enregistrement des composants avec configuration optimisée
 intelligentLazyLoader.registerComponent(
   'SmartEditor',
-  () => import('@/components/editor/SmartEditorOptimized'),
+  () => import('@/components/editor/SmartEditorOptimized').then(m => ({ default: m.SmartEditorOptimized })),
   {
     preload: true,
     priority: 'high',
@@ -86,7 +86,7 @@ intelligentLazyLoader.registerComponent(
 
 intelligentLazyLoader.registerComponent(
   'AnalyticsDashboard',
-  () => import('@/components/analytics/AnalyticsDashboard'),
+  () => import('@/components/analytics/AnalyticsDashboard').then(m => ({ default: m.AnalyticsDashboard })),
   {
     preload: false,
     priority: 'medium',
@@ -130,46 +130,54 @@ intelligentLazyLoader.registerComponent(
 
 // Composants lazy avec React.lazy pour compatibilité
 export const LazySmartEditor = lazy(() => 
-  import('@/components/editor/SmartEditorOptimized').catch(() => ({
-    default: () => <ErrorFallback message="Éditeur intelligent non disponible" />
-  }))
+  import('@/components/editor/SmartEditorOptimized')
+    .then(m => ({ default: m.SmartEditorOptimized }))
+    .catch(() => ({
+      default: () => <LoadingFallback message="Éditeur intelligent non disponible" />
+    }))
 );
 
 export const LazyAnalyticsDashboard = lazy(() =>
-  import('@/components/analytics/AnalyticsDashboard').catch(() => ({
-    default: () => <ErrorFallback message="Tableau de bord non disponible" />
-  }))
+  import('@/components/analytics/AnalyticsDashboard')
+    .then(m => ({ default: m.AnalyticsDashboard }))
+    .catch(() => ({
+      default: () => <LoadingFallback message="Tableau de bord non disponible" />
+    }))
 );
 
 export const LazyExercisePlayer = lazy(() =>
   import('@/components/exercises/ExercisePlayer').catch(() => ({
-    default: () => <ErrorFallback message="Lecteur d'exercices non disponible" />
+    default: () => <LoadingFallback message="Lecteur d'exercices non disponible" />
   }))
 );
 
 export const LazyProgressDashboard = lazy(() =>
   import('@/components/gamification/ProgressDashboard').catch(() => ({
-    default: () => <ErrorFallback message="Tableau de progression non disponible" />
+    default: () => <LoadingFallback message="Tableau de progression non disponible" />
   }))
 );
 
 export const LazyCollaborativeEditor = lazy(() =>
   import('@/components/editor/CollaborativeEditor').catch(() => ({
-    default: () => <ErrorFallback message="Éditeur collaboratif non disponible" />
+    default: () => <LoadingFallback message="Éditeur collaboratif non disponible" />
   }))
 );
 
 // Composants avec préchargement intelligent
 export const LazyCharts = lazy(() =>
-  import('@/components/charts').catch(() => ({
-    default: () => <ErrorFallback message="Graphiques non disponibles" />
-  }))
+  import('@/components/charts/ProgressChart')
+    .then(m => ({ default: m.default }))
+    .catch(() => ({
+      default: () => <LoadingFallback message="Graphiques non disponibles" />
+    }))
 );
 
 export const LazyGamificationComponents = lazy(() =>
-  import('@/components/gamification').catch(() => ({
-    default: () => <ErrorFallback message="Composants de gamification non disponibles" />
-  }))
+  import('@/components/gamification/ProgressDashboard')
+    .then(m => ({ default: m.default }))
+    .catch(() => ({
+      default: () => <LoadingFallback message="Composants de gamification non disponibles" />
+    }))
 );
 
 // Wrappers avec Suspense et ErrorBoundary

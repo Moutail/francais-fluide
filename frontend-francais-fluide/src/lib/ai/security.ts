@@ -75,6 +75,26 @@ export interface SecurityEvent {
   metadata?: any;
 }
 
+// Types de statistiques de sécurité renvoyées par le gestionnaire
+export interface SecurityStats {
+  rateLimiting: {
+    activeLimiters: number;
+    blockedUsers: number;
+  };
+  costTracking: Record<string, CostInfo>;
+  securityEvents: {
+    total: number;
+    recent: number;
+    weekly: number;
+    byType: Record<SecurityEvent['type'], number>;
+    bySeverity: Record<SecurityEvent['severity'], number>;
+  };
+  apiKeys: {
+    providers: string[];
+    rotationEnabled: boolean;
+  };
+}
+
 // Configuration par défaut
 const DEFAULT_SECURITY_CONFIG: SecurityConfig = {
   rateLimiting: {
@@ -500,7 +520,7 @@ class AISecurityManager {
   /**
    * Obtient les statistiques de sécurité
    */
-  public getSecurityStats(): any {
+  public getSecurityStats(): SecurityStats {
     const now = Date.now();
     const oneDayAgo = now - (24 * 60 * 60 * 1000);
     const oneWeekAgo = now - (7 * 24 * 60 * 60 * 1000);
@@ -511,12 +531,12 @@ class AISecurityManager {
     const eventCounts = recentEvents.reduce((counts, event) => {
       counts[event.type] = (counts[event.type] || 0) + 1;
       return counts;
-    }, {} as Record<string, number>);
+    }, {} as Record<SecurityEvent['type'], number>);
 
     const severityCounts = recentEvents.reduce((counts, event) => {
       counts[event.severity] = (counts[event.severity] || 0) + 1;
       return counts;
-    }, {} as Record<string, number>);
+    }, {} as Record<SecurityEvent['severity'], number>);
 
     return {
       rateLimiting: {
@@ -607,7 +627,7 @@ export const aiSecurityManager = new AISecurityManager();
 
 // Hook React pour utiliser le gestionnaire de sécurité
 export const useAISecurity = () => {
-  const [stats, setStats] = React.useState(aiSecurityManager.getSecurityStats());
+  const [stats, setStats] = React.useState<SecurityStats>(aiSecurityManager.getSecurityStats());
 
   React.useEffect(() => {
     const interval = setInterval(() => {

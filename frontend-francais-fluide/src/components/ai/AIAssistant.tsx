@@ -22,7 +22,7 @@ import {
   Settings,
   X
 } from 'lucide-react';
-import { useAICorrections } from '@/lib/ai/advanced-corrections';
+import { useAdvancedCorrections } from '@/lib/ai/advanced-corrections';
 import { useAIContentGenerator } from '@/lib/ai/content-generator';
 
 // Types pour l'assistant
@@ -37,6 +37,19 @@ interface ChatMessage {
     sources?: string[];
     relatedTopics?: string[];
   };
+}
+
+// Types pour les corrections
+interface CorrectionItem {
+  original: string;
+  corrected: string;
+  explanation: string;
+}
+
+interface CorrectionResult {
+  corrections: CorrectionItem[];
+  suggestions: string[];
+  confidence: number;
 }
 
 interface AIAssistantProps {
@@ -86,7 +99,35 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
   const recognitionRef = useRef<any>(null);
 
   // Hooks pour les services IA
-  const { correctText, isLoading: isCorrecting } = useAICorrections();
+  const { analyzeText } = useAdvancedCorrections(process.env.NEXT_PUBLIC_OPENAI_API_KEY || '');
+  // Adaptateur local pour conserver l'API attendue par le composant
+  const correctText = useCallback(async ({ text, level }: { text: string; level: 'beginner' | 'intermediate' | 'advanced'; focus?: string }): Promise<CorrectionResult> => {
+    const results = await analyzeText({
+      text,
+      userProfile: {
+        id: 'current',
+        level,
+        weakPoints: [],
+        strongPoints: [],
+        learningStyle: 'mixed',
+        preferredDifficulty: 'medium',
+        recentErrors: [],
+        progressHistory: []
+      },
+      subscriptionPlan: 'demo'
+    });
+    const avgConfidence = results.length ? (results.reduce((a, c) => a + (c.confidence || 0), 0) / results.length) : 0.8;
+    return {
+      corrections: results.map(r => ({
+        original: r.originalText,
+        corrected: r.suggestedText,
+        explanation: r.explanation
+      })),
+      suggestions: [],
+      confidence: avgConfidence
+    };
+  }, [analyzeText]);
+  const isCorrecting = false;
   const { generateExplanation, generateExercise, isGenerating } = useAIContentGenerator();
 
   // Initialiser la reconnaissance vocale

@@ -24,12 +24,15 @@ export function useSubscriptionSimple() {
       limits: {
         aiCorrections: 5,
         exercisesPerDay: 3,
+        dictationsPerDay: 0,
         advancedAnalytics: false,
         prioritySupport: false,
         exportData: false,
         customExercises: false,
         voiceAssistant: false,
-        offlineMode: false
+        offlineMode: false,
+        intelligentTutor: false,
+        personalizedLearning: false
       }
     };
 
@@ -79,7 +82,10 @@ export function useSubscriptionSimple() {
     if (!isActive) return false;
 
     const limit = limits[featureKey];
-    return limit === -1 || limit > 0; // -1 means unlimited
+    // Boolean limits represent enable/disable directly
+    if (typeof limit === 'boolean') return limit;
+    // Numeric limits: -1 means unlimited, > 0 means available
+    return limit === -1 || limit > 0;
   };
 
   const isActive = (): boolean => {

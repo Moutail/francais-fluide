@@ -19,6 +19,8 @@ export default function RateLimitDebug() {
     status: number;
     timestamp: string;
     success: boolean;
+    responseTime?: number;
+    error?: string;
   }>>([]);
   const isMounted = useIsMounted();
 
@@ -36,7 +38,14 @@ export default function RateLimitDebug() {
       '/api/exercises'
     ];
 
-    const results = [];
+    const results: Array<{
+      endpoint: string;
+      status: number;
+      timestamp: string;
+      success: boolean;
+      responseTime?: number;
+      error?: string;
+    }> = [];
     
     for (const endpoint of endpoints) {
       try {

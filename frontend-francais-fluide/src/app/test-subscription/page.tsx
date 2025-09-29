@@ -176,6 +176,11 @@ export default function TestSubscriptionPage() {
     );
   }
 
+  // Safety guard: ensure user is non-null after authentication
+  if (!user) {
+    return null;
+  }
+
   const userPlan = user?.subscription?.plan || 'demo';
   const currentPlan = SUBSCRIPTION_PLANS.find(p => p.id === userPlan);
   const PlanIcon = PLAN_ICONS[userPlan as keyof typeof PLAN_ICONS];

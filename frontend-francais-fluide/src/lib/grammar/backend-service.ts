@@ -1,6 +1,6 @@
 // src/lib/grammar/backend-service.ts
 import { grammarDetector } from './detector';
-import type { GrammarError, TextAnalysis, CorrectionResult } from '@/types';
+import type { GrammarError, TextAnalysis, CorrectionResult, Suggestion } from '@/types';
 
 // Configuration du service backend
 export interface BackendServiceConfig {
@@ -306,7 +306,7 @@ export class GrammarBackendService {
 
     // Combiner les résultats
     const allErrors = [...localResult.errors, ...ltErrors];
-    allErrors.sort((a, b) => a.offset - b.offset);
+    allErrors.sort((a, b) => a.start - b.start);
 
     // Limiter le nombre d'erreurs
     const limitedErrors = allErrors.slice(0, maxErrors);
@@ -314,7 +314,8 @@ export class GrammarBackendService {
     const result: TextAnalysis = {
       text,
       errors: limitedErrors,
-      statistics: localResult.statistics
+      statistics: localResult.statistics,
+      suggestions: this.buildSuggestions(limitedErrors)
     };
 
     // Mettre en cache
@@ -341,29 +342,24 @@ export class GrammarBackendService {
         const checkResult = rule.check(match);
         if (checkResult) {
           advancedErrors.push({
-            offset: match.index,
-            length: match[0].length,
+            id: rule.id,
+            type: rule.category as 'spelling' | 'grammar' | 'punctuation' | 'style',
+            severity: rule.severity as 'critical' | 'warning' | 'suggestion',
             message: checkResult.message,
-            replacements: checkResult.suggestions,
-            rule: {
-              id: rule.id,
-              category: rule.category as 'spelling' | 'grammar' | 'punctuation' | 'style',
-              severity: rule.severity as 'critical' | 'warning' | 'suggestion'
-            },
-            context: {
-              text: text,
-              offset: match.index,
-              length: match[0].length
-            }
+            start: match.index,
+            end: match.index + match[0].length,
+            suggestions: checkResult.suggestions
           });
         }
       }
     }
     
+    const combinedErrors: GrammarError[] = [...result.errors, ...advancedErrors];
     return {
       text,
-      errors: [...result.errors, ...advancedErrors],
-      statistics: result.statistics
+      errors: combinedErrors,
+      statistics: result.statistics,
+      suggestions: this.buildSuggestions(combinedErrors)
     };
   }
 
@@ -390,20 +386,13 @@ export class GrammarBackendService {
       const data = await response.json();
       
       return data.matches?.map((match: any) => ({
-        offset: match.offset,
-        length: match.length,
+        id: `lt_${match.rule?.id || 'unknown'}`,
+        type: (match.rule?.category?.id as 'spelling' | 'grammar' | 'punctuation' | 'style') || 'grammar',
+        severity: match.rule?.issueType === 'misspelling' ? 'critical' : 'warning',
         message: match.message,
-        replacements: match.replacements?.map((r: any) => r.value) || [],
-        rule: {
-          id: `lt_${match.rule?.id || 'unknown'}`,
-          category: match.rule?.category?.id || 'grammar',
-          severity: match.rule?.issueType === 'misspelling' ? 'critical' : 'warning'
-        },
-        context: {
-          text: text,
-          offset: match.offset,
-          length: match.length
-        }
+        start: match.offset,
+        end: match.offset + match.length,
+        suggestions: match.replacements?.map((r: any) => r.value) || []
       })) || [];
     } catch (error) {
       console.error('LanguageTool error:', error);
@@ -485,6 +474,29 @@ export class GrammarBackendService {
     });
     
     return correctedText;
+  }
+
+  // Génère des suggestions globales à partir des remplacements d'erreurs
+  private buildSuggestions(errors: GrammarError[]): Suggestion[] {
+    const suggestions: Suggestion[] = [];
+    const seen = new Set<string>();
+
+    for (const err of errors) {
+      const replacements: string[] = err.suggestions || (err as any).replacements || [];
+      for (const rep of replacements) {
+        const key = `${rep}|${err.message}`;
+        if (rep && !seen.has(key)) {
+          seen.add(key);
+          suggestions.push({
+            text: rep,
+            confidence: 0.6,
+            explanation: err.message
+          });
+        }
+      }
+    }
+
+    return suggestions;
   }
 }
 

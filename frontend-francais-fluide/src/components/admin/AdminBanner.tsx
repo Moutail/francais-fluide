@@ -35,7 +35,7 @@ export default function AdminBanner() {
         <div className="flex items-center gap-3">
           <Button
             onClick={() => window.location.href = '/admin'}
-            variant="outline"
+            variant="secondary"
             size="sm"
             className="bg-white/10 border-white/30 text-white hover:bg-white/20"
           >

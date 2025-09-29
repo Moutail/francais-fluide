@@ -1,11 +1,12 @@
 // src/app/api/subscription/cancel/route.ts
 import { NextRequest, NextResponse } from 'next/server';
+import { backendUrl } from '../../_utils/backend';
 
 // POST /api/subscription/cancel - Proxy vers le backend
 export async function POST(request: NextRequest) {
   try {
     const token = request.headers.get('authorization') || '';
-    const resp = await fetch('http://localhost:3001/api/subscription/cancel', {
+    const resp = await fetch(backendUrl('/api/subscription/cancel'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

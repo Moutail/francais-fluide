@@ -16,6 +16,14 @@ export interface Suggestion {
   explanation: string;
 }
 
+export interface GrammarRule {
+  id: string;
+  category: 'spelling' | 'grammar' | 'punctuation' | 'style';
+  severity: 'critical' | 'warning' | 'suggestion';
+  pattern: RegExp;
+  check: (match: RegExpExecArray) => { message: string; suggestions: string[] } | null;
+}
+
 export interface CorrectionResult {
   originalText: string;
   correctedText: string;

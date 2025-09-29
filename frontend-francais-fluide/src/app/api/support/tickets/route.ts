@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { backendUrl } from '../../_utils/backend';
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +13,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Récupérer les tickets depuis le backend
-    const response = await fetch('http://localhost:3001/api/support/tickets', {
+    const response = await fetch(backendUrl('/api/support/tickets'), {
       method: 'GET',
       headers: {
         'Authorization': authHeader

@@ -4,6 +4,11 @@
  * Point d'entrée pour tous les outils de monitoring de FrançaisFluide
  */
 
+import React from 'react';
+import { errorTracker } from './error-tracking';
+import { analyticsTracker } from './analytics';
+import { performanceMonitor } from './performance-monitoring';
+
 // Error tracking
 export { errorTracker, useErrorTracking } from './error-tracking';
 export type { ErrorContext, PerformanceContext, UserFeedback } from './error-tracking';
@@ -115,5 +120,3 @@ export const DEFAULT_MONITORING_CONFIG = {
   }
 };
 
-// Import React pour les hooks
-import React from 'react';

@@ -199,10 +199,10 @@ export default function PersistenceTestPage() {
                 Éditeur de Document
               </h3>
               <div className="flex items-center gap-2">
-                <Badge variant={hasUnsavedChanges ? 'destructive' : 'success'}>
+                <Badge variant={hasUnsavedChanges ? 'error' : 'success'}>
                   {hasUnsavedChanges ? 'Non sauvegardé' : 'Sauvegardé'}
                 </Badge>
-                <Badge variant={isSaving ? 'default' : 'outline'}>
+                <Badge variant={isSaving ? 'default' : 'secondary'}>
                   {isSaving ? 'Sauvegarde...' : 'Inactif'}
                 </Badge>
               </div>

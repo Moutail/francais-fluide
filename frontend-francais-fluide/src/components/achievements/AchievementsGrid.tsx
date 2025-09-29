@@ -216,7 +216,7 @@ export default function AchievementsGrid({
                 <Button
                   key={option.value}
                   onClick={() => setFilter(option.value)}
-                  variant={filter === option.value ? "primary" : "outline"}
+                  variant={filter === option.value ? "primary" : "secondary"}
                   size="sm"
                   className="flex items-center gap-1"
                 >

@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, Button, Badge } from '@/components/ui';
 import { useCollaboration } from '@/hooks/useCollaboration';
-import type { UserProfile, CursorPosition, TextSelection } from '@/types';
+import type { UserProfile } from '@/types';
+import type { CursorPosition, TextSelection } from '@/lib/websocket/collaboration';
 
 interface CollaborativeEditorProps {
   userProfile: UserProfile;
@@ -170,7 +171,7 @@ export default function CollaborativeEditor({
   }, [content, onContentChange, isTyping, sendTypingStarted, sendTypingStopped, updateDocumentContent]);
 
   // Gérer le mouvement du curseur
-  const handleCursorMove = useCallback((event: React.MouseEvent<HTMLTextAreaElement>) => {
+  const updateCursorPosition = useCallback(() => {
     if (!editorRef.current) return;
     
     const textarea = editorRef.current;
@@ -188,6 +189,14 @@ export default function CollaborativeEditor({
     
     sendCursorPosition(cursor);
   }, [sendCursorPosition]);
+
+  const handleCursorMoveMouse = useCallback((event: React.MouseEvent<HTMLTextAreaElement>) => {
+    updateCursorPosition();
+  }, [updateCursorPosition]);
+
+  const handleCursorMoveKey = useCallback((event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    updateCursorPosition();
+  }, [updateCursorPosition]);
 
   // Gérer la sélection de texte
   const handleTextSelection = useCallback((event: React.MouseEvent<HTMLTextAreaElement>) => {
@@ -390,9 +399,9 @@ export default function CollaborativeEditor({
             ref={editorRef}
             value={content}
             onChange={(e) => handleContentChange(e.target.value)}
-            onMouseMove={handleCursorMove}
+            onMouseMove={handleCursorMoveMouse}
             onMouseUp={handleTextSelection}
-            onKeyUp={handleCursorMove}
+            onKeyUp={handleCursorMoveKey}
             placeholder="Commencez à écrire... Les autres utilisateurs verront vos modifications en temps réel."
             className="w-full h-full p-4 border-0 resize-none focus:outline-none font-mono text-sm leading-relaxed"
             readOnly={readOnly || currentRoom?.isLocked}

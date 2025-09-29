@@ -45,7 +45,7 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
     
     if (onProgressUpdate) {
       const metrics: ProgressMetrics = {
-        wordsWritten: newText.trim().split(/\s+/).length,
+        wordsWritten: newText.trim() ? newText.trim().split(/\s+/).length : 0,
         errorsDetected: grammarErrors.length,
         errorsCorrected: 0,
         accuracyRate: grammarErrors.length > 0 ? Math.max(0, 100 - (grammarErrors.length * 10)) : 100,
@@ -53,9 +53,9 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
       };
       onProgressUpdate(metrics);
     }
-  }, [onProgressUpdate, grammarErrors.length]);
+  }, [grammarErrors.length, onProgressUpdate]);
 
-  const checkGrammar = async () => {
+  const checkGrammar = useCallback(async () => {
     if (!text.trim()) return;
     
     setIsCheckingGrammar(true);
@@ -66,7 +66,7 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
         setGrammarErrors(result.data.errors);
         setCorrectedText(result.data.correctedText);
         setShowCorrections(true);
-        setIsFallbackMode(result.data.fallback || false);
+        setIsFallbackMode((result.fallback ?? result.data?.fallback) || false);
         setServiceUsed(result.service || 'fallback');
         
         if (onProgressUpdate) {
@@ -87,7 +87,7 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
     } finally {
       setIsCheckingGrammar(false);
     }
-  };
+  }, [onProgressUpdate, text]);
 
   const applyCorrection = (error: GrammarError) => {
     // Remplacer seulement la première occurrence de l'erreur

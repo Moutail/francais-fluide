@@ -80,8 +80,8 @@ export async function testGrammarBackend() {
         console.log(`   Erreurs trouvées:`);
         result.errors.forEach((error, index) => {
           console.log(`     ${index + 1}. ${error.message}`);
-          if (error.replacements.length > 0) {
-            console.log(`        Suggestions: ${error.replacements.join(', ')}`);
+          if (error.suggestions.length > 0) {
+            console.log(`        Suggestions: ${error.suggestions.join(', ')}`);
           }
         });
       }

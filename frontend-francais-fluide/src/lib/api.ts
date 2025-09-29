@@ -105,6 +105,7 @@ class ApiClient {
       success: boolean;
       user: { id: string; email: string; name: string };
       token: string;
+      error?: string;
     }>('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -116,6 +117,7 @@ class ApiClient {
       success: boolean;
       user: any;
       token: string;
+      error?: string;
     }>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -186,6 +188,7 @@ class ApiClient {
         analysis: any;
         metrics: any;
       };
+      error?: string;
     }>('/api/grammar/analyze', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -219,6 +222,7 @@ class ApiClient {
     return this.request<{
       success: boolean;
       data: any;
+      error?: string;
     }>('/api/progress', {
       method: 'PUT',
       body: JSON.stringify(data),

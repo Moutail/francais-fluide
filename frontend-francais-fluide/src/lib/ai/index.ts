@@ -4,13 +4,38 @@
  * Point d'entrée pour tous les outils IA de FrançaisFluide
  */
 
+// Imports nécessaires pour l'utilisation locale
+import React from 'react';
+import { aiSecurityManager } from './security';
+import { apiManager } from './api-manager';
+import { aiContentGenerator } from './content-generator';
+import type { QuotaInfo } from './api-manager';
+
+// Types locaux pour typer les stats retournées par apiManager.getAPIStats()
+type APIProviderStats = {
+  id: string;
+  name: string;
+  type: 'paid' | 'free' | 'freemium';
+  status: 'active' | 'inactive' | 'quota_exceeded' | 'error';
+  successRate: number;
+  averageResponseTime: number;
+  lastUsed: number;
+  quota: QuotaInfo | null | undefined;
+};
+
+type APIStats = {
+  providers: APIProviderStats[];
+  totalRequests: number;
+  totalCost: number;
+  requestsByProvider: Record<string, number>;
+  fallbackChain: string[];
+};
+
 // Corrections avancées
-export { advancedAICorrector, useAICorrections } from './advanced-corrections';
+export { useAdvancedCorrections } from './advanced-corrections';
 export type { 
-  AIProvider, 
-  AICorrectionRequest, 
-  AICorrectionResponse, 
-  AICorrection 
+  AdvancedCorrection,
+  CorrectionContext,
 } from './advanced-corrections';
 
 // Générateur de contenu
@@ -43,7 +68,7 @@ export type {
 } from './api-manager';
 
 // Assistant IA
-export { AIAssistant, AIAssistantButton } from '../components/ai/AIAssistant';
+export { AIAssistant, AIAssistantButton } from '../../components/ai/AIAssistant';
 
 // Fonction d'initialisation complète des services IA
 export function initializeAIServices(): void {
@@ -58,7 +83,7 @@ export function initializeAIServices(): void {
   console.log('🌐 Gestionnaire d\'API initialisé');
 
   // Vérifier la disponibilité des providers
-  const stats = apiManager.getAPIStats();
+  const stats: APIStats = apiManager.getAPIStats();
   const availableProviders = stats.providers.filter(p => p.status === 'active');
   console.log(`📡 ${availableProviders.length} providers d'API disponibles`);
 
@@ -78,7 +103,6 @@ export function cleanupAIServices(): void {
   console.log('🧹 Nettoyage des services IA...');
   
   // Nettoyer les caches
-  advancedAICorrector.clearCache();
   aiContentGenerator.clearCache();
   
   // Réinitialiser les quotas si nécessaire
@@ -129,5 +153,3 @@ export const DEFAULT_AI_CONFIG = {
   }
 };
 
-// Import React pour les hooks
-import React from 'react';

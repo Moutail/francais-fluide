@@ -307,15 +307,15 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
               {selectedUsers.length} utilisateur{selectedUsers.length > 1 ? 's' : ''} sélectionné{selectedUsers.length > 1 ? 's' : ''}
             </span>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="secondary">
                 Modifier le rôle
               </Button>
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="secondary">
                 Exporter
               </Button>
               <Button
                 size="sm"
-                variant="outline"
+                variant="secondary"
                 onClick={() => setSelectedUsers([])}
               >
                 Annuler
@@ -456,7 +456,7 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
                     <div className="flex items-center gap-2">
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant="secondary"
                         onClick={() => onNavigate('users-edit', user)}
                         className="p-2"
                         title="Modifier"
@@ -466,7 +466,7 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
                       
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant="secondary"
                         onClick={() => handleToggleUserStatus(user)}
                         className="p-2"
                         title={user.isActive ? "Désactiver" : "Activer"}
@@ -476,7 +476,7 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
 
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant="secondary"
                         onClick={() => onNavigate('subscriptions-edit', user)}
                         className="p-2"
                         title="Gérer l'abonnement"
@@ -486,7 +486,7 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
 
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant="secondary"
                         onClick={() => {
                           setUserToDelete(user);
                           setShowDeleteModal(true);
@@ -514,7 +514,7 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
               <div className="flex gap-2">
                 <Button
                   size="sm"
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
                 >
@@ -522,7 +522,7 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
                 </Button>
                 <Button
                   size="sm"
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
                 >
@@ -552,7 +552,7 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
 
             <div className="flex gap-3 justify-end">
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={() => {
                   setShowDeleteModal(false);
                   setUserToDelete(null);

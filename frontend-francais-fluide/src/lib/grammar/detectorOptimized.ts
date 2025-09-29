@@ -1,5 +1,5 @@
 // src/lib/grammar/detectorOptimized.ts
-import { GrammarRule, GrammarError, TextAnalysis } from '@/types/grammar';
+import { GrammarRule, GrammarError, TextAnalysis, Suggestion } from '@/types/grammar';
 
 /**
  * Système de détection de fautes optimisé pour le français
@@ -30,8 +30,10 @@ class LRUCache<K, V> {
       this.cache.delete(key);
     } else if (this.cache.size >= this.maxSize) {
       // Supprimer le moins récemment utilisé (premier élément)
-      const firstKey = this.cache.keys().next().value;
-      this.cache.delete(firstKey);
+      const firstKeyIter = this.cache.keys().next();
+      if (!firstKeyIter.done) {
+        this.cache.delete(firstKeyIter.value as K);
+      }
     }
     this.cache.set(key, value);
   }
@@ -224,7 +226,8 @@ export class OptimizedGrammarDetector {
       return {
         text,
         errors: cachedErrors,
-        statistics: this.getCachedStatistics(text, cachedErrors)
+        statistics: this.getCachedStatistics(text, cachedErrors),
+        suggestions: this.buildSuggestions(cachedErrors)
       };
     }
 
@@ -240,7 +243,7 @@ export class OptimizedGrammarDetector {
     errors.push(...this.contextualAnalysisOptimized(text));
 
     // Trier les erreurs par position
-    errors.sort((a, b) => a.offset - b.offset);
+    errors.sort((a, b) => a.start - b.start);
 
     // Mettre en cache
     this.cache.set(cacheKey, errors);
@@ -251,7 +254,8 @@ export class OptimizedGrammarDetector {
     return {
       text,
       errors,
-      statistics: this.calculateStatisticsOptimized(text, errors)
+      statistics: this.calculateStatisticsOptimized(text, errors),
+      suggestions: this.buildSuggestions(errors)
     };
   }
 
@@ -272,20 +276,13 @@ export class OptimizedGrammarDetector {
         
         if (checkResult) {
           errors.push({
-            offset: match.index,
-            length: match[0].length,
+            id: rule.id,
+            type: rule.category,
+            severity: rule.severity,
             message: checkResult.message,
-            replacements: checkResult.suggestions,
-            rule: {
-              id: rule.id,
-              category: rule.category,
-              severity: rule.severity
-            },
-            context: {
-              text: match[0],
-              offset: 0,
-              length: match[0].length
-            }
+            start: match.index,
+            end: match.index + match[0].length,
+            suggestions: checkResult.suggestions
           });
         }
       }
@@ -313,20 +310,13 @@ export class OptimizedGrammarDetector {
       homophone.pattern.lastIndex = 0;
       while ((match = homophone.pattern.exec(text)) !== null) {
         errors.push({
-          offset: match.index,
-          length: match[0].length,
+          id: `homophone-${homophone.correct}`,
+          type: 'spelling',
+          severity: 'warning',
           message: homophone.message,
-          replacements: [homophone.correct],
-          rule: {
-            id: `homophone-${homophone.correct}`,
-            category: 'spelling',
-            severity: 'warning'
-          },
-          context: {
-            text: match[0],
-            offset: 0,
-            length: match[0].length
-          }
+          start: match.index,
+          end: match.index + match[0].length,
+          suggestions: [homophone.correct]
         });
       }
     }
@@ -343,20 +333,13 @@ export class OptimizedGrammarDetector {
       anglicisme.pattern.lastIndex = 0;
       while ((match = anglicisme.pattern.exec(text)) !== null) {
         errors.push({
-          offset: match.index,
-          length: match[0].length,
+          id: 'anglicisme',
+          type: 'style',
+          severity: 'suggestion',
           message: anglicisme.message,
-          replacements: [anglicisme.suggestion],
-          rule: {
-            id: 'anglicisme',
-            category: 'style',
-            severity: 'suggestion'
-          },
-          context: {
-            text: match[0],
-            offset: 0,
-            length: match[0].length
-          }
+          start: match.index,
+          end: match.index + match[0].length,
+          suggestions: [anglicisme.suggestion]
         });
       }
     }
@@ -373,20 +356,13 @@ export class OptimizedGrammarDetector {
       expression.pattern.lastIndex = 0;
       while ((match = expression.pattern.exec(text)) !== null) {
         errors.push({
-          offset: match.index,
-          length: match[0].length,
+          id: 'expression-incorrecte',
+          type: 'style',
+          severity: 'suggestion',
           message: expression.message,
-          replacements: [expression.suggestion],
-          rule: {
-            id: 'expression-incorrecte',
-            category: 'style',
-            severity: 'suggestion'
-          },
-          context: {
-            text: match[0],
-            offset: 0,
-            length: match[0].length
-          }
+          start: match.index,
+          end: match.index + match[0].length,
+          suggestions: [expression.suggestion]
         });
       }
     }
@@ -409,20 +385,13 @@ export class OptimizedGrammarDetector {
       
       if (wordCount > 35) {
         errors.push({
-          offset: currentOffset,
-          length: sentence.length,
+          id: 'phrase-trop-longue',
+          type: 'style',
+          severity: 'suggestion',
           message: 'Cette phrase est très longue. Considérez la diviser pour plus de clarté.',
-          replacements: [],
-          rule: {
-            id: 'phrase-trop-longue',
-            category: 'style',
-            severity: 'suggestion'
-          },
-          context: {
-            text: sentence,
-            offset: 0,
-            length: sentence.length
-          }
+          start: currentOffset,
+          end: currentOffset + sentence.length,
+          suggestions: []
         });
       }
       
@@ -439,20 +408,13 @@ export class OptimizedGrammarDetector {
       
       if (passiveCount > 3) {
         errors.push({
-          offset: match.index,
-          length: match[0].length,
+          id: 'voix-passive-excessive',
+          type: 'style',
+          severity: 'suggestion',
           message: 'Utilisation excessive de la voix passive. Privilégiez la voix active.',
-          replacements: [],
-          rule: {
-            id: 'voix-passive-excessive',
-            category: 'style',
-            severity: 'suggestion'
-          },
-          context: {
-            text: match[0],
-            offset: 0,
-            length: match[0].length
-          }
+          start: match.index,
+          end: match.index + match[0].length,
+          suggestions: []
         });
         break;
       }
@@ -475,14 +437,13 @@ export class OptimizedGrammarDetector {
     const words = text.split(COMPILED_PATTERNS.mots).filter(w => w.length > 0);
     const sentences = text.split(COMPILED_PATTERNS.phraseLongue).filter(s => s.trim().length > 0);
     
+    const wordCount = words.length;
+    const characterCount = text.length;
+    const errorRate = wordCount > 0 ? errors.length / wordCount : 0;
     const stats = {
-      wordCount: words.length,
-      sentenceCount: sentences.length,
-      averageWordLength: words.reduce((acc, w) => acc + w.length, 0) / words.length,
-      averageSentenceLength: words.length / sentences.length,
-      errorCount: errors.length,
-      errorDensity: errors.length / words.length,
-      errorsByCategory: this.groupErrorsByCategory(errors),
+      wordCount,
+      characterCount,
+      errorRate,
       readabilityScore: this.calculateReadabilityOptimized(text)
     };
 
@@ -539,10 +500,34 @@ export class OptimizedGrammarDetector {
     const categories: Record<string, number> = {};
     
     for (const error of errors) {
-      categories[error.rule.category] = (categories[error.rule.category] || 0) + 1;
+      categories[error.type] = (categories[error.type] || 0) + 1;
     }
     
     return categories;
+  }
+
+  /**
+   * Construit des suggestions globales à partir des erreurs
+   */
+  private buildSuggestions(errors: GrammarError[]): Suggestion[] {
+    const suggestions: Suggestion[] = [];
+    const seen = new Set<string>();
+
+    for (const err of errors) {
+      for (const rep of err.suggestions || []) {
+        const key = `${rep}|${err.message}`;
+        if (rep && !seen.has(key)) {
+          seen.add(key);
+          suggestions.push({
+            text: rep,
+            confidence: 0.6,
+            explanation: err.message
+          });
+        }
+      }
+    }
+
+    return suggestions;
   }
 
   /**

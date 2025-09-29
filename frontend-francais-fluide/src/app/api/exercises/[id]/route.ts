@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { backendUrl } from '../../_utils/backend';
 
 // GET /api/exercises/[id] - Proxy vers backend
 export async function GET(
@@ -7,7 +8,7 @@ export async function GET(
 ) {
   try {
     const token = request.headers.get('authorization') || '';
-    const resp = await fetch(`http://localhost:3001/api/exercises/${params.id}`, {
+    const resp = await fetch(backendUrl(`/api/exercises/${params.id}`), {
       headers: {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: token } : {}),
@@ -33,7 +34,7 @@ export async function PUT(
   try {
     const token = request.headers.get('authorization') || '';
     const body = await request.json();
-    const resp = await fetch(`http://localhost:3001/api/exercises/${params.id}`, {
+    const resp = await fetch(backendUrl(`/api/exercises/${params.id}`), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -59,7 +60,7 @@ export async function DELETE(
 ) {
   try {
     const token = request.headers.get('authorization') || '';
-    const resp = await fetch(`http://localhost:3001/api/exercises/${params.id}`, {
+    const resp = await fetch(backendUrl(`/api/exercises/${params.id}`), {
       method: 'DELETE',
       headers: {
         ...(token ? { Authorization: token } : {}),

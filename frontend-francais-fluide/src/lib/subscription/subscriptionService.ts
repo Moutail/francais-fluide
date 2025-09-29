@@ -46,7 +46,6 @@ export class SubscriptionService {
     const limit = limits[feature];
     
     if (limit === -1) return Infinity; // Illimité
-    if (limit === false) return 0; // Non disponible
     
     // TODO: Implémenter le comptage de l'usage réel
     // Pour l'instant, on retourne la limite

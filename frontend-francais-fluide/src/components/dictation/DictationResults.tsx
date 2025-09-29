@@ -282,7 +282,7 @@ export default function DictationResults({
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button
             onClick={onRetry}
-            variant="outline"
+            variant="secondary"
             className="flex items-center gap-2"
           >
             <RotateCcw className="w-4 h-4" />

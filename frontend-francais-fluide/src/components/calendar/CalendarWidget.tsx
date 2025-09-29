@@ -198,7 +198,7 @@ export default function CalendarWidget({
           <div className="flex items-center gap-4">
             <Button
               onClick={() => navigateMonth('prev')}
-              variant="outline"
+              variant="secondary"
               size="sm"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -210,7 +210,7 @@ export default function CalendarWidget({
             
             <Button
               onClick={() => navigateMonth('next')}
-              variant="outline"
+              variant="secondary"
               size="sm"
             >
               <ChevronRight className="w-4 h-4" />
@@ -220,7 +220,7 @@ export default function CalendarWidget({
           <div className="flex items-center gap-2">
             <Button
               onClick={() => setCurrentDate(new Date())}
-              variant="outline"
+              variant="secondary"
               size="sm"
             >
               Aujourd'hui
@@ -382,7 +382,7 @@ export default function CalendarWidget({
                               onEventComplete(event.id);
                             }}
                             size="sm"
-                            variant="outline"
+                            variant="secondary"
                           >
                             Terminer
                           </Button>

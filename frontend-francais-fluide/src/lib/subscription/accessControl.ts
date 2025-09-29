@@ -168,8 +168,11 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
 export function hasAccess(userPlan: string, feature: keyof AccessLimits): boolean {
   const plan = SUBSCRIPTION_PLANS.find(p => p.id === userPlan);
   if (!plan) return false;
-  
-  return plan.limits[feature] === true || plan.limits[feature] > 0;
+
+  const value = plan.limits[feature];
+  if (typeof value === 'boolean') return value;
+  // Valeurs numériques: -1 = illimité (accès autorisé), 0 = aucun accès, >0 = accès avec quota
+  return value === -1 || value > 0;
 }
 
 // Fonction pour vérifier les quotas

@@ -5,6 +5,8 @@
  * Mesure et rapport des métriques de performance critiques
  */
 
+import type { Metric } from 'web-vitals';
+
 // Types pour le monitoring des performances
 export interface WebVitals {
   // Core Web Vitals
@@ -103,35 +105,30 @@ class PerformanceMonitor {
    */
   private async initializeWebVitals(): Promise<void> {
     // Import dynamique de web-vitals
-    const { getCLS, getFID, getFCP, getLCP, getTTFB, onINP } = await import('web-vitals');
+    const { onCLS, onFCP, onLCP, onTTFB, onINP } = await import('web-vitals');
 
     // Cumulative Layout Shift
-    getCLS((metric) => {
+    onCLS((metric: Metric) => {
       this.recordWebVital('CLS', metric.value);
     });
 
-    // First Input Delay
-    getFID((metric) => {
-      this.recordWebVital('FID', metric.value);
-    });
-
     // First Contentful Paint
-    getFCP((metric) => {
+    onFCP((metric: Metric) => {
       this.recordWebVital('FCP', metric.value);
     });
 
     // Largest Contentful Paint
-    getLCP((metric) => {
+    onLCP((metric: Metric) => {
       this.recordWebVital('LCP', metric.value);
     });
 
     // Time to First Byte
-    getTTFB((metric) => {
+    onTTFB((metric: Metric) => {
       this.recordWebVital('TTFB', metric.value);
     });
 
     // Interaction to Next Paint (nouveau)
-    onINP((metric) => {
+    onINP((metric: Metric) => {
       this.recordWebVital('INP', metric.value);
     });
   }
@@ -244,8 +241,8 @@ class PerformanceMonitor {
       'dns_lookup': entry.domainLookupEnd - entry.domainLookupStart,
       'tcp_connection': entry.connectEnd - entry.connectStart,
       'request_response': entry.responseEnd - entry.requestStart,
-      'dom_processing': entry.domComplete - entry.domLoading,
-      'page_load': entry.loadEventEnd - entry.navigationStart,
+      'dom_processing': entry.domComplete - entry.domInteractive,
+      'page_load': entry.duration,
     };
 
     Object.entries(navigationMetrics).forEach(([name, value]) => {
@@ -266,12 +263,15 @@ class PerformanceMonitor {
     // Filtrer les ressources importantes
     if (entry.duration > 1000 || entry.transferSize > 100000) {
       Object.entries(resourceMetrics).forEach(([name, value]) => {
-        this.recordCustomMetric(`${name}_${entry.name.split('/').pop()}`, value);
+        if (typeof value === 'number') {
+          this.recordCustomMetric(`${name}_${entry.name.split('/').pop()}`, value);
+        }
       });
     }
   }
 
   /**
+{{ ... }}
    * Enregistre une métrique personnalisée
    */
   public recordCustomMetric(name: string, value: number): void {

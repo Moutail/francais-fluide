@@ -243,7 +243,7 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
           <Button
             onClick={handleStop}
             disabled={!isPlaying && playCount === 0}
-            variant="outline"
+            variant="secondary"
             className="flex items-center gap-2"
           >
             <Square className="w-4 h-4" />
@@ -253,7 +253,7 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
           <Button
             onClick={handleRestart}
             disabled={playCount === 0}
-            variant="outline"
+            variant="secondary"
             className="flex items-center gap-2"
           >
             <RotateCcw className="w-4 h-4" />
@@ -313,7 +313,7 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
                 setTimeSpent(0);
                 stopTimer();
               }}
-              variant="outline"
+              variant="secondary"
               disabled={loading || userText.length === 0}
             >
               Effacer
@@ -346,7 +346,7 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
             <div className="flex gap-3 justify-end">
               <Button
                 onClick={() => setShowSubmitConfirm(false)}
-                variant="outline"
+                variant="secondary"
               >
                 Annuler
               </Button>

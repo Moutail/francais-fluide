@@ -10,7 +10,19 @@ interface ErrorInfo {
   componentStack?: string;
 }
 
-class GlobalErrorHandler {
+// Interface publique de l'API de gestion des erreurs
+export interface GlobalErrorAPI {
+  captureError(errorInfo: ErrorInfo): void;
+  addErrorListener(listener: (error: ErrorInfo) => void): void;
+  removeErrorListener(listener: (error: ErrorInfo) => void): void;
+  getAllErrors(): ErrorInfo[];
+  getRecentErrors(limit?: number): ErrorInfo[];
+  clearErrors(): void;
+  exportErrors(): string;
+  showErrors(): void;
+}
+
+class GlobalErrorHandler implements GlobalErrorAPI {
   private errors: ErrorInfo[] = [];
   private maxErrors = 50;
   private listeners: Array<(error: ErrorInfo) => void> = [];
@@ -30,8 +42,8 @@ class GlobalErrorHandler {
     window.addEventListener('error', (event) => {
       this.captureError({
         message: event.message || 'Erreur JavaScript',
-        stack: event.error?.stack,
-        source: event.filename ? `Fichier: ${event.filename}:${event.lineno}:${event.colno}` : 'JavaScript',
+        stack: (event as ErrorEvent).error?.stack,
+        source: (event as ErrorEvent).filename ? `Fichier: ${(event as ErrorEvent).filename}:${(event as ErrorEvent).lineno}:${(event as ErrorEvent).colno}` : 'JavaScript',
         timestamp: new Date().toISOString(),
         url: window.location.href,
         userAgent: navigator.userAgent
@@ -40,9 +52,10 @@ class GlobalErrorHandler {
 
     // Capturer les promesses rejetées non gérées
     window.addEventListener('unhandledrejection', (event) => {
+      const anyEvent = event as PromiseRejectionEvent;
       this.captureError({
-        message: `Promesse rejetée: ${event.reason}`,
-        stack: event.reason?.stack,
+        message: `Promesse rejetée: ${anyEvent.reason}`,
+        stack: anyEvent.reason?.stack,
         source: 'Promise Rejection',
         timestamp: new Date().toISOString(),
         url: window.location.href,
@@ -54,13 +67,13 @@ class GlobalErrorHandler {
     const originalFetch = window.fetch;
     window.fetch = async (...args) => {
       try {
-        const response = await originalFetch(...args);
+        const response = await originalFetch(...args as [RequestInfo, RequestInit?]);
         
         // Capturer les erreurs HTTP
         if (!response.ok) {
           this.captureError({
             message: `Erreur HTTP ${response.status}: ${response.statusText}`,
-            source: `Fetch: ${args[0]}`,
+            source: `Fetch: ${String(args[0])}`,
             timestamp: new Date().toISOString(),
             url: window.location.href,
             userAgent: navigator.userAgent
@@ -71,7 +84,7 @@ class GlobalErrorHandler {
       } catch (error) {
         this.captureError({
           message: `Erreur de réseau: ${error}`,
-          source: `Fetch: ${args[0]}`,
+          source: `Fetch: ${String(args[0])}`,
           timestamp: new Date().toISOString(),
           url: window.location.href,
           userAgent: navigator.userAgent
@@ -173,16 +186,16 @@ class GlobalErrorHandler {
 }
 
 // Instance singleton - seulement côté client
-export const globalErrorHandler = typeof window !== 'undefined' ? new GlobalErrorHandler() : {
-  captureError: () => {},
-  addErrorListener: () => {},
-  removeErrorListener: () => {},
-  getAllErrors: () => [],
-  getRecentErrors: () => [],
+export const globalErrorHandler: GlobalErrorAPI = typeof window !== 'undefined' ? new GlobalErrorHandler() : {
+  captureError: (_errorInfo: ErrorInfo) => {},
+  addErrorListener: (_listener: (error: ErrorInfo) => void) => {},
+  removeErrorListener: (_listener: (error: ErrorInfo) => void) => {},
+  getAllErrors: (): ErrorInfo[] => [],
+  getRecentErrors: (_limit?: number): ErrorInfo[] => [],
   clearErrors: () => {},
   exportErrors: () => '[]',
   showErrors: () => {}
-} as GlobalErrorHandler;
+};
 
 // Fonction utilitaire pour capturer manuellement une erreur
 export const captureError = (message: string, error?: Error, source?: string) => {

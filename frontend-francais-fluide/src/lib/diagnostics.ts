@@ -1,3 +1,5 @@
+import React from 'react';
+
 // src/lib/diagnostics.ts
 // Système de diagnostic pour la communication avec le serveur
 

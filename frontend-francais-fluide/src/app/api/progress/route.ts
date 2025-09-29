@@ -1,11 +1,12 @@
 // src/app/api/progress/route.ts
 import { NextRequest, NextResponse } from 'next/server';
+import { backendUrl } from '../_utils/backend';
 
 // GET /api/progress - Proxy vers le backend
 export async function GET(request: NextRequest) {
   try {
     const token = request.headers.get('authorization') || '';
-    const resp = await fetch('http://localhost:3001/api/progress', {
+    const resp = await fetch(backendUrl('/api/progress'), {
       headers: {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: token } : {}),
@@ -30,7 +31,7 @@ export async function PUT(request: NextRequest) {
     const token = request.headers.get('authorization') || '';
     const body = await request.json();
     
-    const resp = await fetch('http://localhost:3001/api/progress', {
+    const resp = await fetch(backendUrl('/api/progress'), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

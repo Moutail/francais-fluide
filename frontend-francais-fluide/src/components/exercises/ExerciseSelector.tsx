@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, Button, Badge } from '@/components/ui';
-import { exerciseBank, TEXT_CATEGORIES, COMMON_TRAPS } from '@/data/exercises-bank';
+import { exerciseBank, TEXT_CATEGORIES, COMMON_TRAPS, EXERCISES_BANK } from '@/data/exercises-bank';
 import type { Exercise, ExerciseType, Difficulty, UserProfile } from '@/types';
 
 interface ExerciseSelectorProps {
@@ -25,7 +25,7 @@ export default function ExerciseSelector({
 
   // Filtrer les exercices
   useEffect(() => {
-    let exercises = exerciseBank.exercises;
+    let exercises = EXERCISES_BANK;
 
     if (selectedDifficulty !== 'all') {
       exercises = exercises.filter(ex => ex.difficulty === selectedDifficulty);

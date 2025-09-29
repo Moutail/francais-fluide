@@ -1,4 +1,5 @@
 // src/lib/ai/api-config.ts
+import * as React from 'react';
 export interface AIConfig {
   openai: {
     apiKey: string;
@@ -69,13 +70,13 @@ class AIConfigManager {
     };
 
     // Configuration des services basée sur les clés disponibles
-    this.updateServiceConfig();
+    this.recomputeServiceConfig();
   }
 
   /**
    * Met à jour la configuration des services selon les clés disponibles
    */
-  private updateServiceConfig() {
+  private recomputeServiceConfig() {
     const hasOpenAI = !!this.config.openai?.apiKey;
     const hasAzure = !!this.config.azure?.apiKey;
     const hasAnthropic = !!this.config.anthropic?.apiKey;
@@ -102,7 +103,7 @@ class AIConfigManager {
    */
   updateConfig(newConfig: Partial<AIConfig>) {
     this.config = { ...this.config, ...newConfig };
-    this.updateServiceConfig();
+    this.recomputeServiceConfig();
   }
 
   /**
@@ -333,20 +334,20 @@ export function createAPIClient(provider: AIServiceConfig['provider']) {
   switch (provider) {
     case 'openai':
       return {
-        apiKey: config.apiKey,
-        baseURL: config.baseUrl,
-        model: config.model
+        apiKey: (config as AIConfig['openai']).apiKey,
+        baseURL: (config as AIConfig['openai']).baseUrl,
+        model: (config as AIConfig['openai']).model
       };
     case 'azure':
       return {
-        apiKey: config.apiKey,
-        endpoint: config.endpoint,
-        deploymentName: config.deploymentName
+        apiKey: (config as AIConfig['azure']).apiKey,
+        endpoint: (config as AIConfig['azure']).endpoint,
+        deploymentName: (config as AIConfig['azure']).deploymentName
       };
     case 'anthropic':
       return {
-        apiKey: config.apiKey,
-        baseURL: config.baseUrl
+        apiKey: (config as AIConfig['anthropic']).apiKey,
+        baseURL: (config as AIConfig['anthropic']).baseUrl
       };
     default:
       throw new Error(`Provider non supporté: ${provider}`);

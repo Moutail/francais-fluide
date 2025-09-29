@@ -190,7 +190,7 @@ const getErrorSeverity = (issueType: string): 'critical' | 'warning' | 'suggesti
     default:
       return 'suggestion';
   }
-}; as const;
+};
 
 export const SmartEditorOptimized: React.FC<SmartEditorProps> = memo(({
   initialValue = '',
@@ -312,7 +312,7 @@ export const SmartEditorOptimized: React.FC<SmartEditorProps> = memo(({
     };
 
     analyzeText();
-  }, [debouncedText, realTimeCorrection, checkGrammar, metrics.errorsCorrected, perfectStreak, onProgressUpdate]);
+  }, [debouncedText, realTimeCorrection, metrics.errorsCorrected, perfectStreak, onProgressUpdate, isReady]);
 
   // Rendu des erreurs avec overlays - optimisé avec useMemo
   const renderHighlights = useMemo(() => {

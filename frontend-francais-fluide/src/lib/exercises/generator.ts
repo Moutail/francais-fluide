@@ -33,10 +33,10 @@ export function analyzeUserWeaknesses(
 
   // Analyser les erreurs récentes
   recentErrors.forEach(error => {
-    const ruleId = error.rule?.id || 'unknown';
+    const ruleId = error.id || 'unknown';
     weaknesses.grammarRules[ruleId] = (weaknesses.grammarRules[ruleId] || 0) + 1;
     
-    const category = error.rule?.category || 'unknown';
+    const category = error.type || 'unknown';
     weaknesses.errorTypes[category] = (weaknesses.errorTypes[category] || 0) + 1;
     
     if (error.message) {

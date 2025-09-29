@@ -9,12 +9,15 @@ export interface SubscriptionPlan {
   limits: {
     aiCorrections: number;
     exercisesPerDay: number;
+    dictationsPerDay: number;
     advancedAnalytics: boolean;
     prioritySupport: boolean;
     exportData: boolean;
     customExercises: boolean;
     voiceAssistant: boolean;
     offlineMode: boolean;
+    intelligentTutor: boolean;
+    personalizedLearning: boolean;
   };
   popular?: boolean;
   description: string;
@@ -39,12 +42,15 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     limits: {
       aiCorrections: 5,
       exercisesPerDay: 3,
+      dictationsPerDay: 0,
       advancedAnalytics: false,
       prioritySupport: false,
       exportData: false,
       customExercises: false,
       voiceAssistant: false,
-      offlineMode: false
+      offlineMode: false,
+      intelligentTutor: false,
+      personalizedLearning: false
     }
   },
   {

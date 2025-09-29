@@ -405,16 +405,6 @@ export default function ExercisePage() {
                           </label>
                         ))}
                       </div>
-                    ) : currentQuestion.type === 'fill-blank' ? (
-                      <div className="space-y-4">
-                        <input
-                          type="text"
-                          value={state.answers[currentQuestion.id] || ''}
-                          onChange={(e) => handleAnswer(currentQuestion.id, e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Votre réponse..."
-                        />
-                      </div>
                     ) : null}
                   </div>
 

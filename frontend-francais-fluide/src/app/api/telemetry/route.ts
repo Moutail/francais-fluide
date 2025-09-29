@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { backendUrl } from '../_utils/backend';
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Envoyer les événements au backend
-    const response = await fetch('http://localhost:3001/api/telemetry', {
+    const response = await fetch(backendUrl('/api/telemetry'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

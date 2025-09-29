@@ -1,6 +1,6 @@
 // src/hooks/useWebSocket.ts
 import { useEffect, useRef, useState, useCallback } from 'react';
-import io, { Socket } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
 interface UseWebSocketOptions {
   url: string;
@@ -60,7 +60,7 @@ export function useWebSocket(options: UseWebSocketOptions) {
       }));
     });
 
-    socketRef.current.on('error', (error) => {
+    socketRef.current.on('error', (error: any) => {
       setState(prev => ({
         ...prev,
         lastError: error,
@@ -68,7 +68,7 @@ export function useWebSocket(options: UseWebSocketOptions) {
       }));
     });
 
-    socketRef.current.on('message', (data) => {
+    socketRef.current.on('message', (data: any) => {
       setState(prev => ({
         ...prev,
         lastMessage: data

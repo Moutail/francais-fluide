@@ -14,6 +14,9 @@ interface User {
   lastLogin?: string;
   progress?: any;
   subscription?: any;
+  bio?: string;
+  language?: string;
+  timezone?: string;
 }
 
 interface AuthContextType {

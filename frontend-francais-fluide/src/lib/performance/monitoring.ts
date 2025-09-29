@@ -203,25 +203,47 @@ class PerformanceMonitor {
     const originalXHROpen = XMLHttpRequest.prototype.open;
     const originalXHRSend = XMLHttpRequest.prototype.send;
 
-    XMLHttpRequest.prototype.open = function(method, url, ...args) {
-      this._startTime = performance.now();
-      return originalXHROpen.call(this, method, url, ...args);
+    // Lier les méthodes nécessaires pour utilisation dans les callbacks sans aliasser `this`
+    const updateNetworkMetrics = this.updateNetworkMetrics.bind(this);
+
+    // Assurer une signature compatible avec les surcharges de XHR.open
+    XMLHttpRequest.prototype.open = function (
+      this: XMLHttpRequest,
+      method: string,
+      url: string | URL,
+      async?: boolean,
+      username?: string | null,
+      password?: string | null
+    ): void {
+      // Marquer l'heure de début sur l'instance XHR (propriété personnalisée)
+      (this as any)._ffStartTime = performance.now();
+
+      // Appeler la méthode d'origine avec les bons arguments selon le cas
+      if (typeof async === 'undefined') {
+        return originalXHROpen.call(this, method, url as any, true, null, null);
+      }
+      return originalXHROpen.call(this, method, url as any, async, username ?? null, password ?? null);
     };
 
-    XMLHttpRequest.prototype.send = function(data) {
+    XMLHttpRequest.prototype.send = function (this: XMLHttpRequest, data?: Document | BodyInit | null): void {
       this.addEventListener('loadend', () => {
         const endTime = performance.now();
-        const latency = endTime - (this._startTime || 0);
-        
-        this.updateNetworkMetrics({
+        const start = (this as any)._ffStartTime || 0;
+        const latency = endTime - start;
+
+        // Récupérer la taille si disponible
+        const header = this.getResponseHeader('content-length');
+        const size = header ? parseInt(header) : 0;
+
+        // Utiliser la fonction liée pour mettre à jour les métriques réseau
+        updateNetworkMetrics({
           latency,
           success: this.status >= 200 && this.status < 300,
-          size: this.getResponseHeader('content-length') ? 
-            parseInt(this.getResponseHeader('content-length')!) : 0
+          size,
         });
       });
 
-      return originalXHRSend.call(this, data);
+      return originalXHRSend.call(this, data as any);
     };
   }
 
@@ -314,7 +336,7 @@ class PerformanceMonitor {
    * Gère les entrées de navigation
    */
   private handleNavigationEntry(entry: PerformanceNavigationTiming): void {
-    this.userExperience.timeToInteractive = entry.domInteractive - entry.navigationStart;
+    this.userExperience.timeToInteractive = entry.domInteractive - entry.startTime;
   }
 
   /**
@@ -367,7 +389,9 @@ class PerformanceMonitor {
     Component: T,
     componentName: string
   ): T {
-    const Wrapped = React.forwardRef(function WithPerformance(props, ref) {
+    // Lier la méthode pour l'utiliser dans la fonction de rendu sans aliasser `this`
+    const updateComponentMetrics = this.updateComponentMetrics.bind(this);
+    const Wrapped = React.forwardRef((props, ref) => {
       const startTime = performance.now();
       const [renderCount, setRenderCount] = React.useState(0);
 
@@ -375,7 +399,7 @@ class PerformanceMonitor {
         const endTime = performance.now();
         const renderTime = endTime - startTime;
 
-        this.updateComponentMetrics(componentName, {
+        updateComponentMetrics(componentName, {
           renderTime,
           reRenderCount: renderCount,
           mountTime: renderTime

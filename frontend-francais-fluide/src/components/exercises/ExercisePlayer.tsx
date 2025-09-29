@@ -158,7 +158,7 @@ export default function ExercisePlayer({
             Question {index + 1} sur {exercise.questions.length}
           </h3>
           <Badge variant={questionState?.isCorrect === true ? 'success' : 
-                          questionState?.isCorrect === false ? 'destructive' : 'default'}>
+                          questionState?.isCorrect === false ? 'error' : 'default'}>
             {questionState?.isCorrect === true ? 'Correct' : 
              questionState?.isCorrect === false ? 'Incorrect' : 'En attente'}
           </Badge>

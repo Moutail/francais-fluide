@@ -379,7 +379,8 @@ class APIManager {
    * Obtient la clé API pour un provider
    */
   private getApiKey(providerId: string): string | undefined {
-    return aiSecurityManager.getApiKey(providerId);
+    const key = aiSecurityManager.getApiKey(providerId);
+    return key ?? undefined;
   }
 
   /**

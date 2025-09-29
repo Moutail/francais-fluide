@@ -386,7 +386,7 @@ export default function DissertationAssistant() {
             <div className="flex gap-3 justify-center">
               <Button
                 onClick={() => setCurrentStep('select')}
-                variant="outline"
+                variant="secondary"
               >
                 Retour
               </Button>
@@ -412,7 +412,7 @@ export default function DissertationAssistant() {
               <div className="flex gap-2">
                 <Button
                   onClick={() => setCurrentStep('subject')}
-                  variant="outline"
+                  variant="secondary"
                   size="sm"
                 >
                   <RotateCcw className="w-4 h-4 mr-1" />
@@ -557,7 +557,7 @@ export default function DissertationAssistant() {
             <div className="flex gap-2">
               <Button
                 onClick={() => setCurrentStep('plan')}
-                variant="outline"
+                variant="secondary"
                 size="sm"
               >
                 Voir le plan
@@ -642,7 +642,7 @@ export default function DissertationAssistant() {
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {Object.entries(analysis.scores_detailles).map(([category, score]) => (
+              {Object.entries(analysis.scores_detailles as Record<string, number>).map(([category, score]) => (
                 <div key={category} className="text-center">
                   <div className="text-2xl font-bold text-gray-900">{score}%</div>
                   <div className="text-sm text-gray-600 capitalize">{category}</div>
@@ -715,13 +715,13 @@ export default function DissertationAssistant() {
           <div className="flex gap-3 justify-center">
             <Button
               onClick={() => setCurrentStep('write')}
-              variant="outline"
+              variant="secondary"
             >
               Modifier le texte
             </Button>
             <Button
               onClick={resetAssistant}
-              variant="outline"
+              variant="secondary"
             >
               Nouvelle dissertation
             </Button>
@@ -749,7 +749,7 @@ export default function DissertationAssistant() {
         <div className="text-center">
           <Button
             onClick={resetAssistant}
-            variant="outline"
+            variant="secondary"
             className="text-gray-600"
           >
             <RotateCcw className="w-4 h-4 mr-2" />

@@ -3,7 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Lock, Crown, Star, GraduationCap, Building, ArrowRight } from 'lucide-react';
-import { cn, hasAccess, getUpgradeMessage, SUBSCRIPTION_PLANS } from '@/lib/subscription/accessControl';
+import { hasAccess, getUpgradeMessage, SUBSCRIPTION_PLANS } from '@/lib/subscription/accessControl';
+import { cn } from '@/lib/utils/cn';
 
 interface AccessGateProps {
   userPlan: string;

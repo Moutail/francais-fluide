@@ -9,10 +9,10 @@ import {
   Calendar, 
   Award, 
   Settings, 
-  Save,
   Edit,
   Eye,
-  EyeOff
+  EyeOff,
+  Save
 } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -26,7 +26,6 @@ export default function ProfilePage() {
     newPassword: '',
     confirmPassword: ''
   });
-
   useEffect(() => {
     if (user) {
       setFormData({
@@ -66,11 +65,10 @@ export default function ProfilePage() {
     console.log('Sauvegarde du profil:', formData);
     setIsEditing(false);
   };
-
   const handleCancel = () => {
     setFormData({
-      name: user.name || '',
-      email: user.email || '',
+      name: user?.name ?? '',
+      email: user?.email ?? '',
       currentPassword: '',
       newPassword: '',
       confirmPassword: ''
@@ -83,7 +81,6 @@ export default function ProfilePage() {
       <Navigation />
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Mon Profil</h1>
           <p className="text-gray-600">Gérez vos informations personnelles et paramètres</p>
@@ -259,11 +256,11 @@ export default function ProfilePage() {
                 <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                   Passer au Premium
                 </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
+    </div>
+    </div>
     </div>
   );
 }

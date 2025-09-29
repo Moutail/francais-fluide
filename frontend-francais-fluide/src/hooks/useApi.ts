@@ -241,7 +241,7 @@ export function useProgress() {
       onError: (error) => {
         console.error('Erreur useProgress:', error);
         // Ne pas afficher l'erreur dans la console si c'est juste un problème de token
-        if (error?.message?.includes('Token')) {
+        if (error && error.includes('Token')) {
           console.warn('Token d\'authentification manquant ou invalide');
         }
       }

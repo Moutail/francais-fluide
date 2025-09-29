@@ -26,8 +26,10 @@ export class LanguageToolClient {
 
   private setCache(key: string, data: any): void {
     if (this.cache.size >= AI_CONFIG.MAX_CACHE_SIZE) {
-      const firstKey = this.cache.keys().next().value;
-      this.cache.delete(firstKey);
+      const iterator = this.cache.keys().next();
+      if (!iterator.done) {
+        this.cache.delete(iterator.value);
+      }
     }
     
     this.cache.set(key, { data, timestamp: Date.now() });

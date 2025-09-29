@@ -1,11 +1,12 @@
 // src/app/api/auth/me/route.ts
 import { NextRequest, NextResponse } from 'next/server';
+import { backendUrl } from '../../_utils/backend';
 
 // GET /api/auth/me - Proxy vers le backend
 export async function GET(request: NextRequest) {
   try {
     const token = request.headers.get('authorization') || '';
-    const resp = await fetch('http://localhost:3001/api/auth/me', {
+    const resp = await fetch(backendUrl('/api/auth/me'), {
       headers: {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: token } : {}),

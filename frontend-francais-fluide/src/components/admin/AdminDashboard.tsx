@@ -152,7 +152,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         </div>
         <Button
           onClick={() => window.location.reload()}
-          variant="outline"
+          variant="secondary"
           className="flex items-center gap-2"
         >
           <TrendingUp className="w-4 h-4" />
@@ -294,7 +294,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           <h2 className="text-xl font-semibold text-gray-900">Utilisateurs récents</h2>
           <Button
             onClick={() => onNavigate('users')}
-            variant="outline"
+            variant="secondary"
             size="sm"
           >
             Voir tous

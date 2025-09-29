@@ -115,9 +115,10 @@ export class AdvancedCorrectionEngine {
       const prompt = this.buildExplanationPrompt(error, userProfile);
       const response = await this.callOpenAI(prompt, { error, userProfile });
       return this.parseExplanation(response);
-    } catch (error) {
-      console.error('Erreur lors de la génération d\'explication:', error);
-      return this.getFallbackExplanation(error, userProfile);
+    } catch (e) {
+      console.error('Erreur lors de la génération d\'explication:', e);
+      // Passer null car le paramètre attendu est AdvancedCorrection | null
+      return this.getFallbackExplanation(null, userProfile);
     }
   }
 

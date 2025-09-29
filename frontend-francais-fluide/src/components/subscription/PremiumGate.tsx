@@ -186,13 +186,13 @@ export default function PremiumGate({
             <div className="flex gap-4 justify-center">
               <Button
                 onClick={() => window.location.href = '/dashboard'}
-                variant="outline"
+                variant="secondary"
               >
                 Retour au tableau de bord
               </Button>
               <Button
                 onClick={() => window.location.href = '/demo'}
-                variant="outline"
+                variant="secondary"
               >
                 Essayer la démo
               </Button>

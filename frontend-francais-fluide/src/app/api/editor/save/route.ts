@@ -1,5 +1,6 @@
 // src/app/api/editor/save/route.ts
 import { NextRequest, NextResponse } from 'next/server';
+import { backendUrl } from '../../_utils/backend';
 
 // POST /api/editor/save - Proxy vers le backend
 export async function POST(request: NextRequest) {
@@ -7,7 +8,7 @@ export async function POST(request: NextRequest) {
     const token = request.headers.get('authorization') || '';
     const body = await request.json();
     
-    const resp = await fetch('http://localhost:3001/api/editor/save', {
+    const resp = await fetch(backendUrl('/api/editor/save'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

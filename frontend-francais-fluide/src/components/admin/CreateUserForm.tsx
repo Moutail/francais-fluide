@@ -186,7 +186,7 @@ export default function CreateUserForm({ onBack, onSuccess }: CreateUserFormProp
       <div className="flex items-center gap-4">
         <Button
           onClick={onBack}
-          variant="outline"
+          variant="secondary"
           className="flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -271,7 +271,7 @@ export default function CreateUserForm({ onBack, onSuccess }: CreateUserFormProp
                 </label>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="secondary"
                   size="sm"
                   onClick={generatePassword}
                   className="text-xs"
@@ -425,7 +425,7 @@ export default function CreateUserForm({ onBack, onSuccess }: CreateUserFormProp
         <div className="flex items-center justify-end gap-4">
           <Button
             type="button"
-            variant="outline"
+            variant="secondary"
             onClick={onBack}
             disabled={loading}
           >

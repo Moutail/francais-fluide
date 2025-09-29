@@ -26,12 +26,31 @@ import {
 } from 'lucide-react';
 import { useAPIManager } from '@/lib/ai/api-manager';
 import { useAISecurity } from '@/lib/ai/security';
-import { useAICorrections } from '@/lib/ai/advanced-corrections';
 import { useAIContentGenerator } from '@/lib/ai/content-generator';
 
 interface AIDashboardProps {
   className?: string;
   compact?: boolean;
+}
+
+// Type minimal utilisé par ce composant pour les providers
+interface ProviderStat {
+  id: string;
+  name: string;
+  type: 'paid' | 'free' | 'freemium';
+  status: 'active' | 'inactive' | 'quota_exceeded' | 'error';
+  successRate: number;
+  averageResponseTime: number;
+  lastUsed: number;
+  quota?: {
+    dailyUsed?: number;
+    dailyLimit?: number;
+    monthlyUsed?: number;
+    monthlyLimit?: number;
+    resetTime?: number;
+    remaining?: number;
+    isOverBudget?: boolean;
+  } | null;
 }
 
 export const AIDashboard: React.FC<AIDashboardProps> = ({
@@ -44,7 +63,6 @@ export const AIDashboard: React.FC<AIDashboardProps> = ({
   // Hooks pour les services IA
   const { stats: apiStats, makeRequest, disableProvider, enableProvider } = useAPIManager();
   const { stats: securityStats, checkRateLimit, filterContent } = useAISecurity();
-  const { getStats: correctionStats } = useAICorrections();
   const { getStats: contentStats } = useAIContentGenerator();
 
   // Actualiser les statistiques
@@ -59,10 +77,12 @@ export const AIDashboard: React.FC<AIDashboardProps> = ({
   const globalMetrics = {
     totalRequests: apiStats.totalRequests,
     totalCost: apiStats.totalCost,
-    activeProviders: apiStats.providers.filter(p => p.status === 'active').length,
+    activeProviders: (apiStats.providers as ProviderStat[]).filter((p: ProviderStat) => p.status === 'active').length,
     totalProviders: apiStats.providers.length,
     securityEvents: securityStats.securityEvents.recent,
-    successRate: apiStats.providers.reduce((acc, p) => acc + p.successRate, 0) / apiStats.providers.length
+    successRate: apiStats.providers.length
+      ? (apiStats.providers as ProviderStat[]).reduce((acc: number, p: ProviderStat) => acc + (p.successRate ?? 0), 0) / apiStats.providers.length
+      : 0
   };
 
   if (compact) {
@@ -209,7 +229,7 @@ export const AIDashboard: React.FC<AIDashboardProps> = ({
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Taux de Succès par Provider</h3>
                   <div className="space-y-3">
-                    {apiStats.providers.map((provider) => (
+                    {apiStats.providers.map((provider: ProviderStat) => (
                       <div key={provider.id} className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className={`w-3 h-3 rounded-full ${
@@ -247,7 +267,7 @@ export const AIDashboard: React.FC<AIDashboardProps> = ({
                 exit={{ opacity: 0, y: -20 }}
                 className="space-y-4"
               >
-                {apiStats.providers.map((provider) => (
+                {apiStats.providers.map((provider: ProviderStat) => (
                   <ProviderCard
                     key={provider.id}
                     provider={provider}
@@ -318,7 +338,7 @@ export const AIDashboard: React.FC<AIDashboardProps> = ({
                 className="space-y-6"
               >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {apiStats.providers.map((provider) => (
+                  {apiStats.providers.map((provider: ProviderStat) => (
                     <div key={provider.id} className="bg-gray-50 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-medium text-gray-900">{provider.name}</h4>
@@ -397,8 +417,8 @@ const MetricCard: React.FC<MetricCardProps> = ({ icon, title, value, subtitle, c
 
 // Composant de carte de provider
 interface ProviderCardProps {
-  provider: any;
-  quota: any;
+  provider: ProviderStat;
+  quota: ProviderStat['quota'];
   onToggle: (enabled: boolean) => void;
 }
 

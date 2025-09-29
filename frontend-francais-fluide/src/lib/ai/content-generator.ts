@@ -465,15 +465,15 @@ class AIContentGenerator {
    */
   private buildExercisePrompt(request: ContentGenerationRequest): string {
     const template = CONTENT_GENERATION_PROMPTS.exercise;
-    const profile = request.userProfile || {};
+    const profile = request.userProfile;
     
     return template
       .replace('{level}', request.level)
       .replace('{theme}', request.theme || 'général')
       .replace('{difficulty}', request.difficulty?.toString() || '5')
-      .replace('{weakPoints}', profile.weakPoints?.join(', ') || 'aucun')
-      .replace('{strongPoints}', profile.strongPoints?.join(', ') || 'aucun')
-      .replace('{learningStyle}', profile.learningStyle || 'reading')
+      .replace('{weakPoints}', profile?.weakPoints?.join(', ') ?? 'aucun')
+      .replace('{strongPoints}', profile?.strongPoints?.join(', ') ?? 'aucun')
+      .replace('{learningStyle}', profile?.learningStyle ?? 'reading')
       .replace('{exerciseType}', this.determineExerciseType(request));
   }
 

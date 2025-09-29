@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
-import { FixedSizeList as List, VariableSizeList } from 'react-window';
+import * as ReactWindow from 'react-window';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export interface VirtualizedListProps<T> {
@@ -99,7 +99,8 @@ function VirtualizedListInner<T>({
     visibleRange: { start: 0, end: 0 }
   });
 
-  const listRef = useRef<List | VariableSizeList>(null);
+  // Use a relaxed type here due to varying react-window type definitions
+  const listRef = useRef<any>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout>();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -203,7 +204,9 @@ function VirtualizedListInner<T>({
   }
 
   // Rendu de la liste virtualisée
-  const ListComponent = variableHeight ? VariableSizeList : List;
+  const ListComponent = (variableHeight
+    ? (ReactWindow as any).VariableSizeList
+    : (ReactWindow as any).FixedSizeList) as React.ComponentType<any>;
 
   return (
     <div 

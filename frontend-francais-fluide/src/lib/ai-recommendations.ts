@@ -11,7 +11,7 @@ interface UserProfile {
   totalExercisesCompleted: number;
 }
 
-interface AIRecommendation {
+export interface AIRecommendation {
   type: 'exercise' | 'study_plan' | 'difficulty_adjustment' | 'focus_area';
   title: string;
   description: string;
