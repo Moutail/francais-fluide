@@ -1,6 +1,7 @@
 // src/app/api/auth/me/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { backendUrl } from '../../_utils/backend';
+export const dynamic = 'force-dynamic';
 
 // GET /api/auth/me - Proxy vers le backend
 export async function GET(request: NextRequest) {

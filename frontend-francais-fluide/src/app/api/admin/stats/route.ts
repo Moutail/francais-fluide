@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const BACKEND_BASE =
-  process.env.BACKEND_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  'http://localhost:3001';
+import { backendUrl } from '../../_utils/backend';
+export const dynamic = 'force-dynamic';
 
 // GET /api/admin/stats - Proxy vers le backend (dashboard)
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization') || '';
 
-    const res = await fetch(`${BACKEND_BASE}/api/admin/dashboard`, {
+    const res = await fetch(backendUrl('/api/admin/dashboard'), {
       method: 'GET',
       headers: {
         Authorization: authHeader,

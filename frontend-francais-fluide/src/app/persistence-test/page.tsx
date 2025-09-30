@@ -15,7 +15,8 @@ export default function PersistenceTestPage() {
     content: 'Ceci est un document de test pour la persistance...'
   });
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({
-    isOnline: navigator.onLine,
+    // Use safe default for SSR; update in useEffect on client
+    isOnline: true,
     isSyncing: false,
     lastSync: null,
     pendingItems: 0,
@@ -77,6 +78,11 @@ export default function PersistenceTestPage() {
 
   // Écouter les changements de statut de synchronisation
   useEffect(() => {
+    // Update isOnline on client to avoid SSR navigator access
+    if (typeof navigator !== 'undefined') {
+      setSyncStatus(prev => ({ ...prev, isOnline: navigator.onLine }));
+    }
+
     const handleStatusChange = (status: SyncStatus) => {
       setSyncStatus(status);
     };
