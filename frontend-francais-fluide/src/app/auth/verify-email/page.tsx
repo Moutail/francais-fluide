@@ -196,7 +196,7 @@ export default function VerifyEmailPage() {
 
                 <a
                   href="/auth/login"
-                  className="block w-full py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                  className="flex w-full py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors items-center justify-center gap-2"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Retour à la connexion
