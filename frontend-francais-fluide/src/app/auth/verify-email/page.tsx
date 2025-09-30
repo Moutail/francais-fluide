@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Mail,
   CheckCircle,
-  AlertTriangle,
   RefreshCw,
   ArrowLeft
 } from 'lucide-react';
@@ -23,42 +22,42 @@ export default function VerifyEmailPage() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
+    const verifyEmail = async () => {
+      setIsVerifying(true);
+      setError('');
+
+      try {
+        const response = await fetch('/api/auth/verify-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setIsVerified(true);
+          setMessage('Votre email a été vérifié avec succès !');
+          // Redirection après 3 secondes
+          setTimeout(() => {
+            router.push('/dashboard');
+          }, 3000);
+        } else {
+          setError(data.error || 'Erreur lors de la vérification');
+        }
+      } catch (err) {
+        setError('Erreur de connexion. Veuillez réessayer.');
+      } finally {
+        setIsVerifying(false);
+      }
+    };
+
     if (token) {
       verifyEmail();
     }
-  }, [token]);
-
-  const verifyEmail = async () => {
-    setIsVerifying(true);
-    setError('');
-
-    try {
-      const response = await fetch('/api/auth/verify-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setIsVerified(true);
-        setMessage('Votre email a été vérifié avec succès !');
-        // Redirection après 3 secondes
-        setTimeout(() => {
-          router.push('/dashboard');
-        }, 3000);
-      } else {
-        setError(data.error || 'Erreur lors de la vérification');
-      }
-    } catch (err) {
-      setError('Erreur de connexion. Veuillez réessayer.');
-    } finally {
-      setIsVerifying(false);
-    }
-  };
+  }, [token, router]);
 
   const resendVerification = async () => {
     if (!email) {

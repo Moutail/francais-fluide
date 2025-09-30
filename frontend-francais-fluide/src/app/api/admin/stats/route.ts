@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { backendUrl } from '../../_utils/backend';
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 // GET /api/admin/stats - Proxy vers le backend (dashboard)
 export async function GET(request: NextRequest) {

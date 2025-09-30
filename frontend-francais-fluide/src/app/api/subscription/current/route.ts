@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { backendUrl } from '../../_utils/backend';
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 // GET /api/subscription/current - Proxy vers le backend
 export async function GET(request: NextRequest) {

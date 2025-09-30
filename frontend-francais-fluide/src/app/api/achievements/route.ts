@@ -1,19 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { backendUrl } from '../_utils/backend';
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 // GET /api/achievements - proxy vers le backend Express
 export async function GET(request: NextRequest) {
   try {
-    const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backend) {
-      return NextResponse.json(
-        { success: false, error: 'NEXT_PUBLIC_BACKEND_URL non configuré' },
-        { status: 500 }
-      );
-    }
-
     const authHeader = request.headers.get('authorization') || '';
 
-    const res = await fetch(`${backend}/api/achievements`, {
+    const res = await fetch(backendUrl('/api/achievements'), {
       method: 'GET',
       headers: {
         'authorization': authHeader,
