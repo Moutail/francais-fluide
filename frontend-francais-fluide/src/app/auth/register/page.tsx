@@ -4,16 +4,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import {
-  User,
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  ArrowLeft,
-  CheckCircle,
-  AlertTriangle
-} from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff, ArrowLeft, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/professional/Button';
 
 export default function RegisterPage() {
@@ -23,7 +14,7 @@ export default function RegisterPage() {
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -52,13 +43,13 @@ export default function RegisterPage() {
     try {
       await register(formData.name, formData.email, formData.password);
       setSuccess(true);
-      
+
       // Redirection après 2 secondes
       setTimeout(() => {
         router.push('/dashboard');
       }, 2000);
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de l\'inscription');
+      setError(err.message || "Erreur lors de l'inscription");
     } finally {
       setIsLoading(false);
     }
@@ -71,19 +62,17 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full">
-          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-green-600" />
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 p-4">
+        <div className="w-full max-w-md">
+          <div className="rounded-2xl bg-white p-8 text-center shadow-xl">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+              <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Inscription réussie !
-            </h1>
-            <p className="text-gray-600 mb-4">
+            <h1 className="mb-2 text-2xl font-bold text-gray-900">Inscription réussie !</h1>
+            <p className="mb-4 text-gray-600">
               Votre compte a été créé avec succès. Redirection en cours...
             </p>
-            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
           </div>
         </div>
       </div>
@@ -91,36 +80,30 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 p-4">
+      <div className="w-full max-w-md">
         {/* Logo et titre */}
-        <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 bg-accent-500 rounded-2xl flex items-center justify-center mb-4 shadow-sm">
-            <span className="text-white font-bold text-2xl">F</span>
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-500 shadow-sm">
+            <span className="text-2xl font-bold text-white">F</span>
           </div>
-          <h1 className="text-3xl font-bold text-primary-900 mb-2">
-            Créer un compte
-          </h1>
-          <p className="text-gray-600">
-            Rejoignez FrançaisFluide et améliorez votre français
-          </p>
+          <h1 className="mb-2 text-3xl font-bold text-primary-900">Créer un compte</h1>
+          <p className="text-gray-600">Rejoignez FrançaisFluide et améliorez votre français</p>
         </div>
 
         {/* Formulaire d'inscription */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="rounded-2xl bg-white p-8 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Nom */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nom complet
-              </label>
+              <label className="mb-2 block text-sm font-medium text-gray-700">Nom complet</label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onChange={e => handleInputChange('name', e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   placeholder="Jean Dupont"
                   required
                 />
@@ -129,16 +112,14 @@ export default function RegisterPage() {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email
-              </label>
+              <label className="mb-2 block text-sm font-medium text-gray-700">Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onChange={e => handleInputChange('email', e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   placeholder="jean@email.com"
                   required
                 />
@@ -147,58 +128,60 @@ export default function RegisterPage() {
 
             {/* Mot de passe */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Mot de passe
-              </label>
+              <label className="mb-2 block text-sm font-medium text-gray-700">Mot de passe</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onChange={e => handleInputChange('password', e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-12 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
             </div>
 
             {/* Confirmation mot de passe */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
                 Confirmer le mot de passe
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
-                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onChange={e => handleInputChange('confirmPassword', e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-12 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
 
             {/* Message d'erreur */}
             {error && (
-              <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
+              <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3">
+                <AlertTriangle className="h-5 w-5 flex-shrink-0 text-red-600" />
                 <p className="text-sm text-red-700">{error}</p>
               </div>
             )}
@@ -220,10 +203,7 @@ export default function RegisterPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Déjà un compte ?{' '}
-              <a
-                href="/auth/login"
-                className="text-accent-600 hover:text-accent-500 font-medium"
-              >
+              <a href="/auth/login" className="font-medium text-accent-600 hover:text-accent-500">
                 Se connecter
               </a>
             </p>
@@ -233,9 +213,9 @@ export default function RegisterPage() {
           <div className="mt-4 text-center">
             <a
               href="/"
-              className="flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              className="flex items-center justify-center gap-2 text-sm text-gray-600 transition-colors hover:text-gray-900"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="h-4 w-4" />
               Retour à l'accueil
             </a>
           </div>

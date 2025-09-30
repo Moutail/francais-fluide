@@ -8,50 +8,50 @@ interface SimpleAIAssistantProps {
   userPlan?: string;
 }
 
-export const SimpleAIAssistant: React.FC<SimpleAIAssistantProps> = ({
-  userPlan = 'free'
-}) => {
+export const SimpleAIAssistant: React.FC<SimpleAIAssistantProps> = ({ userPlan = 'free' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<Array<{id: string, text: string, isUser: boolean}>>([]);
+  const [messages, setMessages] = useState<Array<{ id: string; text: string; isUser: boolean }>>(
+    []
+  );
 
   // Mapping des plans backend vers frontend
   const getFrontendPlanId = (backendPlan: string) => {
     const mapping: { [key: string]: string } = {
-      'demo': 'free',
-      'etudiant': 'student', 
-      'premium': 'premium',
-      'etablissement': 'enterprise',
+      demo: 'free',
+      etudiant: 'student',
+      premium: 'premium',
+      etablissement: 'enterprise',
     };
     return mapping[backendPlan] || 'free';
   };
 
   const frontendPlanId = getFrontendPlanId(userPlan);
   const canUseAI = frontendPlanId && frontendPlanId !== 'free';
-  
+
   // Debug
   console.log('🤖 SimpleAIAssistant Debug:', {
     userPlan,
     frontendPlanId,
-    canUseAI
+    canUseAI,
   });
 
   const handleSend = () => {
     if (!message.trim() || !canUseAI) return;
-    
+
     const userMsg = { id: Date.now().toString(), text: message, isUser: true };
     setMessages(prev => [...prev, userMsg]);
-    
+
     // Simulation de réponse IA
     setTimeout(() => {
-      const aiMsg = { 
-        id: (Date.now() + 1).toString(), 
-        text: "Je suis votre assistant IA pour l'apprentissage du français. Comment puis-je vous aider ?", 
-        isUser: false 
+      const aiMsg = {
+        id: (Date.now() + 1).toString(),
+        text: "Je suis votre assistant IA pour l'apprentissage du français. Comment puis-je vous aider ?",
+        isUser: false,
       };
       setMessages(prev => [...prev, aiMsg]);
     }, 1000);
-    
+
     setMessage('');
   };
 
@@ -67,37 +67,35 @@ export const SimpleAIAssistant: React.FC<SimpleAIAssistantProps> = ({
       {/* Bouton flottant */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-white transition-all z-40 ${
-          canUseAI 
-            ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" 
-            : "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+        className={`fixed z-40 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-xl transition-all ${
+          canUseAI
+            ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
+            : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600'
         }`}
-        style={{ 
+        style={{
           bottom: '80px',
-          right: '24px'
+          right: '24px',
         }}
-        title={canUseAI ? "Assistant IA" : "Assistant IA - Upgrade requis"}
+        title={canUseAI ? 'Assistant IA' : 'Assistant IA - Upgrade requis'}
       >
-        <MessageCircle className="w-6 h-6" />
+        <MessageCircle className="h-6 w-6" />
       </button>
 
       {/* Modal */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div 
-            className="w-full max-w-md h-[500px] bg-white rounded-2xl shadow-2xl flex flex-col relative"
-            onClick={(e) => e.stopPropagation()}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div
+            className="relative flex h-[500px] w-full max-w-md flex-col rounded-2xl bg-white shadow-2xl"
+            onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <div className="flex items-center justify-between border-b border-gray-200 p-4">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-white" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-500">
+                  <Sparkles className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 text-sm">
-                    Assistant IA
-                  </h3>
+                  <h3 className="text-sm font-semibold text-gray-900">Assistant IA</h3>
                   <p className="text-xs text-gray-600">
                     {canUseAI ? 'Disponible' : 'Upgrade requis'}
                   </p>
@@ -105,53 +103,45 @@ export const SimpleAIAssistant: React.FC<SimpleAIAssistantProps> = ({
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-red-100 rounded-lg transition-colors group"
+                className="group rounded-lg p-2 transition-colors hover:bg-red-100"
                 title="Fermer"
               >
-                <X className="w-4 h-4 text-gray-600 group-hover:text-red-600" />
+                <X className="h-4 w-4 text-gray-600 group-hover:text-red-600" />
               </button>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div className="flex-1 space-y-3 overflow-y-auto p-4">
               {messages.length === 0 && (
-                <div className="text-center py-8">
-                  <Sparkles className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                  <h4 className="font-semibold text-gray-900 mb-1 text-sm">
+                <div className="py-8 text-center">
+                  <Sparkles className="mx-auto mb-2 h-8 w-8 text-blue-500" />
+                  <h4 className="mb-1 text-sm font-semibold text-gray-900">
                     Assistant IA FrançaisFluide
                   </h4>
-                  <p className="text-gray-600 text-xs">
-                    Posez vos questions sur le français
-                  </p>
+                  <p className="text-xs text-gray-600">Posez vos questions sur le français</p>
                 </div>
               )}
 
-              {messages.map((msg) => (
+              {messages.map(msg => (
                 <div
                   key={msg.id}
-                  className={`flex gap-2 ${
-                    msg.isUser ? "justify-end" : "justify-start"
-                  }`}
+                  className={`flex gap-2 ${msg.isUser ? 'justify-end' : 'justify-start'}`}
                 >
                   {!msg.isUser && (
-                    <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Sparkles className="w-3 h-3 text-white" />
+                    <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-500">
+                      <Sparkles className="h-3 w-3 text-white" />
                     </div>
                   )}
                   <div
-                    className={`max-w-[80%] p-3 rounded-2xl text-xs ${
-                      msg.isUser
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-900"
+                    className={`max-w-[80%] rounded-2xl p-3 text-xs ${
+                      msg.isUser ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-900'
                     }`}
                   >
                     {msg.text}
                   </div>
                   {msg.isUser && (
-                    <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-medium text-gray-600">
-                        Vous
-                      </span>
+                    <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-300">
+                      <span className="text-xs font-medium text-gray-600">Vous</span>
                     </div>
                   )}
                 </div>
@@ -159,48 +149,46 @@ export const SimpleAIAssistant: React.FC<SimpleAIAssistantProps> = ({
             </div>
 
             {/* Input */}
-            <div className="p-4 border-t border-gray-200">
+            <div className="border-t border-gray-200 p-4">
               {!canUseAI && (
-                <div className="mb-3 p-3 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg">
+                <div className="mb-3 rounded-lg border border-orange-200 bg-gradient-to-r from-orange-50 to-red-50 p-3">
                   <div className="text-center">
-                    <p className="text-sm font-medium text-orange-800 mb-1">
+                    <p className="mb-1 text-sm font-medium text-orange-800">
                       🚀 Assistant IA Premium
                     </p>
                     <p className="text-xs text-orange-700">
-                      {frontendPlanId === 'free' 
-                        ? "Votre plan démo ne permet pas l'accès à l'assistant IA" 
-                        : "Upgradez vers un plan Étudiant (14.99$/mois) ou supérieur pour utiliser l'assistant IA"
-                      }
+                      {frontendPlanId === 'free'
+                        ? "Votre plan démo ne permet pas l'accès à l'assistant IA"
+                        : "Upgradez vers un plan Étudiant (14.99$/mois) ou supérieur pour utiliser l'assistant IA"}
                     </p>
-                    <button 
-                      onClick={() => window.location.href = '/subscription'}
-                      className="mt-2 px-3 py-1 bg-orange-600 text-white text-xs rounded-lg hover:bg-orange-700 transition-colors"
+                    <button
+                      onClick={() => (window.location.href = '/subscription')}
+                      className="mt-2 rounded-lg bg-orange-600 px-3 py-1 text-xs text-white transition-colors hover:bg-orange-700"
                     >
                       Voir les plans
                     </button>
                   </div>
                 </div>
               )}
-              
+
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={message}
-                  onChange={(e) => setMessage(e.target.value)}
+                  onChange={e => setMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder={canUseAI 
-                    ? "Posez votre question..." 
-                    : "Upgradez pour utiliser l'assistant..."
+                  placeholder={
+                    canUseAI ? 'Posez votre question...' : "Upgradez pour utiliser l'assistant..."
                   }
                   disabled={!canUseAI}
-                  className="flex-1 p-2 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+                  className="flex-1 rounded-lg border border-gray-300 p-2 text-xs focus:border-blue-500 focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
                 />
                 <button
                   onClick={handleSend}
                   disabled={!message.trim() || !canUseAI}
-                  className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  className="rounded-lg bg-blue-600 p-2 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="h-4 w-4" />
                 </button>
               </div>
             </div>

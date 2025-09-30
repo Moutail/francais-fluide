@@ -11,12 +11,12 @@ export class GrammarDetector {
 
     const errors = this.findMatches(text);
     const statistics = this.calculateStatistics(text, errors);
-    
+
     const analysis: TextAnalysis = {
       text,
       errors,
       statistics,
-      suggestions: []
+      suggestions: [],
     };
 
     this.cache.set(text, analysis);
@@ -25,21 +25,21 @@ export class GrammarDetector {
 
   private findMatches(text: string): GrammarError[] {
     const errors: GrammarError[] = [];
-    
+
     // Règles de base simulées
     const patterns = [
       {
         regex: /\b(je suis alle|tu es alle|il est alle)\b/gi,
         type: 'grammar' as const,
         message: 'Accord du participe passé manquant',
-        suggestions: ['je suis allé', 'tu es allé', 'il est allé']
+        suggestions: ['je suis allé', 'tu es allé', 'il est allé'],
       },
       {
         regex: /\b(ces|ses|ses)\s+(maison|voiture|livre)\b/gi,
         type: 'grammar' as const,
-        message: 'Confusion entre ces/ses/c\'est',
-        suggestions: ['c\'est', 'ses', 'ces']
-      }
+        message: "Confusion entre ces/ses/c'est",
+        suggestions: ["c'est", 'ses', 'ces'],
+      },
     ];
 
     patterns.forEach(pattern => {
@@ -52,7 +52,7 @@ export class GrammarDetector {
           message: pattern.message,
           start: match.index,
           end: match.index + match[0].length,
-          suggestions: pattern.suggestions
+          suggestions: pattern.suggestions,
         });
       }
     });
@@ -64,12 +64,12 @@ export class GrammarDetector {
     const words = text.trim().split(/\s+/).length;
     const characters = text.length;
     const errorRate = words > 0 ? (errors.length / words) * 100 : 0;
-    
+
     return {
       wordCount: words,
       characterCount: characters,
       errorRate,
-      readabilityScore: Math.max(0, 100 - errorRate)
+      readabilityScore: Math.max(0, 100 - errorRate),
     };
   }
 }

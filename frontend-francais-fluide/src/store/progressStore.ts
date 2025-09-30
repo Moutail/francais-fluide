@@ -9,18 +9,18 @@ interface ProgressState {
   experience: number;
   level: number;
   points: number;
-  
+
   // Séquences
   dailyStreak: number;
   bestStreak: number;
   lastPracticeDate: Date | null;
-  
+
   // Achievements et missions
   achievements: Achievement[];
   unlockedAchievements: string[];
   missions: Mission[];
   completedMissions: string[];
-  
+
   // Statistiques détaillées
   statistics: {
     totalWords: number;
@@ -34,7 +34,7 @@ interface ProgressState {
     weakestCategory: string;
     improvementRate: number;
   };
-  
+
   // Historique
   history: DailyProgress[];
 
@@ -83,11 +83,11 @@ export const useProgressStore = create<ProgressState>()(
       },
       history: [],
 
-      addExperience: (amount) =>
-        set((state) => {
+      addExperience: amount =>
+        set(state => {
           state.experience += amount;
           state.points += amount;
-          
+
           // Calcul du niveau (100 XP par niveau avec courbe progressive)
           const requiredXP = state.level * 100 * (1 + state.level * 0.1);
           if (state.experience >= requiredXP) {
@@ -97,8 +97,8 @@ export const useProgressStore = create<ProgressState>()(
           }
         }),
 
-      unlockAchievement: (achievementId) =>
-        set((state) => {
+      unlockAchievement: achievementId =>
+        set(state => {
           if (!state.unlockedAchievements.includes(achievementId)) {
             state.unlockedAchievements.push(achievementId);
             // Bonus de points pour achievement
@@ -107,8 +107,8 @@ export const useProgressStore = create<ProgressState>()(
           }
         }),
 
-      completeMission: (missionId) =>
-        set((state) => {
+      completeMission: missionId =>
+        set(state => {
           if (!state.completedMissions.includes(missionId)) {
             state.completedMissions.push(missionId);
             const mission = state.missions.find(m => m.id === missionId);
@@ -123,18 +123,18 @@ export const useProgressStore = create<ProgressState>()(
         }),
 
       updateStreak: () =>
-        set((state) => {
+        set(state => {
           const today = new Date();
           today.setHours(0, 0, 0, 0);
-          
+
           if (state.lastPracticeDate) {
             const lastPractice = new Date(state.lastPracticeDate);
             lastPractice.setHours(0, 0, 0, 0);
-            
+
             const daysDiff = Math.floor(
               (today.getTime() - lastPractice.getTime()) / (1000 * 60 * 60 * 24)
             );
-            
+
             if (daysDiff === 0) {
               // Déjà pratiqué aujourd'hui
               return;
@@ -154,36 +154,36 @@ export const useProgressStore = create<ProgressState>()(
             // Première pratique
             state.dailyStreak = 1;
           }
-          
+
           state.lastPracticeDate = today;
         }),
 
-      addDailyProgress: (progress) =>
-        set((state) => {
+      addDailyProgress: progress =>
+        set(state => {
           state.history.push(progress);
-          
+
           // Garder seulement les 30 derniers jours
           if (state.history.length > 30) {
             state.history = state.history.slice(-30);
           }
-          
+
           // Mettre à jour les statistiques globales
           state.statistics.totalWords += progress.wordsWritten;
           state.statistics.timeSpent += progress.timeSpent;
-          
+
           // Recalculer la moyenne de précision
           const totalAccuracy = state.history.reduce((sum, h) => sum + h.accuracy, 0);
           state.statistics.averageAccuracy = Math.round(totalAccuracy / state.history.length);
         }),
 
-      updateStatistics: (stats) =>
-        set((state) => {
+      updateStatistics: stats =>
+        set(state => {
           Object.assign(state.statistics, stats);
         }),
     })),
     {
       name: 'progress-storage',
-      partialize: (state) => ({
+      partialize: state => ({
         experience: state.experience,
         level: state.level,
         points: state.points,

@@ -9,38 +9,38 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 async function testServerConnection() {
   console.log('🔍 TEST DE CONNEXION SERVEUR');
   console.log('='.repeat(50));
-  
+
   const tests = [
     {
       name: 'Backend Health Check',
       url: `${BACKEND_URL}/health`,
-      method: 'GET'
+      method: 'GET',
     },
     {
       name: 'Backend API Info',
       url: `${BACKEND_URL}/api`,
-      method: 'GET'
+      method: 'GET',
     },
     {
       name: 'Frontend Health Check',
       url: `${FRONTEND_URL}/api/health`,
-      method: 'GET'
-    }
+      method: 'GET',
+    },
   ];
 
   for (const test of tests) {
     try {
       console.log(`\n🧪 Test: ${test.name}`);
       console.log(`   URL: ${test.url}`);
-      
+
       const response = await fetch(test.url, {
         method: test.method,
         headers: {
           'Content-Type': 'application/json',
         },
-        timeout: 5000
+        timeout: 5000,
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log(`   ✅ Succès (${response.status})`);
@@ -55,7 +55,7 @@ async function testServerConnection() {
       console.log(`   📝 Erreur:`, error.message);
     }
   }
-  
+
   console.log('\n' + '='.repeat(50));
   console.log('✅ Test de connexion terminé');
 }
@@ -64,7 +64,7 @@ async function testServerConnection() {
 async function testAuthenticatedEndpoints() {
   console.log('\n🔐 TEST DES ENDPOINTS AUTHENTIFIÉS');
   console.log('='.repeat(50));
-  
+
   // Note: Ce test nécessiterait un token valide
   console.log('ℹ️  Pour tester les endpoints authentifiés, vous devez:');
   console.log('   1. Créer un compte via /api/auth/register');
@@ -91,5 +91,5 @@ if (require.main === module) {
 module.exports = {
   testServerConnection,
   testAuthenticatedEndpoints,
-  runAllTests
+  runAllTests,
 };

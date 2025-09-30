@@ -11,9 +11,9 @@ export class MockWebSocketServer {
     this.users.set(userId, {
       ...userData,
       connectedAt: new Date(),
-      isOnline: true
+      isOnline: true,
     });
-    
+
     console.log(`Utilisateur ${userId} connecté`);
     return { success: true, userId };
   }
@@ -25,7 +25,7 @@ export class MockWebSocketServer {
       user.isOnline = false;
       user.disconnectedAt = new Date();
     }
-    
+
     console.log(`Utilisateur ${userId} déconnecté`);
     return { success: true };
   }
@@ -40,19 +40,19 @@ export class MockWebSocketServer {
         content: '',
         lastModified: new Date(),
         isLocked: false,
-        lockOwner: null
+        lockOwner: null,
       });
     }
 
     const room = this.rooms.get(roomId);
     const existingUser = room.users.find((u: any) => u.id === user.id);
-    
+
     if (!existingUser) {
       room.users.push({
         ...user,
         joinedAt: new Date(),
         isTyping: false,
-        lastSeen: new Date()
+        lastSeen: new Date(),
       });
     } else {
       existingUser.lastSeen = new Date();
@@ -69,7 +69,7 @@ export class MockWebSocketServer {
     const room = this.rooms.get(roomId);
     if (room) {
       room.users = room.users.filter((u: any) => u.id !== userId);
-      
+
       if (room.users.length === 0) {
         this.rooms.delete(roomId);
         this.messages.delete(roomId);
@@ -168,7 +168,10 @@ export class MockWebSocketServer {
       totalRooms: this.rooms.size,
       totalUsers: this.users.size,
       onlineUsers: Array.from(this.users.values()).filter((u: any) => u.isOnline).length,
-      totalMessages: Array.from(this.messages.values()).reduce((total, msgs) => total + msgs.length, 0)
+      totalMessages: Array.from(this.messages.values()).reduce(
+        (total, msgs) => total + msgs.length,
+        0
+      ),
     };
   }
 

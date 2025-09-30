@@ -32,10 +32,10 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
     <LoadingContext.Provider value={{ isLoading, setLoading, withLoading }}>
       {children}
       {isLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 flex items-center gap-3">
-            <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-            <span className="text-gray-900 font-medium">Chargement...</span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="flex items-center gap-3 rounded-lg bg-white p-6">
+            <Loader2 className="size-6 animate-spin text-blue-600" />
+            <span className="font-medium text-gray-900">Chargement...</span>
           </div>
         </div>
       )}

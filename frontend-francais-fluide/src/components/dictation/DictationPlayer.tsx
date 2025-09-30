@@ -3,15 +3,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/professional/Button';
 import { Card } from '@/components/ui/professional/Card';
-import { 
-  Play, 
-  Pause, 
-  Square, 
-  RotateCcw, 
-  Volume2, 
+import {
+  Play,
+  Pause,
+  Square,
+  RotateCcw,
+  Volume2,
   Clock,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react';
 
 interface DictationPlayerProps {
@@ -27,7 +27,11 @@ interface DictationPlayerProps {
   loading?: boolean;
 }
 
-export default function DictationPlayer({ dictation, onSubmit, loading = false }: DictationPlayerProps) {
+export default function DictationPlayer({
+  dictation,
+  onSubmit,
+  loading = false,
+}: DictationPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [userText, setUserText] = useState('');
   const [startTime, setStartTime] = useState<number | null>(null);
@@ -43,13 +47,13 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
   const difficultyColors = {
     beginner: 'text-green-600 bg-green-50 border-green-200',
     intermediate: 'text-yellow-600 bg-yellow-50 border-yellow-200',
-    advanced: 'text-red-600 bg-red-50 border-red-200'
+    advanced: 'text-red-600 bg-red-50 border-red-200',
   };
 
   const difficultyLabels = {
     beginner: 'Débutant',
     intermediate: 'Intermédiaire',
-    advanced: 'Avancé'
+    advanced: 'Avancé',
   };
 
   useEffect(() => {
@@ -70,7 +74,7 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
 
   const startTimer = () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
-    
+
     intervalRef.current = setInterval(() => {
       if (startTime) {
         setTimeSpent(Math.floor((Date.now() - startTime) / 1000));
@@ -90,12 +94,15 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
       // Simulation audio pour les dictées sans fichier audio
       setIsPlaying(true);
       setPlayCount(prev => prev + 1);
-      
+
       // Simuler la durée de lecture
-      setTimeout(() => {
-        setIsPlaying(false);
-      }, dictation.duration * 60 * 1000);
-      
+      setTimeout(
+        () => {
+          setIsPlaying(false);
+        },
+        dictation.duration * 60 * 1000
+      );
+
       return;
     }
 
@@ -154,45 +161,46 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const wordCount = userText.trim().split(/\s+/).filter(word => word.length > 0).length;
+  const wordCount = userText
+    .trim()
+    .split(/\s+/)
+    .filter(word => word.length > 0).length;
   const estimatedDuration = dictation.duration; // en minutes
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6">
       {/* En-tête de la dictée */}
       <Card className="p-6">
-        <div className="flex items-start justify-between mb-4">
+        <div className="mb-4 flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              {dictation.title}
-            </h1>
-            {dictation.description && (
-              <p className="text-gray-600 mb-3">{dictation.description}</p>
-            )}
+            <h1 className="mb-2 text-2xl font-bold text-gray-900">{dictation.title}</h1>
+            {dictation.description && <p className="mb-3 text-gray-600">{dictation.description}</p>}
           </div>
-          <div className={`px-3 py-1 rounded-full text-sm font-medium border ${difficultyColors[dictation.difficulty]}`}>
+          <div
+            className={`rounded-full border px-3 py-1 text-sm font-medium ${difficultyColors[dictation.difficulty]}`}
+          >
             {difficultyLabels[dictation.difficulty]}
           </div>
         </div>
 
         <div className="flex items-center gap-6 text-sm text-gray-500">
           <div className="flex items-center gap-1">
-            <Clock className="w-4 h-4" />
+            <Clock className="h-4 w-4" />
             <span>Durée estimée: {estimatedDuration} min</span>
           </div>
           {audioDurationSec !== null && (
             <div className="flex items-center gap-1">
-              <Clock className="w-4 h-4" />
+              <Clock className="h-4 w-4" />
               <span>Durée audio: {Math.max(1, Math.round(audioDurationSec / 60))} min</span>
             </div>
           )}
           <div className="flex items-center gap-1">
-            <Volume2 className="w-4 h-4" />
+            <Volume2 className="h-4 w-4" />
             <span>Écoutes: {playCount}</span>
           </div>
           {startTime && (
             <div className="flex items-center gap-1">
-              <CheckCircle className="w-4 h-4" />
+              <CheckCircle className="h-4 w-4" />
               <span>Temps écoulé: {formatTime(timeSpent)}</span>
             </div>
           )}
@@ -201,8 +209,8 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
 
       {/* Lecteur audio */}
       <Card className="p-6">
-        <h2 className="text-lg font-semibold mb-4">Lecteur audio</h2>
-        
+        <h2 className="mb-4 text-lg font-semibold">Lecteur audio</h2>
+
         {dictation.audioUrl && (
           <audio
             ref={audioRef}
@@ -225,16 +233,16 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
             onClick={handlePlay}
             disabled={loading}
             className="flex items-center gap-2"
-            variant={isPlaying ? "secondary" : "primary"}
+            variant={isPlaying ? 'secondary' : 'primary'}
           >
             {isPlaying ? (
               <>
-                <Pause className="w-4 h-4" />
+                <Pause className="h-4 w-4" />
                 Pause
               </>
             ) : (
               <>
-                <Play className="w-4 h-4" />
+                <Play className="h-4 w-4" />
                 Écouter
               </>
             )}
@@ -246,7 +254,7 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
             variant="secondary"
             className="flex items-center gap-2"
           >
-            <Square className="w-4 h-4" />
+            <Square className="h-4 w-4" />
             Arrêter
           </Button>
 
@@ -256,17 +264,18 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
             variant="secondary"
             className="flex items-center gap-2"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="h-4 w-4" />
             Recommencer
           </Button>
         </div>
 
         {!dictation.audioUrl && (
-          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="mt-4 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
             <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-yellow-600" />
+              <AlertCircle className="h-4 w-4 text-yellow-600" />
               <span className="text-sm text-yellow-800">
-                Mode simulation - Aucun fichier audio disponible. Utilisez le bouton "Écouter" pour démarrer le chronomètre.
+                Mode simulation - Aucun fichier audio disponible. Utilisez le bouton "Écouter" pour
+                démarrer le chronomètre.
               </span>
             </div>
           </div>
@@ -275,15 +284,15 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
 
       {/* Zone de saisie */}
       <Card className="p-6">
-        <h2 className="text-lg font-semibold mb-4">Votre dictée</h2>
-        
+        <h2 className="mb-4 text-lg font-semibold">Votre dictée</h2>
+
         <div className="space-y-4">
           <textarea
             ref={textareaRef}
             value={userText}
-            onChange={(e) => setUserText(e.target.value)}
+            onChange={e => setUserText(e.target.value)}
             placeholder="Tapez ici ce que vous entendez..."
-            className="w-full h-48 p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="h-48 w-full resize-none rounded-lg border border-gray-300 p-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
             disabled={loading}
           />
 
@@ -332,28 +341,23 @@ export default function DictationPlayer({ dictation, onSubmit, loading = false }
 
       {/* Modal de confirmation */}
       {showSubmitConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="p-6 max-w-md mx-4">
-            <h3 className="text-lg font-semibold mb-4">Confirmer la soumission</h3>
-            <div className="space-y-2 text-sm text-gray-600 mb-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <Card className="mx-4 max-w-md p-6">
+            <h3 className="mb-4 text-lg font-semibold">Confirmer la soumission</h3>
+            <div className="mb-6 space-y-2 text-sm text-gray-600">
               <p>• Mots saisis: {wordCount}</p>
               <p>• Temps écoulé: {formatTime(timeSpent)}</p>
               <p>• Écoutes: {playCount}</p>
             </div>
-            <p className="text-sm text-gray-700 mb-6">
-              Êtes-vous sûr de vouloir soumettre votre dictée ? Vous ne pourrez plus la modifier après.
+            <p className="mb-6 text-sm text-gray-700">
+              Êtes-vous sûr de vouloir soumettre votre dictée ? Vous ne pourrez plus la modifier
+              après.
             </p>
-            <div className="flex gap-3 justify-end">
-              <Button
-                onClick={() => setShowSubmitConfirm(false)}
-                variant="secondary"
-              >
+            <div className="flex justify-end gap-3">
+              <Button onClick={() => setShowSubmitConfirm(false)} variant="secondary">
                 Annuler
               </Button>
-              <Button
-                onClick={handleSubmit}
-                disabled={loading}
-              >
+              <Button onClick={handleSubmit} disabled={loading}>
                 Confirmer
               </Button>
             </div>

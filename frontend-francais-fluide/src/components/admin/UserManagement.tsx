@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/professional/Card';
 import { Button } from '@/components/ui/professional/Button';
-import { 
-  Users, 
-  Search, 
+import {
+  Users,
+  Search,
   Filter,
   Plus,
   Edit,
@@ -17,7 +17,7 @@ import {
   Crown,
   AlertTriangle,
   CheckCircle,
-  X
+  X,
 } from 'lucide-react';
 import { apiClient } from '@/lib/api';
 
@@ -55,14 +55,14 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  
+
   // Filtres et recherche
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
-  
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -87,11 +87,11 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
         sortOrder,
         ...(search && { search }),
         ...(roleFilter && { role: roleFilter }),
-        ...(statusFilter && { status: statusFilter })
+        ...(statusFilter && { status: statusFilter }),
       });
 
       const response = await apiClient.makeRequest(`/api/admin/users?${params}`);
-      
+
       if (response.success) {
         setUsers(response.data.users);
         setTotalPages(response.data.pagination.pages);
@@ -110,7 +110,7 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
   const handleDeleteUser = async (user: User) => {
     try {
       const response = await apiClient.makeRequest(`/api/admin/users/${user.id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
       });
 
       if (response.success) {
@@ -131,16 +131,12 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
       const response = await apiClient.makeRequest(`/api/admin/users/${user.id}`, {
         method: 'PUT',
         body: JSON.stringify({
-          isActive: !user.isActive
-        })
+          isActive: !user.isActive,
+        }),
       });
 
       if (response.success) {
-        setUsers(users.map(u => 
-          u.id === user.id 
-            ? { ...u, isActive: !u.isActive }
-            : u
-        ));
+        setUsers(users.map(u => (u.id === user.id ? { ...u, isActive: !u.isActive } : u)));
       } else {
         alert(response.error || 'Erreur lors de la modification');
       }
@@ -151,10 +147,8 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
   };
 
   const handleSelectUser = (userId: string) => {
-    setSelectedUsers(prev => 
-      prev.includes(userId)
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
+    setSelectedUsers(prev =>
+      prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
     );
   };
 
@@ -172,7 +166,7 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
       admin: 'Administrateur',
       super_admin: 'Super Admin',
       tester: 'Testeur',
-      teacher: 'Professeur'
+      teacher: 'Professeur',
     };
     return labels[role as keyof typeof labels] || role;
   };
@@ -183,7 +177,7 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
       admin: 'bg-red-100 text-red-800',
       super_admin: 'bg-purple-100 text-purple-800',
       tester: 'bg-yellow-100 text-yellow-800',
-      teacher: 'bg-blue-100 text-blue-800'
+      teacher: 'bg-blue-100 text-blue-800',
     };
     return colors[role as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
@@ -194,7 +188,7 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
       active: 'bg-green-100 text-green-800',
       pending: 'bg-yellow-100 text-yellow-800',
       cancelled: 'bg-red-100 text-red-800',
-      expired: 'bg-gray-100 text-gray-800'
+      expired: 'bg-gray-100 text-gray-800',
     };
     return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
@@ -208,7 +202,7 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
         <Card className="p-6">
           <div className="animate-pulse space-y-4">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-16 bg-gray-200 rounded"></div>
+              <div key={i} className="h-16 rounded bg-gray-200"></div>
             ))}
           </div>
         </Card>
@@ -222,37 +216,34 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Gestion des utilisateurs</h1>
-          <p className="text-gray-600 mt-2">
+          <p className="mt-2 text-gray-600">
             {totalUsers} utilisateur{totalUsers > 1 ? 's' : ''} au total
           </p>
         </div>
-        <Button
-          onClick={() => onNavigate('users-create')}
-          className="flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
+        <Button onClick={() => onNavigate('users-create')} className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
           Créer un utilisateur
         </Button>
       </div>
 
       {/* Filtres et recherche */}
       <Card className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
             <input
               type="text"
               placeholder="Rechercher par nom ou email..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              onChange={e => setSearch(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <select
             value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            onChange={e => setRoleFilter(e.target.value)}
+            className="rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Tous les rôles</option>
             <option value="user">Utilisateur</option>
@@ -264,8 +255,8 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
 
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            onChange={e => setStatusFilter(e.target.value)}
+            className="rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Tous les statuts</option>
             <option value="active">Actif</option>
@@ -274,12 +265,12 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
 
           <select
             value={`${sortBy}-${sortOrder}`}
-            onChange={(e) => {
+            onChange={e => {
               const [newSortBy, newSortOrder] = e.target.value.split('-');
               setSortBy(newSortBy);
               setSortOrder(newSortOrder);
             }}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
           >
             <option value="createdAt-desc">Plus récents</option>
             <option value="createdAt-asc">Plus anciens</option>
@@ -291,9 +282,9 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
       </Card>
 
       {error && (
-        <Card className="p-6 border-red-200 bg-red-50">
+        <Card className="border-red-200 bg-red-50 p-6">
           <div className="flex items-center gap-2 text-red-800">
-            <AlertTriangle className="w-5 h-5" />
+            <AlertTriangle className="h-5 w-5" />
             <span>{error}</span>
           </div>
         </Card>
@@ -301,10 +292,11 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
 
       {/* Actions en lot */}
       {selectedUsers.length > 0 && (
-        <Card className="p-4 bg-blue-50 border-blue-200">
+        <Card className="border-blue-200 bg-blue-50 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-blue-800 font-medium">
-              {selectedUsers.length} utilisateur{selectedUsers.length > 1 ? 's' : ''} sélectionné{selectedUsers.length > 1 ? 's' : ''}
+            <span className="font-medium text-blue-800">
+              {selectedUsers.length} utilisateur{selectedUsers.length > 1 ? 's' : ''} sélectionné
+              {selectedUsers.length > 1 ? 's' : ''}
             </span>
             <div className="flex gap-2">
               <Button size="sm" variant="secondary">
@@ -313,11 +305,7 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
               <Button size="sm" variant="secondary">
                 Exporter
               </Button>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => setSelectedUsers([])}
-              >
+              <Button size="sm" variant="secondary" onClick={() => setSelectedUsers([])}>
                 Annuler
               </Button>
             </div>
@@ -339,28 +327,28 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Utilisateur
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Rôle
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Abonnement
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Progression
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Statut
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {users.map((user) => (
+            <tbody className="divide-y divide-gray-200 bg-white">
+              {users.map(user => (
                 <tr key={user.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <input
@@ -370,11 +358,11 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                   </td>
-                  
+
                   <td className="px-6 py-4">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                      <div className="h-10 w-10 flex-shrink-0">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-300">
                           <span className="text-sm font-medium text-gray-700">
                             {user.name.charAt(0).toUpperCase()}
                           </span>
@@ -391,7 +379,9 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
                   </td>
 
                   <td className="px-6 py-4">
-                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRoleColor(user.role)}`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getRoleColor(user.role)}`}
+                    >
                       {getRoleLabel(user.role)}
                     </span>
                   </td>
@@ -399,11 +389,14 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
                   <td className="px-6 py-4">
                     {user.subscription ? (
                       <div>
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getSubscriptionColor(user.subscription.status)}`}>
+                        <span
+                          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getSubscriptionColor(user.subscription.status)}`}
+                        >
                           {user.subscription.plan}
                         </span>
-                        <div className="text-xs text-gray-500 mt-1">
-                          Expire le {new Date(user.subscription.endDate).toLocaleDateString('fr-FR')}
+                        <div className="mt-1 text-xs text-gray-500">
+                          Expire le{' '}
+                          {new Date(user.subscription.endDate).toLocaleDateString('fr-FR')}
                         </div>
                       </div>
                     ) : (
@@ -422,7 +415,8 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
                         </div>
                         {user.progress.lastActivity && (
                           <div className="text-xs text-gray-400">
-                            Dernière activité: {new Date(user.progress.lastActivity).toLocaleDateString('fr-FR')}
+                            Dernière activité:{' '}
+                            {new Date(user.progress.lastActivity).toLocaleDateString('fr-FR')}
                           </div>
                         )}
                       </div>
@@ -435,18 +429,18 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
                     <div className="flex items-center">
                       {user.isActive ? (
                         <>
-                          <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                          <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
                           <span className="text-sm text-green-800">Actif</span>
                         </>
                       ) : (
                         <>
-                          <X className="w-4 h-4 text-red-500 mr-2" />
+                          <X className="mr-2 h-4 w-4 text-red-500" />
                           <span className="text-sm text-red-800">Inactif</span>
                         </>
                       )}
                     </div>
                     {user.lastLogin && (
-                      <div className="text-xs text-gray-400 mt-1">
+                      <div className="mt-1 text-xs text-gray-400">
                         Dernière connexion: {new Date(user.lastLogin).toLocaleDateString('fr-FR')}
                       </div>
                     )}
@@ -461,17 +455,21 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
                         className="p-2"
                         title="Modifier"
                       >
-                        <Edit className="w-4 h-4" />
+                        <Edit className="h-4 w-4" />
                       </Button>
-                      
+
                       <Button
                         size="sm"
                         variant="secondary"
                         onClick={() => handleToggleUserStatus(user)}
                         className="p-2"
-                        title={user.isActive ? "Désactiver" : "Activer"}
+                        title={user.isActive ? 'Désactiver' : 'Activer'}
                       >
-                        {user.isActive ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
+                        {user.isActive ? (
+                          <UserX className="h-4 w-4" />
+                        ) : (
+                          <UserCheck className="h-4 w-4" />
+                        )}
                       </Button>
 
                       <Button
@@ -481,7 +479,7 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
                         className="p-2"
                         title="Gérer l'abonnement"
                       >
-                        <Crown className="w-4 h-4" />
+                        <Crown className="h-4 w-4" />
                       </Button>
 
                       <Button
@@ -494,7 +492,7 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
                         className="p-2 text-red-600 hover:text-red-700"
                         title="Supprimer"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </td>
@@ -506,7 +504,7 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="px-6 py-3 bg-gray-50 border-t">
+          <div className="border-t bg-gray-50 px-6 py-3">
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-700">
                 Page {currentPage} sur {totalPages} ({totalUsers} utilisateurs au total)
@@ -536,21 +534,19 @@ export default function UserManagement({ onNavigate }: UserManagementProps) {
 
       {/* Modal de confirmation de suppression */}
       {showDeleteModal && userToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="p-6 max-w-md mx-4">
-            <div className="flex items-center gap-3 mb-4">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
-              <h3 className="text-lg font-semibold text-gray-900">
-                Confirmer la suppression
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <Card className="mx-4 max-w-md p-6">
+            <div className="mb-4 flex items-center gap-3">
+              <AlertTriangle className="h-6 w-6 text-red-600" />
+              <h3 className="text-lg font-semibold text-gray-900">Confirmer la suppression</h3>
             </div>
-            
-            <p className="text-gray-600 mb-6">
-              Êtes-vous sûr de vouloir supprimer l'utilisateur <strong>{userToDelete.name}</strong> ?
-              Cette action est irréversible et supprimera toutes ses données.
+
+            <p className="mb-6 text-gray-600">
+              Êtes-vous sûr de vouloir supprimer l'utilisateur <strong>{userToDelete.name}</strong>{' '}
+              ? Cette action est irréversible et supprimera toutes ses données.
             </p>
 
-            <div className="flex gap-3 justify-end">
+            <div className="flex justify-end gap-3">
               <Button
                 variant="secondary"
                 onClick={() => {

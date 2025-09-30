@@ -1,7 +1,17 @@
 'use client';
 
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Area,
+  AreaChart,
+} from 'recharts';
 import { Card } from '@/components/ui';
 
 interface ProgressChartProps {
@@ -22,7 +32,7 @@ export default function ProgressChart({
   type = 'line',
   showAccuracy = true,
   showExercises = false,
-  className = ''
+  className = '',
 }: ProgressChartProps) {
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -32,7 +42,7 @@ export default function ProgressChart({
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+        <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
           <p className="font-semibold text-gray-900">{formatDate(label)}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
@@ -52,17 +62,8 @@ export default function ProgressChart({
       return (
         <AreaChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-          <XAxis 
-            dataKey="date" 
-            tickFormatter={formatDate}
-            stroke="#666"
-            fontSize={12}
-          />
-          <YAxis 
-            domain={[0, 100]}
-            stroke="#666"
-            fontSize={12}
-          />
+          <XAxis dataKey="date" tickFormatter={formatDate} stroke="#666" fontSize={12} />
+          <YAxis domain={[0, 100]} stroke="#666" fontSize={12} />
           <Tooltip content={<CustomTooltip />} />
           <Area
             type="monotone"
@@ -89,17 +90,8 @@ export default function ProgressChart({
     return (
       <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-        <XAxis 
-          dataKey="date" 
-          tickFormatter={formatDate}
-          stroke="#666"
-          fontSize={12}
-        />
-        <YAxis 
-          domain={[0, 100]}
-          stroke="#666"
-          fontSize={12}
-        />
+        <XAxis dataKey="date" tickFormatter={formatDate} stroke="#666" fontSize={12} />
+        <YAxis domain={[0, 100]} stroke="#666" fontSize={12} />
         <Tooltip content={<CustomTooltip />} />
         <Line
           type="monotone"
@@ -136,34 +128,30 @@ export default function ProgressChart({
   return (
     <Card className={`p-6 ${className}`}>
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Progression des Scores
-        </h3>
-        <p className="text-sm text-gray-600">
-          Évolution de vos performances au fil du temps
-        </p>
+        <h3 className="mb-2 text-lg font-semibold text-gray-900">Progression des Scores</h3>
+        <p className="text-sm text-gray-600">Évolution de vos performances au fil du temps</p>
       </div>
-      
+
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           {renderChart()}
         </ResponsiveContainer>
       </div>
-      
+
       <div className="mt-4 flex flex-wrap gap-4 text-sm">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+          <div className="h-3 w-3 rounded-full bg-blue-500"></div>
           <span className="text-gray-600">Score</span>
         </div>
         {showAccuracy && (
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+            <div className="h-3 w-3 rounded-full bg-green-500"></div>
             <span className="text-gray-600">Précision</span>
           </div>
         )}
         {showExercises && (
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+            <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
             <span className="text-gray-600">Exercices</span>
           </div>
         )}

@@ -37,7 +37,7 @@ class AIConfigManager {
     enableVoice: false,
     enableAdvancedCorrections: false,
     enablePersonalizedExercises: false,
-    enableIntelligentTutor: false
+    enableIntelligentTutor: false,
   };
 
   constructor() {
@@ -52,21 +52,21 @@ class AIConfigManager {
       openai: {
         apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || '',
         baseUrl: process.env.NEXT_PUBLIC_OPENAI_BASE_URL || 'https://api.openai.com/v1',
-        model: process.env.NEXT_PUBLIC_OPENAI_MODEL || 'gpt-4'
+        model: process.env.NEXT_PUBLIC_OPENAI_MODEL || 'gpt-4',
       },
       azure: {
         apiKey: process.env.NEXT_PUBLIC_AZURE_API_KEY || '',
         endpoint: process.env.NEXT_PUBLIC_AZURE_ENDPOINT || '',
-        deploymentName: process.env.NEXT_PUBLIC_AZURE_DEPLOYMENT_NAME || ''
+        deploymentName: process.env.NEXT_PUBLIC_AZURE_DEPLOYMENT_NAME || '',
       },
       anthropic: {
         apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY || '',
-        baseUrl: process.env.NEXT_PUBLIC_ANTHROPIC_BASE_URL || 'https://api.anthropic.com'
+        baseUrl: process.env.NEXT_PUBLIC_ANTHROPIC_BASE_URL || 'https://api.anthropic.com',
       },
       elevenlabs: {
         apiKey: process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY || '',
-        baseUrl: process.env.NEXT_PUBLIC_ELEVENLABS_BASE_URL || 'https://api.elevenlabs.io/v1'
-      }
+        baseUrl: process.env.NEXT_PUBLIC_ELEVENLABS_BASE_URL || 'https://api.elevenlabs.io/v1',
+      },
     };
 
     // Configuration des services basée sur les clés disponibles
@@ -173,9 +173,10 @@ class AIConfigManager {
     const warnings: string[] = [];
 
     // Vérifier au moins un provider principal
-    const hasMainProvider = this.isApiKeyConfigured('openai') || 
-                           this.isApiKeyConfigured('azure') || 
-                           this.isApiKeyConfigured('anthropic');
+    const hasMainProvider =
+      this.isApiKeyConfigured('openai') ||
+      this.isApiKeyConfigured('azure') ||
+      this.isApiKeyConfigured('anthropic');
 
     if (!hasMainProvider) {
       errors.push('Aucune clé API principale configurée (OpenAI, Azure, ou Anthropic)');
@@ -200,7 +201,7 @@ class AIConfigManager {
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -221,23 +222,23 @@ class AIConfigManager {
       {
         name: 'OpenAI',
         configured: this.isApiKeyConfigured('openai'),
-        features: ['Corrections IA', 'Exercices personnalisés', 'Tuteur IA']
+        features: ['Corrections IA', 'Exercices personnalisés', 'Tuteur IA'],
       },
       {
         name: 'Azure OpenAI',
         configured: this.isApiKeyConfigured('azure'),
-        features: ['Corrections IA', 'Exercices personnalisés', 'Tuteur IA']
+        features: ['Corrections IA', 'Exercices personnalisés', 'Tuteur IA'],
       },
       {
         name: 'Anthropic Claude',
         configured: this.isApiKeyConfigured('anthropic'),
-        features: ['Corrections IA', 'Exercices personnalisés', 'Tuteur IA']
+        features: ['Corrections IA', 'Exercices personnalisés', 'Tuteur IA'],
       },
       {
         name: 'ElevenLabs',
         configured: this.isApiKeyConfigured('elevenlabs'),
-        features: ['Synthèse vocale', 'Exercices de dictée']
-      }
+        features: ['Synthèse vocale', 'Exercices de dictée'],
+      },
     ];
 
     const availableFeatures: string[] = [];
@@ -278,7 +279,7 @@ class AIConfigManager {
       status,
       providers,
       availableFeatures,
-      missingFeatures
+      missingFeatures,
     };
   }
 }
@@ -319,14 +320,14 @@ export function useAIConfig() {
     updateConfig,
     updateServiceConfig,
     validateConfig,
-    isApiKeyConfigured
+    isApiKeyConfigured,
   };
 }
 
 // Fonction utilitaire pour créer un client API
 export function createAPIClient(provider: AIServiceConfig['provider']) {
   const config = aiConfigManager.getProviderConfig(provider);
-  
+
   if (!config) {
     throw new Error(`Configuration manquante pour le provider: ${provider}`);
   }
@@ -336,18 +337,18 @@ export function createAPIClient(provider: AIServiceConfig['provider']) {
       return {
         apiKey: (config as AIConfig['openai']).apiKey,
         baseURL: (config as AIConfig['openai']).baseUrl,
-        model: (config as AIConfig['openai']).model
+        model: (config as AIConfig['openai']).model,
       };
     case 'azure':
       return {
         apiKey: (config as AIConfig['azure']).apiKey,
         endpoint: (config as AIConfig['azure']).endpoint,
-        deploymentName: (config as AIConfig['azure']).deploymentName
+        deploymentName: (config as AIConfig['azure']).deploymentName,
       };
     case 'anthropic':
       return {
         apiKey: (config as AIConfig['anthropic']).apiKey,
-        baseURL: (config as AIConfig['anthropic']).baseUrl
+        baseURL: (config as AIConfig['anthropic']).baseUrl,
       };
     default:
       throw new Error(`Provider non supporté: ${provider}`);

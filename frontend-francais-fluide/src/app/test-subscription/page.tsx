@@ -2,20 +2,25 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  CheckCircle, 
-  XCircle, 
-  Lock, 
-  Crown, 
-  Star, 
-  GraduationCap, 
+import {
+  CheckCircle,
+  XCircle,
+  Lock,
+  Crown,
+  Star,
+  GraduationCap,
   Building,
   RefreshCw,
   Eye,
-  EyeOff
+  EyeOff,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { hasAccess, canAccessPage, getPlanLimits, SUBSCRIPTION_PLANS } from '@/lib/subscription/accessControl';
+import {
+  hasAccess,
+  canAccessPage,
+  getPlanLimits,
+  SUBSCRIPTION_PLANS,
+} from '@/lib/subscription/accessControl';
 import { cn } from '@/lib/utils/cn';
 
 interface TestResult {
@@ -29,14 +34,14 @@ const PLAN_ICONS = {
   demo: Lock,
   etudiant: GraduationCap,
   premium: Star,
-  etablissement: Building
+  etablissement: Building,
 };
 
 const PLAN_COLORS = {
   demo: 'text-gray-600 bg-gray-100',
   etudiant: 'text-blue-600 bg-blue-100',
   premium: 'text-purple-600 bg-purple-100',
-  etablissement: 'text-orange-600 bg-orange-100'
+  etablissement: 'text-orange-600 bg-orange-100',
 };
 
 export default function TestSubscriptionPage() {
@@ -55,15 +60,19 @@ export default function TestSubscriptionPage() {
     { name: 'Exercices personnalisés', feature: 'customExercises', required: 'premium' },
     { name: 'Mode hors ligne', feature: 'offlineMode', required: 'premium' },
     { name: 'API complète', feature: 'apiAccess', required: 'premium' },
-    { name: 'Gestion multi-utilisateurs', feature: 'multiUserManagement', required: 'etablissement' }
+    {
+      name: 'Gestion multi-utilisateurs',
+      feature: 'multiUserManagement',
+      required: 'etablissement',
+    },
   ];
 
   const pages = [
-    { name: 'Page d\'accueil', page: 'home', required: 'demo' },
+    { name: "Page d'accueil", page: 'home', required: 'demo' },
     { name: 'Exercices', page: 'exercises', required: 'demo' },
     { name: 'Analytics', page: 'analytics', required: 'etudiant' },
     { name: 'API Documentation', page: 'api', required: 'premium' },
-    { name: 'Administration', page: 'admin', required: 'etablissement' }
+    { name: 'Administration', page: 'admin', required: 'etablissement' },
   ];
 
   useEffect(() => {
@@ -84,7 +93,7 @@ export default function TestSubscriptionPage() {
       const planHierarchy = { demo: 0, etudiant: 1, premium: 2, etablissement: 3 };
       const userLevel = planHierarchy[userPlan as keyof typeof planHierarchy] || 0;
       const requiredLevel = planHierarchy[feature.required as keyof typeof planHierarchy] || 0;
-      
+
       let status: 'success' | 'error' | 'warning' = 'success';
       if (userLevel < requiredLevel) {
         status = 'error';
@@ -96,7 +105,7 @@ export default function TestSubscriptionPage() {
         feature: feature.name,
         hasAccess: hasAccessToFeature,
         required: feature.required,
-        status
+        status,
       });
     }
 
@@ -106,7 +115,7 @@ export default function TestSubscriptionPage() {
       const planHierarchy = { demo: 0, etudiant: 1, premium: 2, etablissement: 3 };
       const userLevel = planHierarchy[userPlan as keyof typeof planHierarchy] || 0;
       const requiredLevel = planHierarchy[page.required as keyof typeof planHierarchy] || 0;
-      
+
       let status: 'success' | 'error' | 'warning' = 'success';
       if (userLevel < requiredLevel) {
         status = 'error';
@@ -118,7 +127,7 @@ export default function TestSubscriptionPage() {
         feature: page.name,
         hasAccess: canAccess,
         required: page.required,
-        status
+        status,
       });
     }
 
@@ -128,27 +137,35 @@ export default function TestSubscriptionPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'success': return CheckCircle;
-      case 'error': return XCircle;
-      case 'warning': return Lock;
-      default: return Lock;
+      case 'success':
+        return CheckCircle;
+      case 'error':
+        return XCircle;
+      case 'warning':
+        return Lock;
+      default:
+        return Lock;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success': return 'text-green-600 bg-green-100';
-      case 'error': return 'text-red-600 bg-red-100';
-      case 'warning': return 'text-yellow-600 bg-yellow-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'success':
+        return 'text-green-600 bg-green-100';
+      case 'error':
+        return 'text-red-600 bg-red-100';
+      case 'warning':
+        return 'text-yellow-600 bg-yellow-100';
+      default:
+        return 'text-gray-600 bg-gray-100';
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </div>
@@ -157,17 +174,13 @@ export default function TestSubscriptionPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Connexion requise
-          </h1>
-          <p className="text-gray-600 mb-6">
-            Veuillez vous connecter pour tester les abonnements
-          </p>
+          <h1 className="mb-4 text-2xl font-bold text-gray-900">Connexion requise</h1>
+          <p className="mb-6 text-gray-600">Veuillez vous connecter pour tester les abonnements</p>
           <a
             href="/auth/login"
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+            className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
           >
             Se connecter
           </a>
@@ -187,46 +200,41 @@ export default function TestSubscriptionPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Test des Abonnements
-          </h1>
-          <p className="text-gray-600">
-            Vérification des accès selon votre niveau d'abonnement
-          </p>
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">Test des Abonnements</h1>
+          <p className="text-gray-600">Vérification des accès selon votre niveau d'abonnement</p>
         </div>
 
         {/* Informations utilisateur */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl p-6 shadow-lg mb-8"
+          className="mb-8 rounded-xl bg-white p-6 shadow-lg"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className={cn(
-                "p-3 rounded-lg",
-                PLAN_COLORS[userPlan as keyof typeof PLAN_COLORS]
-              )}>
-                <PlanIcon className="w-8 h-8" />
+              <div
+                className={cn('rounded-lg p-3', PLAN_COLORS[userPlan as keyof typeof PLAN_COLORS])}
+              >
+                <PlanIcon className="h-8 w-8" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  {user.name}
-                </h2>
+                <h2 className="text-xl font-bold text-gray-900">{user.name}</h2>
                 <p className="text-gray-600">{user.email}</p>
-                <div className={cn(
-                  "inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium mt-2",
-                  PLAN_COLORS[userPlan as keyof typeof PLAN_COLORS]
-                )}>
-                  <PlanIcon className="w-4 h-4" />
+                <div
+                  className={cn(
+                    'mt-2 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium',
+                    PLAN_COLORS[userPlan as keyof typeof PLAN_COLORS]
+                  )}
+                >
+                  <PlanIcon className="h-4 w-4" />
                   {currentPlan?.name}
                 </div>
               </div>
             </div>
-            
+
             <div className="text-right">
               <p className="text-sm text-gray-600">Niveau d'accès</p>
               <p className="text-2xl font-bold text-gray-900">
@@ -241,27 +249,27 @@ export default function TestSubscriptionPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex gap-4 mb-8"
+          className="mb-8 flex gap-4"
         >
           <button
             onClick={runTests}
             disabled={isRunning}
             className={cn(
-              "flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all",
+              'flex items-center gap-2 rounded-xl px-6 py-3 font-semibold transition-all',
               isRunning
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700 shadow-lg"
+                ? 'cursor-not-allowed bg-gray-300 text-gray-500'
+                : 'bg-blue-600 text-white shadow-lg hover:bg-blue-700'
             )}
           >
-            <RefreshCw className={cn("w-5 h-5", isRunning && "animate-spin")} />
+            <RefreshCw className={cn('h-5 w-5', isRunning && 'animate-spin')} />
             {isRunning ? 'Test en cours...' : 'Relancer les tests'}
           </button>
-          
+
           <button
             onClick={() => setShowDetails(!showDetails)}
-            className="flex items-center gap-2 px-6 py-3 bg-gray-600 text-white rounded-xl font-semibold hover:bg-gray-700 transition-colors"
+            className="flex items-center gap-2 rounded-xl bg-gray-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-gray-700"
           >
-            {showDetails ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            {showDetails ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             {showDetails ? 'Masquer détails' : 'Afficher détails'}
           </button>
         </motion.div>
@@ -271,21 +279,17 @@ export default function TestSubscriptionPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-xl shadow-lg overflow-hidden"
+          className="overflow-hidden rounded-xl bg-white shadow-lg"
         >
-          <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Résultats des Tests
-            </h3>
-            <p className="text-sm text-gray-600">
-              {testResults.length} fonctionnalités testées
-            </p>
+          <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
+            <h3 className="text-lg font-semibold text-gray-900">Résultats des Tests</h3>
+            <p className="text-sm text-gray-600">{testResults.length} fonctionnalités testées</p>
           </div>
-          
+
           <div className="divide-y divide-gray-200">
             {testResults.map((result, index) => {
               const StatusIcon = getStatusIcon(result.status);
-              
+
               return (
                 <motion.div
                   key={index}
@@ -296,31 +300,27 @@ export default function TestSubscriptionPage() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className={cn(
-                        "p-2 rounded-lg",
-                        getStatusColor(result.status)
-                      )}>
-                        <StatusIcon className="w-5 h-5" />
+                      <div className={cn('rounded-lg p-2', getStatusColor(result.status))}>
+                        <StatusIcon className="h-5 w-5" />
                       </div>
-                      
+
                       <div>
-                        <p className="font-medium text-gray-900">
-                          {result.feature}
-                        </p>
+                        <p className="font-medium text-gray-900">{result.feature}</p>
                         {showDetails && (
                           <p className="text-sm text-gray-500">
-                            Requis: {result.required} | 
-                            Accès: {result.hasAccess ? 'Oui' : 'Non'}
+                            Requis: {result.required} | Accès: {result.hasAccess ? 'Oui' : 'Non'}
                           </p>
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
-                      <span className={cn(
-                        "px-3 py-1 rounded-full text-xs font-medium",
-                        getStatusColor(result.status)
-                      )}>
+                      <span
+                        className={cn(
+                          'rounded-full px-3 py-1 text-xs font-medium',
+                          getStatusColor(result.status)
+                        )}
+                      >
                         {result.status === 'success' && 'Accès autorisé'}
                         {result.status === 'error' && 'Accès refusé'}
                         {result.status === 'warning' && 'Accès limité'}
@@ -338,27 +338,38 @@ export default function TestSubscriptionPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="mt-8 bg-white rounded-xl p-6 shadow-lg"
+          className="mt-8 rounded-xl bg-white p-6 shadow-lg"
         >
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Comptes de Test Disponibles
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <h3 className="mb-4 text-lg font-semibold text-gray-900">Comptes de Test Disponibles</h3>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             {[
               { email: 'demo@test.com', plan: 'Démo', color: 'bg-gray-100 text-gray-800' },
               { email: 'etudiant@test.com', plan: 'Étudiant', color: 'bg-blue-100 text-blue-800' },
-              { email: 'premium@test.com', plan: 'Premium', color: 'bg-purple-100 text-purple-800' },
-              { email: 'etablissement@test.com', plan: 'Établissement', color: 'bg-orange-100 text-orange-800' }
+              {
+                email: 'premium@test.com',
+                plan: 'Premium',
+                color: 'bg-purple-100 text-purple-800',
+              },
+              {
+                email: 'etablissement@test.com',
+                plan: 'Établissement',
+                color: 'bg-orange-100 text-orange-800',
+              },
             ].map((account, index) => (
-              <div key={index} className="p-4 border border-gray-200 rounded-lg">
-                <div className={cn(
-                  "inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium mb-2",
-                  account.color
-                )}>
-                  {React.createElement(PLAN_ICONS[account.plan.toLowerCase() as keyof typeof PLAN_ICONS] || Lock, { className: "w-4 h-4" })}
+              <div key={index} className="rounded-lg border border-gray-200 p-4">
+                <div
+                  className={cn(
+                    'mb-2 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium',
+                    account.color
+                  )}
+                >
+                  {React.createElement(
+                    PLAN_ICONS[account.plan.toLowerCase() as keyof typeof PLAN_ICONS] || Lock,
+                    { className: 'w-4 h-4' }
+                  )}
                   {account.plan}
                 </div>
-                <p className="text-sm text-gray-600 mb-1">{account.email}</p>
+                <p className="mb-1 text-sm text-gray-600">{account.email}</p>
                 <p className="text-xs text-gray-500">Mot de passe: Test!1234</p>
               </div>
             ))}

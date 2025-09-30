@@ -30,6 +30,7 @@ Ce guide couvre le déploiement complet de FrançaisFluide en production sur **V
 ### 1. Variables d'Environnement
 
 #### **Frontend (Vercel)**
+
 ```bash
 # APIs IA
 OPENAI_API_KEY=sk-...
@@ -51,6 +52,7 @@ NEXTAUTH_URL=https://francais-fluide.vercel.app
 ```
 
 #### **Backend (Railway)**
+
 ```bash
 # Base de données
 DATABASE_URL=postgresql://...
@@ -71,6 +73,7 @@ SENTRY_DSN=https://...
 ### 2. Configuration Vercel
 
 #### **vercel.json**
+
 ```json
 {
   "version": 2,
@@ -123,6 +126,7 @@ SENTRY_DSN=https://...
 ### 3. Configuration Railway
 
 #### **railway.json**
+
 ```json
 {
   "build": {
@@ -163,6 +167,7 @@ vercel --prod
 ```
 
 #### **Configuration GitHub Actions**
+
 ```yaml
 - name: Deploy to Vercel
   uses: amondnet/vercel-action@v25
@@ -190,6 +195,7 @@ railway up
 ```
 
 #### **Configuration GitHub Actions**
+
 ```yaml
 - name: Deploy to Railway
   uses: railwayapp/railway-deploy@v1
@@ -201,11 +207,13 @@ railway up
 ### 3. **Base de Données**
 
 #### **PostgreSQL sur Railway**
+
 - Service PostgreSQL automatique
 - Sauvegarde quotidienne
 - Scaling automatique
 
 #### **Redis sur Railway**
+
 - Cache haute performance
 - Persistance configurée
 - Monitoring intégré
@@ -223,7 +231,7 @@ initializeMonitoring();
 import { errorTracker } from '@/lib/monitoring/error-tracking';
 errorTracker.captureError(error, {
   tags: { component: 'SmartEditor' },
-  extra: { userId: user.id }
+  extra: { userId: user.id },
 });
 ```
 
@@ -284,12 +292,12 @@ const securityConfig = {
   rateLimiting: {
     maxRequestsPerMinute: 30,
     maxRequestsPerHour: 100,
-    maxRequestsPerDay: 500
+    maxRequestsPerDay: 500,
   },
   costMonitoring: {
     dailyBudget: 10, // $10/jour
-    monthlyBudget: 200 // $200/mois
-  }
+    monthlyBudget: 200, // $200/mois
+  },
 };
 ```
 
@@ -302,7 +310,7 @@ import { z } from 'zod';
 const grammarCheckSchema = z.object({
   text: z.string().max(4000),
   level: z.enum(['beginner', 'intermediate', 'advanced']),
-  focus: z.array(z.string()).optional()
+  focus: z.array(z.string()).optional(),
 });
 ```
 
@@ -332,8 +340,8 @@ const SmartEditor = dynamic(() => import('@/components/SmartEditor'), {
 // Cache des corrections IA
 const cacheConfig = {
   corrections: 30 * 60 * 1000, // 30 minutes
-  exercises: 60 * 60 * 1000,    // 1 heure
-  explanations: 24 * 60 * 60 * 1000 // 24 heures
+  exercises: 60 * 60 * 1000, // 1 heure
+  explanations: 24 * 60 * 60 * 1000, // 24 heures
 };
 ```
 
@@ -343,7 +351,7 @@ const cacheConfig = {
 // Edge Functions Vercel
 export const config = {
   runtime: 'edge',
-  regions: ['iad1', 'sfo1', 'lhr1']
+  regions: ['iad1', 'sfo1', 'lhr1'],
 };
 ```
 
@@ -365,14 +373,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run tests
         run: npm test
-  
+
   deploy-frontend:
     needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
-  
+
   deploy-backend:
     needs: test
     runs-on: ubuntu-latest
@@ -392,10 +400,10 @@ export async function GET() {
     services: {
       database: await checkDatabase(),
       redis: await checkRedis(),
-      ai: await checkAIServices()
-    }
+      ai: await checkAIServices(),
+    },
   };
-  
+
   return Response.json(health);
 }
 ```
@@ -432,16 +440,19 @@ export async function GET() {
 ## 🚨 Plan de Scaling
 
 ### **Phase 1: MVP (0-1K utilisateurs)**
+
 - Vercel + Railway
 - PostgreSQL + Redis
 - Monitoring basique
 
 ### **Phase 2: Growth (1K-10K utilisateurs)**
+
 - CDN global (Cloudflare)
 - Database scaling (Railway Pro)
 - Monitoring avancé (Sentry Pro)
 
 ### **Phase 3: Scale (10K+ utilisateurs)**
+
 - Multi-région (Vercel Edge)
 - Database clustering
 - Microservices (Railway)
@@ -449,16 +460,19 @@ export async function GET() {
 ## 📞 Support et Maintenance
 
 ### **Monitoring 24/7**
+
 - **Sentry**: Erreurs en temps réel
 - **Vercel Analytics**: Performance
 - **Railway Metrics**: Infrastructure
 
 ### **Alertes Automatiques**
+
 - Slack notifications
 - Email alerts
 - SMS pour incidents critiques
 
 ### **SLA**
+
 - **Uptime**: 99.9%
 - **Response Time**: < 2s
 - **Recovery Time**: < 15min

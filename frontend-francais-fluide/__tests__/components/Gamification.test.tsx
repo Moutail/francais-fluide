@@ -3,7 +3,11 @@
  * Teste le calcul de scores, niveaux, streaks et métriques
  */
 
-import { ScoreCalculator, type ScoreEvent, type ScoreMetrics } from '@/lib/gamification/scoreCalculator';
+import {
+  ScoreCalculator,
+  type ScoreEvent,
+  type ScoreMetrics,
+} from '@/lib/gamification/scoreCalculator';
 
 describe('ScoreCalculator', () => {
   const mockEvents: ScoreEvent[] = [
@@ -50,7 +54,7 @@ describe('ScoreCalculator', () => {
         { type: 'word_written' as const, points: -5, timestamp: new Date() },
         { type: 'word_written' as const, points: 10, timestamp: new Date() },
       ];
-      
+
       const totalScore = ScoreCalculator.calculateTotalScore(eventsWithNegative);
       expect(totalScore).toBe(5);
     });
@@ -120,7 +124,7 @@ describe('ScoreCalculator', () => {
           timestamp: new Date('2024-01-03T10:00:00Z'),
         },
       ];
-      
+
       const streak = ScoreCalculator.calculateStreakDays(consecutiveEvents);
       expect(streak).toBeGreaterThan(0);
     });
@@ -148,7 +152,7 @@ describe('ScoreCalculator', () => {
           timestamp: new Date('2024-01-02T11:00:00Z'),
         },
       ];
-      
+
       const perfectStreak = ScoreCalculator.calculatePerfectStreak(perfectEvents);
       expect(perfectStreak).toBeGreaterThan(0);
     });
@@ -161,7 +165,7 @@ describe('ScoreCalculator', () => {
         { type: 'word_written', points: 1, timestamp: new Date() },
         { type: 'word_written', points: 1, timestamp: new Date() },
       ];
-      
+
       const accuracy = ScoreCalculator.calculateAccuracyRate(perfectEvents);
       expect(accuracy).toBe(100);
     });
@@ -174,7 +178,7 @@ describe('ScoreCalculator', () => {
         { type: 'error_corrected', points: 5, timestamp: new Date() },
         { type: 'error_corrected', points: 5, timestamp: new Date() },
       ];
-      
+
       const accuracy = ScoreCalculator.calculateAccuracyRate(eventsWithErrors);
       expect(accuracy).toBeLessThan(100);
       expect(accuracy).toBeGreaterThan(0);
@@ -189,7 +193,7 @@ describe('ScoreCalculator', () => {
   describe('Génération des métriques complètes', () => {
     it('génère des métriques correctes', () => {
       const metrics = ScoreCalculator.generateMetrics(mockEvents);
-      
+
       expect(metrics.totalPoints).toBe(56);
       expect(metrics.currentLevel).toBe(1); // 56 points = niveau 1
       expect(metrics.wordsWritten).toBe(1);
@@ -202,7 +206,7 @@ describe('ScoreCalculator', () => {
 
     it('génère des métriques pour une liste vide', () => {
       const metrics = ScoreCalculator.generateMetrics([]);
-      
+
       expect(metrics.totalPoints).toBe(0);
       expect(metrics.currentLevel).toBe(1);
       expect(metrics.wordsWritten).toBe(0);
@@ -213,39 +217,39 @@ describe('ScoreCalculator', () => {
     });
   });
 
-  describe('Création d\'événements de score', () => {
+  describe("Création d'événements de score", () => {
     it('crée un événement de mot écrit', () => {
       const event = ScoreCalculator.createScoreEvent('word_written');
-      
+
       expect(event.type).toBe('word_written');
       expect(event.points).toBe(1);
       expect(event.timestamp).toBeInstanceOf(Date);
     });
 
-    it('crée un événement de correction d\'erreur', () => {
+    it("crée un événement de correction d'erreur", () => {
       const event = ScoreCalculator.createScoreEvent('error_corrected');
-      
+
       expect(event.type).toBe('error_corrected');
       expect(event.points).toBe(5);
     });
 
-    it('crée un événement d\'exercice complété', () => {
+    it("crée un événement d'exercice complété", () => {
       const event = ScoreCalculator.createScoreEvent('exercise_completed');
-      
+
       expect(event.type).toBe('exercise_completed');
       expect(event.points).toBe(10);
     });
 
     it('crée un événement de texte parfait', () => {
       const event = ScoreCalculator.createScoreEvent('perfect_text');
-      
+
       expect(event.type).toBe('perfect_text');
       expect(event.points).toBe(15);
     });
 
-    it('crée un événement d\'achievement débloqué', () => {
+    it("crée un événement d'achievement débloqué", () => {
       const event = ScoreCalculator.createScoreEvent('achievement_unlocked');
-      
+
       expect(event.type).toBe('achievement_unlocked');
       expect(event.points).toBe(25);
     });
@@ -253,7 +257,7 @@ describe('ScoreCalculator', () => {
     it('ajoute des métadonnées si fournies', () => {
       const metadata = { exerciseId: 'test-123', difficulty: 'easy' };
       const event = ScoreCalculator.createScoreEvent('exercise_completed', metadata);
-      
+
       expect(event.metadata).toEqual(metadata);
     });
   });
@@ -283,13 +287,13 @@ describe('ScoreCalculator', () => {
   describe('Utilitaires', () => {
     it('retourne tous les niveaux disponibles', () => {
       const levels = ScoreCalculator.getAllLevels();
-      
+
       expect(levels).toHaveLength(7);
       expect(levels[0].level).toBe(1);
       expect(levels[6].level).toBe(7);
     });
 
-    it('retourne les points pour chaque type d\'événement', () => {
+    it("retourne les points pour chaque type d'événement", () => {
       expect(ScoreCalculator.getPointsForEvent('word_written')).toBe(1);
       expect(ScoreCalculator.getPointsForEvent('error_corrected')).toBe(5);
       expect(ScoreCalculator.getPointsForEvent('exercise_completed')).toBe(10);
@@ -297,7 +301,7 @@ describe('ScoreCalculator', () => {
       expect(ScoreCalculator.getPointsForEvent('achievement_unlocked')).toBe(25);
     });
 
-    it('retourne 0 pour un type d\'événement inconnu', () => {
+    it("retourne 0 pour un type d'événement inconnu", () => {
       const points = ScoreCalculator.getPointsForEvent('unknown_type' as any);
       expect(points).toBe(0);
     });
@@ -310,7 +314,7 @@ describe('ScoreCalculator', () => {
         points: 1,
         timestamp: new Date(),
       };
-      
+
       expect(ScoreCalculator.isValidEvent(validEvent)).toBe(true);
     });
 
@@ -319,7 +323,7 @@ describe('ScoreCalculator', () => {
         points: 1,
         timestamp: new Date(),
       };
-      
+
       expect(ScoreCalculator.isValidEvent(invalidEvent)).toBe(false);
     });
 
@@ -329,7 +333,7 @@ describe('ScoreCalculator', () => {
         points: -1,
         timestamp: new Date(),
       };
-      
+
       expect(ScoreCalculator.isValidEvent(invalidEvent)).toBe(false);
     });
 
@@ -338,7 +342,7 @@ describe('ScoreCalculator', () => {
         type: 'word_written',
         points: 1,
       };
-      
+
       expect(ScoreCalculator.isValidEvent(invalidEvent)).toBe(false);
     });
 
@@ -348,7 +352,7 @@ describe('ScoreCalculator', () => {
         points: 1,
         timestamp: 'invalid' as any,
       };
-      
+
       expect(ScoreCalculator.isValidEvent(invalidEvent)).toBe(false);
     });
   });
@@ -362,7 +366,7 @@ describe('ScoreCalculator', () => {
           timestamp: new Date('2020-01-01T00:00:00Z'),
         },
       ];
-      
+
       const streak = ScoreCalculator.calculateStreakDays(oldEvents);
       expect(streak).toBe(0);
     });
@@ -375,7 +379,7 @@ describe('ScoreCalculator', () => {
           timestamp: new Date('2030-01-01T00:00:00Z'),
         },
       ];
-      
+
       const streak = ScoreCalculator.calculateStreakDays(futureEvents);
       expect(streak).toBeGreaterThanOrEqual(0);
     });
@@ -388,7 +392,7 @@ describe('ScoreCalculator', () => {
           timestamp: new Date(),
         },
       ];
-      
+
       const totalScore = ScoreCalculator.calculateTotalScore(highScoreEvents);
       expect(totalScore).toBe(1000000);
     });
@@ -401,7 +405,7 @@ describe('ScoreCalculator', () => {
         errors: ['grammar', 'spelling'],
         hints: ['first_letter', 'definition'],
       };
-      
+
       const event = ScoreCalculator.createScoreEvent('exercise_completed', metadata);
       expect(event.metadata).toEqual(metadata);
     });

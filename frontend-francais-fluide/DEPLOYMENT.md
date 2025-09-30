@@ -44,6 +44,7 @@ FrançaisFluide est une application Next.js qui peut être déployée dans plusi
 ## Environnements
 
 ### Local (Development)
+
 - **URL** : http://localhost:3000
 - **Base de données** : PostgreSQL local ou Docker
 - **Cache** : Redis local ou mock
@@ -51,6 +52,7 @@ FrançaisFluide est une application Next.js qui peut être déployée dans plusi
 - **SSL** : Non
 
 ### Staging
+
 - **URL** : https://staging.francais-fluide.com
 - **Base de données** : PostgreSQL staging
 - **Cache** : Redis staging
@@ -58,6 +60,7 @@ FrançaisFluide est une application Next.js qui peut être déployée dans plusi
 - **SSL** : Oui (Let's Encrypt)
 
 ### Production
+
 - **URL** : https://francais-fluide.com
 - **Base de données** : PostgreSQL production (HA)
 - **Cache** : Redis cluster
@@ -67,12 +70,14 @@ FrançaisFluide est une application Next.js qui peut être déployée dans plusi
 ## Prérequis
 
 ### Système
-- Node.js 18+ 
+
+- Node.js 18+
 - npm ou yarn
 - Docker (optionnel)
 - Git
 
 ### Services externes
+
 - Base de données PostgreSQL
 - Cache Redis
 - Stockage de fichiers (AWS S3, Cloudinary)
@@ -183,7 +188,7 @@ services:
   app:
     build: .
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - DATABASE_URL=postgresql://postgres:password@db:5432/francais_fluide
       - REDIS_URL=redis://redis:6379
@@ -275,30 +280,30 @@ railway up
 # .do/app.yaml
 name: francais-fluide-staging
 services:
-- name: web
-  source_dir: /
-  github:
-    repo: francais-fluide/francais-fluide
-    branch: staging
-  run_command: npm start
-  environment_slug: node-js
-  instance_count: 1
-  instance_size_slug: basic-xxs
-  envs:
-  - key: NODE_ENV
-    value: staging
-  - key: DATABASE_URL
-    value: ${db.DATABASE_URL}
-  - key: REDIS_URL
-    value: ${redis.REDIS_URL}
+  - name: web
+    source_dir: /
+    github:
+      repo: francais-fluide/francais-fluide
+      branch: staging
+    run_command: npm start
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    envs:
+      - key: NODE_ENV
+        value: staging
+      - key: DATABASE_URL
+        value: ${db.DATABASE_URL}
+      - key: REDIS_URL
+        value: ${redis.REDIS_URL}
 
 databases:
-- name: db
-  engine: PG
-  version: "13"
-- name: redis
-  engine: REDIS
-  version: "6"
+  - name: db
+    engine: PG
+    version: '13'
+  - name: redis
+    engine: REDIS
+    version: '6'
 ```
 
 ## Déploiement production
@@ -328,7 +333,7 @@ provider "aws" {
 # VPC
 resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
-  
+
   tags = {
     Name = "francais-fluide-vpc"
   }
@@ -340,7 +345,7 @@ resource "aws_subnet" "public" {
   vpc_id = aws_vpc.main.id
   cidr_block = "10.0.${count.index + 1}.0/24"
   availability_zone = data.aws_availability_zones.available.names[count.index]
-  
+
   tags = {
     Name = "francais-fluide-public-${count.index + 1}"
   }
@@ -353,18 +358,18 @@ resource "aws_db_instance" "postgres" {
   engine_version = "13.7"
   instance_class = "db.t3.micro"
   allocated_storage = 20
-  
+
   db_name = "francais_fluide"
   username = "postgres"
   password = var.db_password
-  
+
   vpc_security_group_ids = [aws_security_group.rds.id]
   db_subnet_group_name = aws_db_subnet_group.main.name
-  
+
   backup_retention_period = 7
   backup_window = "03:00-04:00"
   maintenance_window = "sun:04:00-sun:05:00"
-  
+
   tags = {
     Name = "francais-fluide-db"
   }
@@ -378,10 +383,10 @@ resource "aws_elasticache_cluster" "redis" {
   num_cache_nodes = 1
   parameter_group_name = "default.redis6.x"
   port = 6379
-  
+
   subnet_group_name = aws_elasticache_subnet_group.main.name
   security_group_ids = [aws_security_group.redis.id]
-  
+
   tags = {
     Name = "francais-fluide-redis"
   }
@@ -399,7 +404,7 @@ resource "aws_lb" "main" {
   load_balancer_type = "application"
   security_groups = [aws_security_group.alb.id]
   subnets = aws_subnet.public[*].id
-  
+
   tags = {
     Name = "francais-fluide-alb"
   }
@@ -470,9 +475,9 @@ automatic_scaling:
   target_cpu_utilization: 0.6
 
 handlers:
-- url: /.*
-  script: auto
-  secure: always
+  - url: /.*
+    script: auto
+    secure: always
 ```
 
 #### Cloud Run
@@ -480,22 +485,22 @@ handlers:
 ```yaml
 # cloudbuild.yaml
 steps:
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/$PROJECT_ID/francais-fluide:$COMMIT_SHA', '.']
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/$PROJECT_ID/francais-fluide:$COMMIT_SHA']
-- name: 'gcr.io/cloud-builders/gcloud'
-  args:
-  - 'run'
-  - 'deploy'
-  - 'francais-fluide'
-  - '--image'
-  - 'gcr.io/$PROJECT_ID/francais-fluide:$COMMIT_SHA'
-  - '--region'
-  - 'europe-west1'
-  - '--platform'
-  - 'managed'
-  - '--allow-unauthenticated'
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/francais-fluide:$COMMIT_SHA', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/francais-fluide:$COMMIT_SHA']
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'francais-fluide'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/francais-fluide:$COMMIT_SHA'
+      - '--region'
+      - 'europe-west1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
 ```
 
 ### 4. Déploiement sur Azure
@@ -505,40 +510,40 @@ steps:
 ```yaml
 # azure-pipelines.yml
 trigger:
-- main
+  - main
 
 pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '18.x'
-  displayName: 'Install Node.js'
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '18.x'
+    displayName: 'Install Node.js'
 
-- script: |
-    npm install
-    npm run build
-    npm run test
-  displayName: 'Install dependencies and build'
+  - script: |
+      npm install
+      npm run build
+      npm run test
+    displayName: 'Install dependencies and build'
 
-- task: Docker@2
-  displayName: 'Build and push image'
-  inputs:
-    command: buildAndPush
-    repository: francais-fluide
-    dockerfile: '**/Dockerfile'
-    containerRegistry: 'Azure Container Registry'
+  - task: Docker@2
+    displayName: 'Build and push image'
+    inputs:
+      command: buildAndPush
+      repository: francais-fluide
+      dockerfile: '**/Dockerfile'
+      containerRegistry: 'Azure Container Registry'
 
-- task: AzureContainerInstances@1
-  displayName: 'Deploy to Azure Container Instances'
-  inputs:
-    azureSubscription: 'Azure Subscription'
-    resourceGroupName: 'francais-fluide-rg'
-    location: 'West Europe'
-    imageName: 'francais-fluide:latest'
-    containerName: 'francais-fluide'
-    ports: '3000'
+  - task: AzureContainerInstances@1
+    displayName: 'Deploy to Azure Container Instances'
+    inputs:
+      azureSubscription: 'Azure Subscription'
+      resourceGroupName: 'francais-fluide-rg'
+      location: 'West Europe'
+      imageName: 'francais-fluide:latest'
+      containerName: 'francais-fluide'
+      ports: '3000'
 ```
 
 ## CI/CD
@@ -558,53 +563,53 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Run tests
-      run: npm run test:coverage
-    
-    - name: Run E2E tests
-      run: npm run test:e2e
-    
-    - name: Build
-      run: npm run build
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test:coverage
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+      - name: Build
+        run: npm run build
 
   deploy-staging:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/staging'
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Deploy to Staging
-      run: |
-        # Déploiement vers staging
-        echo "Deploying to staging..."
-    
+      - uses: actions/checkout@v3
+
+      - name: Deploy to Staging
+        run: |
+          # Déploiement vers staging
+          echo "Deploying to staging..."
+
   deploy-production:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Deploy to Production
-      run: |
-        # Déploiement vers production
-        echo "Deploying to production..."
+      - uses: actions/checkout@v3
+
+      - name: Deploy to Production
+        run: |
+          # Déploiement vers production
+          echo "Deploying to production..."
 ```
 
 ### GitLab CI/CD
@@ -618,7 +623,7 @@ stages:
 
 variables:
   DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_TLS_CERTDIR: '/certs'
 
 test:
   stage: test
@@ -689,12 +694,12 @@ const logger = winston.createLogger({
       filename: 'logs/application-%DATE%.log',
       datePattern: 'YYYY-MM-DD',
       maxSize: '20m',
-      maxFiles: '14d'
+      maxFiles: '14d',
     }),
     new winston.transports.Console({
-      format: winston.format.simple()
-    })
-  ]
+      format: winston.format.simple(),
+    }),
+  ],
 });
 
 export default logger;
@@ -712,17 +717,17 @@ exports.config = {
   app_name: ['FrançaisFluide'],
   license_key: process.env.NEW_RELIC_LICENSE_KEY,
   distributed_tracing: {
-    enabled: true
+    enabled: true,
   },
   logging: {
-    level: 'info'
+    level: 'info',
   },
   application_logging: {
     forwarding: {
       enabled: true,
-      max_samples_stored: 10000
-    }
-  }
+      max_samples_stored: 10000,
+    },
+  },
 };
 ```
 
@@ -735,21 +740,21 @@ import StatsD from 'node-statsd';
 const client = new StatsD({
   host: 'localhost',
   port: 8125,
-  prefix: 'francais_fluide.'
+  prefix: 'francais_fluide.',
 });
 
 export const metrics = {
   increment: (name: string, value: number = 1) => {
     client.increment(name, value);
   },
-  
+
   gauge: (name: string, value: number) => {
     client.gauge(name, value);
   },
-  
+
   timing: (name: string, value: number) => {
     client.timing(name, value);
-  }
+  },
 };
 ```
 
@@ -761,7 +766,10 @@ export const metrics = {
 // src/lib/alerts.ts
 import axios from 'axios';
 
-export const sendAlert = async (message: string, severity: 'low' | 'medium' | 'high' | 'critical') => {
+export const sendAlert = async (
+  message: string,
+  severity: 'low' | 'medium' | 'high' | 'critical'
+) => {
   try {
     await axios.post(process.env.PAGERDUTY_WEBHOOK_URL, {
       routing_key: process.env.PAGERDUTY_ROUTING_KEY,
@@ -773,8 +781,8 @@ export const sendAlert = async (message: string, severity: 'low' | 'medium' | 'h
         source: 'FrançaisFluide',
         component: 'API',
         group: 'francais-fluide',
-        class: 'error'
-      }
+        class: 'error',
+      },
     });
   } catch (error) {
     console.error('Failed to send alert:', error);
@@ -868,14 +876,14 @@ server {
 server {
     listen 443 ssl http2;
     server_name francais-fluide.com www.francais-fluide.com;
-    
+
     ssl_certificate /etc/letsencrypt/live/francais-fluide.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/francais-fluide.com/privkey.pem;
-    
+
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512;
     ssl_prefer_server_ciphers off;
-    
+
     location / {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
@@ -914,7 +922,8 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;",
+            value:
+              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;",
           },
         ],
       },
@@ -935,7 +944,7 @@ export const createRateLimit = (windowMs: number, max: number) => {
     max,
     message: {
       error: 'Trop de requêtes, veuillez réessayer plus tard.',
-      retryAfter: Math.ceil(windowMs / 1000)
+      retryAfter: Math.ceil(windowMs / 1000),
     },
     standardHeaders: true,
     legacyHeaders: false,
@@ -962,18 +971,18 @@ export const cache = {
     const value = await redis.get(key);
     return value ? JSON.parse(value) : null;
   },
-  
+
   async set(key: string, value: any, ttl: number = 3600): Promise<void> {
     await redis.setex(key, ttl, JSON.stringify(value));
   },
-  
+
   async del(key: string): Promise<void> {
     await redis.del(key);
   },
-  
+
   async flush(): Promise<void> {
     await redis.flushall();
-  }
+  },
 };
 ```
 
@@ -1104,4 +1113,4 @@ echo "Maintenance completed"
 
 ---
 
-*Ce guide est mis à jour régulièrement. Dernière mise à jour : 2024-01-01*
+_Ce guide est mis à jour régulièrement. Dernière mise à jour : 2024-01-01_

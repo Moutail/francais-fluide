@@ -24,11 +24,11 @@ describe('GrammarDetector', () => {
         category: 'grammar',
         severity: 'warning',
         pattern: /\btest\b/gi,
-        check: () => ({ message: 'Test rule', suggestions: ['tested'] })
+        check: () => ({ message: 'Test rule', suggestions: ['tested'] }),
       };
 
       detector.addCustomRule(customRule);
-      
+
       // Vérifier que la règle a été ajoutée (pas de méthode publique pour vérifier)
       // On peut tester indirectement via l'analyse
       expect(() => detector.addCustomRule(customRule)).not.toThrow();
@@ -85,7 +85,7 @@ describe('GrammarDetector', () => {
     });
   });
 
-  describe('Patterns d\'erreurs', () => {
+  describe("Patterns d'erreurs", () => {
     it('détecte les homophones ses/ces', async () => {
       const text = 'ses amis sont là';
       const result = await detector.analyze(text);
@@ -99,10 +99,10 @@ describe('GrammarDetector', () => {
       const text = 'Il supporter cette décision';
       const result = await detector.analyze(text);
 
-      const anglicismeError = result.errors.find(e => 
-        e.message.includes('Anglicisme') || e.message.includes('soutenir')
+      const anglicismeError = result.errors.find(
+        e => e.message.includes('Anglicisme') || e.message.includes('soutenir')
       );
-      
+
       if (anglicismeError) {
         expect(anglicismeError.replacements).toContain('soutenir');
       }
@@ -112,10 +112,10 @@ describe('GrammarDetector', () => {
       const text = 'malgré que ce soit difficile';
       const result = await detector.analyze(text);
 
-      const expressionError = result.errors.find(e => 
-        e.message.includes('Malgré que') || e.message.includes('bien que')
+      const expressionError = result.errors.find(
+        e => e.message.includes('Malgré que') || e.message.includes('bien que')
       );
-      
+
       if (expressionError) {
         expect(expressionError.replacements).toContain('bien que');
       }
@@ -124,29 +124,31 @@ describe('GrammarDetector', () => {
 
   describe('Analyse contextuelle', () => {
     it('détecte les phrases trop longues', async () => {
-      const longSentence = 'Cette phrase est vraiment très longue et contient beaucoup de mots pour tester la détection des phrases trop longues qui devraient être divisées pour améliorer la lisibilité du texte et éviter la confusion du lecteur qui pourrait avoir du mal à suivre le fil de la pensée.';
-      
+      const longSentence =
+        'Cette phrase est vraiment très longue et contient beaucoup de mots pour tester la détection des phrases trop longues qui devraient être divisées pour améliorer la lisibilité du texte et éviter la confusion du lecteur qui pourrait avoir du mal à suivre le fil de la pensée.';
+
       const result = await detector.analyze(longSentence);
 
-      const longSentenceError = result.errors.find(e => 
-        e.message.includes('très longue') || e.message.includes('diviser')
+      const longSentenceError = result.errors.find(
+        e => e.message.includes('très longue') || e.message.includes('diviser')
       );
-      
+
       if (longSentenceError) {
         expect(longSentenceError.rule.category).toBe('style');
         expect(longSentenceError.rule.severity).toBe('suggestion');
       }
     });
 
-    it('détecte l\'utilisation excessive de la voix passive', async () => {
-      const passiveText = 'Le livre est écrit. La voiture est conduite. La maison est construite. Le jardin est planté.';
-      
+    it("détecte l'utilisation excessive de la voix passive", async () => {
+      const passiveText =
+        'Le livre est écrit. La voiture est conduite. La maison est construite. Le jardin est planté.';
+
       const result = await detector.analyze(passiveText);
 
-      const passiveError = result.errors.find(e => 
-        e.message.includes('voix passive') || e.message.includes('active')
+      const passiveError = result.errors.find(
+        e => e.message.includes('voix passive') || e.message.includes('active')
       );
-      
+
       if (passiveError) {
         expect(passiveError.rule.category).toBe('style');
       }
@@ -164,7 +166,7 @@ describe('GrammarDetector', () => {
       expect(result.statistics.errorCount).toBeGreaterThanOrEqual(0);
     });
 
-    it('calcule le taux d\'erreur', async () => {
+    it("calcule le taux d'erreur", async () => {
       const text = 'manger du pain avec du beurre';
       const result = await detector.analyze(text);
 
@@ -208,13 +210,13 @@ describe('GrammarDetector', () => {
   describe('Cache et performance', () => {
     it('utilise le cache pour les textes identiques', async () => {
       const text = 'Texte de test pour le cache';
-      
+
       // Premier appel
       const result1 = await detector.analyze(text);
-      
+
       // Deuxième appel (devrait utiliser le cache)
       const result2 = await detector.analyze(text);
-      
+
       expect(result1.errors).toEqual(result2.errors);
       expect(result1.statistics).toEqual(result2.statistics);
     });
@@ -222,34 +224,34 @@ describe('GrammarDetector', () => {
     it('génère des clés de cache différentes pour des textes différents', async () => {
       const text1 = 'Premier texte';
       const text2 = 'Deuxième texte';
-      
+
       const result1 = await detector.analyze(text1);
       const result2 = await detector.analyze(text2);
-      
+
       // Les résultats peuvent être différents
       expect(result1.text).not.toBe(result2.text);
     });
 
     it('invalide le cache après ajout de règle', async () => {
       const text = 'test';
-      
+
       // Premier appel
       await detector.analyze(text);
-      
+
       // Ajout d'une règle personnalisée
       const customRule: GrammarRule = {
         id: 'test-cache-invalidation',
         category: 'grammar',
         severity: 'warning',
         pattern: /\btest\b/gi,
-        check: () => ({ message: 'Test rule triggered', suggestions: ['tested'] })
+        check: () => ({ message: 'Test rule triggered', suggestions: ['tested'] }),
       };
-      
+
       detector.addCustomRule(customRule);
-      
+
       // Deuxième appel - devrait re-analyser
       const result = await detector.analyze(text);
-      
+
       // Le cache devrait être invalidé et le texte re-analysé
       expect(result.text).toBe(text);
     });
@@ -258,7 +260,7 @@ describe('GrammarDetector', () => {
   describe('Gestion des cas limites', () => {
     it('gère les textes vides', async () => {
       const result = await detector.analyze('');
-      
+
       expect(result.text).toBe('');
       expect(result.errors).toHaveLength(0);
       expect(result.statistics.wordCount).toBe(0);
@@ -267,14 +269,14 @@ describe('GrammarDetector', () => {
 
     it('gère les textes très courts', async () => {
       const result = await detector.analyze('a');
-      
+
       expect(result.text).toBe('a');
       expect(result.statistics.wordCount).toBe(1);
     });
 
     it('gère les textes avec seulement de la ponctuation', async () => {
       const result = await detector.analyze('!!!???...');
-      
+
       expect(result.text).toBe('!!!???...');
       expect(result.statistics.wordCount).toBe(0);
     });
@@ -282,7 +284,7 @@ describe('GrammarDetector', () => {
     it('gère les textes avec des caractères spéciaux', async () => {
       const text = 'Texte avec @#$%^&*() caractères spéciaux';
       const result = await detector.analyze(text);
-      
+
       expect(result.text).toBe(text);
       expect(result.errors).toBeDefined();
     });
@@ -290,7 +292,7 @@ describe('GrammarDetector', () => {
     it('gère les textes multilingues', async () => {
       const text = 'Bonjour hello hola 你好';
       const result = await detector.analyze(text);
-      
+
       expect(result.text).toBe(text);
       expect(result.errors).toBeDefined();
     });
@@ -300,10 +302,10 @@ describe('GrammarDetector', () => {
     it('trie les erreurs par position dans le texte', async () => {
       const text = 'manger du pain et très beau';
       const result = await detector.analyze(text);
-      
+
       if (result.errors.length > 1) {
         for (let i = 1; i < result.errors.length; i++) {
-          expect(result.errors[i].offset).toBeGreaterThanOrEqual(result.errors[i-1].offset);
+          expect(result.errors[i].offset).toBeGreaterThanOrEqual(result.errors[i - 1].offset);
         }
       }
     });
@@ -311,7 +313,7 @@ describe('GrammarDetector', () => {
     it('calcule correctement les positions des erreurs', async () => {
       const text = 'manger du pain';
       const result = await detector.analyze(text);
-      
+
       result.errors.forEach(error => {
         expect(error.offset).toBeGreaterThanOrEqual(0);
         expect(error.offset).toBeLessThan(text.length);
@@ -322,12 +324,12 @@ describe('GrammarDetector', () => {
   });
 
   describe('Types et sévérité des erreurs', () => {
-    it('assigne correctement les catégories d\'erreurs', async () => {
+    it("assigne correctement les catégories d'erreurs", async () => {
       const text = 'manger du pain; très beau';
       const result = await detector.analyze(text);
-      
+
       const categories = ['grammar', 'spelling', 'punctuation', 'style'];
-      
+
       result.errors.forEach(error => {
         expect(categories).toContain(error.rule.category);
       });
@@ -336,18 +338,18 @@ describe('GrammarDetector', () => {
     it('assigne correctement les niveaux de sévérité', async () => {
       const text = 'manger du pain; très beau';
       const result = await detector.analyze(text);
-      
+
       const severities = ['critical', 'warning', 'suggestion'];
-      
+
       result.errors.forEach(error => {
         expect(severities).toContain(error.rule.severity);
       });
     });
 
-    it('fournit des messages d\'erreur explicites', async () => {
+    it("fournit des messages d'erreur explicites", async () => {
       const text = 'manger du pain';
       const result = await detector.analyze(text);
-      
+
       result.errors.forEach(error => {
         expect(error.message).toBeDefined();
         expect(typeof error.message).toBe('string');
@@ -358,7 +360,7 @@ describe('GrammarDetector', () => {
     it('fournit des suggestions de correction', async () => {
       const text = 'manger du pain';
       const result = await detector.analyze(text);
-      
+
       result.errors.forEach(error => {
         expect(Array.isArray(error.replacements)).toBe(true);
         if (error.replacements.length > 0) {

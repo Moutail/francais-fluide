@@ -28,17 +28,17 @@ export function analyzeUserWeaknesses(
     grammarRules: {},
     errorTypes: {},
     commonMistakes: [],
-    lastErrors: recentErrors
+    lastErrors: recentErrors,
   };
 
   // Analyser les erreurs récentes
   recentErrors.forEach(error => {
     const ruleId = error.id || 'unknown';
     weaknesses.grammarRules[ruleId] = (weaknesses.grammarRules[ruleId] || 0) + 1;
-    
+
     const category = error.type || 'unknown';
     weaknesses.errorTypes[category] = (weaknesses.errorTypes[category] || 0) + 1;
-    
+
     if (error.message) {
       weaknesses.commonMistakes.push(error.message);
     }
@@ -72,16 +72,16 @@ export const EXERCISE_TEMPLATES: ExerciseTemplate[] = [
       estimatedTime: 5,
       content: {
         audioUrl: '/sounds/dictation-basic.mp3',
-        text: 'Le chat dort paisiblement sur le canapé. Il fait beau aujourd\'hui.',
-        instructions: 'Écrivez exactement ce que vous entendez.'
+        text: "Le chat dort paisiblement sur le canapé. Il fait beau aujourd'hui.",
+        instructions: 'Écrivez exactement ce que vous entendez.',
       },
       questions: [],
       scoring: {
         maxPoints: 100,
         timeBonus: 20,
-        accuracyWeight: 0.8
-      }
-    })
+        accuracyWeight: 0.8,
+      },
+    }),
   },
 
   {
@@ -101,16 +101,16 @@ export const EXERCISE_TEMPLATES: ExerciseTemplate[] = [
       estimatedTime: 10,
       content: {
         audioUrl: '/sounds/dictation-advanced.mp3',
-        text: 'Malgré qu\'il ait plu toute la nuit, les fleurs que j\'avais plantées hier ont survécu. Elles sont plus belles que jamais.',
-        instructions: 'Attention aux accords et à la conjugaison !'
+        text: "Malgré qu'il ait plu toute la nuit, les fleurs que j'avais plantées hier ont survécu. Elles sont plus belles que jamais.",
+        instructions: 'Attention aux accords et à la conjugaison !',
       },
       questions: [],
       scoring: {
         maxPoints: 150,
         timeBonus: 30,
-        accuracyWeight: 0.9
-      }
-    })
+        accuracyWeight: 0.9,
+      },
+    }),
   },
 
   // === CORRECTION DE TEXTE ===
@@ -131,7 +131,7 @@ export const EXERCISE_TEMPLATES: ExerciseTemplate[] = [
       estimatedTime: 8,
       content: {
         text: 'Le chien et la chatte joue dans le jardin. Ils sont tres content.',
-        instructions: 'Cliquez sur les erreurs et proposez des corrections.'
+        instructions: 'Cliquez sur les erreurs et proposez des corrections.',
       },
       questions: [
         {
@@ -139,22 +139,22 @@ export const EXERCISE_TEMPLATES: ExerciseTemplate[] = [
           type: 'correction',
           text: 'Le chien et la chatte joue dans le jardin.',
           correctAnswer: 'Le chien et la chatte jouent dans le jardin.',
-          explanation: 'Avec plusieurs sujets, le verbe s\'accorde au pluriel.'
+          explanation: "Avec plusieurs sujets, le verbe s'accorde au pluriel.",
         },
         {
           id: 'q2',
           type: 'correction',
           text: 'Ils sont tres content.',
           correctAnswer: 'Ils sont très contents.',
-          explanation: 'Accord de l\'adjectif avec le sujet pluriel + accent sur "très".'
-        }
+          explanation: 'Accord de l\'adjectif avec le sujet pluriel + accent sur "très".',
+        },
       ],
       scoring: {
         maxPoints: 100,
         timeBonus: 15,
-        accuracyWeight: 0.85
-      }
-    })
+        accuracyWeight: 0.85,
+      },
+    }),
   },
 
   // === CONJUGAISON ===
@@ -170,11 +170,11 @@ export const EXERCISE_TEMPLATES: ExerciseTemplate[] = [
       id: `conjugation-${Date.now()}`,
       type: 'grammar',
       title: 'Conjugaison au présent',
-      description: 'Conjuguez les verbes au présent de l\'indicatif',
+      description: "Conjuguez les verbes au présent de l'indicatif",
       difficulty,
       estimatedTime: 6,
       content: {
-        instructions: 'Conjuguez les verbes entre parenthèses au présent.'
+        instructions: 'Conjuguez les verbes entre parenthèses au présent.',
       },
       questions: [
         {
@@ -183,7 +183,7 @@ export const EXERCISE_TEMPLATES: ExerciseTemplate[] = [
           text: 'Je (manger) une pomme.',
           correctAnswer: 'mange',
           options: ['mange', 'manges', 'mangent'],
-          explanation: 'À la 1ère personne du singulier, on utilise "mange".'
+          explanation: 'À la 1ère personne du singulier, on utilise "mange".',
         },
         {
           id: 'q2',
@@ -191,15 +191,15 @@ export const EXERCISE_TEMPLATES: ExerciseTemplate[] = [
           text: 'Nous (finir) nos devoirs.',
           correctAnswer: 'finissons',
           options: ['finis', 'finissons', 'finissent'],
-          explanation: 'À la 1ère personne du pluriel, on utilise "finissons".'
-        }
+          explanation: 'À la 1ère personne du pluriel, on utilise "finissons".',
+        },
       ],
       scoring: {
         maxPoints: 80,
         timeBonus: 10,
-        accuracyWeight: 0.9
-      }
-    })
+        accuracyWeight: 0.9,
+      },
+    }),
   },
 
   // === VOCABULAIRE ===
@@ -219,7 +219,7 @@ export const EXERCISE_TEMPLATES: ExerciseTemplate[] = [
       difficulty,
       estimatedTime: 7,
       content: {
-        instructions: 'Sélectionnez le synonyme correct pour chaque mot.'
+        instructions: 'Sélectionnez le synonyme correct pour chaque mot.',
       },
       questions: [
         {
@@ -228,15 +228,15 @@ export const EXERCISE_TEMPLATES: ExerciseTemplate[] = [
           text: 'Synonyme de "rapidement"',
           correctAnswer: 'vite',
           options: ['vite', 'lentement', 'doucement', 'fortement'],
-          explanation: '"Rapidement" et "vite" expriment la même idée de vitesse.'
-        }
+          explanation: '"Rapidement" et "vite" expriment la même idée de vitesse.',
+        },
       ],
       scoring: {
         maxPoints: 60,
         timeBonus: 8,
-        accuracyWeight: 0.95
-      }
-    })
+        accuracyWeight: 0.95,
+      },
+    }),
   },
 
   // === COMPRÉHENSION ===
@@ -256,8 +256,8 @@ export const EXERCISE_TEMPLATES: ExerciseTemplate[] = [
       difficulty,
       estimatedTime: 12,
       content: {
-        text: 'La France est un pays d\'Europe de l\'Ouest. Sa capitale est Paris, une ville célèbre pour ses monuments historiques comme la Tour Eiffel et le Louvre. La France compte environ 67 millions d\'habitants.',
-        instructions: 'Lisez le texte et répondez aux questions suivantes.'
+        text: "La France est un pays d'Europe de l'Ouest. Sa capitale est Paris, une ville célèbre pour ses monuments historiques comme la Tour Eiffel et le Louvre. La France compte environ 67 millions d'habitants.",
+        instructions: 'Lisez le texte et répondez aux questions suivantes.',
       },
       questions: [
         {
@@ -266,16 +266,16 @@ export const EXERCISE_TEMPLATES: ExerciseTemplate[] = [
           text: 'Quelle est la capitale de la France ?',
           correctAnswer: 'Paris',
           options: ['Lyon', 'Paris', 'Marseille', 'Toulouse'],
-          explanation: 'Le texte indique clairement que Paris est la capitale de la France.'
-        }
+          explanation: 'Le texte indique clairement que Paris est la capitale de la France.',
+        },
       ],
       scoring: {
         maxPoints: 120,
         timeBonus: 25,
-        accuracyWeight: 0.8
-      }
-    })
-  }
+        accuracyWeight: 0.8,
+      },
+    }),
+  },
 ];
 
 // Générateur principal d'exercices adaptatifs
@@ -289,7 +289,7 @@ export class AdaptiveExerciseGenerator {
       grammarRules: {},
       errorTypes: {},
       commonMistakes: [],
-      lastErrors: []
+      lastErrors: [],
     };
   }
 
@@ -321,10 +321,11 @@ export class AdaptiveExerciseGenerator {
     }
 
     // Sélectionner un template aléatoire
-    const randomTemplate = availableTemplates[Math.floor(Math.random() * availableTemplates.length)];
-    
+    const randomTemplate =
+      availableTemplates[Math.floor(Math.random() * availableTemplates.length)];
+
     if (!randomTemplate) {
-      throw new Error('Aucun template d\'exercice disponible');
+      throw new Error("Aucun template d'exercice disponible");
     }
 
     // Générer l'exercice
@@ -335,7 +336,7 @@ export class AdaptiveExerciseGenerator {
   private selectTemplatesByWeaknesses(templates: ExerciseTemplate[]): ExerciseTemplate[] {
     const scoredTemplates = templates.map(template => {
       let score = 0;
-      
+
       // Score basé sur les règles de grammaire faibles
       template.grammarRules.forEach(rule => {
         const weakness = this.userWeaknesses.grammarRules[rule] || 0;
@@ -359,7 +360,13 @@ export class AdaptiveExerciseGenerator {
     types?: ExerciseType[]
   ): Exercise[] {
     const exercises: Exercise[] = [];
-    const availableTypes = types || ['grammar', 'vocabulary', 'comprehension', 'listening', 'writing'];
+    const availableTypes = types || [
+      'grammar',
+      'vocabulary',
+      'comprehension',
+      'listening',
+      'writing',
+    ];
 
     for (let i = 0; i < count; i++) {
       const randomType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
@@ -371,7 +378,10 @@ export class AdaptiveExerciseGenerator {
   }
 
   // Obtenir les statistiques de progression
-  getProgressStats(exercises: Exercise[], userAnswers: any[]): {
+  getProgressStats(
+    exercises: Exercise[],
+    userAnswers: any[]
+  ): {
     totalExercises: number;
     completedExercises: number;
     averageScore: number;
@@ -380,14 +390,15 @@ export class AdaptiveExerciseGenerator {
   } {
     const completed = exercises.filter((_, index) => userAnswers[index]);
     const scores = completed.map((_, index) => userAnswers[index]?.score || 0);
-    
+
     return {
       totalExercises: exercises.length,
       completedExercises: completed.length,
       averageScore: scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0,
       timeSpent: completed.reduce((total, exercise) => total + exercise.estimatedTime, 0),
-      weakAreas: Object.keys(this.userWeaknesses.grammarRules)
-        .filter(rule => this.userWeaknesses.grammarRules[rule] > 0.5)
+      weakAreas: Object.keys(this.userWeaknesses.grammarRules).filter(
+        rule => this.userWeaknesses.grammarRules[rule] > 0.5
+      ),
     };
   }
 }

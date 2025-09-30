@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
+
   // Exclure proprement la page de login admin (avec ou sans slash)
   const isAdminLogin = /^\/admin\/login\/?$/.test(pathname);
 
@@ -40,10 +40,10 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
   }
-  
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/admin/:path*']
+  matcher: ['/admin/:path*'],
 };

@@ -35,7 +35,7 @@ class TelemetryService {
       timestamp: Date.now(),
       data,
       exerciseId,
-      questionId
+      questionId,
     };
 
     this.events.push(event);
@@ -68,9 +68,9 @@ class TelemetryService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ events: eventsToSend })
+        body: JSON.stringify({ events: eventsToSend }),
       });
 
       if (!response.ok) {
@@ -89,55 +89,106 @@ class TelemetryService {
 
   // Méthodes spécifiques pour les exercices
   trackExerciseStarted(exerciseId: string, exerciseData: any) {
-    this.track('exercise_started', {
-      exerciseType: exerciseData.type,
-      difficulty: exerciseData.difficulty,
-      estimatedTime: exerciseData.estimatedTime
-    }, exerciseId);
+    this.track(
+      'exercise_started',
+      {
+        exerciseType: exerciseData.type,
+        difficulty: exerciseData.difficulty,
+        estimatedTime: exerciseData.estimatedTime,
+      },
+      exerciseId
+    );
   }
 
-  trackAnswerSelected(exerciseId: string, questionId: string, answerIndex: number, options: string[]) {
-    this.track('answer_selected', {
-      answerIndex,
-      selectedOption: options[answerIndex],
-      totalOptions: options.length
-    }, exerciseId, questionId);
+  trackAnswerSelected(
+    exerciseId: string,
+    questionId: string,
+    answerIndex: number,
+    options: string[]
+  ) {
+    this.track(
+      'answer_selected',
+      {
+        answerIndex,
+        selectedOption: options[answerIndex],
+        totalOptions: options.length,
+      },
+      exerciseId,
+      questionId
+    );
   }
 
-  trackAnswerChanged(exerciseId: string, questionId: string, fromIndex: number, toIndex: number, options: string[]) {
-    this.track('answer_changed', {
-      fromIndex,
-      toIndex,
-      fromOption: options[fromIndex],
-      toOption: options[toIndex],
-      totalOptions: options.length
-    }, exerciseId, questionId);
+  trackAnswerChanged(
+    exerciseId: string,
+    questionId: string,
+    fromIndex: number,
+    toIndex: number,
+    options: string[]
+  ) {
+    this.track(
+      'answer_changed',
+      {
+        fromIndex,
+        toIndex,
+        fromOption: options[fromIndex],
+        toOption: options[toIndex],
+        totalOptions: options.length,
+      },
+      exerciseId,
+      questionId
+    );
   }
 
-  trackQuestionCompleted(exerciseId: string, questionId: string, isCorrect: boolean, responseTime: number, attempts: number) {
-    this.track('question_completed', {
-      isCorrect,
-      responseTime, // en millisecondes
-      attempts,
-      timestamp: Date.now()
-    }, exerciseId, questionId);
+  trackQuestionCompleted(
+    exerciseId: string,
+    questionId: string,
+    isCorrect: boolean,
+    responseTime: number,
+    attempts: number
+  ) {
+    this.track(
+      'question_completed',
+      {
+        isCorrect,
+        responseTime, // en millisecondes
+        attempts,
+        timestamp: Date.now(),
+      },
+      exerciseId,
+      questionId
+    );
   }
 
   trackQuestionSkipped(exerciseId: string, questionId: string, reason: string) {
-    this.track('question_skipped', {
-      reason,
-      timestamp: Date.now()
-    }, exerciseId, questionId);
+    this.track(
+      'question_skipped',
+      {
+        reason,
+        timestamp: Date.now(),
+      },
+      exerciseId,
+      questionId
+    );
   }
 
-  trackExerciseFinished(exerciseId: string, score: number, totalQuestions: number, timeSpent: number, accuracy: number) {
-    this.track('exercise_finished', {
-      score,
-      totalQuestions,
-      timeSpent, // en secondes
-      accuracy,
-      timestamp: Date.now()
-    }, exerciseId);
+  trackExerciseFinished(
+    exerciseId: string,
+    score: number,
+    totalQuestions: number,
+    timeSpent: number,
+    accuracy: number
+  ) {
+    this.track(
+      'exercise_finished',
+      {
+        score,
+        totalQuestions,
+        timeSpent, // en secondes
+        accuracy,
+        timestamp: Date.now(),
+      },
+      exerciseId
+    );
   }
 
   // Méthodes pour l'éditeur
@@ -146,7 +197,7 @@ class TelemetryService {
       textLength,
       wordCount,
       language,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -155,7 +206,7 @@ class TelemetryService {
       textLength,
       errorCount,
       correctionsCount: corrections.length,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -164,7 +215,7 @@ class TelemetryService {
     this.track('page_view', {
       page,
       timeSpent,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -172,7 +223,7 @@ class TelemetryService {
     this.track('feature_used', {
       feature,
       context,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 }

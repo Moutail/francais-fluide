@@ -71,8 +71,8 @@ class LanguageToolService {
           text: text,
           language: language,
           enabledOnly: 'false',
-          level: 'picky'
-        })
+          level: 'picky',
+        }),
       });
 
       const data: LanguageToolResponse = await response.json();
@@ -93,17 +93,17 @@ class LanguageToolService {
         return errors;
       } catch (error) {
         console.warn(`Tentative ${attempt}/${this.maxRetries} échouée:`, error);
-        
+
         if (attempt === this.maxRetries) {
           console.error('Toutes les tentatives ont échoué');
           return [];
         }
-        
+
         // Attendre avant la prochaine tentative
         await new Promise(resolve => setTimeout(resolve, this.retryDelay * attempt));
       }
     }
-    
+
     return [];
   }
 
@@ -138,7 +138,7 @@ class LanguageToolService {
    */
   private async makeRequest(endpoint: string, options: RequestInit = {}): Promise<Response> {
     const url = `${this.baseUrl}${endpoint}`;
-    
+
     const response = await fetch(url, {
       ...options,
       headers: {
@@ -175,7 +175,7 @@ class LanguageToolService {
       start: error.offset,
       end: error.offset + error.length,
       type: this.getErrorType(error.rule.category.id),
-      severity: this.getErrorSeverity(error.rule.issueType)
+      severity: this.getErrorSeverity(error.rule.issueType),
     }));
   }
 
@@ -216,7 +216,10 @@ class LanguageToolService {
   /**
    * Analyser un texte et retourner des métriques
    */
-  async analyzeText(text: string, language: string = 'fr'): Promise<{
+  async analyzeText(
+    text: string,
+    language: string = 'fr'
+  ): Promise<{
     errors: LanguageToolError[];
     metrics: {
       totalErrors: number;
@@ -237,8 +240,9 @@ class LanguageToolService {
       spellingErrors: formattedErrors.filter(e => e.type === 'spelling').length,
       styleErrors: formattedErrors.filter(e => e.type === 'style').length,
       typoErrors: formattedErrors.filter(e => e.type === 'typos').length,
-      accuracy: text.length > 0 ? Math.max(0, 100 - (errors.length / text.split(/\s+/).length) * 100) : 100,
-      suggestions: formattedErrors.reduce((sum, e) => sum + e.suggestions.length, 0)
+      accuracy:
+        text.length > 0 ? Math.max(0, 100 - (errors.length / text.split(/\s+/).length) * 100) : 100,
+      suggestions: formattedErrors.reduce((sum, e) => sum + e.suggestions.length, 0),
     };
 
     return { errors, metrics };
@@ -258,23 +262,26 @@ export function useLanguageTool() {
     languageToolService.checkHealth().then(setIsAvailable);
   }, []);
 
-  const checkGrammar = React.useCallback(async (text: string, language: string = 'fr') => {
-    if (!isAvailable) return { errors: [], metrics: { totalErrors: 0, accuracy: 100 } };
-    
-    setIsChecking(true);
-    try {
-      const result = await languageToolService.analyzeText(text, language);
-      return result;
-    } finally {
-      setIsChecking(false);
-    }
-  }, [isAvailable]);
+  const checkGrammar = React.useCallback(
+    async (text: string, language: string = 'fr') => {
+      if (!isAvailable) return { errors: [], metrics: { totalErrors: 0, accuracy: 100 } };
+
+      setIsChecking(true);
+      try {
+        const result = await languageToolService.analyzeText(text, language);
+        return result;
+      } finally {
+        setIsChecking(false);
+      }
+    },
+    [isAvailable]
+  );
 
   return {
     checkGrammar,
     isChecking,
     isAvailable,
-    isReady: isAvailable === true
+    isReady: isAvailable === true,
   };
 }
 

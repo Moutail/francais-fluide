@@ -12,10 +12,10 @@ export async function GET(request: NextRequest) {
     const res = await fetch(backendUrl('/api/admin/dashboard'), {
       method: 'GET',
       headers: {
-        'Authorization': authHeader,
-        'Content-Type': 'application/json'
+        Authorization: authHeader,
+        'Content-Type': 'application/json',
       },
-      cache: 'no-store'
+      cache: 'no-store',
     });
 
     const data = await res.json();

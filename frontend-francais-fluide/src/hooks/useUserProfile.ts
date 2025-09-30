@@ -7,8 +7,12 @@ const PROFILE_QUERY_KEY = ['user', 'profile'];
 
 export function useUserProfile() {
   const queryClient = useQueryClient();
-  
-  const { data: profile, isLoading, error } = useQuery({
+
+  const {
+    data: profile,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: PROFILE_QUERY_KEY,
     queryFn: async (): Promise<UserProfile> => {
       // Simuler un appel API
@@ -24,7 +28,7 @@ export function useUserProfile() {
           realTimeCorrection: true,
           soundEffects: true,
           animations: true,
-          difficulty: 'medium'
+          difficulty: 'medium',
         },
         statistics: {
           totalWords: 0,
@@ -35,8 +39,8 @@ export function useUserProfile() {
           bestStreak: 0,
           totalPracticeTime: 0,
           lastPracticeDate: new Date(),
-          progressByCategory: {}
-        }
+          progressByCategory: {},
+        },
       };
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -47,27 +51,30 @@ export function useUserProfile() {
       // Simuler une mise à jour API
       return { ...profile, ...updates };
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       queryClient.setQueryData(PROFILE_QUERY_KEY, data);
-    }
+    },
   });
 
-  const updateStatistics = useCallback((stats: Partial<UserStatistics>) => {
-    if (!profile) return;
-    
-    updateProfile.mutate({
-      statistics: {
-        ...profile.statistics,
-        ...stats
-      }
-    });
-  }, [profile, updateProfile]);
+  const updateStatistics = useCallback(
+    (stats: Partial<UserStatistics>) => {
+      if (!profile) return;
+
+      updateProfile.mutate({
+        statistics: {
+          ...profile.statistics,
+          ...stats,
+        },
+      });
+    },
+    [profile, updateProfile]
+  );
 
   return {
     profile,
     isLoading,
     error,
     updateProfile: updateProfile.mutate,
-    updateStatistics
+    updateStatistics,
   };
 }

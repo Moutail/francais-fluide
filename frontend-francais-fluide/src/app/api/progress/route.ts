@@ -30,7 +30,7 @@ export async function PUT(request: NextRequest) {
   try {
     const token = request.headers.get('authorization') || '';
     const body = await request.json();
-    
+
     const resp = await fetch(backendUrl('/api/progress'), {
       method: 'PUT',
       headers: {

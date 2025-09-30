@@ -11,45 +11,47 @@ interface LanguageToolStatusProps {
 export const LanguageToolStatus: React.FC<LanguageToolStatusProps> = ({
   isAvailable,
   isChecking,
-  className = ''
+  className = '',
 }) => {
   const getStatusInfo = () => {
     if (isChecking) {
       return {
-        icon: <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full"
-        />,
+        icon: (
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+            className="size-4 rounded-full border-2 border-blue-600 border-t-transparent"
+          />
+        ),
         text: 'Vérification...',
         color: 'text-blue-600',
-        bgColor: 'bg-blue-100'
+        bgColor: 'bg-blue-100',
       };
     }
 
     if (isAvailable === true) {
       return {
-        icon: <CheckCircle className="w-4 h-4" />,
+        icon: <CheckCircle className="size-4" />,
         text: 'LanguageTool actif',
         color: 'text-green-600',
-        bgColor: 'bg-green-100'
+        bgColor: 'bg-green-100',
       };
     }
 
     if (isAvailable === false) {
       return {
-        icon: <WifiOff className="w-4 h-4" />,
+        icon: <WifiOff className="size-4" />,
         text: 'LanguageTool indisponible',
         color: 'text-orange-600',
-        bgColor: 'bg-orange-100'
+        bgColor: 'bg-orange-100',
       };
     }
 
     return {
-      icon: <Wifi className="w-4 h-4" />,
+      icon: <Wifi className="size-4" />,
       text: 'Connexion...',
       color: 'text-gray-600',
-      bgColor: 'bg-gray-100'
+      bgColor: 'bg-gray-100',
     };
   };
 
@@ -59,7 +61,7 @@ export const LanguageToolStatus: React.FC<LanguageToolStatusProps> = ({
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${status.bgColor} ${status.color} ${className}`}
+      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium ${status.bgColor} ${status.color} ${className}`}
     >
       {status.icon}
       <span>{status.text}</span>

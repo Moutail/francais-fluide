@@ -4,27 +4,27 @@ export const AI_CONFIG = {
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   OPENAI_MODEL: 'gpt-4',
   OPENAI_MAX_TOKENS: 1000,
-  
+
   // Claude Configuration
   CLAUDE_API_KEY: process.env.CLAUDE_API_KEY,
   CLAUDE_MODEL: 'claude-3-sonnet-20240229',
   CLAUDE_MAX_TOKENS: 1000,
-  
+
   // LanguageTool Configuration (fallback)
   LANGUAGETOOL_API_KEY: process.env.LANGUAGETOOL_API_KEY,
   LANGUAGETOOL_URL: 'https://api.languagetool.org/v2/check',
-  
+
   // Rate limiting
   RATE_LIMIT: {
-    free: 10,      // 10 requêtes par heure
-    student: 100,  // 100 requêtes par heure
-    premium: 500,  // 500 requêtes par heure
-    enterprise: 2000 // 2000 requêtes par heure
+    free: 10, // 10 requêtes par heure
+    student: 100, // 100 requêtes par heure
+    premium: 500, // 500 requêtes par heure
+    enterprise: 2000, // 2000 requêtes par heure
   },
-  
+
   // Cache settings
   CACHE_TTL: 3600, // 1 heure en secondes
-  MAX_CACHE_SIZE: 1000 // Maximum 1000 entrées en cache
+  MAX_CACHE_SIZE: 1000, // Maximum 1000 entrées en cache
 };
 
 export const AI_PROMPTS = {
@@ -60,5 +60,5 @@ export const AI_PROMPTS = {
   "estimated_time": "temps estimé en minutes"
 }`,
 
-  AI_ASSISTANT: `Tu es un assistant IA spécialisé dans l'apprentissage du français. Tu aides les étudiants à améliorer leur français de manière pédagogique et encourageante. Réponds en français de manière claire et bienveillante.`
+  AI_ASSISTANT: `Tu es un assistant IA spécialisé dans l'apprentissage du français. Tu aides les étudiants à améliorer leur français de manière pédagogique et encourageante. Réponds en français de manière claire et bienveillante.`,
 };

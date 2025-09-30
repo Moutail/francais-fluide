@@ -69,7 +69,8 @@ export interface PerformanceConfig {
 // Configuration par défaut
 export const defaultPerformanceConfig: PerformanceConfig = {
   monitoring: {
-    enabled: process.env.NODE_ENV === 'production' || process.env.ENABLE_PERFORMANCE_MONITORING === 'true',
+    enabled:
+      process.env.NODE_ENV === 'production' || process.env.ENABLE_PERFORMANCE_MONITORING === 'true',
     reportInterval: 30000, // 30 secondes
     maxMetricsHistory: 1000,
     enableRealTimeMetrics: true,
@@ -195,7 +196,7 @@ export const testConfig: PerformanceConfig = {
 // Fonction pour obtenir la configuration appropriée
 export function getPerformanceConfig(): PerformanceConfig {
   const env = process.env.NODE_ENV;
-  
+
   switch (env) {
     case 'development':
       return developmentConfig;
@@ -282,24 +283,24 @@ function getNestedValue(obj: any, path: string): any {
 // Configuration personnalisable via les variables d'environnement
 export function createCustomConfig(): PerformanceConfig {
   const config = getPerformanceConfig();
-  
+
   // Permettre la personnalisation via les variables d'environnement
   if (process.env.PERFORMANCE_MONITORING_INTERVAL) {
     config.monitoring.reportInterval = parseInt(process.env.PERFORMANCE_MONITORING_INTERVAL);
   }
-  
+
   if (process.env.PERFORMANCE_OPTIMIZATION_INTERVAL) {
     config.optimizer.optimizationInterval = parseInt(process.env.PERFORMANCE_OPTIMIZATION_INTERVAL);
   }
-  
+
   if (process.env.PERFORMANCE_CACHE_SIZE) {
     config.cache.grammarCacheSize = parseInt(process.env.PERFORMANCE_CACHE_SIZE);
   }
-  
+
   if (process.env.PERFORMANCE_LAZY_LOADING_DISTANCE) {
     config.lazyLoader.preloadDistance = parseInt(process.env.PERFORMANCE_LAZY_LOADING_DISTANCE);
   }
-  
+
   return config;
 }
 

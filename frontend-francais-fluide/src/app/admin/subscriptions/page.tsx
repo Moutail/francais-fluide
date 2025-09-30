@@ -145,7 +145,6 @@ export default function AdminSubscriptionsPage() {
     switch (status) {
       case 'active': return CheckCircle;
       case 'pending': return Clock;
-      case 'cancelled': return XCircle;
       case 'expired': return XCircle;
       default: return Clock;
     }
@@ -155,17 +154,13 @@ export default function AdminSubscriptionsPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full size-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement des données...</p>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Gestion des Abonnements
@@ -188,7 +183,7 @@ export default function AdminSubscriptionsPage() {
                   <p className="text-sm font-medium text-gray-600">Total Utilisateurs</p>
                   <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
                 </div>
-                <Users className="w-8 h-8 text-blue-600" />
+                <Users className="size-8 text-blue-600" />
               </div>
             </motion.div>
 
@@ -203,7 +198,7 @@ export default function AdminSubscriptionsPage() {
                   <p className="text-sm font-medium text-gray-600">Abonnements Actifs</p>
                   <p className="text-3xl font-bold text-green-600">{stats.active}</p>
                 </div>
-                <CheckCircle className="w-8 h-8 text-green-600" />
+                <CheckCircle className="size-8 text-green-600" />
               </div>
             </motion.div>
 
@@ -218,7 +213,7 @@ export default function AdminSubscriptionsPage() {
                   <p className="text-sm font-medium text-gray-600">Revenus Mensuels</p>
                   <p className="text-3xl font-bold text-purple-600">${stats.revenue.monthly}</p>
                 </div>
-                <DollarSign className="w-8 h-8 text-purple-600" />
+                <DollarSign className="size-8 text-purple-600" />
               </div>
             </motion.div>
 
@@ -235,7 +230,7 @@ export default function AdminSubscriptionsPage() {
                     {Math.round((stats.active / stats.total) * 100)}%
                   </p>
                 </div>
-                <TrendingUp className="w-8 h-8 text-orange-600" />
+                <TrendingUp className="size-8 text-orange-600" />
               </div>
             </motion.div>
           </div>
@@ -263,7 +258,7 @@ export default function AdminSubscriptionsPage() {
                       "inline-flex items-center gap-2 px-4 py-2 rounded-lg mb-2",
                       PLAN_COLORS[plan as keyof typeof PLAN_COLORS]
                     )}>
-                      <Icon className="w-5 h-5" />
+                      <Icon className="size-5" />
                       <span className="font-medium">{PLAN_NAMES[plan as keyof typeof PLAN_NAMES]}</span>
                     </div>
                     <p className="text-2xl font-bold text-gray-900">{count}</p>
@@ -285,7 +280,7 @@ export default function AdminSubscriptionsPage() {
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 size-5" />
                 <input
                   type="text"
                   placeholder="Rechercher par nom ou email..."
@@ -358,7 +353,6 @@ export default function AdminSubscriptionsPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredUsers.map((user, index) => {
                   const StatusIcon = getStatusIcon(user.subscription.status);
-                  
                   return (
                     <motion.tr
                       key={user.id}
@@ -369,8 +363,8 @@ export default function AdminSubscriptionsPage() {
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                          <div className="shrink-0 size-10">
+                            <div className="size-10 rounded-full bg-blue-100 flex items-center justify-center">
                               <span className="text-sm font-medium text-blue-600">
                                 {user.name.charAt(0).toUpperCase()}
                               </span>
@@ -382,27 +376,27 @@ export default function AdminSubscriptionsPage() {
                           </div>
                         </div>
                       </td>
-                      
+
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className={cn(
                           "inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium",
                           PLAN_COLORS[user.subscription.plan as keyof typeof PLAN_COLORS]
                         )}>
-                          {React.createElement(PLAN_ICONS[user.subscription.plan as keyof typeof PLAN_ICONS], { className: "w-4 h-4" })}
+                          {React.createElement(PLAN_ICONS[user.subscription.plan as keyof typeof PLAN_ICONS], { className: "size-4" })}
                           {PLAN_NAMES[user.subscription.plan as keyof typeof PLAN_NAMES]}
                         </div>
                       </td>
-                      
+
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className={cn(
                           "inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium",
                           getStatusColor(user.subscription.status)
                         )}>
-                          <StatusIcon className="w-4 h-4" />
+                          <StatusIcon className="size-4" />
                           {user.subscription.status}
                         </div>
                       </td>
-                      
+
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
                           Niveau {user.progress.level}
@@ -411,21 +405,21 @@ export default function AdminSubscriptionsPage() {
                           {user.progress.exercisesCompleted} exercices
                         </div>
                       </td>
-                      
+
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(user.createdAt).toLocaleDateString('fr-FR')}
                       </td>
-                      
+
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex gap-2">
                           <button
                             onClick={() => setSelectedUser(user)}
                             className="text-blue-600 hover:text-blue-900"
                           >
-                            <Eye className="w-4 h-4" />
+                            <Eye className="size-4" />
                           </button>
                           <button className="text-gray-600 hover:text-gray-900">
-                            <Edit className="w-4 h-4" />
+                            <Edit className="size-4" />
                           </button>
                         </div>
                       </td>
@@ -439,7 +433,7 @@ export default function AdminSubscriptionsPage() {
 
         {/* Modal de détails utilisateur */}
         {selectedUser && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -453,7 +447,7 @@ export default function AdminSubscriptionsPage() {
                   onClick={() => setSelectedUser(null)}
                   className="text-gray-400 hover:text-gray-600"
                 >
-                  <XCircle className="w-6 h-6" />
+                  <XCircle className="size-6" />
                 </button>
               </div>
               

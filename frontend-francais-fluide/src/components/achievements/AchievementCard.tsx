@@ -2,13 +2,7 @@
 
 import React from 'react';
 import { Card } from '@/components/ui/professional/Card';
-import { 
-  CheckCircle, 
-  Lock, 
-  Trophy,
-  Calendar,
-  TrendingUp
-} from 'lucide-react';
+import { CheckCircle, Lock, Trophy, Calendar, TrendingUp } from 'lucide-react';
 
 interface Achievement {
   id: string;
@@ -29,19 +23,18 @@ interface AchievementCardProps {
   onClick?: () => void;
 }
 
-export default function AchievementCard({ 
-  achievement, 
+export default function AchievementCard({
+  achievement,
   currentValue,
   showProgress = false,
-  onClick 
+  onClick,
 }: AchievementCardProps) {
-  
   const typeLabels = {
     words_written: 'Mots écrits',
     exercises_completed: 'Exercices',
     streak: 'Série',
     level: 'Niveau',
-    accuracy: 'Précision'
+    accuracy: 'Précision',
   };
 
   const typeIcons = {
@@ -49,7 +42,7 @@ export default function AchievementCard({
     exercises_completed: '📚',
     streak: '🔥',
     level: '⭐',
-    accuracy: '🎯'
+    accuracy: '🎯',
   };
 
   const getProgressPercentage = () => {
@@ -65,7 +58,7 @@ export default function AchievementCard({
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: 'numeric',
       month: 'short',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 
@@ -84,59 +77,56 @@ export default function AchievementCard({
   };
 
   return (
-    <Card 
-      className={`p-4 transition-all duration-200 cursor-pointer ${getCardStyle()}`}
+    <Card
+      className={`cursor-pointer p-4 transition-all duration-200 ${getCardStyle()}`}
       onClick={onClick}
     >
       <div className="flex items-start gap-3">
         {/* Icône */}
-        <div className={`
-          flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-2xl
-          ${achievement.earned ? 'bg-yellow-200' : 'bg-gray-100'}
-        `}>
+        <div
+          className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-2xl ${achievement.earned ? 'bg-yellow-200' : 'bg-gray-100'} `}
+        >
           {achievement.earned ? (
             <div className="relative">
               <span>{displayIcon}</span>
-              <CheckCircle className="absolute -top-1 -right-1 w-4 h-4 text-green-600 bg-white rounded-full" />
+              <CheckCircle className="absolute -right-1 -top-1 h-4 w-4 rounded-full bg-white text-green-600" />
             </div>
           ) : (
             <div className="relative">
               <span className="opacity-50">{displayIcon}</span>
-              <Lock className="absolute -top-1 -right-1 w-4 h-4 text-gray-400 bg-white rounded-full" />
+              <Lock className="absolute -right-1 -top-1 h-4 w-4 rounded-full bg-white text-gray-400" />
             </div>
           )}
         </div>
 
         {/* Contenu */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className={`font-semibold truncate ${
-              achievement.earned ? 'text-yellow-800' : 'text-gray-900'
-            }`}>
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-center gap-2">
+            <h3
+              className={`truncate font-semibold ${
+                achievement.earned ? 'text-yellow-800' : 'text-gray-900'
+              }`}
+            >
               {achievement.name}
             </h3>
-            {achievement.earned && (
-              <Trophy className="w-4 h-4 text-yellow-600 flex-shrink-0" />
-            )}
+            {achievement.earned && <Trophy className="h-4 w-4 flex-shrink-0 text-yellow-600" />}
           </div>
 
-          <p className={`text-sm mb-2 ${
-            achievement.earned ? 'text-yellow-700' : 'text-gray-600'
-          }`}>
+          <p className={`mb-2 text-sm ${achievement.earned ? 'text-yellow-700' : 'text-gray-600'}`}>
             {achievement.description}
           </p>
 
           {/* Informations sur le seuil */}
-          <div className="flex items-center gap-4 text-xs text-gray-500 mb-2">
+          <div className="mb-2 flex items-center gap-4 text-xs text-gray-500">
             <span className="flex items-center gap-1">
               <span className="font-medium">{typeLabels[achievement.type]}:</span>
               {achievement.threshold}
               {achievement.type === 'accuracy' && '%'}
             </span>
-            
+
             {currentValue !== undefined && (
               <span className="flex items-center gap-1">
-                <TrendingUp className="w-3 h-3" />
+                <TrendingUp className="h-3 w-3" />
                 <span className="font-medium">Actuel:</span>
                 {currentValue}
                 {achievement.type === 'accuracy' && '%'}
@@ -147,12 +137,12 @@ export default function AchievementCard({
           {/* Barre de progression */}
           {showProgress && (
             <div className="mb-2">
-              <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+              <div className="mb-1 flex items-center justify-between text-xs text-gray-500">
                 <span>Progression</span>
                 <span>{progressPercentage}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
+              <div className="h-2 w-full rounded-full bg-gray-200">
+                <div
                   className={`h-2 rounded-full transition-all duration-300 ${getProgressBarColor()}`}
                   style={{ width: `${progressPercentage}%` }}
                 />
@@ -163,7 +153,7 @@ export default function AchievementCard({
           {/* Date d'obtention */}
           {achievement.earned && achievement.earnedAt && (
             <div className="flex items-center gap-1 text-xs text-yellow-600">
-              <Calendar className="w-3 h-3" />
+              <Calendar className="h-3 w-3" />
               <span>Obtenu le {formatEarnedDate(achievement.earnedAt)}</span>
             </div>
           )}

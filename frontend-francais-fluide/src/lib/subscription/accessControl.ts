@@ -42,7 +42,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Correction de base (5 par jour)',
       'Exercices simples (3 par jour)',
       'Statistiques de base',
-      'Support communautaire'
+      'Support communautaire',
     ],
     limits: {
       aiCorrections: 5,
@@ -57,8 +57,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       intelligentTutor: false,
       personalizedLearning: false,
       apiAccess: false,
-      multiUserManagement: false
-    }
+      multiUserManagement: false,
+    },
   },
   {
     id: 'etudiant',
@@ -66,7 +66,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     price: 14.99,
     currency: 'CAD',
     interval: 'month',
-    description: 'Idéal pour les étudiants et l\'apprentissage personnel',
+    description: "Idéal pour les étudiants et l'apprentissage personnel",
     color: 'from-blue-500 to-cyan-500',
     features: [
       'Corrections IA illimitées',
@@ -76,7 +76,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Analytics avancées',
       'Assistant IA basique',
       'Export des données',
-      'Support prioritaire'
+      'Support prioritaire',
     ],
     limits: {
       aiCorrections: -1, // illimité
@@ -91,8 +91,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       intelligentTutor: true,
       personalizedLearning: true,
       apiAccess: false,
-      multiUserManagement: false
-    }
+      multiUserManagement: false,
+    },
   },
   {
     id: 'premium',
@@ -110,7 +110,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Mode hors ligne',
       'Assistant IA avancé',
       'API complète',
-      'Support prioritaire 24/7'
+      'Support prioritaire 24/7',
     ],
     limits: {
       aiCorrections: -1,
@@ -125,8 +125,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       intelligentTutor: true,
       personalizedLearning: true,
       apiAccess: true,
-      multiUserManagement: false
-    }
+      multiUserManagement: false,
+    },
   },
   {
     id: 'etablissement',
@@ -144,7 +144,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Intégration API complète',
       'Support dédié',
       'Formation personnalisée',
-      'SLA garanti'
+      'SLA garanti',
     ],
     limits: {
       aiCorrections: -1,
@@ -159,9 +159,9 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       intelligentTutor: true,
       personalizedLearning: true,
       apiAccess: true,
-      multiUserManagement: true
-    }
-  }
+      multiUserManagement: true,
+    },
+  },
 ];
 
 // Fonction pour vérifier l'accès à une fonctionnalité
@@ -176,14 +176,18 @@ export function hasAccess(userPlan: string, feature: keyof AccessLimits): boolea
 }
 
 // Fonction pour vérifier les quotas
-export function checkQuota(userPlan: string, feature: keyof AccessLimits, currentUsage: number): boolean {
+export function checkQuota(
+  userPlan: string,
+  feature: keyof AccessLimits,
+  currentUsage: number
+): boolean {
   const plan = SUBSCRIPTION_PLANS.find(p => p.id === userPlan);
   if (!plan) return false;
-  
+
   const limit = plan.limits[feature];
   if (limit === -1) return true; // illimité
   if (typeof limit === 'boolean') return limit;
-  
+
   return currentUsage < limit;
 }
 
@@ -202,12 +206,12 @@ export function getUserPlan(subscription: any): string {
 // Fonction pour vérifier si un utilisateur peut accéder à une page
 export function canAccessPage(userPlan: string, page: string): boolean {
   const accessRules: Record<string, string[]> = {
-    'admin': ['etablissement'],
-    'analytics': ['etudiant', 'premium', 'etablissement'],
-    'api': ['premium', 'etablissement'],
+    admin: ['etablissement'],
+    analytics: ['etudiant', 'premium', 'etablissement'],
+    api: ['premium', 'etablissement'],
     'custom-exercises': ['premium', 'etablissement'],
-    'offline': ['premium', 'etablissement'],
-    'multi-user': ['etablissement']
+    offline: ['premium', 'etablissement'],
+    'multi-user': ['etablissement'],
   };
 
   const allowedPlans = accessRules[page] || [];
@@ -218,6 +222,6 @@ export function canAccessPage(userPlan: string, page: string): boolean {
 export function getUpgradeMessage(currentPlan: string, requiredFeature: string): string {
   const plan = SUBSCRIPTION_PLANS.find(p => p.id === currentPlan);
   const nextPlan = SUBSCRIPTION_PLANS.find(p => p.id === 'etudiant'); // Plan suivant par défaut
-  
+
   return `Cette fonctionnalité nécessite un abonnement ${nextPlan?.name}. Votre plan actuel (${plan?.name}) ne permet pas d'accéder à cette fonctionnalité.`;
 }

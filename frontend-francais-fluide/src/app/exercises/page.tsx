@@ -22,7 +22,7 @@ const mockUserProfile: UserProfile = {
     realTimeCorrection: true,
     soundEffects: false,
     animations: true,
-    difficulty: 'medium'
+    difficulty: 'medium',
   },
   statistics: {
     totalWords: 0,
@@ -33,8 +33,8 @@ const mockUserProfile: UserProfile = {
     bestStreak: 0,
     totalPracticeTime: 0,
     lastPracticeDate: new Date(),
-    progressByCategory: {}
-  }
+    progressByCategory: {},
+  },
 };
 
 export default function ExercisesPage() {
@@ -50,7 +50,7 @@ export default function ExercisesPage() {
     accuracyRate: 0,
     level: 1,
     xp: 0,
-    nextLevelXp: 1000
+    nextLevelXp: 1000,
   });
   const [recentResults, setRecentResults] = useState<ExerciseResult[]>([]);
 
@@ -130,14 +130,10 @@ export default function ExercisesPage() {
 
   // Rendu du sélecteur d'exercices
   const renderSelector = () => (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       {/* Statistiques utilisateur */}
-      <Card className="p-6 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <Card className="mb-8 p-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
           <div className="text-center">
             <div className="text-3xl font-bold text-blue-600">{exerciseStats.level}</div>
             <div className="text-sm text-gray-600">Niveau</div>
@@ -157,19 +153,21 @@ export default function ExercisesPage() {
             <div className="text-sm text-gray-600">Précision</div>
           </div>
         </div>
-        
+
         {/* Barre de progression XP */}
         <div className="mt-4">
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
+          <div className="mb-2 flex justify-between text-sm text-gray-600">
             <span>Progression vers le niveau {exerciseStats.level + 1}</span>
-            <span>{exerciseStats.xp} / {exerciseStats.nextLevelXp}</span>
+            <span>
+              {exerciseStats.xp} / {exerciseStats.nextLevelXp}
+            </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="h-2 w-full rounded-full bg-gray-200">
             <motion.div
-              className="bg-blue-600 h-2 rounded-full"
+              className="h-2 rounded-full bg-blue-600"
               initial={{ width: 0 }}
-              animate={{ 
-                width: `${(exerciseStats.xp / exerciseStats.nextLevelXp) * 100}%` 
+              animate={{
+                width: `${(exerciseStats.xp / exerciseStats.nextLevelXp) * 100}%`,
               }}
               transition={{ duration: 0.5 }}
             />
@@ -187,11 +185,7 @@ export default function ExercisesPage() {
 
   // Rendu du lecteur d'exercices
   const renderPlayer = () => (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       {currentExercise && (
         <ExercisePlayer
           exercise={currentExercise}
@@ -207,8 +201,8 @@ export default function ExercisesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* En-tête */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-6 py-4">
+      <div className="border-b bg-white shadow-sm">
+        <div className="mx-auto max-w-6xl px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Exercices</h1>
@@ -216,7 +210,7 @@ export default function ExercisesPage() {
                 Améliorez votre français avec des exercices adaptatifs
               </p>
             </div>
-            
+
             {currentView === 'player' && (
               <Button
                 onClick={handleSkipExercise}
@@ -231,7 +225,7 @@ export default function ExercisesPage() {
       </div>
 
       {/* Contenu principal */}
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="mx-auto max-w-6xl px-6 py-8">
         <AnimatePresence mode="wait">
           {currentView === 'selector' ? renderSelector() : renderPlayer()}
         </AnimatePresence>

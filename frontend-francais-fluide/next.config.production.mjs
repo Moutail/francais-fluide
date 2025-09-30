@@ -2,20 +2,20 @@
 const nextConfig = {
   // Configuration de production
   output: 'standalone',
-  
+
   // Compression et optimisation
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
   swcMinify: true,
-  
+
   // Configuration webpack optimisée pour la production
   webpack: (config, { dev, isServer }) => {
     // Optimisations de production
     if (!dev) {
       // Minimiser le JavaScript
       config.optimization.minimize = true;
-      
+
       // Optimiser les chunks
       config.optimization.splitChunks = {
         chunks: 'all',
@@ -88,18 +88,18 @@ const nextConfig = {
     minimumCacheTTL: 31536000, // 1 an
     dangerouslyAllowSVG: false,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    domains: [
-      'images.unsplash.com',
-      'via.placeholder.com'
-    ],
+    domains: ['images.unsplash.com', 'via.placeholder.com'],
   },
 
   // Configuration de compilation
   compiler: {
     // Supprimer les console.log en production
-    removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error', 'warn']
-    } : false,
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? {
+            exclude: ['error', 'warn'],
+          }
+        : false,
   },
 
   // Configuration des headers de sécurité
@@ -143,7 +143,7 @@ const nextConfig = {
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",
-              "upgrade-insecure-requests"
+              'upgrade-insecure-requests',
             ].join('; '),
           },
           // HSTS (HTTP Strict Transport Security)
@@ -236,12 +236,8 @@ const nextConfig = {
   experimental: {
     // Optimisations de performance
     optimizeCss: true,
-    optimizePackageImports: [
-      'lucide-react', 
-      '@radix-ui/react-icons',
-      'framer-motion'
-    ],
-    
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons', 'framer-motion'],
+
     // Turbopack en développement
     turbo: {
       rules: {
@@ -297,9 +293,8 @@ const nextConfig = {
   pageExtensions: ['js', 'jsx', 'ts', 'tsx'],
 
   // Configuration des assets (pour Vercel)
-  assetPrefix: process.env.NODE_ENV === 'production' && process.env.CDN_URL 
-    ? process.env.CDN_URL 
-    : '',
+  assetPrefix:
+    process.env.NODE_ENV === 'production' && process.env.CDN_URL ? process.env.CDN_URL : '',
 
   // Configuration de la transpilation
   transpilePackages: [

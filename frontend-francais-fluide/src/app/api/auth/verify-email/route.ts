@@ -16,7 +16,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data, { status: res.status });
   } catch (error) {
     console.error('Erreur proxy verify-email:', error);
-    return NextResponse.json({ error: 'Erreur interne du serveur (proxy verify-email)' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Erreur interne du serveur (proxy verify-email)' },
+      { status: 500 }
+    );
   }
 }
-

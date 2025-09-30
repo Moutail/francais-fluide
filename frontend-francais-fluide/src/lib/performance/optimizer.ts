@@ -67,8 +67,8 @@ class PerformanceOptimizer {
           description: 'Applique React.memo aux composants qui se re-rendent trop souvent',
           priority: 'high',
           impact: 'major',
-          condition: (report) => report.componentData.some(comp => comp.reRenderCount > 10),
-          action: () => this.enableComponentMemoization()
+          condition: report => report.componentData.some(comp => comp.reRenderCount > 10),
+          action: () => this.enableComponentMemoization(),
         },
         {
           id: 'debounce-inputs',
@@ -76,10 +76,10 @@ class PerformanceOptimizer {
           description: 'Applique un debounce aux champs de saisie pour réduire les traitements',
           priority: 'medium',
           impact: 'moderate',
-          condition: (report) => report.metrics.userInteractionDelay > 100,
-          action: () => this.enableInputDebouncing()
-        }
-      ]
+          condition: report => report.metrics.userInteractionDelay > 100,
+          action: () => this.enableInputDebouncing(),
+        },
+      ],
     });
 
     // Stratégie de cache
@@ -95,8 +95,8 @@ class PerformanceOptimizer {
           description: 'Optimise le cache des vérifications grammaticales',
           priority: 'high',
           impact: 'major',
-          condition: (report) => report.metrics.grammarCheckTime > 300,
-          action: () => this.optimizeGrammarCache()
+          condition: report => report.metrics.grammarCheckTime > 300,
+          action: () => this.optimizeGrammarCache(),
         },
         {
           id: 'network-cache',
@@ -104,10 +104,10 @@ class PerformanceOptimizer {
           description: 'Améliore le cache des requêtes réseau',
           priority: 'medium',
           impact: 'moderate',
-          condition: (report) => report.networkData.averageLatency > 500,
-          action: () => this.optimizeNetworkCache()
-        }
-      ]
+          condition: report => report.networkData.averageLatency > 500,
+          action: () => this.optimizeNetworkCache(),
+        },
+      ],
     });
 
     // Stratégie de virtualisation
@@ -123,10 +123,10 @@ class PerformanceOptimizer {
           description: 'Virtualise les listes de suggestions longues',
           priority: 'medium',
           impact: 'moderate',
-          condition: (report) => report.metrics.renderTime > 20,
-          action: () => this.enableListVirtualization()
-        }
-      ]
+          condition: report => report.metrics.renderTime > 20,
+          action: () => this.enableListVirtualization(),
+        },
+      ],
     });
 
     // Stratégie de bundle
@@ -142,8 +142,8 @@ class PerformanceOptimizer {
           description: 'Active le chargement différé des composants non critiques',
           priority: 'high',
           impact: 'major',
-          condition: (report) => report.userExperience.timeToInteractive > 3000,
-          action: () => this.enableLazyLoading()
+          condition: report => report.userExperience.timeToInteractive > 3000,
+          action: () => this.enableLazyLoading(),
         },
         {
           id: 'code-splitting',
@@ -151,10 +151,10 @@ class PerformanceOptimizer {
           description: 'Divise le code en chunks plus petits',
           priority: 'medium',
           impact: 'moderate',
-          condition: (report) => report.userExperience.largestContentfulPaint > 2500,
-          action: () => this.enableCodeSplitting()
-        }
-      ]
+          condition: report => report.userExperience.largestContentfulPaint > 2500,
+          action: () => this.enableCodeSplitting(),
+        },
+      ],
     });
   }
 
@@ -218,7 +218,7 @@ class PerformanceOptimizer {
       try {
         const beforeScore = report.score;
         rule.action();
-        
+
         // Mesurer l'impact après un délai
         setTimeout(() => {
           const newReport = performanceMonitor.generatePerformanceReport();
@@ -232,15 +232,16 @@ class PerformanceOptimizer {
             beforeScore,
             afterScore,
             improvement,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           });
 
-          console.log(`✅ Applied optimization: ${rule.name} (${improvement > 0 ? '+' : ''}${improvement} points)`);
+          console.log(
+            `✅ Applied optimization: ${rule.name} (${improvement > 0 ? '+' : ''}${improvement} points)`
+          );
         }, 2000);
-
       } catch (error) {
         console.error(`❌ Failed to apply optimization ${rule.name}:`, error);
-        
+
         this.recordOptimizationResult({
           ruleId: rule.id,
           applied: false,
@@ -248,7 +249,7 @@ class PerformanceOptimizer {
           beforeScore: report.score,
           afterScore: report.score,
           improvement: 0,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
     }
@@ -285,7 +286,7 @@ class PerformanceOptimizer {
    */
   private recordOptimizationResult(result: OptimizationResult): void {
     this.appliedOptimizations.push(result);
-    
+
     // Garder seulement les 100 derniers résultats
     if (this.appliedOptimizations.length > 100) {
       this.appliedOptimizations = this.appliedOptimizations.slice(-100);
@@ -300,7 +301,7 @@ class PerformanceOptimizer {
     // Activer la mémorisation des composants
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('francais-fluide:component-memoization', 'enabled');
-      
+
       // Déclencher un re-render pour appliquer les optimisations
       window.dispatchEvent(new CustomEvent('francais-fluide:optimize-components'));
     }
@@ -310,7 +311,7 @@ class PerformanceOptimizer {
     // Augmenter le délai de debounce pour les inputs
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('francais-fluide:debounce-delay', '750');
-      
+
       window.dispatchEvent(new CustomEvent('francais-fluide:update-debounce'));
     }
   }
@@ -320,7 +321,7 @@ class PerformanceOptimizer {
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('francais-fluide:grammar-cache-size', '500');
       window.localStorage.setItem('francais-fluide:grammar-cache-ttl', '3600000'); // 1 heure
-      
+
       window.dispatchEvent(new CustomEvent('francais-fluide:optimize-grammar-cache'));
     }
   }
@@ -329,7 +330,7 @@ class PerformanceOptimizer {
     // Optimiser le cache réseau
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('francais-fluide:network-cache', 'enabled');
-      
+
       window.dispatchEvent(new CustomEvent('francais-fluide:optimize-network-cache'));
     }
   }
@@ -338,7 +339,7 @@ class PerformanceOptimizer {
     // Activer la virtualisation des listes
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('francais-fluide:list-virtualization', 'enabled');
-      
+
       window.dispatchEvent(new CustomEvent('francais-fluide:enable-virtualization'));
     }
   }
@@ -347,7 +348,7 @@ class PerformanceOptimizer {
     // Activer le chargement différé
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('francais-fluide:lazy-loading', 'enabled');
-      
+
       window.dispatchEvent(new CustomEvent('francais-fluide:enable-lazy-loading'));
     }
   }
@@ -356,7 +357,7 @@ class PerformanceOptimizer {
     // Activer la division du code
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('francais-fluide:code-splitting', 'enabled');
-      
+
       window.dispatchEvent(new CustomEvent('francais-fluide:enable-code-splitting'));
     }
   }
@@ -380,12 +381,12 @@ class PerformanceOptimizer {
    */
   public getOptimizationScore(): number {
     if (this.appliedOptimizations.length === 0) return 0;
-    
+
     const totalImprovement = this.appliedOptimizations.reduce(
-      (sum, result) => sum + result.improvement, 
+      (sum, result) => sum + result.improvement,
       0
     );
-    
+
     return Math.max(0, 100 + totalImprovement);
   }
 
@@ -394,7 +395,7 @@ class PerformanceOptimizer {
    */
   public applyOptimization(ruleId: string): OptimizationResult | null {
     const report = performanceMonitor.generatePerformanceReport();
-    
+
     // Trouver la règle
     let targetRule: OptimizationRule | null = null;
     for (const strategy of this.strategies.values()) {
@@ -413,7 +414,7 @@ class PerformanceOptimizer {
     try {
       const beforeScore = report.score;
       targetRule.action();
-      
+
       const afterScore = report.score;
       const improvement = afterScore - beforeScore;
 
@@ -424,15 +425,14 @@ class PerformanceOptimizer {
         beforeScore,
         afterScore,
         improvement,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       this.recordOptimizationResult(result);
       return result;
-
     } catch (error) {
       console.error(`Failed to apply optimization ${ruleId}:`, error);
-      
+
       return {
         ruleId,
         applied: false,
@@ -440,7 +440,7 @@ class PerformanceOptimizer {
         beforeScore: report.score,
         afterScore: report.score,
         improvement: 0,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
   }
@@ -459,7 +459,7 @@ class PerformanceOptimizer {
       results,
       score,
       isOptimizing: this.isOptimizing,
-      recommendations: this.generateOptimizationRecommendations()
+      recommendations: this.generateOptimizationRecommendations(),
     };
   }
 
@@ -471,7 +471,9 @@ class PerformanceOptimizer {
     const report = performanceMonitor.generatePerformanceReport();
 
     if (report.score < 70) {
-      recommendations.push('Score de performance faible. Activez toutes les stratégies d\'optimisation.');
+      recommendations.push(
+        "Score de performance faible. Activez toutes les stratégies d'optimisation."
+      );
     }
 
     if (report.metrics.renderTime > 16) {
@@ -483,7 +485,7 @@ class PerformanceOptimizer {
     }
 
     if (report.userExperience.timeToInteractive > 3000) {
-      recommendations.push('Temps d\'interactivité élevé. Activez le chargement différé.');
+      recommendations.push("Temps d'interactivité élevé. Activez le chargement différé.");
     }
 
     return recommendations;
@@ -541,7 +543,7 @@ export const usePerformanceOptimizer = () => {
     startOptimization,
     stopOptimization,
     applyOptimization,
-    generateReport
+    generateReport,
   };
 };
 

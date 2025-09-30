@@ -3,17 +3,17 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Sparkles, 
-  Menu, 
-  X, 
-  User, 
+import {
+  Sparkles,
+  Menu,
+  X,
+  User,
   LogOut,
   Settings,
   TrendingUp,
   BookOpen,
   Target,
-  Crown
+  Crown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { SimpleAIAssistant } from '@/components/ai/SimpleAIAssistant';
@@ -45,58 +45,58 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, userPlan = 'free' }
     <motion.header
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white/80 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-50"
+      className="sticky top-0 z-50 border-b border-gray-200/50 bg-white/80 backdrop-blur-xl"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <motion.div 
-            className="flex items-center gap-2 cursor-pointer"
+          <motion.div
+            className="flex cursor-pointer items-center gap-2"
             whileHover={{ scale: 1.05 }}
-            onClick={() => window.location.href = '/'}
+            onClick={() => (window.location.href = '/')}
           >
             <div className="relative">
-              <Sparkles className="w-8 h-8 text-blue-600" />
+              <Sparkles className="size-8 text-blue-600" />
               <motion.div
                 className="absolute inset-0"
                 animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
               >
-                <Sparkles className="w-8 h-8 text-blue-400 opacity-50" />
+                <Sparkles className="size-8 text-blue-400 opacity-50" />
               </motion.div>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-xl font-bold text-transparent">
               FrançaisFluide
             </span>
           </motion.div>
 
           {/* Navigation Desktop */}
-          <nav className="hidden md:flex items-center gap-6">
-            {navigationItems.map((item) => (
+          <nav className="hidden items-center gap-6 md:flex">
+            {navigationItems.map(item => (
               <motion.a
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all",
+                  'flex items-center gap-2 rounded-lg px-3 py-2 font-medium transition-all',
                   isActive(item.href)
-                    ? "text-blue-600 bg-blue-50"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 )}
                 whileHover={{ y: -2 }}
               >
-                <item.icon className="w-4 h-4" />
+                <item.icon className="size-4" />
                 {item.name}
               </motion.a>
             ))}
           </nav>
 
           {/* Actions Desktop */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden items-center gap-4 md:flex">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => window.location.href = '/auth/login'}
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium shadow-lg shadow-blue-500/25 hover:shadow-xl transition-all"
+              onClick={() => (window.location.href = '/auth/login')}
+              className="rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 font-medium text-white shadow-lg shadow-blue-500/25 transition-all hover:shadow-xl"
             >
               Se connecter
             </motion.button>
@@ -107,9 +107,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, userPlan = 'free' }
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="rounded-lg p-2 transition-colors hover:bg-gray-100"
               >
-                <User className="w-5 h-5 text-gray-600" />
+                <User className="size-5 text-gray-600" />
               </motion.button>
 
               <AnimatePresence>
@@ -118,19 +118,19 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, userPlan = 'free' }
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 py-2"
+                    className="absolute right-0 mt-2 w-48 rounded-xl border border-gray-200 bg-white py-2 shadow-xl"
                   >
-                    <button className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 flex items-center gap-3">
-                      <User className="w-4 h-4" />
+                    <button className="flex w-full items-center gap-3 px-4 py-2 text-left text-gray-700 hover:bg-gray-50">
+                      <User className="h-4 w-4" />
                       Mon profil
                     </button>
-                    <button className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 flex items-center gap-3">
-                      <Settings className="w-4 h-4" />
+                    <button className="flex w-full items-center gap-3 px-4 py-2 text-left text-gray-700 hover:bg-gray-50">
+                      <Settings className="h-4 w-4" />
                       Paramètres
                     </button>
                     <hr className="my-2" />
-                    <button className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-3">
-                      <LogOut className="w-4 h-4" />
+                    <button className="flex w-full items-center gap-3 px-4 py-2 text-left text-red-600 hover:bg-red-50">
+                      <LogOut className="h-4 w-4" />
                       Se déconnecter
                     </button>
                   </motion.div>
@@ -144,9 +144,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, userPlan = 'free' }
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="rounded-lg p-2 transition-colors hover:bg-gray-100 md:hidden"
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
           </motion.button>
         </div>
 
@@ -157,27 +157,27 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, userPlan = 'free' }
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t border-gray-200 py-4"
+              className="border-t border-gray-200 py-4 md:hidden"
             >
               <nav className="space-y-2">
-                {navigationItems.map((item) => (
+                {navigationItems.map(item => (
                   <motion.a
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all",
+                      'flex items-center gap-3 rounded-lg px-4 py-3 font-medium transition-all',
                       isActive(item.href)
-                        ? "text-blue-600 bg-blue-50"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        ? 'bg-blue-50 text-blue-600'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     )}
                     whileHover={{ x: 4 }}
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <item.icon className="w-5 h-5" />
+                    <item.icon className="size-5" />
                     {item.name}
                   </motion.a>
                 ))}
-                <div className="pt-4 border-t border-gray-200">
+                <div className="border-t border-gray-200 pt-4">
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -185,7 +185,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, userPlan = 'free' }
                       window.location.href = '/auth/login';
                       setIsMenuOpen(false);
                     }}
-                    className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium shadow-lg"
+                    className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 font-medium text-white shadow-lg"
                   >
                     Se connecter
                   </motion.button>

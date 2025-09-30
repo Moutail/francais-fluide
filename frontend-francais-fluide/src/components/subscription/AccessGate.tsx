@@ -18,25 +18,25 @@ const PLAN_ICONS = {
   demo: Lock,
   etudiant: GraduationCap,
   premium: Star,
-  etablissement: Building
+  etablissement: Building,
 };
 
 const PLAN_COLORS = {
   demo: 'text-gray-600',
   etudiant: 'text-blue-600',
   premium: 'text-purple-600',
-  etablissement: 'text-orange-600'
+  etablissement: 'text-orange-600',
 };
 
-export default function AccessGate({ 
-  userPlan, 
-  requiredFeature, 
-  children, 
+export default function AccessGate({
+  userPlan,
+  requiredFeature,
+  children,
   fallback,
-  showUpgrade = true 
+  showUpgrade = true,
 }: AccessGateProps) {
   const hasAccessToFeature = hasAccess(userPlan, requiredFeature);
-  
+
   if (hasAccessToFeature) {
     return <>{children}</>;
   }
@@ -56,36 +56,37 @@ export default function AccessGate({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 text-center border-2 border-dashed border-gray-300"
+      className="rounded-2xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-gray-100 p-8 text-center"
     >
-      <div className="max-w-md mx-auto">
+      <div className="mx-auto max-w-md">
         <div className="mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-200 rounded-full mb-4">
-            <Lock className="w-8 h-8 text-gray-600" />
+          <div className="mb-4 inline-flex size-16 items-center justify-center rounded-full bg-gray-200">
+            <Lock className="size-8 text-gray-600" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">
-            Fonctionnalité Premium
-          </h3>
+          <h3 className="mb-2 text-xl font-bold text-gray-900">Fonctionnalité Premium</h3>
           <p className="text-gray-600">
             Cette fonctionnalité nécessite un abonnement supérieur à votre plan actuel.
           </p>
         </div>
 
-        <div className="bg-white rounded-xl p-6 mb-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
+        <div className="mb-6 rounded-xl bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {React.createElement(PLAN_ICONS[userPlan as keyof typeof PLAN_ICONS], { 
-                className: cn("w-6 h-6", PLAN_COLORS[userPlan as keyof typeof PLAN_COLORS])
+              {React.createElement(PLAN_ICONS[userPlan as keyof typeof PLAN_ICONS], {
+                className: cn('size-6', PLAN_COLORS[userPlan as keyof typeof PLAN_COLORS]),
               })}
               <div className="text-left">
                 <p className="font-semibold text-gray-900">{currentPlan?.name}</p>
                 <p className="text-sm text-gray-500">Plan actuel</p>
               </div>
             </div>
-            <ArrowRight className="w-5 h-5 text-gray-400" />
+            <ArrowRight className="size-5 text-gray-400" />
             <div className="flex items-center gap-3">
-              {React.createElement(PLAN_ICONS[nextPlan?.id as keyof typeof PLAN_ICONS] || Crown, { 
-                className: cn("w-6 h-6", PLAN_COLORS[nextPlan?.id as keyof typeof PLAN_COLORS] || "text-purple-600")
+              {React.createElement(PLAN_ICONS[nextPlan?.id as keyof typeof PLAN_ICONS] || Crown, {
+                className: cn(
+                  'size-6',
+                  PLAN_COLORS[nextPlan?.id as keyof typeof PLAN_COLORS] || 'text-purple-600'
+                ),
               })}
               <div className="text-left">
                 <p className="font-semibold text-gray-900">{nextPlan?.name}</p>
@@ -93,9 +94,9 @@ export default function AccessGate({
               </div>
             </div>
           </div>
-          
+
           <div className="text-center">
-            <p className="text-2xl font-bold text-gray-900 mb-1">
+            <p className="mb-1 text-2xl font-bold text-gray-900">
               {nextPlan?.price} {nextPlan?.currency}
             </p>
             <p className="text-sm text-gray-500">par mois</p>
@@ -103,10 +104,10 @@ export default function AccessGate({
         </div>
 
         <div className="space-y-3">
-          <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg">
+          <button className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:from-blue-700 hover:to-purple-700">
             Mettre à niveau maintenant
           </button>
-          <button className="w-full text-gray-600 hover:text-gray-800 py-2 px-6 rounded-xl font-medium transition-colors">
+          <button className="w-full rounded-xl px-6 py-2 font-medium text-gray-600 transition-colors hover:text-gray-800">
             Voir tous les plans
           </button>
         </div>

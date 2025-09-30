@@ -36,13 +36,14 @@ export class ExerciseGamification {
   private xpMultiplier = {
     beginner: 1.0,
     intermediate: 1.5,
-    advanced: 2.0
+    advanced: 2.0,
   };
 
   // Calculer les points XP pour un exercice
   calculateXp(result: ExerciseResult, difficulty: string): number {
     const baseXp = this.baseXpPerExercise;
-    const difficultyMultiplier = this.xpMultiplier[difficulty as keyof typeof this.xpMultiplier] || 1.0;
+    const difficultyMultiplier =
+      this.xpMultiplier[difficulty as keyof typeof this.xpMultiplier] || 1.0;
     const scoreMultiplier = result.score / result.maxScore;
     const timeBonus = result.timeSpent < 300 ? 1.2 : 1.0; // Bonus si terminé en moins de 5 minutes
     const accuracyBonus = result.accuracy > 0.8 ? 1.1 : 1.0;
@@ -55,11 +56,11 @@ export class ExerciseGamification {
     const level = Math.floor(Math.sqrt(totalXp / 1000)) + 1;
     const currentLevelXp = Math.pow(level - 1, 2) * 1000;
     const nextLevelXp = Math.pow(level, 2) * 1000;
-    
+
     return {
       level,
       xp: totalXp - currentLevelXp,
-      nextLevelXp: nextLevelXp - currentLevelXp
+      nextLevelXp: nextLevelXp - currentLevelXp,
     };
   }
 
@@ -72,22 +73,24 @@ export class ExerciseGamification {
     const xpGained = this.calculateXp(result, difficulty);
     const newTotalXp = currentStats.xp + xpGained;
     const levelInfo = this.calculateLevel(newTotalXp);
-    
+
     const newStreak = result.accuracy >= 0.7 ? currentStats.currentStreak + 1 : 0;
-    
+
     return {
       totalExercises: currentStats.totalExercises + 1,
       completedExercises: currentStats.completedExercises + 1,
-      averageScore: (currentStats.averageScore * currentStats.completedExercises + result.score) / 
-                   (currentStats.completedExercises + 1),
+      averageScore:
+        (currentStats.averageScore * currentStats.completedExercises + result.score) /
+        (currentStats.completedExercises + 1),
       totalTimeSpent: currentStats.totalTimeSpent + result.timeSpent,
       currentStreak: newStreak,
       bestStreak: Math.max(currentStats.bestStreak, newStreak),
-      accuracyRate: (currentStats.accuracyRate * currentStats.completedExercises + result.accuracy) / 
-                   (currentStats.completedExercises + 1),
+      accuracyRate:
+        (currentStats.accuracyRate * currentStats.completedExercises + result.accuracy) /
+        (currentStats.completedExercises + 1),
       level: levelInfo.level,
       xp: levelInfo.xp,
-      nextLevelXp: levelInfo.nextLevelXp
+      nextLevelXp: levelInfo.nextLevelXp,
     };
   }
 
@@ -108,8 +111,8 @@ export class ExerciseGamification {
         criteria: {
           type: 'completion',
           value: 1,
-          operator: 'eq'
-        }
+          operator: 'eq',
+        },
       });
     }
 
@@ -126,8 +129,8 @@ export class ExerciseGamification {
         criteria: {
           type: 'score',
           value: result.maxScore,
-          operator: 'eq'
-        }
+          operator: 'eq',
+        },
       });
     }
 
@@ -144,8 +147,8 @@ export class ExerciseGamification {
         criteria: {
           type: 'streak',
           value: 5,
-          operator: 'eq'
-        }
+          operator: 'eq',
+        },
       });
     }
 
@@ -162,8 +165,8 @@ export class ExerciseGamification {
         criteria: {
           type: 'streak',
           value: 10,
-          operator: 'eq'
-        }
+          operator: 'eq',
+        },
       });
     }
 
@@ -180,17 +183,18 @@ export class ExerciseGamification {
         criteria: {
           type: 'completion',
           value: 100,
-          operator: 'eq'
-        }
+          operator: 'eq',
+        },
       });
     }
 
     // Achievement: Rapidité
-    if (result.timeSpent < 60) { // Moins d'une minute
+    if (result.timeSpent < 60) {
+      // Moins d'une minute
       achievements.push({
         id: 'speed-demon',
         name: 'Démon de Vitesse',
-        description: 'Exercice terminé en moins d\'une minute !',
+        description: "Exercice terminé en moins d'une minute !",
         icon: '⚡',
         category: 'exercise',
         rarity: 'rare',
@@ -198,8 +202,8 @@ export class ExerciseGamification {
         criteria: {
           type: 'time',
           value: 60,
-          operator: 'lte'
-        }
+          operator: 'lte',
+        },
       });
     }
 
@@ -216,8 +220,8 @@ export class ExerciseGamification {
         criteria: {
           type: 'accuracy',
           value: 0.95,
-          operator: 'gte'
-        }
+          operator: 'gte',
+        },
       });
     }
 
@@ -231,7 +235,7 @@ export class ExerciseGamification {
     count: number = 5
   ) {
     // Analyser les erreurs récentes
-    const recentErrors = recentResults.flatMap(result => 
+    const recentErrors = recentResults.flatMap(result =>
       result.answers.filter(answer => !answer.isCorrect)
     );
 
@@ -269,7 +273,8 @@ export class ExerciseGamification {
       recommendations.push('Essayez de maintenir une série de réussites');
     }
 
-    if (stats.totalTimeSpent < 1800) { // Moins de 30 minutes
+    if (stats.totalTimeSpent < 1800) {
+      // Moins de 30 minutes
       recommendations.push('Pratiquez plus régulièrement pour améliorer vos compétences');
     }
 

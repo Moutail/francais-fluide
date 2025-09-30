@@ -40,6 +40,7 @@ npx tsx examples/grammar-backend-usage.ts
 Corriger un texte en français.
 
 **Requête :**
+
 ```json
 {
   "text": "Une belle maison et un grande jardin",
@@ -50,6 +51,7 @@ Corriger un texte en français.
 ```
 
 **Réponse :**
+
 ```json
 {
   "success": true,
@@ -144,7 +146,7 @@ const service = new GrammarBackendService({
   maxTextLength: 10000,
   cacheTTL: 5 * 60 * 1000,
   rateLimitWindow: 60 * 1000,
-  rateLimitMaxRequests: 10
+  rateLimitMaxRequests: 10,
 });
 ```
 
@@ -247,17 +249,20 @@ try {
 ### Étapes
 
 1. **Installation**
+
    ```bash
    npm install
    ```
 
 2. **Configuration**
+
    ```bash
    cp .env.example .env.local
    # Modifier les variables d'environnement
    ```
 
 3. **Test**
+
    ```bash
    npm run test:grammar
    ```
@@ -301,10 +306,10 @@ const newRule = {
   pattern: /\bpattern\b/gi,
   check: (match: RegExpExecArray) => {
     return {
-      message: 'Message d\'erreur',
-      suggestions: ['suggestion1', 'suggestion2']
+      message: "Message d'erreur",
+      suggestions: ['suggestion1', 'suggestion2'],
     };
-  }
+  },
 };
 ```
 

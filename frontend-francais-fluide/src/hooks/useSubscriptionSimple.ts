@@ -1,6 +1,10 @@
 // src/hooks/useSubscriptionSimple.ts
 import { useAuth } from './useApi';
-import { getFrontendPlanById, getPlanFeatures, getPlanLimits } from '@/lib/subscription/subscriptionService';
+import {
+  getFrontendPlanById,
+  getPlanFeatures,
+  getPlanLimits,
+} from '@/lib/subscription/subscriptionService';
 import { SubscriptionPlan } from '@/lib/subscription/plans';
 
 export function useSubscriptionSimple() {
@@ -19,7 +23,7 @@ export function useSubscriptionSimple() {
         'Correction de base (5 par jour)',
         'Exercices simples (3 par jour)',
         'Statistiques de base',
-        'Support communautaire'
+        'Support communautaire',
       ],
       limits: {
         aiCorrections: 5,
@@ -32,8 +36,8 @@ export function useSubscriptionSimple() {
         voiceAssistant: false,
         offlineMode: false,
         intelligentTutor: false,
-        personalizedLearning: false
-      }
+        personalizedLearning: false,
+      },
     };
 
     if (!user || !user.subscription) {

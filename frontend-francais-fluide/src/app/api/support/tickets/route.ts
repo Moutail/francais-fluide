@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const authHeader = request.headers.get('authorization');
     if (!authHeader) {
       return NextResponse.json(
-        { success: false, message: 'Token d\'authentification manquant' },
+        { success: false, message: "Token d'authentification manquant" },
         { status: 401 }
       );
     }
@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
     const response = await fetch(backendUrl('/api/support/tickets'), {
       method: 'GET',
       headers: {
-        'Authorization': authHeader
-      }
+        Authorization: authHeader,
+      },
     });
 
     const data = await response.json();
@@ -32,7 +32,6 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(data);
-
   } catch (error) {
     console.error('Erreur API support tickets:', error);
     return NextResponse.json(

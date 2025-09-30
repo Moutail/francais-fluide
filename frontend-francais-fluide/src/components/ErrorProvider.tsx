@@ -84,32 +84,28 @@ export default function ErrorProvider({ children }: ErrorProviderProps) {
   const contextValue: ErrorContextType = {
     showErrorLog: showErrorLogModal,
     clearErrors,
-    getErrorCount
+    getErrorCount,
   };
 
   return (
     <ErrorContext.Provider value={contextValue}>
       {children}
-      
+
       {/* Notification d'erreur actuelle */}
       {currentError && (
-        <ErrorNotification
-          error={currentError}
-          onClose={handleCloseError}
-          persistent={true}
-        />
+        <ErrorNotification error={currentError} onClose={handleCloseError} persistent={true} />
       )}
 
       {/* Bouton flottant pour le journal d'erreurs */}
       {isMounted && errorCount > 0 && (
         <button
           onClick={showErrorLogModal}
-          className="fixed bottom-4 left-4 z-40 bg-red-600 text-white p-3 rounded-full shadow-lg hover:bg-red-700 transition-colors group"
+          className="group fixed bottom-4 left-4 z-40 rounded-full bg-red-600 p-3 text-white shadow-lg transition-colors hover:bg-red-700"
           title={`${errorCount} erreur(s) détectée(s)`}
         >
-          <Bug className="w-5 h-5" />
+          <Bug className="h-5 w-5" />
           {errorCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
+            <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs text-white">
               {errorCount > 99 ? '99+' : errorCount}
             </span>
           )}
@@ -117,10 +113,7 @@ export default function ErrorProvider({ children }: ErrorProviderProps) {
       )}
 
       {/* Journal d'erreurs modal */}
-      <ErrorLog
-        isOpen={showErrorLog}
-        onClose={closeErrorLog}
-      />
+      <ErrorLog isOpen={showErrorLog} onClose={closeErrorLog} />
     </ErrorContext.Provider>
   );
 }

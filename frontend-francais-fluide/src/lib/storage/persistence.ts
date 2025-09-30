@@ -50,7 +50,7 @@ export class PersistenceManager {
     isSyncing: false,
     lastSync: null,
     pendingItems: 0,
-    error: null
+    error: null,
   };
   private listeners: Map<string, Array<(...args: any[]) => void>> = new Map();
 
@@ -65,7 +65,7 @@ export class PersistenceManager {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
       request.onerror = () => {
-        console.error('Erreur lors de l\'ouverture de la base de données:', request.error);
+        console.error("Erreur lors de l'ouverture de la base de données:", request.error);
         reject(request.error);
       };
 
@@ -76,9 +76,9 @@ export class PersistenceManager {
         resolve();
       };
 
-      request.onupgradeneeded = (event) => {
+      request.onupgradeneeded = event => {
         const db = (event.target as IDBOpenDBRequest).result;
-        
+
         // Store pour les documents
         if (!db.objectStoreNames.contains(DOCUMENTS_STORE)) {
           const documentsStore = db.createObjectStore(DOCUMENTS_STORE, { keyPath: 'id' });
@@ -137,7 +137,7 @@ export class PersistenceManager {
       content: compressedContent,
       version: await this.getNextVersion(document.id),
       isDirty: true,
-      lastModified: new Date()
+      lastModified: new Date(),
     };
 
     return new Promise((resolve, reject) => {
@@ -195,7 +195,7 @@ export class PersistenceManager {
       request.onsuccess = () => {
         const documents = request.result.map(doc => ({
           ...doc,
-          content: this.decompressData(doc.content)
+          content: this.decompressData(doc.content),
         }));
         resolve(documents);
       };
@@ -234,7 +234,11 @@ export class PersistenceManager {
   }
 
   // Ajouter un élément à la queue de synchronisation
-  private addToSyncQueue(type: 'create' | 'update' | 'delete', documentId: string, data: any): void {
+  private addToSyncQueue(
+    type: 'create' | 'update' | 'delete',
+    documentId: string,
+    data: any
+  ): void {
     const queueItem: SyncQueueItem = {
       id: `sync-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       type,
@@ -242,7 +246,7 @@ export class PersistenceManager {
       data,
       timestamp: new Date(),
       retryCount: 0,
-      maxRetries: 3
+      maxRetries: 3,
     };
 
     this.syncQueue.push(queueItem);
@@ -258,10 +262,10 @@ export class PersistenceManager {
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([SYNC_QUEUE_STORE], 'readwrite');
       const store = transaction.objectStore(SYNC_QUEUE_STORE);
-      
+
       // Vider la store
       store.clear();
-      
+
       // Ajouter tous les éléments
       this.syncQueue.forEach(item => {
         store.add(item);
@@ -303,7 +307,7 @@ export class PersistenceManager {
 
     try {
       const itemsToProcess = [...this.syncQueue];
-      
+
       for (const item of itemsToProcess) {
         try {
           await this.syncItem(item);
@@ -311,7 +315,7 @@ export class PersistenceManager {
         } catch (error) {
           console.error('Erreur lors de la synchronisation:', error);
           item.retryCount++;
-          
+
           if (item.retryCount >= item.maxRetries) {
             this.removeFromSyncQueue(item.id);
             this.syncStatus.error = `Échec de synchronisation après ${item.maxRetries} tentatives`;
@@ -334,7 +338,7 @@ export class PersistenceManager {
     // Simulation de l'API de synchronisation
     // En production, remplacer par l'appel API réel
     const apiEndpoint = '/api/sync';
-    
+
     const response = await fetch(apiEndpoint, {
       method: 'POST',
       headers: {
@@ -344,8 +348,8 @@ export class PersistenceManager {
         type: item.type,
         documentId: item.documentId,
         data: item.data,
-        timestamp: item.timestamp
-      })
+        timestamp: item.timestamp,
+      }),
     });
 
     if (!response.ok) {
@@ -408,8 +412,11 @@ export class PersistenceManager {
     if (!this.db) throw new Error('Base de données non initialisée');
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([DOCUMENTS_STORE, SYNC_QUEUE_STORE, SETTINGS_STORE], 'readwrite');
-      
+      const transaction = this.db!.transaction(
+        [DOCUMENTS_STORE, SYNC_QUEUE_STORE, SETTINGS_STORE],
+        'readwrite'
+      );
+
       transaction.objectStore(DOCUMENTS_STORE).clear();
       transaction.objectStore(SYNC_QUEUE_STORE).clear();
       transaction.objectStore(SETTINGS_STORE).clear();

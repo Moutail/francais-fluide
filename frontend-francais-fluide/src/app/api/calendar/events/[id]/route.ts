@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // DELETE /api/calendar/events/[id] - Proxy vers le backend Express
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
     if (!backend) {
@@ -19,11 +16,13 @@ export async function DELETE(
     const res = await fetch(`${backend}/api/calendar/events/${params.id}`, {
       method: 'DELETE',
       headers: {
-        'authorization': authHeader,
+        authorization: authHeader,
       },
     });
 
-    const data = await res.json().catch(() => ({ success: false, error: 'Réponse invalide du backend' }));
+    const data = await res
+      .json()
+      .catch(() => ({ success: false, error: 'Réponse invalide du backend' }));
     return NextResponse.json(data, { status: res.status });
   } catch (error) {
     console.error('Erreur proxy suppression événement:', error);

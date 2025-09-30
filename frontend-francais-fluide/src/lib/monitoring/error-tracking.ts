@@ -46,31 +46,30 @@ const SENTRY_CONFIG = {
       const error = hint.originalException;
       if (error && error.message) {
         // Filtrer les erreurs de réseau
-        if (error.message.includes('Network Error') || 
-            error.message.includes('Failed to fetch')) {
+        if (error.message.includes('Network Error') || error.message.includes('Failed to fetch')) {
           return null;
         }
-        
+
         // Filtrer les erreurs de CORS
-        if (error.message.includes('CORS') || 
-            error.message.includes('cross-origin')) {
+        if (error.message.includes('CORS') || error.message.includes('cross-origin')) {
           return null;
         }
       }
     }
-    
+
     return event;
   },
   beforeBreadcrumb: (breadcrumb: any) => {
     // Filtrer les breadcrumbs sensibles
-    if (breadcrumb.category === 'console' && 
-        (breadcrumb.message?.includes('password') || 
-         breadcrumb.message?.includes('token'))) {
+    if (
+      breadcrumb.category === 'console' &&
+      (breadcrumb.message?.includes('password') || breadcrumb.message?.includes('token'))
+    ) {
       return null;
     }
-    
+
     return breadcrumb;
-  }
+  },
 };
 
 class ErrorTracker {
@@ -129,7 +128,6 @@ class ErrorTracker {
 
       this.isInitialized = true;
       console.log('✅ Sentry initialisé');
-      
     } catch (error) {
       console.error('❌ Erreur initialisation Sentry:', error);
     }
@@ -142,7 +140,7 @@ class ErrorTracker {
     if (typeof window === 'undefined') return;
 
     // Gestionnaire d'erreurs JavaScript globales
-    window.addEventListener('error', (event) => {
+    window.addEventListener('error', event => {
       this.captureError(event.error, {
         level: 'error',
         tags: {
@@ -154,12 +152,12 @@ class ErrorTracker {
         extra: {
           message: event.message,
           stack: event.error?.stack,
-        }
+        },
       });
     });
 
     // Gestionnaire d'erreurs de promesses non capturées
-    window.addEventListener('unhandledrejection', (event) => {
+    window.addEventListener('unhandledrejection', event => {
       this.captureError(new Error(event.reason), {
         level: 'error',
         tags: {
@@ -167,26 +165,30 @@ class ErrorTracker {
         },
         extra: {
           reason: event.reason,
-        }
+        },
       });
     });
 
     // Gestionnaire d'erreurs de ressources
-    window.addEventListener('error', (event) => {
-      if (event.target !== window) {
-        this.captureError(new Error(`Resource error: ${event.target}`), {
-          level: 'warning',
-          tags: {
-            type: 'resource',
-            tagName: (event.target as any)?.tagName,
-          },
-          extra: {
-            src: (event.target as any)?.src,
-            href: (event.target as any)?.href,
-          }
-        });
-      }
-    }, true);
+    window.addEventListener(
+      'error',
+      event => {
+        if (event.target !== window) {
+          this.captureError(new Error(`Resource error: ${event.target}`), {
+            level: 'warning',
+            tags: {
+              type: 'resource',
+              tagName: (event.target as any)?.tagName,
+            },
+            extra: {
+              src: (event.target as any)?.src,
+              href: (event.target as any)?.href,
+            },
+          });
+        }
+      },
+      true
+    );
   }
 
   /**
@@ -206,8 +208,8 @@ class ErrorTracker {
 
     try {
       // Import dynamique de Sentry
-      import('@sentry/nextjs').then((Sentry) => {
-        Sentry.withScope((scope) => {
+      import('@sentry/nextjs').then(Sentry => {
+        Sentry.withScope(scope => {
           // Ajouter le contexte utilisateur
           if (this.userId) {
             scope.setUser({ id: this.userId });
@@ -248,15 +250,19 @@ class ErrorTracker {
   /**
    * Capture un message
    */
-  public captureMessage(message: string, level: 'error' | 'warning' | 'info' | 'debug' = 'info', context?: Partial<ErrorContext>): void {
+  public captureMessage(
+    message: string,
+    level: 'error' | 'warning' | 'info' | 'debug' = 'info',
+    context?: Partial<ErrorContext>
+  ): void {
     if (!this.isInitialized) {
       console.log(`[${level.toUpperCase()}] ${message}`);
       return;
     }
 
     try {
-      import('@sentry/nextjs').then((Sentry) => {
-        Sentry.withScope((scope) => {
+      import('@sentry/nextjs').then(Sentry => {
+        Sentry.withScope(scope => {
           if (this.userId) {
             scope.setUser({ id: this.userId });
           }
@@ -290,7 +296,7 @@ class ErrorTracker {
     if (!this.isInitialized) return null;
 
     try {
-      return import('@sentry/nextjs').then((Sentry) => {
+      return import('@sentry/nextjs').then(Sentry => {
         return Sentry.startTransaction({
           name,
           op,
@@ -305,11 +311,16 @@ class ErrorTracker {
   /**
    * Ajoute un breadcrumb
    */
-  public addBreadcrumb(message: string, category: string, level: 'error' | 'warning' | 'info' | 'debug' = 'info', data?: any): void {
+  public addBreadcrumb(
+    message: string,
+    category: string,
+    level: 'error' | 'warning' | 'info' | 'debug' = 'info',
+    data?: any
+  ): void {
     if (!this.isInitialized) return;
 
     try {
-      import('@sentry/nextjs').then((Sentry) => {
+      import('@sentry/nextjs').then(Sentry => {
         Sentry.addBreadcrumb({
           message,
           category,
@@ -319,7 +330,7 @@ class ErrorTracker {
         });
       });
     } catch (err) {
-      console.error('Erreur lors de l\'ajout de breadcrumb:', err);
+      console.error("Erreur lors de l'ajout de breadcrumb:", err);
     }
   }
 
@@ -328,11 +339,11 @@ class ErrorTracker {
    */
   public setUser(userId: string, userInfo?: { email?: string; username?: string }): void {
     this.userId = userId;
-    
+
     if (!this.isInitialized) return;
 
     try {
-      import('@sentry/nextjs').then((Sentry) => {
+      import('@sentry/nextjs').then(Sentry => {
         Sentry.setUser({
           id: userId,
           email: userInfo?.email,
@@ -340,7 +351,7 @@ class ErrorTracker {
         });
       });
     } catch (err) {
-      console.error('Erreur lors de la définition de l\'utilisateur:', err);
+      console.error("Erreur lors de la définition de l'utilisateur:", err);
     }
   }
 
@@ -358,7 +369,7 @@ class ErrorTracker {
     if (!this.isInitialized) return;
 
     try {
-      import('@sentry/nextjs').then((Sentry) => {
+      import('@sentry/nextjs').then(Sentry => {
         Sentry.setTags(tags);
       });
     } catch (err) {
@@ -383,7 +394,12 @@ class ErrorTracker {
   /**
    * Capture les métriques de performance
    */
-  public capturePerformance(operation: string, duration: number, memory?: number, tags?: Record<string, string>): void {
+  public capturePerformance(
+    operation: string,
+    duration: number,
+    memory?: number,
+    tags?: Record<string, string>
+  ): void {
     if (!this.isInitialized) return;
 
     this.captureMessage(`Performance: ${operation}`, 'info', {
@@ -396,7 +412,7 @@ class ErrorTracker {
         duration,
         memory,
         timestamp: Date.now(),
-      }
+      },
     });
   }
 
@@ -417,7 +433,7 @@ class ErrorTracker {
         method,
         statusCode,
         error: error?.message || error,
-      }
+      },
     });
   }
 
@@ -433,7 +449,7 @@ class ErrorTracker {
       extra: {
         componentStack,
         errorInfo,
-      }
+      },
     });
   }
 
@@ -466,21 +482,42 @@ export const useErrorTracking = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const captureError = React.useCallback((error: Error | string, context?: Partial<ErrorContext>) => {
-    errorTracker.captureError(error, context);
-  }, []);
+  const captureError = React.useCallback(
+    (error: Error | string, context?: Partial<ErrorContext>) => {
+      errorTracker.captureError(error, context);
+    },
+    []
+  );
 
-  const captureMessage = React.useCallback((message: string, level?: 'error' | 'warning' | 'info' | 'debug', context?: Partial<ErrorContext>) => {
-    errorTracker.captureMessage(message, level, context);
-  }, []);
+  const captureMessage = React.useCallback(
+    (
+      message: string,
+      level?: 'error' | 'warning' | 'info' | 'debug',
+      context?: Partial<ErrorContext>
+    ) => {
+      errorTracker.captureMessage(message, level, context);
+    },
+    []
+  );
 
-  const setUser = React.useCallback((userId: string, userInfo?: { email?: string; username?: string }) => {
-    errorTracker.setUser(userId, userInfo);
-  }, []);
+  const setUser = React.useCallback(
+    (userId: string, userInfo?: { email?: string; username?: string }) => {
+      errorTracker.setUser(userId, userInfo);
+    },
+    []
+  );
 
-  const addBreadcrumb = React.useCallback((message: string, category: string, level?: 'error' | 'warning' | 'info' | 'debug', data?: any) => {
-    errorTracker.addBreadcrumb(message, category, level, data);
-  }, []);
+  const addBreadcrumb = React.useCallback(
+    (
+      message: string,
+      category: string,
+      level?: 'error' | 'warning' | 'info' | 'debug',
+      data?: any
+    ) => {
+      errorTracker.addBreadcrumb(message, category, level, data);
+    },
+    []
+  );
 
   return {
     stats,
@@ -492,7 +529,7 @@ export const useErrorTracking = () => {
     captureAPIError: errorTracker.captureAPIError.bind(errorTracker),
     captureReactError: errorTracker.captureReactError.bind(errorTracker),
     setContext: errorTracker.setContext.bind(errorTracker),
-    setTags: errorTracker.setTags.bind(errorTracker)
+    setTags: errorTracker.setTags.bind(errorTracker),
   };
 };
 

@@ -15,20 +15,20 @@ export const Card: React.FC<CardProps> = ({
   className,
   hover = true,
   padding = 'md',
-  onClick
+  onClick,
 }) => {
   const paddingClasses = {
     sm: 'p-4',
     md: 'p-6',
     lg: 'p-8',
   };
-  
+
   return (
     <div
       className={cn(
-        'bg-white border border-gray-200 rounded-lg shadow-sm',
+        'rounded-lg border border-gray-200 bg-white shadow-sm',
         paddingClasses[padding],
-        hover && 'hover:shadow-md transition-shadow duration-200',
+        hover && 'transition-shadow duration-200 hover:shadow-md',
         onClick && 'cursor-pointer',
         className
       )}
@@ -45,9 +45,7 @@ interface CardHeaderProps {
 }
 
 export const CardHeader: React.FC<CardHeaderProps> = ({ children, className }) => (
-  <div className={cn('mb-4', className)}>
-    {children}
-  </div>
+  <div className={cn('mb-4', className)}>{children}</div>
 );
 
 interface CardTitleProps {
@@ -56,9 +54,7 @@ interface CardTitleProps {
 }
 
 export const CardTitle: React.FC<CardTitleProps> = ({ children, className }) => (
-  <h3 className={cn('text-lg font-semibold text-gray-900', className)}>
-    {children}
-  </h3>
+  <h3 className={cn('text-lg font-semibold text-gray-900', className)}>{children}</h3>
 );
 
 interface CardContentProps {
@@ -67,7 +63,5 @@ interface CardContentProps {
 }
 
 export const CardContent: React.FC<CardContentProps> = ({ children, className }) => (
-  <div className={cn('text-gray-700', className)}>
-    {children}
-  </div>
+  <div className={cn('text-gray-700', className)}>{children}</div>
 );

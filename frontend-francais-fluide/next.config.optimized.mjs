@@ -12,7 +12,7 @@ const nextConfig = {
     if (!dev) {
       // Minimiser le JavaScript
       config.optimization.minimize = true;
-      
+
       // Optimiser les chunks
       config.optimization.splitChunks = {
         chunks: 'all',
@@ -67,9 +67,12 @@ const nextConfig = {
   // Configuration de compilation
   compiler: {
     // Supprimer les console.log en production
-    removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error', 'warn']
-    } : false,
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? {
+            exclude: ['error', 'warn'],
+          }
+        : false,
   },
 
   // Configuration des images
@@ -152,7 +155,7 @@ const nextConfig = {
     // Optimisations de performance
     optimizeCss: true,
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
-    
+
     // Turbopack en développement
     turbo: {
       rules: {
@@ -209,11 +212,7 @@ const nextConfig = {
   assetPrefix: process.env.NODE_ENV === 'production' ? '/francais-fluide' : '',
 
   // Configuration de la transpilation
-  transpilePackages: [
-    'lucide-react',
-    '@radix-ui/react-icons',
-    'framer-motion',
-  ],
+  transpilePackages: ['lucide-react', '@radix-ui/react-icons', 'framer-motion'],
 
   // Configuration de la modularisation
   modularizeImports: {

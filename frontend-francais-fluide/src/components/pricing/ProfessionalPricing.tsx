@@ -27,10 +27,10 @@ const plans: PricingPlan[] = [
       'Corrections de base',
       '5 documents par mois',
       'Support par email',
-      'Interface limitée'
+      'Interface limitée',
     ],
     icon: FileText,
-    cta: 'Commencer gratuitement'
+    cta: 'Commencer gratuitement',
   },
   {
     id: 'student',
@@ -44,10 +44,10 @@ const plans: PricingPlan[] = [
       'Assistant IA basique',
       'Analytics de base',
       'Support prioritaire',
-      'Mode hors ligne'
+      'Mode hors ligne',
     ],
     icon: Users,
-    cta: 'Choisir ce plan'
+    cta: 'Choisir ce plan',
   },
   {
     id: 'premium',
@@ -61,11 +61,11 @@ const plans: PricingPlan[] = [
       'Analytics détaillées',
       'Intégrations API',
       'Support 24/7',
-      'Formation personnalisée'
+      'Formation personnalisée',
     ],
     icon: Star,
     popular: true,
-    cta: 'Choisir ce plan'
+    cta: 'Choisir ce plan',
   },
   {
     id: 'institution',
@@ -79,70 +79,65 @@ const plans: PricingPlan[] = [
       'Tableau de bord administrateur',
       'Intégration LMS',
       'Support dédié',
-      'Formation sur site'
+      'Formation sur site',
     ],
     icon: Building,
-    cta: 'Nous contacter'
-  }
+    cta: 'Nous contacter',
+  },
 ];
 
 export const ProfessionalPricing: React.FC = () => {
   return (
-    <div className="py-16 bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="bg-gray-50 py-16">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        <div className="mb-16 text-center">
+          <h2 className="mb-4 text-3xl font-bold text-gray-900">
             Choisissez votre plan d'abonnement
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="mx-auto max-w-2xl text-xl text-gray-600">
             Des solutions adaptées à tous vos besoins d'apprentissage du français
           </p>
         </div>
 
         {/* Plans Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {plans.map((plan) => (
-            <Card 
-              key={plan.id} 
-              className={`relative ${plan.popular ? 'ring-2 ring-blue-500 shadow-lg' : ''}`}
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+          {plans.map(plan => (
+            <Card
+              key={plan.id}
+              className={`relative ${plan.popular ? 'shadow-lg ring-2 ring-blue-500' : ''}`}
             >
               {plan.popular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="rounded-full bg-blue-600 px-3 py-1 text-sm font-medium text-white">
                     Le plus populaire
                   </span>
                 </div>
               )}
-              
+
               <CardHeader className="text-center">
-                <div className="mx-auto w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                  <plan.icon className="w-6 h-6 text-blue-600" />
+                <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-lg bg-blue-100">
+                  <plan.icon className="size-6 text-blue-600" />
                 </div>
                 <CardTitle className="text-xl">{plan.name}</CardTitle>
                 <div className="mt-4">
                   <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
-                  {plan.period && (
-                    <span className="text-gray-600 ml-1">{plan.period}</span>
-                  )}
+                  {plan.period && <span className="ml-1 text-gray-600">{plan.period}</span>}
                 </div>
-                <p className="text-gray-600 mt-2">{plan.description}</p>
+                <p className="mt-2 text-gray-600">{plan.description}</p>
               </CardHeader>
-              
+
               <CardContent>
-                <ul className="space-y-3 mb-6">
+                <ul className="mb-6 space-y-3">
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-center gap-3">
-                      <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                      <Check className="size-4 shrink-0 text-green-600" />
                       <span className="text-sm text-gray-700">{feature}</span>
                     </li>
                   ))}
                 </ul>
-                
-                <Button 
-                  className="w-full"
-                  variant={plan.popular ? 'primary' : 'secondary'}
-                >
+
+                <Button className="w-full" variant={plan.popular ? 'primary' : 'secondary'}>
                   {plan.cta}
                 </Button>
               </CardContent>
@@ -152,10 +147,10 @@ export const ProfessionalPricing: React.FC = () => {
 
         {/* FAQ ou informations supplémentaires */}
         <div className="mt-16 text-center">
-          <p className="text-gray-600 mb-4">
+          <p className="mb-4 text-gray-600">
             Tous les plans incluent une garantie de remboursement de 30 jours
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button variant="ghost" className="text-blue-600">
               Voir les questions fréquentes
             </Button>

@@ -18,7 +18,7 @@ const DEFAULT_CONFIG: BackendServiceConfig = {
   maxTextLength: 10000,
   cacheTTL: 5 * 60 * 1000, // 5 minutes
   rateLimitWindow: 60 * 1000, // 1 minute
-  rateLimitMaxRequests: 20 // Augmenté pour les tests
+  rateLimitMaxRequests: 20, // Augmenté pour les tests
 };
 
 // Règles de grammaire françaises avancées
@@ -28,27 +28,28 @@ export const ADVANCED_GRAMMAR_RULES = [
     id: 'concordance-temps-sequence',
     category: 'grammar',
     severity: 'critical',
-    pattern: /\b(quand|lorsque|après que|dès que|avant que)\s+[^,]+\s+(je|tu|il|elle|nous|vous|ils|elles)\s+(\w+ais?|avais?|étais?|faisais?)\b/gi,
+    pattern:
+      /\b(quand|lorsque|après que|dès que|avant que)\s+[^,]+\s+(je|tu|il|elle|nous|vous|ils|elles)\s+(\w+ais?|avais?|étais?|faisais?)\b/gi,
     check: (match: RegExpExecArray) => {
       const [, conjonction, sujet, verbe] = match;
       const corrections: Record<string, string> = {
-        'quand': 'quand',
-        'lorsque': 'lorsque',
+        quand: 'quand',
+        lorsque: 'lorsque',
         'après que': 'après que',
         'dès que': 'dès que',
-        'avant que': 'avant que'
+        'avant que': 'avant que',
       };
-      
+
       return {
         message: `Concordance des temps : après "${conjonction}", utilisez le présent ou le futur`,
         suggestions: [
           verbe.replace(/ais?$/, 'e'),
           verbe.replace(/avais?$/, 'ai'),
           verbe.replace(/étais?$/, 'suis'),
-          verbe.replace(/faisais?$/, 'fais')
-        ]
+          verbe.replace(/faisais?$/, 'fais'),
+        ],
       };
-    }
+    },
   },
 
   // === SUBJONCTIF AVANCÉ ===
@@ -56,27 +57,28 @@ export const ADVANCED_GRAMMAR_RULES = [
     id: 'subjonctif-expressions-obligation',
     category: 'grammar',
     severity: 'warning',
-    pattern: /\b(il faut que|il est important que|il est nécessaire que|je veux que|je souhaite que|je désire que)\s+[^,]+\s+(je|tu|il|elle|nous|vous|ils|elles)\s+(\w+e|est|a|fait|va|peut)\b/gi,
+    pattern:
+      /\b(il faut que|il est important que|il est nécessaire que|je veux que|je souhaite que|je désire que)\s+[^,]+\s+(je|tu|il|elle|nous|vous|ils|elles)\s+(\w+e|est|a|fait|va|peut)\b/gi,
     check: (match: RegExpExecArray) => {
       const [, expression, sujet, verbe] = match;
       const subjonctifForms: Record<string, string[]> = {
-        'e': ['e', 'es', 'e', 'ions', 'iez', 'ent'],
-        'est': ['sois', 'sois', 'soit', 'soyons', 'soyez', 'soient'],
-        'a': ['aie', 'aies', 'ait', 'ayons', 'ayez', 'aient'],
-        'fait': ['fasse', 'fasses', 'fasse', 'fassions', 'fassiez', 'fassent'],
-        'va': ['aille', 'ailles', 'aille', 'allions', 'alliez', 'aillent'],
-        'peut': ['puisse', 'puisses', 'puisse', 'puissions', 'puissiez', 'puissent']
+        e: ['e', 'es', 'e', 'ions', 'iez', 'ent'],
+        est: ['sois', 'sois', 'soit', 'soyons', 'soyez', 'soient'],
+        a: ['aie', 'aies', 'ait', 'ayons', 'ayez', 'aient'],
+        fait: ['fasse', 'fasses', 'fasse', 'fassions', 'fassiez', 'fassent'],
+        va: ['aille', 'ailles', 'aille', 'allions', 'alliez', 'aillent'],
+        peut: ['puisse', 'puisses', 'puisse', 'puissions', 'puissiez', 'puissent'],
       };
-      
+
       const baseForm = Object.keys(subjonctifForms).find(form => verbe.includes(form));
       if (baseForm) {
         return {
           message: `Après "${expression}", utilisez le subjonctif`,
-          suggestions: subjonctifForms[baseForm]
+          suggestions: subjonctifForms[baseForm],
         };
       }
       return null;
-    }
+    },
   },
 
   // === PARTICIPES PASSÉS COMPLEXES ===
@@ -87,10 +89,11 @@ export const ADVANCED_GRAMMAR_RULES = [
     pattern: /\b(avoir|avait|avons|avez|ont)\s+(\w+é)\s+(\w+é)\s+(\w+é)\b/gi,
     check: (match: RegExpExecArray) => {
       return {
-        message: 'Avec "avoir", le participe passé ne s\'accorde pas avec le complément d\'objet placé avant',
-        suggestions: ['Vérifiez l\'accord des participes passés']
+        message:
+          'Avec "avoir", le participe passé ne s\'accorde pas avec le complément d\'objet placé avant',
+        suggestions: ["Vérifiez l'accord des participes passés"],
       };
-    }
+    },
   },
 
   // === BARBARISMES ET ANGLICISMES ===
@@ -101,8 +104,8 @@ export const ADVANCED_GRAMMAR_RULES = [
     pattern: /\bau\s+final\b/gi,
     check: () => ({
       message: 'Anglicisme : "au final" → "finalement" ou "en fin de compte"',
-      suggestions: ['finalement', 'en fin de compte', 'en définitive']
-    })
+      suggestions: ['finalement', 'en fin de compte', 'en définitive'],
+    }),
   },
   {
     id: 'anglicisme-probleme-avec',
@@ -110,9 +113,14 @@ export const ADVANCED_GRAMMAR_RULES = [
     severity: 'suggestion',
     pattern: /\b(avoir|éprouver)\s+un\s+problème\s+avec\b/gi,
     check: () => ({
-      message: 'Expression plus française : "avoir un problème avec" → "éprouver des difficultés avec"',
-      suggestions: ['éprouver des difficultés avec', 'avoir des difficultés avec', 'rencontrer des problèmes avec']
-    })
+      message:
+        'Expression plus française : "avoir un problème avec" → "éprouver des difficultés avec"',
+      suggestions: [
+        'éprouver des difficultés avec',
+        'avoir des difficultés avec',
+        'rencontrer des problèmes avec',
+      ],
+    }),
   },
   {
     id: 'anglicisme-être-confus',
@@ -121,8 +129,8 @@ export const ADVANCED_GRAMMAR_RULES = [
     pattern: /\b(être|est|sont)\s+confus\b/gi,
     check: () => ({
       message: 'Anglicisme : "être confus" → "être confusé" ou "être troublé"',
-      suggestions: ['être confusé', 'être troublé', 'être déconcerté']
-    })
+      suggestions: ['être confusé', 'être troublé', 'être déconcerté'],
+    }),
   },
   {
     id: 'anglicisme-avoir-un-probleme',
@@ -130,9 +138,10 @@ export const ADVANCED_GRAMMAR_RULES = [
     severity: 'suggestion',
     pattern: /\bavoir\s+un\s+problème\s+avec\b/gi,
     check: () => ({
-      message: 'Expression plus française : "avoir un problème avec" → "éprouver des difficultés avec"',
-      suggestions: ['éprouver des difficultés avec', 'rencontrer des difficultés avec']
-    })
+      message:
+        'Expression plus française : "avoir un problème avec" → "éprouver des difficultés avec"',
+      suggestions: ['éprouver des difficultés avec', 'rencontrer des difficultés avec'],
+    }),
   },
 
   // === PLÉONASMES ===
@@ -143,8 +152,8 @@ export const ADVANCED_GRAMMAR_RULES = [
     pattern: /\bmonter\s+en\s+haut\b/gi,
     check: () => ({
       message: 'Pléonasme : "monter en haut" → "monter"',
-      suggestions: ['monter']
-    })
+      suggestions: ['monter'],
+    }),
   },
   {
     id: 'pleonasme-descendre-en-bas',
@@ -153,8 +162,8 @@ export const ADVANCED_GRAMMAR_RULES = [
     pattern: /\bdescendre\s+en\s+bas\b/gi,
     check: () => ({
       message: 'Pléonasme : "descendre en bas" → "descendre"',
-      suggestions: ['descendre']
-    })
+      suggestions: ['descendre'],
+    }),
   },
   {
     id: 'pleonasme-sortir-dehors',
@@ -163,8 +172,8 @@ export const ADVANCED_GRAMMAR_RULES = [
     pattern: /\bsortir\s+dehors\b/gi,
     check: () => ({
       message: 'Pléonasme : "sortir dehors" → "sortir"',
-      suggestions: ['sortir']
-    })
+      suggestions: ['sortir'],
+    }),
   },
 
   // === CONJONCTIONS ET CONNECTEURS ===
@@ -175,8 +184,8 @@ export const ADVANCED_GRAMMAR_RULES = [
     pattern: /\bet\s+cependant\b/gi,
     check: () => ({
       message: 'Redondance : "et cependant" → "cependant" ou "mais"',
-      suggestions: ['cependant', 'mais', 'néanmoins']
-    })
+      suggestions: ['cependant', 'mais', 'néanmoins'],
+    }),
   },
   {
     id: 'conjonction-mais-cependant',
@@ -185,8 +194,8 @@ export const ADVANCED_GRAMMAR_RULES = [
     pattern: /\bmais\s+cependant\b/gi,
     check: () => ({
       message: 'Redondance : "mais cependant" → "cependant" ou "mais"',
-      suggestions: ['cependant', 'mais', 'néanmoins']
-    })
+      suggestions: ['cependant', 'mais', 'néanmoins'],
+    }),
   },
 
   // === PRÉPOSITIONS ===
@@ -197,8 +206,8 @@ export const ADVANCED_GRAMMAR_RULES = [
     pattern: /\bdifférer\s+de\b/gi,
     check: () => ({
       message: 'On dit "différer de" (sans "à")',
-      suggestions: ['différer de']
-    })
+      suggestions: ['différer de'],
+    }),
   },
   {
     id: 'preposition-pallier-quelque-chose',
@@ -207,8 +216,8 @@ export const ADVANCED_GRAMMAR_RULES = [
     pattern: /\bpallier\s+à\b/gi,
     check: () => ({
       message: 'On dit "pallier quelque chose" (sans "à")',
-      suggestions: ['pallier']
-    })
+      suggestions: ['pallier'],
+    }),
   },
 
   // === EXPRESSIONS COURANTES ===
@@ -219,8 +228,8 @@ export const ADVANCED_GRAMMAR_RULES = [
     pattern: /\bau\s+jour\s+d'aujourd'hui\b/gi,
     check: () => ({
       message: 'Redondance : "au jour d\'aujourd\'hui" → "aujourd\'hui"',
-      suggestions: ['aujourd\'hui']
-    })
+      suggestions: ["aujourd'hui"],
+    }),
   },
   {
     id: 'expression-avoir-l-air-d-etre',
@@ -229,8 +238,8 @@ export const ADVANCED_GRAMMAR_RULES = [
     pattern: /\bavoir\s+l'air\s+d'être\b/gi,
     check: () => ({
       message: 'Redondance : "avoir l\'air d\'être" → "avoir l\'air"',
-      suggestions: ['avoir l\'air']
-    })
+      suggestions: ["avoir l'air"],
+    }),
   },
   {
     id: 'barbarisme-malgre-que',
@@ -239,8 +248,8 @@ export const ADVANCED_GRAMMAR_RULES = [
     pattern: /\bmalgré\s+que\b/gi,
     check: () => ({
       message: 'On dit "bien que" ou "quoique" (pas "malgré que")',
-      suggestions: ['bien que', 'quoique', 'malgré le fait que']
-    })
+      suggestions: ['bien que', 'quoique', 'malgré le fait que'],
+    }),
   },
   {
     id: 'barbarisme-pallier-a',
@@ -249,9 +258,9 @@ export const ADVANCED_GRAMMAR_RULES = [
     pattern: /\bpallier\s+à\b/gi,
     check: () => ({
       message: 'On dit "pallier quelque chose" (sans "à")',
-      suggestions: ['pallier']
-    })
-  }
+      suggestions: ['pallier'],
+    }),
+  },
 ];
 
 // Classe principale du service backend
@@ -265,12 +274,19 @@ export class GrammarBackendService {
   }
 
   // Méthode principale d'analyse
-  async analyzeText(text: string, options: {
-    useLanguageTool?: boolean;
-    maxErrors?: number;
-    clientIP?: string;
-  } = {}): Promise<TextAnalysis> {
-    const { useLanguageTool = this.config.enableLanguageTool, maxErrors = 50, clientIP = 'unknown' } = options;
+  async analyzeText(
+    text: string,
+    options: {
+      useLanguageTool?: boolean;
+      maxErrors?: number;
+      clientIP?: string;
+    } = {}
+  ): Promise<TextAnalysis> {
+    const {
+      useLanguageTool = this.config.enableLanguageTool,
+      maxErrors = 50,
+      clientIP = 'unknown',
+    } = options;
 
     // Vérifier le rate limiting
     if (!this.checkRateLimit(clientIP)) {
@@ -293,7 +309,7 @@ export class GrammarBackendService {
 
     // Analyse locale avec le detector existant
     const localResult = await this.analyzeWithLocalDetector(text);
-    
+
     // Analyse avec LanguageTool si activé
     let ltErrors: GrammarError[] = [];
     if (useLanguageTool) {
@@ -315,7 +331,7 @@ export class GrammarBackendService {
       text,
       errors: limitedErrors,
       statistics: localResult.statistics,
-      suggestions: this.buildSuggestions(limitedErrors)
+      suggestions: this.buildSuggestions(limitedErrors),
     };
 
     // Mettre en cache
@@ -330,14 +346,14 @@ export class GrammarBackendService {
   private async analyzeWithLocalDetector(text: string): Promise<TextAnalysis> {
     // Utiliser le detector existant
     const result = await grammarDetector.analyze(text);
-    
+
     // Ajouter les règles avancées
     const advancedErrors: GrammarError[] = [];
-    
+
     for (const rule of ADVANCED_GRAMMAR_RULES) {
       let match;
       const regex = new RegExp(rule.pattern.source, rule.pattern.flags);
-      
+
       while ((match = regex.exec(text)) !== null) {
         const checkResult = rule.check(match);
         if (checkResult) {
@@ -348,18 +364,18 @@ export class GrammarBackendService {
             message: checkResult.message,
             start: match.index,
             end: match.index + match[0].length,
-            suggestions: checkResult.suggestions
+            suggestions: checkResult.suggestions,
           });
         }
       }
     }
-    
+
     const combinedErrors: GrammarError[] = [...result.errors, ...advancedErrors];
     return {
       text,
       errors: combinedErrors,
       statistics: result.statistics,
-      suggestions: this.buildSuggestions(combinedErrors)
+      suggestions: this.buildSuggestions(combinedErrors),
     };
   }
 
@@ -374,9 +390,9 @@ export class GrammarBackendService {
         body: new URLSearchParams({
           text: text,
           language: 'fr',
-          enabledOnly: 'false'
+          enabledOnly: 'false',
         }),
-        signal: AbortSignal.timeout(5000)
+        signal: AbortSignal.timeout(5000),
       });
 
       if (!response.ok) {
@@ -384,16 +400,20 @@ export class GrammarBackendService {
       }
 
       const data = await response.json();
-      
-      return data.matches?.map((match: any) => ({
-        id: `lt_${match.rule?.id || 'unknown'}`,
-        type: (match.rule?.category?.id as 'spelling' | 'grammar' | 'punctuation' | 'style') || 'grammar',
-        severity: match.rule?.issueType === 'misspelling' ? 'critical' : 'warning',
-        message: match.message,
-        start: match.offset,
-        end: match.offset + match.length,
-        suggestions: match.replacements?.map((r: any) => r.value) || []
-      })) || [];
+
+      return (
+        data.matches?.map((match: any) => ({
+          id: `lt_${match.rule?.id || 'unknown'}`,
+          type:
+            (match.rule?.category?.id as 'spelling' | 'grammar' | 'punctuation' | 'style') ||
+            'grammar',
+          severity: match.rule?.issueType === 'misspelling' ? 'critical' : 'warning',
+          message: match.message,
+          start: match.offset,
+          end: match.offset + match.length,
+          suggestions: match.replacements?.map((r: any) => r.value) || [],
+        })) || []
+      );
     } catch (error) {
       console.error('LanguageTool error:', error);
       return [];
@@ -404,19 +424,19 @@ export class GrammarBackendService {
   private getFromCache(key: string): TextAnalysis | null {
     const entry = this.cache.get(key);
     if (!entry) return null;
-    
+
     if (Date.now() - entry.timestamp > this.config.cacheTTL) {
       this.cache.delete(key);
       return null;
     }
-    
+
     return entry.data;
   }
 
   private setCache(key: string, data: TextAnalysis): void {
     this.cache.set(key, {
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -424,19 +444,19 @@ export class GrammarBackendService {
   private checkRateLimit(ip: string): boolean {
     const now = Date.now();
     const entry = this.rateLimitCache.get(ip);
-    
+
     if (!entry || now > entry.resetTime) {
       this.rateLimitCache.set(ip, {
         count: 1,
-        resetTime: now + this.config.rateLimitWindow
+        resetTime: now + this.config.rateLimitWindow,
       });
       return true;
     }
-    
+
     if (entry.count >= this.config.rateLimitMaxRequests) {
       return false;
     }
-    
+
     entry.count++;
     return true;
   }
@@ -453,26 +473,29 @@ export class GrammarBackendService {
   getRateLimitRemaining(ip: string): number {
     const entry = this.rateLimitCache.get(ip);
     if (!entry) return this.config.rateLimitMaxRequests;
-    
+
     const now = Date.now();
     if (now > entry.resetTime) {
       return this.config.rateLimitMaxRequests;
     }
-    
+
     return Math.max(0, this.config.rateLimitMaxRequests - entry.count);
   }
 
   // Correction de texte
-  correctText(text: string, corrections: { offset: number; length: number; replacement: string }[]): string {
+  correctText(
+    text: string,
+    corrections: { offset: number; length: number; replacement: string }[]
+  ): string {
     const sortedCorrections = corrections.sort((a, b) => b.offset - a.offset);
-    
+
     let correctedText = text;
     sortedCorrections.forEach(correction => {
       const before = correctedText.slice(0, correction.offset);
       const after = correctedText.slice(correction.offset + correction.length);
       correctedText = before + correction.replacement + after;
     });
-    
+
     return correctedText;
   }
 
@@ -490,7 +513,7 @@ export class GrammarBackendService {
           suggestions.push({
             text: rep,
             confidence: 0.6,
-            explanation: err.message
+            explanation: err.message,
           });
         }
       }

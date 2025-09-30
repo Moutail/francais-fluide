@@ -16,7 +16,7 @@ import {
   MessageSquare,
   FileText,
   Settings,
-  Award
+  Award,
 } from 'lucide-react';
 
 export default function GuidePage() {
@@ -40,21 +40,21 @@ export default function GuidePage() {
           title: 'Première connexion',
           steps: [
             'Créez votre compte ou connectez-vous',
-            'Choisissez votre plan d\'abonnement',
+            "Choisissez votre plan d'abonnement",
             'Complétez votre profil utilisateur',
-            'Explorez le tableau de bord principal'
-          ]
+            'Explorez le tableau de bord principal',
+          ],
         },
         {
           title: 'Configuration initiale',
           steps: [
             'Définissez votre niveau de français',
-            'Sélectionnez vos objectifs d\'apprentissage',
+            "Sélectionnez vos objectifs d'apprentissage",
             'Configurez vos préférences de notification',
-            'Explorez les différents types d\'exercices'
-          ]
-        }
-      ]
+            "Explorez les différents types d'exercices",
+          ],
+        },
+      ],
     },
     {
       id: 'exercises',
@@ -62,13 +62,13 @@ export default function GuidePage() {
       icon: Target,
       content: [
         {
-          title: 'Types d\'exercices disponibles',
+          title: "Types d'exercices disponibles",
           steps: [
             'Exercices de grammaire adaptatifs',
             'Dictées audio avec correction automatique',
             'Exercices de vocabulaire contextuel',
-            'Génération d\'exercices personnalisés par IA'
-          ]
+            "Génération d'exercices personnalisés par IA",
+          ],
         },
         {
           title: 'Comment utiliser les exercices',
@@ -76,10 +76,10 @@ export default function GuidePage() {
             'Sélectionnez un exercice depuis la page Exercices',
             'Lisez attentivement les instructions',
             'Répondez aux questions dans le temps imparti',
-            'Consultez vos résultats et corrections détaillées'
-          ]
-        }
-      ]
+            'Consultez vos résultats et corrections détaillées',
+          ],
+        },
+      ],
     },
     {
       id: 'ai-features',
@@ -92,19 +92,19 @@ export default function GuidePage() {
             'Posez des questions sur la grammaire française',
             'Demandez des explications détaillées',
             'Obtenez des conseils personnalisés',
-            'L\'IA s\'adapte à votre niveau et vos erreurs'
-          ]
+            "L'IA s'adapte à votre niveau et vos erreurs",
+          ],
         },
         {
-          title: 'Génération d\'exercices personnalisés',
+          title: "Génération d'exercices personnalisés",
           steps: [
-            'Accédez au générateur d\'exercices IA',
+            "Accédez au générateur d'exercices IA",
             'Sélectionnez vos domaines de focus',
             'Choisissez le niveau de difficulté',
-            'Générez des exercices adaptés à vos besoins'
-          ]
-        }
-      ]
+            'Générez des exercices adaptés à vos besoins',
+          ],
+        },
+      ],
     },
     {
       id: 'progress-tracking',
@@ -116,9 +116,9 @@ export default function GuidePage() {
           steps: [
             'Consultez vos statistiques détaillées',
             'Suivez votre précision moyenne',
-            'Visualisez votre temps d\'étude',
-            'Débloquez des succès et objectifs'
-          ]
+            "Visualisez votre temps d'étude",
+            'Débloquez des succès et objectifs',
+          ],
         },
         {
           title: 'Analytics et recommandations',
@@ -126,10 +126,10 @@ export default function GuidePage() {
             'Analysez vos erreurs récurrentes',
             'Recevez des recommandations personnalisées',
             'Identifiez vos points forts et faiblesses',
-            'Adaptez votre plan d\'apprentissage'
-          ]
-        }
-      ]
+            "Adaptez votre plan d'apprentissage",
+          ],
+        },
+      ],
     },
     {
       id: 'editor',
@@ -137,24 +137,24 @@ export default function GuidePage() {
       icon: FileText,
       content: [
         {
-          title: 'Fonctionnalités de l\'éditeur',
+          title: "Fonctionnalités de l'éditeur",
           steps: [
             'Écrivez vos textes avec assistance IA',
             'Correction grammaticale en temps réel',
             'Suggestions de vocabulaire et style',
-            'Analyse de la complexité de vos textes'
-          ]
+            'Analyse de la complexité de vos textes',
+          ],
         },
         {
-          title: 'Comment utiliser l\'éditeur',
+          title: "Comment utiliser l'éditeur",
           steps: [
-            'Accédez à l\'éditeur depuis le menu principal',
+            "Accédez à l'éditeur depuis le menu principal",
             'Commencez à taper votre texte',
             'Consultez les suggestions en temps réel',
-            'Sauvegardez vos documents pour référence future'
-          ]
-        }
-      ]
+            'Sauvegardez vos documents pour référence future',
+          ],
+        },
+      ],
     },
     {
       id: 'settings',
@@ -167,50 +167,51 @@ export default function GuidePage() {
             'Modifiez vos informations personnelles',
             'Changez votre mot de passe',
             'Gérez vos préférences de notification',
-            'Exportez vos données si nécessaire'
-          ]
+            'Exportez vos données si nécessaire',
+          ],
         },
         {
-          title: 'Gestion de l\'abonnement',
+          title: "Gestion de l'abonnement",
           steps: [
             'Consultez votre plan actuel',
             'Modifiez votre abonnement',
             'Gérez vos informations de facturation',
-            'Annulez votre abonnement si nécessaire'
-          ]
-        }
-      ]
-    }
+            'Annulez votre abonnement si nécessaire',
+          ],
+        },
+      ],
+    },
   ];
 
   const tips = [
     {
       icon: Lightbulb,
       title: 'Conseil pratique',
-      content: 'Pratiquez régulièrement, même 10 minutes par jour, pour de meilleurs résultats.'
+      content: 'Pratiquez régulièrement, même 10 minutes par jour, pour de meilleurs résultats.',
     },
     {
       icon: Target,
       title: 'Objectif SMART',
-      content: 'Définissez des objectifs spécifiques et mesurables pour votre apprentissage.'
+      content: 'Définissez des objectifs spécifiques et mesurables pour votre apprentissage.',
     },
     {
       icon: BarChart3,
       title: 'Suivi des progrès',
-      content: 'Consultez régulièrement vos statistiques pour identifier vos points d\'amélioration.'
+      content:
+        "Consultez régulièrement vos statistiques pour identifier vos points d'amélioration.",
     },
     {
       icon: MessageSquare,
-      title: 'Utilisez l\'IA',
-      content: 'N\'hésitez pas à poser des questions à l\'IA pour clarifier vos doutes.'
-    }
+      title: "Utilisez l'IA",
+      content: "N'hésitez pas à poser des questions à l'IA pour clarifier vos doutes.",
+    },
   ];
 
   if (loading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </div>
@@ -220,38 +221,40 @@ export default function GuidePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
-      
-      <div className="max-w-6xl mx-auto px-4 py-8">
+
+      <div className="mx-auto max-w-6xl px-4 py-8">
         {/* En-tête */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <BookOpen className="w-8 h-8 text-blue-600" />
+          <div className="mb-4 flex items-center gap-3">
+            <div className="rounded-lg bg-blue-100 p-3">
+              <BookOpen className="h-8 w-8 text-blue-600" />
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Guide d'utilisation</h1>
-              <p className="text-gray-600">Apprenez à utiliser toutes les fonctionnalités de FrançaisFluide</p>
+              <p className="text-gray-600">
+                Apprenez à utiliser toutes les fonctionnalités de FrançaisFluide
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
           {/* Navigation latérale */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Sections</h3>
+            <div className="sticky top-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+              <h3 className="mb-4 text-lg font-semibold text-gray-900">Sections</h3>
               <nav className="space-y-2">
-                {sections.map((section) => (
+                {sections.map(section => (
                   <button
                     key={section.id}
                     onClick={() => setActiveSection(section.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors ${
                       activeSection === section.id
-                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                        ? 'border border-blue-200 bg-blue-50 text-blue-700'
                         : 'text-gray-600 hover:bg-gray-50'
                     }`}
                   >
-                    <section.icon className="w-4 h-4" />
+                    <section.icon className="h-4 w-4" />
                     <span className="text-sm font-medium">{section.title}</span>
                   </button>
                 ))}
@@ -261,50 +264,58 @@ export default function GuidePage() {
 
           {/* Contenu principal */}
           <div className="lg:col-span-3">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-              {sections.map((section) => (
-                activeSection === section.id && (
-                  <div key={section.id}>
-                    <div className="flex items-center gap-3 mb-6">
-                      <section.icon className="w-6 h-6 text-blue-600" />
-                      <h2 className="text-2xl font-bold text-gray-900">{section.title}</h2>
-                    </div>
+            <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
+              {sections.map(
+                section =>
+                  activeSection === section.id && (
+                    <div key={section.id}>
+                      <div className="mb-6 flex items-center gap-3">
+                        <section.icon className="h-6 w-6 text-blue-600" />
+                        <h2 className="text-2xl font-bold text-gray-900">{section.title}</h2>
+                      </div>
 
-                    <div className="space-y-8">
-                      {section.content.map((item, index) => (
-                        <div key={index}>
-                          <h3 className="text-lg font-semibold text-gray-900 mb-4">{item.title}</h3>
-                          <div className="space-y-3">
-                            {item.steps.map((step, stepIndex) => (
-                              <div key={stepIndex} className="flex items-start gap-3">
-                                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
-                                  <span className="text-xs font-semibold text-blue-600">{stepIndex + 1}</span>
+                      <div className="space-y-8">
+                        {section.content.map((item, index) => (
+                          <div key={index}>
+                            <h3 className="mb-4 text-lg font-semibold text-gray-900">
+                              {item.title}
+                            </h3>
+                            <div className="space-y-3">
+                              {item.steps.map((step, stepIndex) => (
+                                <div key={stepIndex} className="flex items-start gap-3">
+                                  <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+                                    <span className="text-xs font-semibold text-blue-600">
+                                      {stepIndex + 1}
+                                    </span>
+                                  </div>
+                                  <p className="text-gray-700">{step}</p>
                                 </div>
-                                <p className="text-gray-700">{step}</p>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )
-              ))}
+                  )
+              )}
             </div>
 
             {/* Conseils pratiques */}
             <div className="mt-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">Conseils pratiques</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <h3 className="mb-6 text-xl font-bold text-gray-900">Conseils pratiques</h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {tips.map((tip, index) => (
-                  <div key={index} className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-100">
+                  <div
+                    key={index}
+                    className="rounded-lg border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-6"
+                  >
                     <div className="flex items-start gap-3">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <tip.icon className="w-5 h-5 text-blue-600" />
+                      <div className="rounded-lg bg-blue-100 p-2">
+                        <tip.icon className="h-5 w-5 text-blue-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-2">{tip.title}</h4>
-                        <p className="text-gray-700 text-sm">{tip.content}</p>
+                        <h4 className="mb-2 font-semibold text-gray-900">{tip.title}</h4>
+                        <p className="text-sm text-gray-700">{tip.content}</p>
                       </div>
                     </div>
                   </div>
@@ -313,27 +324,28 @@ export default function GuidePage() {
             </div>
 
             {/* Support */}
-            <div className="mt-8 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-6 border border-green-200">
-              <div className="flex items-center gap-3 mb-4">
-                <Award className="w-6 h-6 text-green-600" />
+            <div className="mt-8 rounded-lg border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 p-6">
+              <div className="mb-4 flex items-center gap-3">
+                <Award className="h-6 w-6 text-green-600" />
                 <h3 className="text-lg font-semibold text-green-900">Besoin d'aide ?</h3>
               </div>
-              <p className="text-green-700 mb-4">
-                Si vous avez des questions ou rencontrez des difficultés, notre équipe de support est là pour vous aider.
+              <p className="mb-4 text-green-700">
+                Si vous avez des questions ou rencontrez des difficultés, notre équipe de support
+                est là pour vous aider.
               </p>
               <div className="flex gap-3">
                 <a
                   href="/support"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700"
                 >
-                  <MessageSquare className="w-4 h-4" />
+                  <MessageSquare className="h-4 w-4" />
                   Contacter le support
                 </a>
                 <a
                   href="/support?tab=tutorials"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-white text-green-700 border border-green-300 rounded-lg hover:bg-green-50 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-lg border border-green-300 bg-white px-4 py-2 text-green-700 transition-colors hover:bg-green-50"
                 >
-                  <PlayCircle className="w-4 h-4" />
+                  <PlayCircle className="h-4 w-4" />
                   Tutoriels vidéo
                 </a>
               </div>

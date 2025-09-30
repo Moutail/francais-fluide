@@ -17,7 +17,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(data, { status: res.status });
   } catch (error) {
     console.error('Erreur proxy reset-password:', error);
-    return NextResponse.json({ error: 'Erreur interne du serveur (proxy reset-password)' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Erreur interne du serveur (proxy reset-password)' },
+      { status: 500 }
+    );
   }
 }
-

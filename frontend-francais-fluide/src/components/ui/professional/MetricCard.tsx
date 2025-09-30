@@ -20,7 +20,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   value,
   change,
   icon: Icon,
-  className
+  className,
 }) => {
   const changeClasses = {
     positive: 'text-green-600',
@@ -32,16 +32,12 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     <Card className={cn('', className)}>
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <p className="text-2xl font-semibold text-gray-900 mb-1">{value}</p>
-          {change && (
-            <p className={cn('text-xs', changeClasses[change.type])}>
-              {change.value}
-            </p>
-          )}
+          <p className="mb-1 text-sm font-medium text-gray-600">{title}</p>
+          <p className="mb-1 text-2xl font-semibold text-gray-900">{value}</p>
+          {change && <p className={cn('text-xs', changeClasses[change.type])}>{change.value}</p>}
         </div>
-        <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
-          <Icon className="w-6 h-6 text-blue-600" />
+        <div className="flex size-12 items-center justify-center rounded-lg bg-blue-50">
+          <Icon className="size-6 text-blue-600" />
         </div>
       </div>
     </Card>

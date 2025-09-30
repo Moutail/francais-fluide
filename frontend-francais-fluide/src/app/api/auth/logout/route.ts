@@ -8,7 +8,7 @@ export async function POST(_request: NextRequest) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 0
+      maxAge: 0,
     });
     return res;
   } catch (error) {
@@ -16,4 +16,3 @@ export async function POST(_request: NextRequest) {
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }
-

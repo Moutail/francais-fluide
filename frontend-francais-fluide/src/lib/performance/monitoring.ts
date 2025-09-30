@@ -10,17 +10,17 @@ export interface PerformanceMetrics {
   renderTime: number;
   reRenderCount: number;
   componentMountTime: number;
-  
+
   // Métriques de réseau
   networkRequests: number;
   networkLatency: number;
   dataTransferSize: number;
-  
+
   // Métriques d'application
   grammarCheckTime: number;
   textProcessingTime: number;
   memoryUsage: number;
-  
+
   // Métriques utilisateur
   userInteractionDelay: number;
   typingLatency: number;
@@ -75,7 +75,7 @@ class PerformanceMonitor {
       memoryUsage: 0,
       userInteractionDelay: 0,
       typingLatency: 0,
-      suggestionResponseTime: 0
+      suggestionResponseTime: 0,
     };
 
     this.componentData = new Map();
@@ -84,7 +84,7 @@ class PerformanceMonitor {
       averageLatency: 0,
       totalDataTransfer: 0,
       failedRequests: 0,
-      cacheHitRate: 0
+      cacheHitRate: 0,
     };
 
     this.userExperience = {
@@ -93,7 +93,7 @@ class PerformanceMonitor {
       largestContentfulPaint: 0,
       cumulativeLayoutShift: 0,
       firstInputDelay: 0,
-      typingResponsiveness: 0
+      typingResponsiveness: 0,
     };
 
     this.observers = [];
@@ -135,9 +135,9 @@ class PerformanceMonitor {
   private setupPerformanceObservers(): void {
     // Observer pour les mesures de performance
     if ('PerformanceObserver' in window) {
-      const observer = new PerformanceObserver((list) => {
+      const observer = new PerformanceObserver(list => {
         const entries = list.getEntries();
-        
+
         for (const entry of entries) {
           if (entry.entryType === 'measure') {
             this.handlePerformanceEntry(entry);
@@ -152,9 +152,9 @@ class PerformanceMonitor {
     }
 
     // Observer pour les ressources
-    const resourceObserver = new PerformanceObserver((list) => {
+    const resourceObserver = new PerformanceObserver(list => {
       const entries = list.getEntries();
-      
+
       for (const entry of entries) {
         if (entry.entryType === 'resource') {
           this.handleResourceEntry(entry as PerformanceResourceTiming);
@@ -174,27 +174,27 @@ class PerformanceMonitor {
     const originalFetch = window.fetch;
     window.fetch = async (...args) => {
       const startTime = performance.now();
-      
+
       try {
         const response = await originalFetch(...args);
         const endTime = performance.now();
-        
+
         this.updateNetworkMetrics({
           latency: endTime - startTime,
           success: response.ok,
-          size: this.estimateResponseSize(response)
+          size: this.estimateResponseSize(response),
         });
-        
+
         return response;
       } catch (error) {
         const endTime = performance.now();
-        
+
         this.updateNetworkMetrics({
           latency: endTime - startTime,
           success: false,
-          size: 0
+          size: 0,
         });
-        
+
         throw error;
       }
     };
@@ -222,10 +222,20 @@ class PerformanceMonitor {
       if (typeof async === 'undefined') {
         return originalXHROpen.call(this, method, url as any, true, null, null);
       }
-      return originalXHROpen.call(this, method, url as any, async, username ?? null, password ?? null);
+      return originalXHROpen.call(
+        this,
+        method,
+        url as any,
+        async,
+        username ?? null,
+        password ?? null
+      );
     };
 
-    XMLHttpRequest.prototype.send = function (this: XMLHttpRequest, data?: Document | BodyInit | null): void {
+    XMLHttpRequest.prototype.send = function (
+      this: XMLHttpRequest,
+      data?: Document | BodyInit | null
+    ): void {
       this.addEventListener('loadend', () => {
         const endTime = performance.now();
         const start = (this as any)._ffStartTime || 0;
@@ -253,10 +263,10 @@ class PerformanceMonitor {
   private setupUserExperienceMonitoring(): void {
     // First Contentful Paint
     if ('PerformanceObserver' in window) {
-      const fcpObserver = new PerformanceObserver((list) => {
+      const fcpObserver = new PerformanceObserver(list => {
         const entries = list.getEntries();
         const fcpEntry = entries.find(entry => entry.name === 'first-contentful-paint');
-        
+
         if (fcpEntry) {
           this.userExperience.firstContentfulPaint = fcpEntry.startTime;
         }
@@ -268,10 +278,10 @@ class PerformanceMonitor {
 
     // Largest Contentful Paint
     if ('PerformanceObserver' in window) {
-      const lcpObserver = new PerformanceObserver((list) => {
+      const lcpObserver = new PerformanceObserver(list => {
         const entries = list.getEntries();
         const lastEntry = entries[entries.length - 1];
-        
+
         if (lastEntry) {
           this.userExperience.largestContentfulPaint = lastEntry.startTime;
         }
@@ -283,15 +293,15 @@ class PerformanceMonitor {
 
     // Cumulative Layout Shift
     if ('PerformanceObserver' in window) {
-      const clsObserver = new PerformanceObserver((list) => {
+      const clsObserver = new PerformanceObserver(list => {
         let clsValue = 0;
-        
+
         for (const entry of list.getEntries()) {
           if (!(entry as any).hadRecentInput) {
             clsValue += (entry as any).value;
           }
         }
-        
+
         this.userExperience.cumulativeLayoutShift = clsValue;
       });
 
@@ -301,7 +311,7 @@ class PerformanceMonitor {
 
     // First Input Delay
     if ('PerformanceObserver' in window) {
-      const fidObserver = new PerformanceObserver((list) => {
+      const fidObserver = new PerformanceObserver(list => {
         for (const entry of list.getEntries()) {
           this.userExperience.firstInputDelay = (entry as any).processingStart - entry.startTime;
         }
@@ -344,7 +354,8 @@ class PerformanceMonitor {
    */
   private handleResourceEntry(entry: PerformanceResourceTiming): void {
     this.metrics.dataTransferSize += entry.transferSize;
-    this.metrics.networkLatency = (this.metrics.networkLatency + entry.responseEnd - entry.requestStart) / 2;
+    this.metrics.networkLatency =
+      (this.metrics.networkLatency + entry.responseEnd - entry.requestStart) / 2;
   }
 
   /**
@@ -353,14 +364,14 @@ class PerformanceMonitor {
   private updateNetworkMetrics(data: { latency: number; success: boolean; size: number }): void {
     this.networkData.requestCount++;
     this.networkData.totalDataTransfer += data.size;
-    
+
     if (!data.success) {
       this.networkData.failedRequests++;
     }
 
     // Mise à jour de la latence moyenne
-    this.networkData.averageLatency = 
-      (this.networkData.averageLatency * (this.networkData.requestCount - 1) + data.latency) / 
+    this.networkData.averageLatency =
+      (this.networkData.averageLatency * (this.networkData.requestCount - 1) + data.latency) /
       this.networkData.requestCount;
   }
 
@@ -372,13 +383,13 @@ class PerformanceMonitor {
     if (contentLength) {
       return parseInt(contentLength);
     }
-    
+
     // Estimation basée sur le type de contenu
     const contentType = response.headers.get('content-type');
     if (contentType?.includes('application/json')) {
       return 1024; // Estimation pour JSON
     }
-    
+
     return 512; // Estimation par défaut
   }
 
@@ -402,7 +413,7 @@ class PerformanceMonitor {
         updateComponentMetrics(componentName, {
           renderTime,
           reRenderCount: renderCount,
-          mountTime: renderTime
+          mountTime: renderTime,
         });
 
         setRenderCount(prev => prev + 1);
@@ -412,7 +423,8 @@ class PerformanceMonitor {
     }) as unknown as T;
 
     // Provide a display name for better React DevTools and to satisfy linter
-    (Wrapped as any).displayName = `withPerformance(${(Component as any).displayName || componentName})`;
+    (Wrapped as any).displayName =
+      `withPerformance(${(Component as any).displayName || componentName})`;
 
     return Wrapped;
   }
@@ -420,20 +432,23 @@ class PerformanceMonitor {
   /**
    * Met à jour les métriques d'un composant
    */
-  private updateComponentMetrics(componentName: string, data: Partial<ComponentPerformanceData>): void {
+  private updateComponentMetrics(
+    componentName: string,
+    data: Partial<ComponentPerformanceData>
+  ): void {
     const existing = this.componentData.get(componentName) || {
       componentName,
       mountTime: 0,
       renderTime: 0,
       reRenderCount: 0,
       propsChanges: 0,
-      lastRenderTime: 0
+      lastRenderTime: 0,
     };
 
     this.componentData.set(componentName, {
       ...existing,
       ...data,
-      lastRenderTime: performance.now()
+      lastRenderTime: performance.now(),
     });
   }
 
@@ -487,7 +502,7 @@ class PerformanceMonitor {
       networkData: this.networkData,
       userExperience: this.userExperience,
       recommendations: this.generateRecommendations(),
-      score: this.calculatePerformanceScore()
+      score: this.calculatePerformanceScore(),
     };
 
     // Envoyer le rapport si nécessaire
@@ -503,23 +518,33 @@ class PerformanceMonitor {
     const recommendations: string[] = [];
 
     if (this.metrics.renderTime > 16) {
-      recommendations.push('Temps de rendu élevé détecté. Considérez l\'utilisation de React.memo ou useMemo.');
+      recommendations.push(
+        "Temps de rendu élevé détecté. Considérez l'utilisation de React.memo ou useMemo."
+      );
     }
 
     if (this.metrics.grammarCheckTime > 500) {
-      recommendations.push('Vérification grammaticale lente. Optimisez les regex ou implémentez un cache.');
+      recommendations.push(
+        'Vérification grammaticale lente. Optimisez les regex ou implémentez un cache.'
+      );
     }
 
     if (this.networkData.averageLatency > 1000) {
-      recommendations.push('Latence réseau élevée. Implémentez la mise en cache ou la compression.');
+      recommendations.push(
+        'Latence réseau élevée. Implémentez la mise en cache ou la compression.'
+      );
     }
 
     if (this.userExperience.firstInputDelay > 100) {
-      recommendations.push('Délai de première interaction élevé. Optimisez le JavaScript critique.');
+      recommendations.push(
+        'Délai de première interaction élevé. Optimisez le JavaScript critique.'
+      );
     }
 
     if (this.userExperience.cumulativeLayoutShift > 0.1) {
-      recommendations.push('Décalage de mise en page cumulatif élevé. Fixez les dimensions des éléments.');
+      recommendations.push(
+        'Décalage de mise en page cumulatif élevé. Fixez les dimensions des éléments.'
+      );
     }
 
     return recommendations;
@@ -618,7 +643,7 @@ export const usePerformanceMonitor = () => {
     metrics,
     measureOperation: performanceMonitor.measureOperation.bind(performanceMonitor),
     measureAsyncOperation: performanceMonitor.measureAsyncOperation.bind(performanceMonitor),
-    generateReport: performanceMonitor.generatePerformanceReport.bind(performanceMonitor)
+    generateReport: performanceMonitor.generatePerformanceReport.bind(performanceMonitor),
   };
 };
 

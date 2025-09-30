@@ -19,7 +19,11 @@ export type { AnalyticsEvent, UserProperties, PageView } from './analytics';
 
 // Performance monitoring
 export { performanceMonitor, usePerformanceMonitoring } from './performance-monitoring';
-export type { WebVitals, PerformanceMetrics, PerformanceThresholds } from './performance-monitoring';
+export type {
+  WebVitals,
+  PerformanceMetrics,
+  PerformanceThresholds,
+} from './performance-monitoring';
 
 // Fonction d'initialisation complète du monitoring
 export function initializeMonitoring(): void {
@@ -66,7 +70,7 @@ function setupDefaultMetrics(): void {
 // Détecte le type d'appareil
 function getDeviceType(): 'mobile' | 'tablet' | 'desktop' {
   if (typeof window === 'undefined') return 'desktop';
-  
+
   const width = window.innerWidth;
   if (width < 768) return 'mobile';
   if (width < 1024) return 'tablet';
@@ -76,10 +80,10 @@ function getDeviceType(): 'mobile' | 'tablet' | 'desktop' {
 // Fonction de nettoyage
 export function cleanupMonitoring(): void {
   console.log('🧹 Nettoyage du monitoring...');
-  
+
   // Nettoyer le monitoring de performance
   performanceMonitor.cleanup();
-  
+
   console.log('✅ Nettoyage terminé');
 }
 
@@ -87,7 +91,7 @@ export function cleanupMonitoring(): void {
 export function useMonitoringInitialization(): void {
   React.useEffect(() => {
     initializeMonitoring();
-    
+
     return () => {
       cleanupMonitoring();
     };
@@ -102,7 +106,7 @@ export const DEFAULT_MONITORING_CONFIG = {
     sampleRate: 0.1,
     maxBreadcrumbs: 100,
   },
-  
+
   // Analytics
   analytics: {
     enabled: process.env.NODE_ENV === 'production',
@@ -110,13 +114,12 @@ export const DEFAULT_MONITORING_CONFIG = {
     trackUserInteractions: true,
     trackPerformance: true,
   },
-  
+
   // Performance
   performance: {
     enabled: true,
     trackWebVitals: true,
     trackCustomMetrics: true,
     trackResourceTiming: true,
-  }
+  },
 };
-

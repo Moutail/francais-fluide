@@ -25,7 +25,12 @@ export interface LevelInfo {
 }
 
 export interface ScoreEvent {
-  type: 'word_written' | 'error_corrected' | 'exercise_completed' | 'perfect_text' | 'achievement_unlocked';
+  type:
+    | 'word_written'
+    | 'error_corrected'
+    | 'exercise_completed'
+    | 'perfect_text'
+    | 'achievement_unlocked';
   points: number;
   timestamp: Date;
   metadata?: Record<string, any>;
@@ -75,11 +80,11 @@ export class ScoreCalculator {
   public static getPointsToNextLevel(points: number): number {
     const currentLevel = this.getCurrentLevel(points);
     const nextLevel = this.LEVELS.find(level => level.level === currentLevel.level + 1);
-    
+
     if (!nextLevel) {
       return 0; // Niveau maximum atteint
     }
-    
+
     return nextLevel.requiredPoints - points;
   }
 
@@ -91,10 +96,10 @@ export class ScoreCalculator {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const dailyEvents = this.groupEventsByDay(events);
-    const sortedDays = Object.keys(dailyEvents).sort((a, b) => 
-      new Date(b).getTime() - new Date(a).getTime()
+    const sortedDays = Object.keys(dailyEvents).sort(
+      (a, b) => new Date(b).getTime() - new Date(a).getTime()
     );
 
     let streak = 0;
@@ -102,7 +107,9 @@ export class ScoreCalculator {
 
     for (const day of sortedDays) {
       const dayDate = new Date(day);
-      const dayDiff = Math.floor((currentDate.getTime() - dayDate.getTime()) / (1000 * 60 * 60 * 24));
+      const dayDiff = Math.floor(
+        (currentDate.getTime() - dayDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
 
       if (dayDiff === 0 || dayDiff === 1) {
         streak++;
@@ -130,9 +137,11 @@ export class ScoreCalculator {
     for (const event of perfectEvents) {
       const eventDate = new Date(event.timestamp);
       eventDate.setHours(0, 0, 0, 0);
-      
-      const dayDiff = Math.floor((currentDate.getTime() - eventDate.getTime()) / (1000 * 60 * 60 * 24));
-      
+
+      const dayDiff = Math.floor(
+        (currentDate.getTime() - eventDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
       if (dayDiff === 0 || dayDiff === 1) {
         streak++;
         currentDate = eventDate;
@@ -150,9 +159,9 @@ export class ScoreCalculator {
   public static calculateAccuracyRate(events: ScoreEvent[]): number {
     const wordsWritten = events.filter(e => e.type === 'word_written').length;
     const errorsCorrected = events.filter(e => e.type === 'error_corrected').length;
-    
+
     if (wordsWritten === 0) return 100;
-    
+
     const errorRate = (errorsCorrected / wordsWritten) * 100;
     return Math.max(0, 100 - errorRate);
   }
@@ -167,7 +176,7 @@ export class ScoreCalculator {
     const streakDays = this.calculateStreakDays(events);
     const perfectStreak = this.calculatePerfectStreak(events);
     const accuracyRate = this.calculateAccuracyRate(events);
-    
+
     const wordsWritten = events.filter(e => e.type === 'word_written').length;
     const exercisesCompleted = events.filter(e => e.type === 'exercise_completed').length;
     const errorsCorrected = events.filter(e => e.type === 'error_corrected').length;
@@ -195,7 +204,7 @@ export class ScoreCalculator {
     metadata?: Record<string, any>
   ): ScoreEvent {
     const points = this.POINT_VALUES[type] || 0;
-    
+
     return {
       type,
       points,
@@ -208,14 +217,17 @@ export class ScoreCalculator {
    * Groupe les événements par jour
    */
   private static groupEventsByDay(events: ScoreEvent[]): Record<string, ScoreEvent[]> {
-    return events.reduce((groups, event) => {
-      const day = event.timestamp.toISOString().split('T')[0];
-      if (!groups[day]) {
-        groups[day] = [];
-      }
-      groups[day].push(event);
-      return groups;
-    }, {} as Record<string, ScoreEvent[]>);
+    return events.reduce(
+      (groups, event) => {
+        const day = event.timestamp.toISOString().split('T')[0];
+        if (!groups[day]) {
+          groups[day] = [];
+        }
+        groups[day].push(event);
+        return groups;
+      },
+      {} as Record<string, ScoreEvent[]>
+    );
   }
 
   /**
@@ -224,14 +236,14 @@ export class ScoreCalculator {
   public static getLevelProgress(points: number): number {
     const currentLevel = this.getCurrentLevel(points);
     const nextLevel = this.LEVELS.find(level => level.level === currentLevel.level + 1);
-    
+
     if (!nextLevel) {
       return 1; // Niveau maximum
     }
-    
+
     const progressPoints = points - currentLevel.requiredPoints;
     const requiredPoints = nextLevel.requiredPoints - currentLevel.requiredPoints;
-    
+
     return Math.min(1, Math.max(0, progressPoints / requiredPoints));
   }
 

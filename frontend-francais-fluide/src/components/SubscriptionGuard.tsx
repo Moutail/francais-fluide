@@ -14,13 +14,13 @@ const planHierarchy = {
   demo: 0,
   etudiant: 1,
   premium: 2,
-  etablissement: 3
+  etablissement: 3,
 };
 
-export default function SubscriptionGuard({ 
-  children, 
-  requiredPlan, 
-  fallback 
+export default function SubscriptionGuard({
+  children,
+  requiredPlan,
+  fallback,
 }: SubscriptionGuardProps) {
   const { user } = useAuth();
 
@@ -39,23 +39,21 @@ export default function SubscriptionGuard({
   }
 
   return (
-    <div className="flex items-center justify-center p-8 bg-gray-50 rounded-lg border">
-      <div className="text-center max-w-md">
-        <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Lock className="w-8 h-8 text-yellow-600" />
+    <div className="flex items-center justify-center rounded-lg border bg-gray-50 p-8">
+      <div className="max-w-md text-center">
+        <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-yellow-100">
+          <Lock className="size-8 text-yellow-600" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Fonctionnalité Premium
-        </h3>
-        <p className="text-gray-600 mb-4">
-          Cette fonctionnalité nécessite un abonnement {requiredPlan}.
-          Votre plan actuel : {userPlan}
+        <h3 className="mb-2 text-lg font-semibold text-gray-900">Fonctionnalité Premium</h3>
+        <p className="mb-4 text-gray-600">
+          Cette fonctionnalité nécessite un abonnement {requiredPlan}. Votre plan actuel :{' '}
+          {userPlan}
         </p>
         <button
-          onClick={() => window.location.href = '/pricing'}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          onClick={() => (window.location.href = '/pricing')}
+          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
         >
-          <Crown className="w-4 h-4" />
+          <Crown className="size-4" />
           Voir les plans
         </button>
       </div>

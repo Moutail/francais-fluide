@@ -62,7 +62,7 @@ export class AdvancedCorrectionEngine {
       const response = await this.callOpenAI(prompt, context);
       return this.parseCorrections(response, context);
     } catch (error) {
-      console.error('Erreur lors de l\'analyse:', error);
+      console.error("Erreur lors de l'analyse:", error);
       return this.getFallbackCorrections(context);
     }
   }
@@ -74,14 +74,16 @@ export class AdvancedCorrectionEngine {
     userProfile: UserProfile,
     subscriptionPlan: string,
     count: number = 5
-  ): Promise<Array<{
-    id: string;
-    type: string;
-    title: string;
-    content: string;
-    difficulty: string;
-    targetSkills: string[];
-  }>> {
+  ): Promise<
+    Array<{
+      id: string;
+      type: string;
+      title: string;
+      content: string;
+      difficulty: string;
+      targetSkills: string[];
+    }>
+  > {
     const plan = SUBSCRIPTION_PLANS.find(p => p.id === subscriptionPlan);
     const maxExercises = plan?.limits.exercisesPerDay || 3;
 
@@ -94,7 +96,7 @@ export class AdvancedCorrectionEngine {
       const response = await this.callOpenAI(prompt, { userProfile, subscriptionPlan });
       return this.parseExercises(response);
     } catch (error) {
-      console.error('Erreur lors de la génération d\'exercices:', error);
+      console.error("Erreur lors de la génération d'exercices:", error);
       return this.getFallbackExercises(userProfile, count);
     }
   }
@@ -116,7 +118,7 @@ export class AdvancedCorrectionEngine {
       const response = await this.callOpenAI(prompt, { error, userProfile });
       return this.parseExplanation(response);
     } catch (e) {
-      console.error('Erreur lors de la génération d\'explication:', e);
+      console.error("Erreur lors de la génération d'explication:", e);
       // Passer null car le paramètre attendu est AdvancedCorrection | null
       return this.getFallbackExplanation(null, userProfile);
     }
@@ -139,14 +141,14 @@ export class AdvancedCorrectionEngine {
       const response = await this.callOpenAI(prompt, { recentTexts, errorHistory });
       return this.parseLevelAnalysis(response);
     } catch (error) {
-      console.error('Erreur lors de l\'analyse de niveau:', error);
+      console.error("Erreur lors de l'analyse de niveau:", error);
       return this.getFallbackLevelAnalysis();
     }
   }
 
   private buildAnalysisPrompt(context: CorrectionContext): string {
     const { text, userProfile, subscriptionPlan, exerciseType } = context;
-    
+
     return `Tu es un expert en français et un tuteur pédagogique. Analyse ce texte en français et fournis des corrections détaillées.
 
 CONTEXTE UTILISATEUR:
@@ -252,7 +254,10 @@ RÉPONSE ATTENDUE (JSON):
 }`;
   }
 
-  private buildLevelAnalysisPrompt(recentTexts: string[], errorHistory: AdvancedCorrection[]): string {
+  private buildLevelAnalysisPrompt(
+    recentTexts: string[],
+    errorHistory: AdvancedCorrection[]
+  ): string {
     return `Analyse le niveau de français de cet utilisateur basé sur ses textes récents et son historique d'erreurs.
 
 TEXTES RÉCENTS (${recentTexts.length}):
@@ -283,7 +288,7 @@ RÉPONSE ATTENDUE (JSON):
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        Authorization: `Bearer ${this.apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -291,16 +296,17 @@ RÉPONSE ATTENDUE (JSON):
         messages: [
           {
             role: 'system',
-            content: 'Tu es un expert en français et un tuteur pédagogique. Réponds toujours en JSON valide.'
+            content:
+              'Tu es un expert en français et un tuteur pédagogique. Réponds toujours en JSON valide.',
           },
           {
             role: 'user',
-            content: prompt
-          }
+            content: prompt,
+          },
         ],
         temperature: 0.3,
-        max_tokens: 2000
-      })
+        max_tokens: 2000,
+      }),
     });
 
     if (!response.ok) {
@@ -362,12 +368,15 @@ RÉPONSE ATTENDUE (JSON):
     return [];
   }
 
-  private getFallbackExplanation(error: AdvancedCorrection | null, userProfile: UserProfile | null): any {
+  private getFallbackExplanation(
+    error: AdvancedCorrection | null,
+    userProfile: UserProfile | null
+  ): any {
     return {
-      explanation: "Explication non disponible",
+      explanation: 'Explication non disponible',
       examples: [],
       practiceTips: [],
-      relatedConcepts: []
+      relatedConcepts: [],
     };
   }
 
@@ -376,7 +385,7 @@ RÉPONSE ATTENDUE (JSON):
       currentLevel: 'beginner',
       progress: 0,
       recommendations: [],
-      nextGoals: []
+      nextGoals: [],
     };
   }
 }
@@ -389,7 +398,11 @@ export function useAdvancedCorrections(apiKey: string) {
     return await engine.analyzeText(context);
   };
 
-  const generateExercises = async (userProfile: UserProfile, subscriptionPlan: string, count: number) => {
+  const generateExercises = async (
+    userProfile: UserProfile,
+    subscriptionPlan: string,
+    count: number
+  ) => {
     return await engine.generatePersonalizedExercises(userProfile, subscriptionPlan, count);
   };
 
@@ -405,6 +418,6 @@ export function useAdvancedCorrections(apiKey: string) {
     analyzeText,
     generateExercises,
     getExplanation,
-    analyzeLevel
+    analyzeLevel,
   };
 }

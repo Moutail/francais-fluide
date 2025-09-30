@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const authHeader = request.headers.get('authorization');
     if (!authHeader) {
       return NextResponse.json(
-        { success: false, message: 'Token d\'authentification manquant' },
+        { success: false, message: "Token d'authentification manquant" },
         { status: 401 }
       );
     }
@@ -20,27 +20,26 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': authHeader
+        Authorization: authHeader,
       },
       body: JSON.stringify({
         subject,
         category,
         priority,
-        description
-      })
+        description,
+      }),
     });
 
     const data = await response.json();
 
     if (!response.ok) {
       return NextResponse.json(
-        { success: false, message: data.message || 'Erreur lors de l\'envoi de la demande' },
+        { success: false, message: data.message || "Erreur lors de l'envoi de la demande" },
         { status: response.status }
       );
     }
 
     return NextResponse.json(data);
-
   } catch (error) {
     console.error('Erreur API support contact:', error);
     return NextResponse.json(

@@ -78,9 +78,10 @@ export class SimpleCRDT {
 
   // Résoudre les conflits entre opérations
   private resolveConflicts(newOp: DocumentOperation) {
-    const conflictingOps = this.operations.filter(op => 
-      op.timestamp > newOp.timestamp - 1000 && // Dans la dernière seconde
-      this.operationsOverlap(op, newOp)
+    const conflictingOps = this.operations.filter(
+      op =>
+        op.timestamp > newOp.timestamp - 1000 && // Dans la dernière seconde
+        this.operationsOverlap(op, newOp)
     );
 
     for (const conflictOp of conflictingOps) {
@@ -92,7 +93,7 @@ export class SimpleCRDT {
   private operationsOverlap(op1: DocumentOperation, op2: DocumentOperation): boolean {
     const op1End = op1.position + op1.length;
     const op2End = op2.position + op2.length;
-    
+
     return !(op1End <= op2.position || op2End <= op1.position);
   }
 
@@ -125,7 +126,8 @@ export class SimpleCRDT {
           content = content.slice(0, op.position) + content.slice(op.position + op.length);
           break;
         case 'replace':
-          content = content.slice(0, op.position) + op.text + content.slice(op.position + op.length);
+          content =
+            content.slice(0, op.position) + op.text + content.slice(op.position + op.length);
           break;
       }
     }
@@ -159,7 +161,7 @@ export class CollaborationManager {
     // Simulation du serveur - en production, remplacer par l'URL réelle
     // Pour les tests, on simule la connexion sans serveur réel
     this.socket = null; // Désactiver la connexion réelle pour les tests
-    
+
     // En production, décommenter :
     // this.socket = io('ws://localhost:3001', {
     //   transports: ['websocket'],
@@ -195,7 +197,7 @@ export class CollaborationManager {
     });
 
     // Erreur de connexion
-    this.socket.on('connect_error', (error) => {
+    this.socket.on('connect_error', error => {
       console.error('Erreur de connexion WebSocket:', error);
       this.emit('error', error);
       this.handleReconnection();
@@ -265,9 +267,11 @@ export class CollaborationManager {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
-      
+
       setTimeout(() => {
-        console.log(`Tentative de reconnexion ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
+        console.log(
+          `Tentative de reconnexion ${this.reconnectAttempts}/${this.maxReconnectAttempts}`
+        );
         this.socket?.connect();
       }, delay);
     } else {
@@ -286,7 +290,7 @@ export class CollaborationManager {
       name: userProfile.name,
       color: this.generateUserColor(),
       isTyping: false,
-      lastSeen: new Date()
+      lastSeen: new Date(),
     };
 
     this.socket?.connect();
@@ -309,7 +313,7 @@ export class CollaborationManager {
     this.socket.emit('join-room', {
       roomId,
       documentId,
-      user: this.currentUser
+      user: this.currentUser,
     });
   }
 
@@ -319,7 +323,7 @@ export class CollaborationManager {
 
     this.socket.emit('leave-room', {
       roomId: this.currentRoom.id,
-      userId: this.currentUser?.id
+      userId: this.currentUser?.id,
     });
 
     this.currentRoom = null;
@@ -333,7 +337,7 @@ export class CollaborationManager {
       ...operation,
       userId: this.currentUser.id,
       timestamp: Date.now(),
-      version: this.crdt.getVersion() + 1
+      version: this.crdt.getVersion() + 1,
     };
 
     this.socket.emit('document-operation', fullOperation);
@@ -345,7 +349,7 @@ export class CollaborationManager {
 
     this.socket.emit('cursor-moved', {
       userId: this.currentUser.id,
-      cursor
+      cursor,
     });
   }
 
@@ -355,7 +359,7 @@ export class CollaborationManager {
 
     this.socket.emit('text-selected', {
       userId: this.currentUser.id,
-      selection
+      selection,
     });
   }
 
@@ -384,7 +388,7 @@ export class CollaborationManager {
       userName: this.currentUser.name,
       content,
       timestamp: new Date(),
-      type: 'message'
+      type: 'message',
     };
 
     this.socket.emit('send-message', message);
@@ -396,7 +400,7 @@ export class CollaborationManager {
 
     this.socket.emit('toggle-room-lock', {
       roomId: this.currentRoom.id,
-      userId: this.currentUser?.id
+      userId: this.currentUser?.id,
     });
   }
 
@@ -436,8 +440,16 @@ export class CollaborationManager {
   // Générer une couleur pour l'utilisateur
   private generateUserColor(): string {
     const colors = [
-      '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
-      '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+      '#FF6B6B',
+      '#4ECDC4',
+      '#45B7D1',
+      '#96CEB4',
+      '#FFEAA7',
+      '#DDA0DD',
+      '#98D8C8',
+      '#F7DC6F',
+      '#BB8FCE',
+      '#85C1E9',
     ];
     return colors[Math.floor(Math.random() * colors.length)];
   }

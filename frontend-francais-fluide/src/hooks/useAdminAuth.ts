@@ -38,6 +38,6 @@ export function useAdminAuth() {
     redirectToAdmin,
     redirectToLogin,
     hasAdminAccess: isAdmin,
-    adminLevel: isSuperAdmin ? 'super_admin' : isAdmin ? 'admin' : 'none'
+    adminLevel: isSuperAdmin ? 'super_admin' : isAdmin ? 'admin' : 'none',
   };
 }

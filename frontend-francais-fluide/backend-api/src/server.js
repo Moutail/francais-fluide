@@ -15,16 +15,18 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware de sécurité
 app.use(helmet());
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true,
+  })
+);
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limite chaque IP à 100 requêtes par windowMs
-  message: 'Trop de requêtes depuis cette IP, réessayez plus tard.'
+  message: 'Trop de requêtes depuis cette IP, réessayez plus tard.',
 });
 app.use(limiter);
 
@@ -40,10 +42,10 @@ app.use('/api/subscription', subscriptionRoutes);
 
 // Route de santé
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     timestamp: new Date().toISOString(),
-    version: '1.0.0'
+    version: '1.0.0',
   });
 });
 
@@ -55,9 +57,9 @@ app.use('*', (req, res) => {
 // Gestionnaire d'erreurs global
 app.use((err, req, res, next) => {
   console.error('Erreur serveur:', err);
-  res.status(500).json({ 
+  res.status(500).json({
     error: 'Erreur interne du serveur',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Une erreur est survenue'
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Une erreur est survenue',
   });
 });
 

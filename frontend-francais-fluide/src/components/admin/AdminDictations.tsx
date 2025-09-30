@@ -1,18 +1,18 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { 
-  BookOpen, 
-  Search, 
-  Plus, 
-  Edit2, 
-  Trash2, 
-  Save, 
-  X, 
+import {
+  BookOpen,
+  Search,
+  Plus,
+  Edit2,
+  Trash2,
+  Save,
+  X,
   Play,
   Clock,
   BarChart3,
-  Filter
+  Filter,
 } from 'lucide-react';
 
 export default function AdminDictations() {
@@ -25,7 +25,16 @@ export default function AdminDictations() {
   const [difficulty, setDifficulty] = useState('');
   const [category, setCategory] = useState('');
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState<any>({ title: '', description: '', difficulty: 'beginner', duration: 10, text: '', audioUrl: '', category: '', tags: [] });
+  const [form, setForm] = useState<any>({
+    title: '',
+    description: '',
+    difficulty: 'beginner',
+    duration: 10,
+    text: '',
+    audioUrl: '',
+    category: '',
+    tags: [],
+  });
   const [editing, setEditing] = useState<any | null>(null);
   const [audioDurations, setAudioDurations] = useState<Record<string, number>>({}); // seconds by id
 
@@ -42,7 +51,9 @@ export default function AdminDictations() {
   async function load() {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/dictations?' + query, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch('/api/admin/dictations?' + query, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const json = await res.json();
       setItems(json?.data?.dictations ?? []);
     } catch (e) {
@@ -52,11 +63,18 @@ export default function AdminDictations() {
     }
   }
 
-  useEffect(() => { if (token) load(); }, [token, query]);
+  useEffect(() => {
+    if (token) load();
+  }, [token, query]);
 
   // Load audio metadata durations for rows that have audioUrl
   useEffect(() => {
-    const controllers: Array<{ id: string; audio: HTMLAudioElement; onLoad: () => void; onError: () => void; }> = [];
+    const controllers: Array<{
+      id: string;
+      audio: HTMLAudioElement;
+      onLoad: () => void;
+      onError: () => void;
+    }> = [];
     items.forEach(d => {
       if (d?.audioUrl && typeof d.audioUrl === 'string' && !audioDurations[d.id]) {
         const audio = new Audio();
@@ -83,26 +101,37 @@ export default function AdminDictations() {
   }, [items, audioDurations]);
 
   // Utilities
-  const getWordCountFromText = (text: string) => (text || '').trim().split(/\s+/).filter(Boolean).length;
+  const getWordCountFromText = (text: string) =>
+    (text || '').trim().split(/\s+/).filter(Boolean).length;
   const getDurationSecondsFromText = (text: string) => {
     const words = getWordCountFromText(text);
     return Math.max(5, Math.ceil(words / 2));
   };
-  const formatDurationLabel = (seconds: number) => seconds < 60 ? `${seconds}s` : `${Math.round(seconds / 60)} min`;
+  const formatDurationLabel = (seconds: number) =>
+    seconds < 60 ? `${seconds}s` : `${Math.round(seconds / 60)} min`;
 
   async function create() {
     try {
       const res = await fetch('/api/admin/dictations', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
+        body: JSON.stringify(form),
       });
       if (!res.ok) {
         const e = await res.json();
         alert(e?.error || 'Erreur création dictée');
       } else {
         setCreating(false);
-        setForm({ title: '', description: '', difficulty: 'beginner', duration: 60, text: '', audioUrl: '', category: '', tags: [] });
+        setForm({
+          title: '',
+          description: '',
+          difficulty: 'beginner',
+          duration: 60,
+          text: '',
+          audioUrl: '',
+          category: '',
+          tags: [],
+        });
         await load();
       }
     } catch (e) {
@@ -115,7 +144,7 @@ export default function AdminDictations() {
       const res = await fetch('/api/admin/dictations/' + id, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(patch)
+        body: JSON.stringify(patch),
       });
       if (!res.ok) {
         const e = await res.json();
@@ -134,7 +163,7 @@ export default function AdminDictations() {
     try {
       const res = await fetch('/api/admin/dictations/' + id, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) await load();
     } catch (e) {
@@ -143,11 +172,15 @@ export default function AdminDictations() {
   }
 
   const getDifficultyColor = (difficulty: string) => {
-    switch(difficulty) {
-      case 'beginner': return 'bg-green-100 text-green-800';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800';
-      case 'advanced': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+    switch (difficulty) {
+      case 'beginner':
+        return 'bg-green-100 text-green-800';
+      case 'intermediate':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'advanced':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -159,35 +192,35 @@ export default function AdminDictations() {
           <h1 className="text-2xl font-bold text-gray-900">Gestion des dictées</h1>
           <p className="text-gray-600">Créez et gérez le contenu pédagogique de la plateforme</p>
         </div>
-        <button 
-          onClick={() => setCreating(true)} 
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        <button
+          onClick={() => setCreating(true)}
+          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="h-4 w-4" />
           Nouvelle dictée
         </button>
       </div>
 
       {/* Filtres */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border">
-        <div className="flex items-center gap-4 flex-wrap">
-          <div className="flex-1 min-w-64">
+      <div className="rounded-xl border bg-white p-6 shadow-sm">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="min-w-64 flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input 
-                value={search} 
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+              <input
+                value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Rechercher par titre, description ou contenu..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-400" />
-            <select 
-              value={difficulty} 
+            <Filter className="h-4 w-4 text-gray-400" />
+            <select
+              value={difficulty}
               onChange={e => setDifficulty(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Toutes difficultés</option>
               <option value="beginner">Débutant</option>
@@ -195,41 +228,81 @@ export default function AdminDictations() {
               <option value="advanced">Avancé</option>
             </select>
           </div>
-          <input 
-            value={category} 
+          <input
+            value={category}
             onChange={e => setCategory(e.target.value)}
             placeholder="Catégorie"
-            className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
       {creating && (
-        <div className="p-4 border rounded bg-white space-y-3">
-          <div className="grid md:grid-cols-2 gap-3">
-            <input placeholder="Titre" value={form.title} onChange={e=>setForm({ ...form, title: e.target.value })} className="border rounded px-2 py-1" />
-            <input placeholder="Catégorie" value={form.category} onChange={e=>setForm({ ...form, category: e.target.value })} className="border rounded px-2 py-1" />
-            <select value={form.difficulty} onChange={e=>setForm({ ...form, difficulty: e.target.value })} className="border rounded px-2 py-1">
+        <div className="space-y-3 rounded border bg-white p-4">
+          <div className="grid gap-3 md:grid-cols-2">
+            <input
+              placeholder="Titre"
+              value={form.title}
+              onChange={e => setForm({ ...form, title: e.target.value })}
+              className="rounded border px-2 py-1"
+            />
+            <input
+              placeholder="Catégorie"
+              value={form.category}
+              onChange={e => setForm({ ...form, category: e.target.value })}
+              className="rounded border px-2 py-1"
+            />
+            <select
+              value={form.difficulty}
+              onChange={e => setForm({ ...form, difficulty: e.target.value })}
+              className="rounded border px-2 py-1"
+            >
               <option value="beginner">beginner</option>
               <option value="intermediate">intermediate</option>
               <option value="advanced">advanced</option>
             </select>
             <div className="flex items-center gap-2">
-              <input type="number" min={1} max={60} value={form.duration} onChange={e=>setForm({ ...form, duration: Number(e.target.value) })} className="border rounded px-2 py-1 w-24" />
+              <input
+                type="number"
+                min={1}
+                max={60}
+                value={form.duration}
+                onChange={e => setForm({ ...form, duration: Number(e.target.value) })}
+                className="w-24 rounded border px-2 py-1"
+              />
               <span className="text-sm text-gray-600">min</span>
             </div>
           </div>
-          <textarea placeholder="Description" value={form.description} onChange={e=>setForm({ ...form, description: e.target.value })} className="border rounded px-2 py-1 w-full h-20" />
-          <textarea placeholder="Texte de la dictée" value={form.text} onChange={e=>setForm({ ...form, text: e.target.value })} className="border rounded px-2 py-1 w-full h-32" />
-          <input placeholder="URL Audio (optionnel)" value={form.audioUrl} onChange={e=>setForm({ ...form, audioUrl: e.target.value })} className="border rounded px-2 py-1 w-full" />
+          <textarea
+            placeholder="Description"
+            value={form.description}
+            onChange={e => setForm({ ...form, description: e.target.value })}
+            className="h-20 w-full rounded border px-2 py-1"
+          />
+          <textarea
+            placeholder="Texte de la dictée"
+            value={form.text}
+            onChange={e => setForm({ ...form, text: e.target.value })}
+            className="h-32 w-full rounded border px-2 py-1"
+          />
+          <input
+            placeholder="URL Audio (optionnel)"
+            value={form.audioUrl}
+            onChange={e => setForm({ ...form, audioUrl: e.target.value })}
+            className="w-full rounded border px-2 py-1"
+          />
           <div className="flex gap-2">
-            <button onClick={create} className="bg-green-600 text-white px-3 py-2 rounded">Enregistrer</button>
-            <button onClick={()=>setCreating(false)} className="px-3 py-2 border rounded">Annuler</button>
+            <button onClick={create} className="rounded bg-green-600 px-3 py-2 text-white">
+              Enregistrer
+            </button>
+            <button onClick={() => setCreating(false)} className="rounded border px-3 py-2">
+              Annuler
+            </button>
           </div>
         </div>
       )}
 
-      <div className="overflow-auto border rounded bg-white">
+      <div className="overflow-auto rounded border bg-white">
         <table className="min-w-full">
           <thead className="bg-gray-50 text-left">
             <tr>
@@ -243,87 +316,150 @@ export default function AdminDictations() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={5} className="px-3 py-4">Chargement...</td></tr>
-            ) : items.length === 0 ? (
-              <tr><td colSpan={5} className="px-3 py-4">Aucune dictée</td></tr>
-            ) : items.map(d => (
-              <tr key={d.id} className="border-t">
-                {/* Titre */}
-                <td className="px-3 py-2">
-                  {editing?.id === d.id ? (
-                    <input value={editing.title} onChange={e=>setEditing({ ...editing, title: e.target.value })} className="border rounded px-2 py-1" />
-                  ) : d.title}
-                </td>
-                {/* Difficulté */}
-                <td className="px-3 py-2">
-                  {editing?.id === d.id ? (
-                    <select value={editing.difficulty} onChange={e=>setEditing({ ...editing, difficulty: e.target.value })} className="border rounded px-2 py-1">
-                      <option value="beginner">beginner</option>
-                      <option value="intermediate">intermediate</option>
-                      <option value="advanced">advanced</option>
-                    </select>
-                  ) : d.difficulty}
-                </td>
-                {/* Catégorie */}
-                <td className="px-3 py-2">
-                  {editing?.id === d.id ? (
-                    <input value={editing.category || ''} onChange={e=>setEditing({ ...editing, category: e.target.value })} className="border rounded px-2 py-1" />
-                  ) : (d.category || '-')}
-                </td>
-                {/* Mots */}
-                <td className="px-3 py-2">
-                  {getWordCountFromText(d.text || '')}
-                </td>
-                {/* Durée */}
-                <td className="px-3 py-2">
-                  {editing?.id === d.id ? (
-                    <input type="number" value={editing.duration} onChange={e=>setEditing({ ...editing, duration: Number(e.target.value) })} className="border rounded px-2 py-1 w-24" />
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      {(() => {
-                        const audioSec = audioDurations[d.id];
-                        if (audioSec && Number.isFinite(audioSec)) {
-                          return (
-                            <>
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800">Durée audio</span>
-                              <span>{formatDurationLabel(audioSec)}</span>
-                            </>
-                          );
-                        }
-                        const estSec = getDurationSecondsFromText(d.text || '');
-                        return (
-                          <>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700">Durée estimée</span>
-                            <span>{formatDurationLabel(estSec)}</span>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  )}
-                </td>
-                {/* Actions */}
-                <td className="px-3 py-2 space-x-2">
-                  {editing?.id === d.id ? (
-                    <>
-                      <button onClick={()=>update(d.id, editing)} className="bg-green-600 text-white px-3 py-1 rounded">Enregistrer</button>
-                      <button onClick={()=>setEditing(null)} className="px-3 py-1 border rounded">Annuler</button>
-                    </>
-                  ) : (
-                    <>
-                      <button onClick={()=>setEditing(d)} className="text-blue-600 hover:underline">Modifier</button>
-                      <button onClick={()=>remove(d.id)} className="text-red-600 hover:underline">Supprimer</button>
-                    </>
-                  )}
+              <tr>
+                <td colSpan={5} className="px-3 py-4">
+                  Chargement...
                 </td>
               </tr>
-            ))}
+            ) : items.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-3 py-4">
+                  Aucune dictée
+                </td>
+              </tr>
+            ) : (
+              items.map(d => (
+                <tr key={d.id} className="border-t">
+                  {/* Titre */}
+                  <td className="px-3 py-2">
+                    {editing?.id === d.id ? (
+                      <input
+                        value={editing.title}
+                        onChange={e => setEditing({ ...editing, title: e.target.value })}
+                        className="rounded border px-2 py-1"
+                      />
+                    ) : (
+                      d.title
+                    )}
+                  </td>
+                  {/* Difficulté */}
+                  <td className="px-3 py-2">
+                    {editing?.id === d.id ? (
+                      <select
+                        value={editing.difficulty}
+                        onChange={e => setEditing({ ...editing, difficulty: e.target.value })}
+                        className="rounded border px-2 py-1"
+                      >
+                        <option value="beginner">beginner</option>
+                        <option value="intermediate">intermediate</option>
+                        <option value="advanced">advanced</option>
+                      </select>
+                    ) : (
+                      d.difficulty
+                    )}
+                  </td>
+                  {/* Catégorie */}
+                  <td className="px-3 py-2">
+                    {editing?.id === d.id ? (
+                      <input
+                        value={editing.category || ''}
+                        onChange={e => setEditing({ ...editing, category: e.target.value })}
+                        className="rounded border px-2 py-1"
+                      />
+                    ) : (
+                      d.category || '-'
+                    )}
+                  </td>
+                  {/* Mots */}
+                  <td className="px-3 py-2">{getWordCountFromText(d.text || '')}</td>
+                  {/* Durée */}
+                  <td className="px-3 py-2">
+                    {editing?.id === d.id ? (
+                      <input
+                        type="number"
+                        value={editing.duration}
+                        onChange={e => setEditing({ ...editing, duration: Number(e.target.value) })}
+                        className="w-24 rounded border px-2 py-1"
+                      />
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        {(() => {
+                          const audioSec = audioDurations[d.id];
+                          if (audioSec && Number.isFinite(audioSec)) {
+                            return (
+                              <>
+                                <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800">
+                                  Durée audio
+                                </span>
+                                <span>{formatDurationLabel(audioSec)}</span>
+                              </>
+                            );
+                          }
+                          const estSec = getDurationSecondsFromText(d.text || '');
+                          return (
+                            <>
+                              <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-700">
+                                Durée estimée
+                              </span>
+                              <span>{formatDurationLabel(estSec)}</span>
+                            </>
+                          );
+                        })()}
+                      </div>
+                    )}
+                  </td>
+                  {/* Actions */}
+                  <td className="space-x-2 px-3 py-2">
+                    {editing?.id === d.id ? (
+                      <>
+                        <button
+                          onClick={() => update(d.id, editing)}
+                          className="rounded bg-green-600 px-3 py-1 text-white"
+                        >
+                          Enregistrer
+                        </button>
+                        <button
+                          onClick={() => setEditing(null)}
+                          className="rounded border px-3 py-1"
+                        >
+                          Annuler
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => setEditing(d)}
+                          className="text-blue-600 hover:underline"
+                        >
+                          Modifier
+                        </button>
+                        <button
+                          onClick={() => remove(d.id)}
+                          className="text-red-600 hover:underline"
+                        >
+                          Supprimer
+                        </button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
       <div className="flex gap-2">
-        <button disabled={page<=1} onClick={()=>setPage(p=>p-1)} className="px-3 py-1 border rounded">Précédent</button>
-        <button onClick={()=>setPage(p=>p+1)} className="px-3 py-1 border rounded">Suivant</button>
+        <button
+          disabled={page <= 1}
+          onClick={() => setPage(p => p - 1)}
+          className="rounded border px-3 py-1"
+        >
+          Précédent
+        </button>
+        <button onClick={() => setPage(p => p + 1)} className="rounded border px-3 py-1">
+          Suivant
+        </button>
       </div>
     </div>
   );

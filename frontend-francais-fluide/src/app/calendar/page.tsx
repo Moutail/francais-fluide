@@ -12,7 +12,7 @@ import {
   Clock,
   Target,
   Award,
-  Filter
+  Filter,
 } from 'lucide-react';
 
 interface CalendarEvent {
@@ -49,7 +49,7 @@ export default function CalendarPage() {
     date: '',
     time: '',
     description: '',
-    points: 0
+    points: 0,
   });
 
   // Rediriger les utilisateurs non connectés
@@ -72,10 +72,10 @@ export default function CalendarPage() {
       // Charger les événements depuis l'API
       const response = await fetch('/api/calendar/events', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setEvents(data.data || []);
@@ -90,18 +90,18 @@ export default function CalendarPage() {
             time: '09:00',
             completed: true,
             description: 'Accord des participes passés',
-            points: 25
+            points: 25,
           },
           {
             id: '2',
-            title: 'Session d\'écriture',
+            title: "Session d'écriture",
             type: 'study',
             date: new Date().toISOString().split('T')[0],
             time: '14:30',
             completed: false,
             description: 'Écrire 200 mots sur un sujet libre',
-            points: 50
-          }
+            points: 50,
+          },
         ];
         setEvents(mockEvents);
       }
@@ -122,14 +122,14 @@ export default function CalendarPage() {
     const startingDayOfWeek = firstDay.getDay();
 
     const days = [];
-    
+
     // Jours du mois précédent
     for (let i = startingDayOfWeek - 1; i >= 0; i--) {
       const prevDate = new Date(year, month, -i);
       days.push({
         date: prevDate,
         isCurrentMonth: false,
-        isToday: false
+        isToday: false,
       });
     }
 
@@ -140,7 +140,7 @@ export default function CalendarPage() {
       days.push({
         date: currentDate,
         isCurrentMonth: true,
-        isToday
+        isToday,
       });
     }
 
@@ -151,7 +151,7 @@ export default function CalendarPage() {
       days.push({
         date: nextDate,
         isCurrentMonth: false,
-        isToday: false
+        isToday: false,
       });
     }
 
@@ -165,21 +165,31 @@ export default function CalendarPage() {
 
   const getEventTypeColor = (type: string) => {
     switch (type) {
-      case 'exercise': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'study': return 'bg-green-100 text-green-800 border-green-200';
-      case 'achievement': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'reminder': return 'bg-purple-100 text-purple-800 border-purple-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'exercise':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'study':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'achievement':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'reminder':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
   const getEventIcon = (type: string) => {
     switch (type) {
-      case 'exercise': return '📚';
-      case 'study': return '✍️';
-      case 'achievement': return '🏆';
-      case 'reminder': return '⏰';
-      default: return '📅';
+      case 'exercise':
+        return '📚';
+      case 'study':
+        return '✍️';
+      case 'achievement':
+        return '🏆';
+      case 'reminder':
+        return '⏰';
+      default:
+        return '📅';
     }
   };
 
@@ -199,7 +209,7 @@ export default function CalendarPage() {
     if (selectedDate) {
       setEventForm(prev => ({
         ...prev,
-        date: selectedDate.toISOString().split('T')[0]
+        date: selectedDate.toISOString().split('T')[0],
       }));
     }
     setShowEventForm(true);
@@ -208,21 +218,21 @@ export default function CalendarPage() {
   const handleEventFormChange = (field: keyof EventFormData, value: string | number) => {
     setEventForm(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handleSubmitEvent = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       const response = await fetch('/api/calendar/events', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify(eventForm)
+        body: JSON.stringify(eventForm),
       });
 
       if (response.ok) {
@@ -235,13 +245,13 @@ export default function CalendarPage() {
           date: '',
           time: '',
           description: '',
-          points: 0
+          points: 0,
         });
       } else {
-        console.error('Erreur lors de l\'ajout de l\'événement');
+        console.error("Erreur lors de l'ajout de l'événement");
       }
     } catch (error) {
-      console.error('Erreur lors de l\'ajout de l\'événement:', error);
+      console.error("Erreur lors de l'ajout de l'événement:", error);
     }
   };
 
@@ -250,22 +260,20 @@ export default function CalendarPage() {
       const response = await fetch(`/api/calendar/events/${eventId}/toggle`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
 
       if (response.ok) {
         const updatedEvent = await response.json();
-        setEvents(prev => 
-          prev.map(event => 
-            event.id === eventId 
-              ? { ...event, completed: updatedEvent.data.completed }
-              : event
+        setEvents(prev =>
+          prev.map(event =>
+            event.id === eventId ? { ...event, completed: updatedEvent.data.completed } : event
           )
         );
       }
     } catch (error) {
-      console.error('Erreur lors de la mise à jour de l\'événement:', error);
+      console.error("Erreur lors de la mise à jour de l'événement:", error);
     }
   };
 
@@ -278,36 +286,46 @@ export default function CalendarPage() {
       const response = await fetch(`/api/calendar/events/${eventId}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
 
       if (response.ok) {
         setEvents(prev => prev.filter(event => event.id !== eventId));
       }
     } catch (error) {
-      console.error('Erreur lors de la suppression de l\'événement:', error);
+      console.error("Erreur lors de la suppression de l'événement:", error);
     }
   };
 
-  const filteredEvents = selectedDate 
-    ? getEventsForDate(selectedDate).filter(event => 
-        selectedType === 'all' || event.type === selectedType
+  const filteredEvents = selectedDate
+    ? getEventsForDate(selectedDate).filter(
+        event => selectedType === 'all' || event.type === selectedType
       )
     : [];
 
   const monthNames = [
-    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    'Janvier',
+    'Février',
+    'Mars',
+    'Avril',
+    'Mai',
+    'Juin',
+    'Juillet',
+    'Août',
+    'Septembre',
+    'Octobre',
+    'Novembre',
+    'Décembre',
   ];
 
   const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
 
   if (loading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </div>
@@ -317,13 +335,13 @@ export default function CalendarPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
-      
-      <div className="max-w-7xl mx-auto px-4 py-8">
+
+      <div className="mx-auto max-w-7xl px-4 py-8">
         {/* En-tête */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Calendar className="w-8 h-8 text-blue-600" />
+          <div className="mb-4 flex items-center gap-3">
+            <div className="rounded-lg bg-blue-100 p-3">
+              <Calendar className="h-8 w-8 text-blue-600" />
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Calendrier</h1>
@@ -332,28 +350,28 @@ export default function CalendarPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Calendrier principal */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               {/* Navigation du mois */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="mb-6 flex items-center justify-between">
                 <button
                   onClick={() => navigateMonth('prev')}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="rounded-lg p-2 transition-colors hover:bg-gray-100"
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  <ChevronLeft className="h-5 w-5" />
                 </button>
-                
+
                 <h2 className="text-xl font-semibold text-gray-900">
                   {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
                 </h2>
-                
+
                 <button
                   onClick={() => navigateMonth('next')}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="rounded-lg p-2 transition-colors hover:bg-gray-100"
                 >
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="h-5 w-5" />
                 </button>
               </div>
 
@@ -370,34 +388,34 @@ export default function CalendarPage() {
                 {getDaysInMonth(currentDate).map((day, index) => {
                   const dayEvents = getEventsForDate(day.date);
                   const isSelected = selectedDate?.toDateString() === day.date.toDateString();
-                  
+
                   return (
                     <div
                       key={index}
-                      className={`min-h-[100px] p-2 border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors ${
+                      className={`min-h-[100px] cursor-pointer border border-gray-200 p-2 transition-colors hover:bg-gray-50 ${
                         !day.isCurrentMonth ? 'bg-gray-50 text-gray-400' : ''
                       } ${day.isToday ? 'bg-blue-50' : ''} ${isSelected ? 'bg-blue-100' : ''}`}
                       onClick={() => setSelectedDate(day.date)}
                     >
-                      <div className={`text-sm font-medium mb-1 ${
-                        day.isToday ? 'text-blue-600' : ''
-                      }`}>
+                      <div
+                        className={`mb-1 text-sm font-medium ${day.isToday ? 'text-blue-600' : ''}`}
+                      >
                         {day.date.getDate()}
                       </div>
-                      
+
                       {/* Événements du jour */}
                       <div className="space-y-1">
                         {dayEvents.slice(0, 2).map(event => (
                           <div
                             key={event.id}
-                            className={`text-xs p-1 rounded border ${getEventTypeColor(event.type)} ${
+                            className={`rounded border p-1 text-xs ${getEventTypeColor(event.type)} ${
                               event.completed ? 'opacity-75' : ''
                             }`}
                           >
                             <div className="flex items-center gap-1">
                               <span>{getEventIcon(event.type)}</span>
                               <span className="truncate">{event.title}</span>
-                              {event.completed && <CheckCircle className="w-3 h-3 flex-shrink-0" />}
+                              {event.completed && <CheckCircle className="h-3 w-3 flex-shrink-0" />}
                             </div>
                           </div>
                         ))}
@@ -418,13 +436,13 @@ export default function CalendarPage() {
           <div className="space-y-6">
             {/* Événements du jour sélectionné */}
             {selectedDate && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  {selectedDate.toLocaleDateString('fr-FR', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
+              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h3 className="mb-4 text-lg font-semibold text-gray-900">
+                  {selectedDate.toLocaleDateString('fr-FR', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
                   })}
                 </h3>
 
@@ -433,30 +451,30 @@ export default function CalendarPage() {
                     {filteredEvents.map(event => (
                       <div
                         key={event.id}
-                        className={`p-3 rounded-lg border ${getEventTypeColor(event.type)}`}
+                        className={`rounded-lg border p-3 ${getEventTypeColor(event.type)}`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
+                            <div className="mb-1 flex items-center gap-2">
                               <span>{getEventIcon(event.type)}</span>
                               <h4 className="font-medium">{event.title}</h4>
                               {event.completed && (
-                                <CheckCircle className="w-4 h-4 text-green-600" />
+                                <CheckCircle className="h-4 w-4 text-green-600" />
                               )}
                             </div>
                             {event.description && (
-                              <p className="text-sm opacity-75 mb-2">{event.description}</p>
+                              <p className="mb-2 text-sm opacity-75">{event.description}</p>
                             )}
                             <div className="flex items-center gap-4 text-xs">
                               {event.time && (
                                 <div className="flex items-center gap-1">
-                                  <Clock className="w-3 h-3" />
+                                  <Clock className="h-3 w-3" />
                                   {event.time}
                                 </div>
                               )}
                               {event.points && (
                                 <div className="flex items-center gap-1">
-                                  <Award className="w-3 h-3" />
+                                  <Award className="h-3 w-3" />
                                   {event.points} pts
                                 </div>
                               )}
@@ -465,18 +483,22 @@ export default function CalendarPage() {
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => handleToggleEvent(event.id)}
-                              className={`p-1 rounded ${
-                                event.completed 
-                                  ? 'text-green-600 hover:bg-green-100' 
+                              className={`rounded p-1 ${
+                                event.completed
+                                  ? 'text-green-600 hover:bg-green-100'
                                   : 'text-gray-400 hover:bg-gray-100'
                               }`}
-                              title={event.completed ? 'Marquer comme non terminé' : 'Marquer comme terminé'}
+                              title={
+                                event.completed
+                                  ? 'Marquer comme non terminé'
+                                  : 'Marquer comme terminé'
+                              }
                             >
-                              <CheckCircle className="w-4 h-4" />
+                              <CheckCircle className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => handleDeleteEvent(event.id)}
-                              className="p-1 text-red-400 hover:bg-red-100 rounded"
+                              className="rounded p-1 text-red-400 hover:bg-red-100"
                               title="Supprimer l'événement"
                             >
                               ×
@@ -487,8 +509,8 @@ export default function CalendarPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                  <div className="py-8 text-center text-gray-500">
+                    <Calendar className="mx-auto mb-3 h-12 w-12 text-gray-300" />
                     <p>Aucun événement ce jour</p>
                   </div>
                 )}
@@ -496,18 +518,18 @@ export default function CalendarPage() {
             )}
 
             {/* Filtres */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Filtres</h3>
-              
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+              <h3 className="mb-4 text-lg font-semibold text-gray-900">Filtres</h3>
+
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
                     Type d'événement
                   </label>
                   <select
                     value={selectedType}
-                    onChange={(e) => setSelectedType(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    onChange={e => setSelectedType(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="all">Tous les types</option>
                     <option value="exercise">Exercices</option>
@@ -517,20 +539,20 @@ export default function CalendarPage() {
                   </select>
                 </div>
 
-                <button 
+                <button
                   onClick={handleAddEvent}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="h-4 w-4" />
                   Ajouter un événement
                 </button>
               </div>
             </div>
 
             {/* Statistiques du mois */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistiques du mois</h3>
-              
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+              <h3 className="mb-4 text-lg font-semibold text-gray-900">Statistiques du mois</h3>
+
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Événements terminés</span>
@@ -547,9 +569,10 @@ export default function CalendarPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Taux de réussite</span>
                   <span className="font-medium text-green-600">
-                    {events.length > 0 
+                    {events.length > 0
                       ? Math.round((events.filter(e => e.completed).length / events.length) * 100)
-                      : 0}%
+                      : 0}
+                    %
                   </span>
                 </div>
               </div>
@@ -560,34 +583,28 @@ export default function CalendarPage() {
 
       {/* Modal d'ajout d'événement */}
       {showEventForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Ajouter un événement
-            </h3>
-            
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="mx-4 w-full max-w-md rounded-xl bg-white p-6">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900">Ajouter un événement</h3>
+
             <form onSubmit={handleSubmitEvent} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Titre
-                </label>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Titre</label>
                 <input
                   type="text"
                   value={eventForm.title}
-                  onChange={(e) => handleEventFormChange('title', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onChange={e => handleEventFormChange('title', e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Type
-                </label>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Type</label>
                 <select
                   value={eventForm.type}
-                  onChange={(e) => handleEventFormChange('type', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onChange={e => handleEventFormChange('type', e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="exercise">Exercice</option>
                   <option value="study">Étude</option>
@@ -598,52 +615,44 @@ export default function CalendarPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Date
-                  </label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Date</label>
                   <input
                     type="date"
                     value={eventForm.date}
-                    onChange={(e) => handleEventFormChange('date', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    onChange={e => handleEventFormChange('date', e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Heure
-                  </label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Heure</label>
                   <input
                     type="time"
                     value={eventForm.time}
-                    onChange={(e) => handleEventFormChange('time', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    onChange={e => handleEventFormChange('time', e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Description</label>
                 <textarea
                   value={eventForm.description}
-                  onChange={(e) => handleEventFormChange('description', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onChange={e => handleEventFormChange('description', e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   rows={3}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Points
-                </label>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Points</label>
                 <input
                   type="number"
                   value={eventForm.points}
-                  onChange={(e) => handleEventFormChange('points', parseInt(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onChange={e => handleEventFormChange('points', parseInt(e.target.value))}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   min="0"
                 />
               </div>
@@ -651,14 +660,14 @@ export default function CalendarPage() {
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
                 >
                   Ajouter
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowEventForm(false)}
-                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+                  className="flex-1 rounded-lg bg-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-400"
                 >
                   Annuler
                 </button>
@@ -670,4 +679,3 @@ export default function CalendarPage() {
     </div>
   );
 }
-

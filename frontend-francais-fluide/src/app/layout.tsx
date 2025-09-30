@@ -12,7 +12,8 @@ export const metadata: Metadata = {
     default: 'FrançaisFluide',
     template: '%s - FrançaisFluide',
   },
-  description: 'L\'application intelligente qui transforme l\'apprentissage du français en une expérience intuitive et engageante. Fini les fautes, bonjour la confiance !',
+  description:
+    "L'application intelligente qui transforme l'apprentissage du français en une expérience intuitive et engageante. Fini les fautes, bonjour la confiance !",
   keywords: 'français, grammaire, orthographe, apprentissage, IA, correction, exercices',
   authors: [{ name: 'FrançaisFluide Team' }],
   icons: {
@@ -22,7 +23,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'FrançaisFluide - Écrivez sans fautes, naturellement',
-    description: 'L\'application intelligente qui transforme l\'apprentissage du français en une expérience intuitive et engageante.',
+    description:
+      "L'application intelligente qui transforme l'apprentissage du français en une expérience intuitive et engageante.",
     type: 'website',
     locale: 'fr_FR',
     url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
@@ -31,7 +33,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'FrançaisFluide - Écrivez sans fautes, naturellement',
-    description: 'L\'application intelligente qui transforme l\'apprentissage du français.',
+    description: "L'application intelligente qui transforme l'apprentissage du français.",
   },
   robots: {
     index: true,
@@ -44,11 +46,7 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   const institutionMode = process.env.NEXT_PUBLIC_INSTITUTION_MODE === 'true';
   return (
     <html lang="fr" data-institution={institutionMode ? 'true' : 'false'}>

@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     const token = request.headers.get('authorization') || '';
     const body = await request.json();
-    
+
     const resp = await fetch(backendUrl('/api/grammar-check/check'), {
       method: 'POST',
       headers: {

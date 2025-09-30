@@ -3,13 +3,7 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/professional/Button';
-import { 
-  Shield,
-  Settings,
-  Users,
-  ArrowRight,
-  Crown
-} from 'lucide-react';
+import { Shield, Settings, Users, ArrowRight, Crown } from 'lucide-react';
 
 export default function AdminBanner() {
   const { user } = useAuth();
@@ -20,28 +14,28 @@ export default function AdminBanner() {
   }
 
   return (
-    <div className="bg-gradient-to-r from-red-500 to-red-600 text-white py-3 px-4 shadow-lg">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <div className="bg-gradient-to-r from-red-500 to-red-600 px-4 py-3 text-white shadow-lg">
+      <div className="mx-auto flex max-w-7xl items-center justify-between">
         <div className="flex items-center gap-3">
-          <Shield className="w-5 h-5" />
+          <Shield className="h-5 w-5" />
           <span className="font-medium">
             Mode Administrateur - {user.role === 'super_admin' ? 'Super Admin' : 'Admin'}
           </span>
-          <span className="text-red-200 text-sm">
+          <span className="text-sm text-red-200">
             Vous avez accès à l'interface d'administration
           </span>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <Button
-            onClick={() => window.location.href = '/admin'}
+            onClick={() => (window.location.href = '/admin')}
             variant="secondary"
             size="sm"
-            className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+            className="border-white/30 bg-white/10 text-white hover:bg-white/20"
           >
-            <Settings className="w-4 h-4 mr-1" />
+            <Settings className="mr-1 h-4 w-4" />
             Interface Admin
-            <ArrowRight className="w-4 h-4 ml-1" />
+            <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
         </div>
       </div>

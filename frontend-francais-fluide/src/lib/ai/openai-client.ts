@@ -38,7 +38,7 @@ export class OpenAIClient {
         this.cache.delete(firstKey);
       }
     }
-    
+
     this.cache.set(key, { data, timestamp: Date.now() });
   }
 
@@ -53,21 +53,20 @@ export class OpenAIClient {
         messages: [
           {
             role: 'system',
-            content: AI_PROMPTS.GRAMMAR_CORRECTION
+            content: AI_PROMPTS.GRAMMAR_CORRECTION,
           },
           {
             role: 'user',
-            content: text
-          }
+            content: text,
+          },
         ],
         max_tokens: AI_CONFIG.OPENAI_MAX_TOKENS,
-        temperature: 0.3
+        temperature: 0.3,
       });
 
       const result = JSON.parse(response.choices[0].message.content || '{}');
       this.setCache(cacheKey, result);
       return result;
-
     } catch (error) {
       console.error('Erreur OpenAI:', error);
       throw new Error('Erreur lors de la correction grammaticale');
@@ -80,26 +79,26 @@ export class OpenAIClient {
     if (cached) return cached;
 
     try {
-      const prompt = AI_PROMPTS.CONTENT_GENERATION
-        .replace('{level}', level)
-        .replace('{topic}', topic);
+      const prompt = AI_PROMPTS.CONTENT_GENERATION.replace('{level}', level).replace(
+        '{topic}',
+        topic
+      );
 
       const response = await openai.chat.completions.create({
         model: AI_CONFIG.OPENAI_MODEL,
         messages: [
           {
             role: 'system',
-            content: prompt
-          }
+            content: prompt,
+          },
         ],
         max_tokens: AI_CONFIG.OPENAI_MAX_TOKENS,
-        temperature: 0.7
+        temperature: 0.7,
       });
 
       const result = JSON.parse(response.choices[0].message.content || '{}');
       this.setCache(cacheKey, result);
       return result;
-
     } catch (error) {
       console.error('Erreur OpenAI:', error);
       throw new Error('Erreur lors de la génération de contenu');
@@ -113,19 +112,20 @@ export class OpenAIClient {
         messages: [
           {
             role: 'system',
-            content: AI_PROMPTS.AI_ASSISTANT
+            content: AI_PROMPTS.AI_ASSISTANT,
           },
           {
             role: 'user',
-            content: `Contexte: ${JSON.stringify(context)}\n\nQuestion: ${question}`
-          }
+            content: `Contexte: ${JSON.stringify(context)}\n\nQuestion: ${question}`,
+          },
         ],
         max_tokens: AI_CONFIG.OPENAI_MAX_TOKENS,
-        temperature: 0.5
+        temperature: 0.5,
       });
 
-      return response.choices[0].message.content || 'Désolé, je ne peux pas répondre à cette question.';
-
+      return (
+        response.choices[0].message.content || 'Désolé, je ne peux pas répondre à cette question.'
+      );
     } catch (error) {
       console.error('Erreur OpenAI:', error);
       throw new Error('Erreur lors de la génération de la réponse');

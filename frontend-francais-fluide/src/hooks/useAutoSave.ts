@@ -30,7 +30,7 @@ export function useAutoSave({
   debounceMs = 2000,
   saveIntervalMs = 30000,
   onSave,
-  onError
+  onError,
 }: UseAutoSaveOptions): UseAutoSaveReturn {
   // État de la sauvegarde
   const [isSaving, setIsSaving] = useState(false);
@@ -47,63 +47,65 @@ export function useAutoSave({
   const isInitialLoadRef = useRef<boolean>(true);
 
   // Fonction de sauvegarde
-  const saveDocument = useCallback(async (force = false) => {
-    if (!enabled || isSaving) return;
+  const saveDocument = useCallback(
+    async (force = false) => {
+      if (!enabled || isSaving) return;
 
-    // Vérifier si le contenu a changé
-    const contentChanged = content !== lastContentRef.current;
-    const titleChanged = title !== lastTitleRef.current;
-    
-    if (!force && !contentChanged && !titleChanged) return;
+      // Vérifier si le contenu a changé
+      const contentChanged = content !== lastContentRef.current;
+      const titleChanged = title !== lastTitleRef.current;
 
-    setIsSaving(true);
-    setSaveStatus('saving');
-    setError(null);
+      if (!force && !contentChanged && !titleChanged) return;
 
-    try {
-      const document: Omit<PersistedDocument, 'version' | 'isDirty'> = {
-        id: documentId,
-        title,
-        content,
-        lastModified: new Date(),
-        metadata: {
-          wordCount: content.split(/\s+/).filter(word => word.length > 0).length,
-          characterCount: content.length,
-          language: 'fr',
-          author: 'user' // À remplacer par l'utilisateur réel
-        }
-      };
+      setIsSaving(true);
+      setSaveStatus('saving');
+      setError(null);
 
-      await persistenceManager.saveDocument(document);
-      
-      setLastSaved(new Date());
-      setHasUnsavedChanges(false);
-      setSaveStatus('saved');
-      lastContentRef.current = content;
-      lastTitleRef.current = title;
+      try {
+        const document: Omit<PersistedDocument, 'version' | 'isDirty'> = {
+          id: documentId,
+          title,
+          content,
+          lastModified: new Date(),
+          metadata: {
+            wordCount: content.split(/\s+/).filter(word => word.length > 0).length,
+            characterCount: content.length,
+            language: 'fr',
+            author: 'user', // À remplacer par l'utilisateur réel
+          },
+        };
 
-      onSave?.(document as PersistedDocument);
+        await persistenceManager.saveDocument(document);
 
-      // Réinitialiser le statut après 2 secondes
-      setTimeout(() => {
-        setSaveStatus('idle');
-      }, 2000);
+        setLastSaved(new Date());
+        setHasUnsavedChanges(false);
+        setSaveStatus('saved');
+        lastContentRef.current = content;
+        lastTitleRef.current = title;
 
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Erreur de sauvegarde');
-      setError(error.message);
-      setSaveStatus('error');
-      onError?.(error);
-      
-      // Réinitialiser le statut d'erreur après 5 secondes
-      setTimeout(() => {
-        setSaveStatus('idle');
-        setError(null);
-      }, 5000);
-    } finally {
-      setIsSaving(false);
-    }
-  }, [documentId, title, content, enabled, isSaving, onSave, onError]);
+        onSave?.(document as PersistedDocument);
+
+        // Réinitialiser le statut après 2 secondes
+        setTimeout(() => {
+          setSaveStatus('idle');
+        }, 2000);
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Erreur de sauvegarde');
+        setError(error.message);
+        setSaveStatus('error');
+        onError?.(error);
+
+        // Réinitialiser le statut d'erreur après 5 secondes
+        setTimeout(() => {
+          setSaveStatus('idle');
+          setError(null);
+        }, 5000);
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [documentId, title, content, enabled, isSaving, onSave, onError]
+  );
 
   // Sauvegarde avec debouncing
   const debouncedSave = useCallback(() => {
@@ -188,7 +190,8 @@ export function useAutoSave({
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
         event.preventDefault();
-        event.returnValue = 'Vous avez des modifications non sauvegardées. Êtes-vous sûr de vouloir quitter ?';
+        event.returnValue =
+          'Vous avez des modifications non sauvegardées. Êtes-vous sûr de vouloir quitter ?';
         return event.returnValue;
       }
     };
@@ -228,6 +231,6 @@ export function useAutoSave({
     saveStatus,
     error,
     saveNow,
-    forceSave
+    forceSave,
   };
 }

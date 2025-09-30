@@ -139,7 +139,7 @@ describe('Button', () => {
   it('calls onClick when clicked', () => {
     const handleClick = jest.fn();
     render(<Button onClick={handleClick}>Click me</Button>);
-    
+
     fireEvent.click(screen.getByText('Click me'));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
@@ -162,29 +162,29 @@ import { SmartEditor } from '@/components/editor/SmartEditor';
 describe('User Flow - Écriture et correction', () => {
   it('permet à l\'utilisateur d\'écrire et de corriger ses erreurs', async () => {
     const user = userEvent.setup();
-    
+
     render(<SmartEditor />);
-    
+
     // L'utilisateur tape du texte
     const textarea = screen.getByRole('textbox');
     await user.type(textarea, 'il manger du pain');
-    
+
     // L'application détecte les erreurs
     await waitFor(() => {
       expect(screen.getByText('1 suggestion')).toBeInTheDocument();
     });
-    
+
     // L'utilisateur applique une correction
     const errorHighlight = screen.getByRole('button');
     fireEvent.click(errorHighlight);
-    
+
     await waitFor(() => {
       expect(screen.getByText('mange')).toBeInTheDocument();
     });
-    
+
     const suggestionButton = screen.getByText('mange');
     fireEvent.click(suggestionButton);
-    
+
     await waitFor(() => {
       expect(textarea).toHaveValue('il mange du pain');
     });
@@ -196,30 +196,24 @@ describe('User Flow - Écriture et correction', () => {
 
 ```typescript
 // cypress/e2e/editor-workflow.cy.ts
-describe('Workflow de l\'éditeur', () => {
+describe("Workflow de l'éditeur", () => {
   beforeEach(() => {
     cy.loginTestUser();
     cy.visit('/editor');
   });
 
   it('permet de saisir du texte et de voir les corrections', () => {
-    cy.get('[data-testid="smart-editor"] textarea')
-      .type('il manger du pain');
-    
+    cy.get('[data-testid="smart-editor"] textarea').type('il manger du pain');
+
     cy.waitForGrammarCheck();
-    
-    cy.get('[data-testid="error-highlight"]')
-      .should('be.visible')
-      .click();
-    
-    cy.get('[data-testid="suggestions-panel"]')
-      .should('be.visible')
-      .should('contain', 'mange');
-    
+
+    cy.get('[data-testid="error-highlight"]').should('be.visible').click();
+
+    cy.get('[data-testid="suggestions-panel"]').should('be.visible').should('contain', 'mange');
+
     cy.applySuggestion('mange');
-    
-    cy.get('[data-testid="smart-editor"] textarea')
-      .should('have.value', 'il mange du pain');
+
+    cy.get('[data-testid="smart-editor"] textarea').should('have.value', 'il mange du pain');
   });
 });
 ```
@@ -268,19 +262,21 @@ jest.mock('@/hooks/useGrammarCheck', () => ({
 ### Tests unitaires
 
 1. **Testez le comportement, pas l'implémentation**
+
    ```typescript
    // ✅ Bon
    expect(screen.getByText('Bonjour')).toBeInTheDocument();
-   
+
    // ❌ Éviter
    expect(component.state.message).toBe('Bonjour');
    ```
 
 2. **Utilisez des noms de test descriptifs**
+
    ```typescript
    // ✅ Bon
    it('affiche un message d\'erreur quand l\'email est invalide', () => {
-   
+
    // ❌ Éviter
    it('test email validation', () => {
    ```
@@ -289,8 +285,7 @@ jest.mock('@/hooks/useGrammarCheck', () => ({
    ```typescript
    describe('Button', () => {
      describe('quand il est cliqué', () => {
-       it('appelle la fonction onClick', () => {
-       });
+       it('appelle la fonction onClick', () => {});
      });
    });
    ```
@@ -346,27 +341,27 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Run unit tests
-      run: npm run test:coverage
-    
-    - name: Run E2E tests
-      run: npm run test:e2e
-    
-    - name: Upload coverage
-      uses: codecov/codecov-action@v3
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test:coverage
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
 ```
 
 ## Débogage des tests
@@ -438,4 +433,4 @@ it('debug E2E test', () => {
 
 ---
 
-*Ce guide est mis à jour régulièrement. Dernière mise à jour : 2024-01-01*
+_Ce guide est mis à jour régulièrement. Dernière mise à jour : 2024-01-01_

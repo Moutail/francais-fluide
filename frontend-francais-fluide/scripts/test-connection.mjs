@@ -7,12 +7,12 @@ const FRONTEND_URL = 'http://localhost:3000';
 async function testConnection() {
   console.log('🔍 TEST DE CONNEXION SERVEUR');
   console.log('='.repeat(50));
-  
+
   try {
     // Test 1: Backend Health Check
     console.log('\n🧪 Test: Backend Health Check');
     console.log(`   URL: ${BACKEND_URL}/health`);
-    
+
     const backendResponse = await fetch(`${BACKEND_URL}/health`);
     if (backendResponse.ok) {
       const data = await backendResponse.json();
@@ -32,7 +32,7 @@ async function testConnection() {
     // Test 2: Backend API Info
     console.log('\n🧪 Test: Backend API Info');
     console.log(`   URL: ${BACKEND_URL}/api`);
-    
+
     const apiResponse = await fetch(`${BACKEND_URL}/api`);
     if (apiResponse.ok) {
       const data = await apiResponse.json();
@@ -52,7 +52,7 @@ async function testConnection() {
     // Test 3: Test avec authentification (utilisateur de test)
     console.log('\n🧪 Test: Authentification');
     console.log(`   URL: ${BACKEND_URL}/api/auth/login`);
-    
+
     const loginResponse = await fetch(`${BACKEND_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
@@ -60,28 +60,28 @@ async function testConnection() {
       },
       body: JSON.stringify({
         email: 'test@francais-fluide.com',
-        password: 'Test!1234'
-      })
+        password: 'Test!1234',
+      }),
     });
-    
+
     if (loginResponse.ok) {
       const data = await loginResponse.json();
       console.log('   ✅ Authentification réussie');
       console.log('   👤 Utilisateur:', data.user?.name);
       console.log('   🔑 Token reçu:', data.token ? 'Oui' : 'Non');
-      
+
       // Test 4: API Progression avec token
       if (data.token) {
         console.log('\n🧪 Test: API Progression');
         console.log(`   URL: ${BACKEND_URL}/api/progress`);
-        
+
         const progressResponse = await fetch(`${BACKEND_URL}/api/progress`, {
           headers: {
-            'Authorization': `Bearer ${data.token}`,
+            Authorization: `Bearer ${data.token}`,
             'Content-Type': 'application/json',
-          }
+          },
         });
-        
+
         if (progressResponse.ok) {
           const progressData = await progressResponse.json();
           console.log('   ✅ API Progression accessible');
@@ -96,13 +96,13 @@ async function testConnection() {
         }
       }
     } else {
-      console.log('   ❌ Échec de l\'authentification');
+      console.log("   ❌ Échec de l'authentification");
       console.log('   📝 Status:', loginResponse.status);
       const errorData = await loginResponse.json().catch(() => ({}));
       console.log('   📝 Erreur:', errorData.error || 'Erreur inconnue');
     }
   } catch (error) {
-    console.log('   ❌ Erreur lors du test d\'authentification');
+    console.log("   ❌ Erreur lors du test d'authentification");
     console.log('   📝 Erreur:', error.message);
   }
 

@@ -51,14 +51,14 @@ export class ServerDiagnostics {
           test: 'Connectivité serveur',
           status: 'success',
           message: 'Serveur accessible',
-          details: { status: response.status }
+          details: { status: response.status },
         };
       } else {
         return {
           test: 'Connectivité serveur',
           status: 'error',
           message: `Serveur répond avec le statut ${response.status}`,
-          details: { status: response.status }
+          details: { status: response.status },
         };
       }
     } catch (error) {
@@ -66,7 +66,7 @@ export class ServerDiagnostics {
         test: 'Connectivité serveur',
         status: 'error',
         message: 'Impossible de joindre le serveur',
-        details: { error: error instanceof Error ? error.message : 'Erreur inconnue' }
+        details: { error: error instanceof Error ? error.message : 'Erreur inconnue' },
       };
     }
   }
@@ -76,8 +76,8 @@ export class ServerDiagnostics {
       return {
         test: 'Authentification',
         status: 'warning',
-        message: 'Aucun token d\'authentification trouvé',
-        details: { hasToken: false }
+        message: "Aucun token d'authentification trouvé",
+        details: { hasToken: false },
       };
     }
 
@@ -85,7 +85,7 @@ export class ServerDiagnostics {
       const response = await fetch(`${this.baseUrl}/api/auth/me`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${this.token}`,
+          Authorization: `Bearer ${this.token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -96,14 +96,14 @@ export class ServerDiagnostics {
           test: 'Authentification',
           status: 'success',
           message: 'Token valide',
-          details: { user: data.user?.name || 'Utilisateur inconnu' }
+          details: { user: data.user?.name || 'Utilisateur inconnu' },
         };
       } else {
         return {
           test: 'Authentification',
           status: 'error',
           message: 'Token invalide ou expiré',
-          details: { status: response.status }
+          details: { status: response.status },
         };
       }
     } catch (error) {
@@ -111,7 +111,7 @@ export class ServerDiagnostics {
         test: 'Authentification',
         status: 'error',
         message: 'Erreur lors de la vérification du token',
-        details: { error: error instanceof Error ? error.message : 'Erreur inconnue' }
+        details: { error: error instanceof Error ? error.message : 'Erreur inconnue' },
       };
     }
   }
@@ -122,7 +122,7 @@ export class ServerDiagnostics {
         test: 'API Progression',
         status: 'warning',
         message: 'Impossible de tester sans token',
-        details: { hasToken: false }
+        details: { hasToken: false },
       };
     }
 
@@ -130,7 +130,7 @@ export class ServerDiagnostics {
       const response = await fetch(`${this.baseUrl}/api/progress`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${this.token}`,
+          Authorization: `Bearer ${this.token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -141,10 +141,10 @@ export class ServerDiagnostics {
           test: 'API Progression',
           status: 'success',
           message: 'API de progression fonctionnelle',
-          details: { 
+          details: {
             hasData: !!data.data,
-            progressKeys: data.data ? Object.keys(data.data) : []
-          }
+            progressKeys: data.data ? Object.keys(data.data) : [],
+          },
         };
       } else {
         const errorData = await response.json().catch(() => ({}));
@@ -152,15 +152,15 @@ export class ServerDiagnostics {
           test: 'API Progression',
           status: 'error',
           message: `Erreur API progression: ${errorData.error || response.statusText}`,
-          details: { status: response.status, error: errorData.error }
+          details: { status: response.status, error: errorData.error },
         };
       }
     } catch (error) {
       return {
         test: 'API Progression',
         status: 'error',
-        message: 'Erreur de connexion à l\'API progression',
-        details: { error: error instanceof Error ? error.message : 'Erreur inconnue' }
+        message: "Erreur de connexion à l'API progression",
+        details: { error: error instanceof Error ? error.message : 'Erreur inconnue' },
       };
     }
   }
@@ -171,7 +171,7 @@ export class ServerDiagnostics {
         test: 'Base de données',
         status: 'warning',
         message: 'Impossible de tester sans token',
-        details: { hasToken: false }
+        details: { hasToken: false },
       };
     }
 
@@ -180,7 +180,7 @@ export class ServerDiagnostics {
       const response = await fetch(`${this.baseUrl}/api/progress`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${this.token}`,
+          Authorization: `Bearer ${this.token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -190,8 +190,8 @@ export class ServerDiagnostics {
           currentStreak: 0,
           level: 1,
           xp: 0,
-          timeSpent: 0
-        })
+          timeSpent: 0,
+        }),
       });
 
       if (response.ok) {
@@ -199,7 +199,7 @@ export class ServerDiagnostics {
           test: 'Base de données',
           status: 'success',
           message: 'Connexion à la base de données OK',
-          details: { status: response.status }
+          details: { status: response.status },
         };
       } else {
         const errorData = await response.json().catch(() => ({}));
@@ -207,7 +207,7 @@ export class ServerDiagnostics {
           test: 'Base de données',
           status: 'error',
           message: `Erreur base de données: ${errorData.error || response.statusText}`,
-          details: { status: response.status, error: errorData.error }
+          details: { status: response.status, error: errorData.error },
         };
       }
     } catch (error) {
@@ -215,7 +215,7 @@ export class ServerDiagnostics {
         test: 'Base de données',
         status: 'error',
         message: 'Impossible de se connecter à la base de données',
-        details: { error: error instanceof Error ? error.message : 'Erreur inconnue' }
+        details: { error: error instanceof Error ? error.message : 'Erreur inconnue' },
       };
     }
   }
@@ -226,12 +226,11 @@ export class ServerDiagnostics {
     output += '='.repeat(50) + '\n\n';
 
     results.forEach((result, index) => {
-      const icon = result.status === 'success' ? '✅' : 
-                   result.status === 'error' ? '❌' : '⚠️';
-      
+      const icon = result.status === 'success' ? '✅' : result.status === 'error' ? '❌' : '⚠️';
+
       output += `${index + 1}. ${icon} ${result.test}\n`;
       output += `   ${result.message}\n`;
-      
+
       if (result.details) {
         output += `   Détails: ${JSON.stringify(result.details, null, 2)}\n`;
       }
@@ -259,6 +258,6 @@ export function useServerDiagnostics() {
     isRunning,
     results,
     runDiagnostic,
-    formatResults: () => ServerDiagnostics.formatDiagnosticResults(results)
+    formatResults: () => ServerDiagnostics.formatDiagnosticResults(results),
   };
 }

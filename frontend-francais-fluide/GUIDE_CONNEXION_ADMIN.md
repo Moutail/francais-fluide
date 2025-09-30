@@ -3,17 +3,20 @@
 ## 🚀 **Comment se connecter en tant qu'admin**
 
 ### **1. Accès à la page de connexion**
+
 ```
 URL: http://localhost:3000/admin/login
 ```
 
 ### **2. Identifiants de test**
+
 ```
 Email: admin@francais-fluide.com
 Mot de passe: admin123
 ```
 
 ### **3. Processus de connexion**
+
 1. **Aller sur** `/admin/login`
 2. **Saisir** l'email et le mot de passe
 3. **Cliquer** sur "Se connecter"
@@ -23,12 +26,14 @@ Mot de passe: admin123
 ## 🛡️ **Sécurité**
 
 ### **Protection des routes admin**
+
 - ✅ **Middleware** qui vérifie l'authentification
 - ✅ **Session** stockée dans localStorage
 - ✅ **Expiration** automatique après 8 heures
 - ✅ **Redirection** automatique si non connecté
 
 ### **Fonctionnalités de sécurité**
+
 - ✅ **Validation** des identifiants côté client
 - ✅ **Session** avec timestamp de connexion
 - ✅ **Logout** automatique après expiration
@@ -37,6 +42,7 @@ Mot de passe: admin123
 ## 📱 **Interface de connexion**
 
 ### **Design moderne**
+
 - ✅ **Interface responsive** pour tous les appareils
 - ✅ **Validation visuelle** des champs
 - ✅ **Messages d'erreur** clairs
@@ -44,6 +50,7 @@ Mot de passe: admin123
 - ✅ **Masquage/affichage** du mot de passe
 
 ### **Informations affichées**
+
 - ✅ **Identifiants de test** visibles
 - ✅ **Indicateur de sécurité** SSL
 - ✅ **Lien de retour** à l'accueil
@@ -52,6 +59,7 @@ Mot de passe: admin123
 ## 🔧 **Configuration technique**
 
 ### **Fichiers créés**
+
 ```
 src/app/admin/login/page.tsx    # Page de connexion
 src/middleware.ts               # Protection des routes
@@ -59,6 +67,7 @@ src/hooks/useAdminAuth.ts       # Hook d'authentification
 ```
 
 ### **Fonctionnalités implémentées**
+
 - ✅ **Hook useAdminAuth** pour la gestion d'état
 - ✅ **Middleware Next.js** pour la protection
 - ✅ **Validation de session** avec expiration
@@ -67,6 +76,7 @@ src/hooks/useAdminAuth.ts       # Hook d'authentification
 ## 🎯 **Utilisation**
 
 ### **Première connexion**
+
 1. Démarrer l'application : `npm run dev`
 2. Aller sur : `http://localhost:3000/admin`
 3. Être redirigé vers : `/admin/login`
@@ -74,6 +84,7 @@ src/hooks/useAdminAuth.ts       # Hook d'authentification
 5. Accéder au tableau de bord admin
 
 ### **Navigation admin**
+
 ```
 /admin/login          # Connexion
 /admin               # Dashboard principal
@@ -84,6 +95,7 @@ src/hooks/useAdminAuth.ts       # Hook d'authentification
 ```
 
 ### **Déconnexion**
+
 - **Bouton "Déconnexion"** dans le header admin
 - **Expiration automatique** après 8 heures
 - **Redirection** vers la page de connexion
@@ -91,6 +103,7 @@ src/hooks/useAdminAuth.ts       # Hook d'authentification
 ## 🔒 **Sécurité avancée (à implémenter)**
 
 ### **Améliorations recommandées**
+
 - [ ] **Hachage** des mots de passe avec bcrypt
 - [ ] **JWT** pour les tokens de session
 - [ ] **Rate limiting** sur les tentatives de connexion
@@ -99,6 +112,7 @@ src/hooks/useAdminAuth.ts       # Hook d'authentification
 - [ ] **Changement** de mot de passe obligatoire
 
 ### **Base de données**
+
 - [ ] **Table admins** avec identifiants sécurisés
 - [ ] **Historique** des connexions
 - [ ] **Permissions** granulaires par admin
@@ -107,12 +121,14 @@ src/hooks/useAdminAuth.ts       # Hook d'authentification
 ## 🚨 **Dépannage**
 
 ### **Problèmes courants**
+
 1. **"Identifiants incorrects"** → Vérifier email/mot de passe
 2. **"Redirection en boucle"** → Vider le localStorage
 3. **"Session expirée"** → Se reconnecter
 4. **"Page non trouvée"** → Vérifier l'URL
 
 ### **Solutions**
+
 ```javascript
 // Vider la session admin
 localStorage.removeItem('adminSession');

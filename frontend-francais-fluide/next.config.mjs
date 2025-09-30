@@ -3,7 +3,7 @@ const nextConfig = {
   experimental: {
     webpackBuildWorker: true,
   },
-  webpack: (config) => {
+  webpack: config => {
     // Ignorer les erreurs de PostCSS pour @tailwindcss/postcss
     config.resolve.fallback = {
       ...config.resolve.fallback,

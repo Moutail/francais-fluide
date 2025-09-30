@@ -3,18 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Navigation from '@/components/layout/Navigation';
-import {
-  Trophy,
-  Award,
-  Star,
-  Target,
-  Calendar,
-  Filter,
-  Search,
-  Lock,
-  CheckCircle,
-  Clock
-} from 'lucide-react';
+import { Trophy, Star, Target, Calendar, Search, Lock, CheckCircle } from 'lucide-react';
 
 interface Achievement {
   id: string;
@@ -32,7 +21,7 @@ interface Achievement {
 }
 
 export default function AchievementsPage() {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
@@ -70,7 +59,7 @@ export default function AchievementsPage() {
           unlockedAt: '2024-01-15',
           progress: 100,
           requirement: 1,
-          rarity: 'common'
+          rarity: 'common',
         },
         {
           id: 'streak-7',
@@ -84,7 +73,7 @@ export default function AchievementsPage() {
           unlockedAt: '2024-01-21',
           progress: 100,
           requirement: 7,
-          rarity: 'rare'
+          rarity: 'rare',
         },
         {
           id: 'words-1000',
@@ -98,7 +87,7 @@ export default function AchievementsPage() {
           unlockedAt: '2024-01-18',
           progress: 100,
           requirement: 1000,
-          rarity: 'common'
+          rarity: 'common',
         },
         {
           id: 'accuracy-90',
@@ -112,7 +101,7 @@ export default function AchievementsPage() {
           unlockedAt: '2024-01-20',
           progress: 100,
           requirement: 10,
-          rarity: 'epic'
+          rarity: 'epic',
         },
         {
           id: 'streak-30',
@@ -125,7 +114,7 @@ export default function AchievementsPage() {
           unlocked: false,
           progress: 12,
           requirement: 30,
-          rarity: 'legendary'
+          rarity: 'legendary',
         },
         {
           id: 'words-10000',
@@ -138,7 +127,7 @@ export default function AchievementsPage() {
           unlocked: false,
           progress: 65,
           requirement: 10000,
-          rarity: 'epic'
+          rarity: 'epic',
         },
         {
           id: 'perfect-week',
@@ -151,7 +140,7 @@ export default function AchievementsPage() {
           unlocked: false,
           progress: 0,
           requirement: 7,
-          rarity: 'legendary'
+          rarity: 'legendary',
         },
         {
           id: 'early-bird',
@@ -164,8 +153,8 @@ export default function AchievementsPage() {
           unlocked: false,
           progress: 2,
           requirement: 5,
-          rarity: 'rare'
-        }
+          rarity: 'rare',
+        },
       ];
 
       setAchievements(mockAchievements);
@@ -178,41 +167,59 @@ export default function AchievementsPage() {
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'easy': return 'text-green-600 bg-green-100';
-      case 'medium': return 'text-yellow-600 bg-yellow-100';
-      case 'hard': return 'text-orange-600 bg-orange-100';
-      case 'legendary': return 'text-purple-600 bg-purple-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'easy':
+        return 'text-green-600 bg-green-100';
+      case 'medium':
+        return 'text-yellow-600 bg-yellow-100';
+      case 'hard':
+        return 'text-orange-600 bg-orange-100';
+      case 'legendary':
+        return 'text-purple-600 bg-purple-100';
+      default:
+        return 'text-gray-600 bg-gray-100';
     }
   };
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
-      case 'common': return 'border-gray-300';
-      case 'rare': return 'border-blue-300';
-      case 'epic': return 'border-purple-300';
-      case 'legendary': return 'border-yellow-300';
-      default: return 'border-gray-300';
+      case 'common':
+        return 'border-gray-300';
+      case 'rare':
+        return 'border-blue-300';
+      case 'epic':
+        return 'border-purple-300';
+      case 'legendary':
+        return 'border-yellow-300';
+      default:
+        return 'border-gray-300';
     }
   };
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'streak': return '🔥';
-      case 'accuracy': return '🎯';
-      case 'exercises': return '📚';
-      case 'words': return '📝';
-      case 'special': return '⭐';
-      default: return '🏆';
+      case 'streak':
+        return '🔥';
+      case 'accuracy':
+        return '🎯';
+      case 'exercises':
+        return '📚';
+      case 'words':
+        return '📝';
+      case 'special':
+        return '⭐';
+      default:
+        return '🏆';
     }
   };
 
   const filteredAchievements = achievements.filter(achievement => {
-    const matchesSearch = achievement.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         achievement.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      achievement.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      achievement.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || achievement.category === selectedCategory;
-    const matchesDifficulty = selectedDifficulty === 'all' || achievement.difficulty === selectedDifficulty;
-    
+    const matchesDifficulty =
+      selectedDifficulty === 'all' || achievement.difficulty === selectedDifficulty;
+
     return matchesSearch && matchesCategory && matchesDifficulty;
   });
 
@@ -221,9 +228,9 @@ export default function AchievementsPage() {
 
   if (loading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 size-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </div>
@@ -233,13 +240,13 @@ export default function AchievementsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
-      
-      <div className="max-w-6xl mx-auto px-4 py-8">
+
+      <div className="mx-auto max-w-6xl px-4 py-8">
         {/* En-tête */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-yellow-100 rounded-lg">
-              <Trophy className="w-8 h-8 text-yellow-600" />
+          <div className="mb-4 flex items-center gap-3">
+            <div className="rounded-lg bg-yellow-100 p-3">
+              <Trophy className="size-8 text-yellow-600" />
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Succès</h1>
@@ -248,32 +255,34 @@ export default function AchievementsPage() {
           </div>
 
           {/* Statistiques */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Succès débloqués</p>
-                  <p className="text-3xl font-bold text-gray-900">{unlockedCount}/{achievements.length}</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {unlockedCount}/{achievements.length}
+                  </p>
                 </div>
-                <div className="p-3 bg-green-100 rounded-lg">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
+                <div className="rounded-lg bg-green-100 p-3">
+                  <CheckCircle className="size-6 text-green-600" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Points totaux</p>
                   <p className="text-3xl font-bold text-gray-900">{totalPoints}</p>
                 </div>
-                <div className="p-3 bg-blue-100 rounded-lg">
-                  <Star className="w-6 h-6 text-blue-600" />
+                <div className="rounded-lg bg-blue-100 p-3">
+                  <Star className="size-6 text-blue-600" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Progression</p>
@@ -281,30 +290,30 @@ export default function AchievementsPage() {
                     {Math.round((unlockedCount / achievements.length) * 100)}%
                   </p>
                 </div>
-                <div className="p-3 bg-purple-100 rounded-lg">
-                  <Target className="w-6 h-6 text-purple-600" />
+                <div className="rounded-lg bg-purple-100 p-3">
+                  <Target className="size-6 text-purple-600" />
                 </div>
               </div>
             </div>
           </div>
 
           {/* Filtres */}
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <div className="flex flex-col gap-4 md:flex-row">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 placeholder="Rechercher un succès..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                onChange={e => setSearchTerm(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            
+
             <select
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              onChange={e => setSelectedCategory(e.target.value)}
+              className="rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">Toutes les catégories</option>
               <option value="streak">Séries</option>
@@ -316,8 +325,8 @@ export default function AchievementsPage() {
 
             <select
               value={selectedDifficulty}
-              onChange={(e) => setSelectedDifficulty(e.target.value)}
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              onChange={e => setSelectedDifficulty(e.target.value)}
+              className="rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">Toutes les difficultés</option>
               <option value="easy">Facile</option>
@@ -332,22 +341,22 @@ export default function AchievementsPage() {
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <div className="mx-auto mb-4 size-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
               <p className="text-gray-600">Chargement des succès...</p>
             </div>
           </div>
         ) : filteredAchievements.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredAchievements.map(achievement => (
               <div
                 key={achievement.id}
-                className={`bg-white rounded-xl shadow-sm border-2 p-6 transition-all ${
-                  achievement.unlocked 
-                    ? `${getRarityColor(achievement.rarity)} hover:shadow-md` 
+                className={`rounded-xl border-2 bg-white p-6 shadow-sm transition-all ${
+                  achievement.unlocked
+                    ? `${getRarityColor(achievement.rarity)} hover:shadow-md`
                     : 'border-gray-200 opacity-75'
                 }`}
               >
-                <div className="flex items-start justify-between mb-4">
+                <div className="mb-4 flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="text-3xl">{achievement.icon}</div>
                     <div>
@@ -357,23 +366,29 @@ export default function AchievementsPage() {
                   </div>
                   {achievement.unlocked ? (
                     <div className="flex items-center gap-1 text-green-600">
-                      <CheckCircle className="w-5 h-5" />
+                      <CheckCircle className="size-5" />
                     </div>
                   ) : (
                     <div className="flex items-center gap-1 text-gray-400">
-                      <Lock className="w-5 h-5" />
+                      <Lock className="size-5" />
                     </div>
                   )}
                 </div>
 
-                <div className="flex items-center gap-4 mb-4">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(achievement.difficulty)}`}>
-                    {achievement.difficulty === 'easy' ? 'Facile' :
-                     achievement.difficulty === 'medium' ? 'Moyen' :
-                     achievement.difficulty === 'hard' ? 'Difficile' : 'Légendaire'}
+                <div className="mb-4 flex items-center gap-4">
+                  <span
+                    className={`rounded-full px-2 py-1 text-xs font-medium ${getDifficultyColor(achievement.difficulty)}`}
+                  >
+                    {achievement.difficulty === 'easy'
+                      ? 'Facile'
+                      : achievement.difficulty === 'medium'
+                        ? 'Moyen'
+                        : achievement.difficulty === 'hard'
+                          ? 'Difficile'
+                          : 'Légendaire'}
                   </span>
                   <div className="flex items-center gap-1 text-gray-500">
-                    <Star className="w-4 h-4" />
+                    <Star className="size-4" />
                     <span className="text-sm">{achievement.points} pts</span>
                   </div>
                   <div className="flex items-center gap-1 text-gray-500">
@@ -384,7 +399,7 @@ export default function AchievementsPage() {
                 {achievement.unlocked ? (
                   <div className="text-sm text-green-600">
                     <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
+                      <Calendar className="size-4" />
                       Débloqué le {new Date(achievement.unlockedAt!).toLocaleDateString('fr-FR')}
                     </div>
                   </div>
@@ -392,12 +407,16 @@ export default function AchievementsPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm text-gray-600">
                       <span>Progression</span>
-                      <span>{achievement.progress}/{achievement.requirement}</span>
+                      <span>
+                        {achievement.progress}/{achievement.requirement}
+                      </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="h-2 w-full rounded-full bg-gray-200">
                       <div
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${(achievement.progress! / achievement.requirement) * 100}%` }}
+                        className="h-2 rounded-full bg-blue-600 transition-all duration-300"
+                        style={{
+                          width: `${(achievement.progress! / achievement.requirement) * 100}%`,
+                        }}
                       />
                     </div>
                   </div>
@@ -406,9 +425,9 @@ export default function AchievementsPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <Trophy className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucun succès trouvé</h3>
+          <div className="py-12 text-center">
+            <Trophy className="mx-auto mb-4 size-16 text-gray-400" />
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">Aucun succès trouvé</h3>
             <p className="text-gray-600">Essayez de modifier vos filtres de recherche.</p>
           </div>
         )}
@@ -416,4 +435,3 @@ export default function AchievementsPage() {
     </div>
   );
 }
-

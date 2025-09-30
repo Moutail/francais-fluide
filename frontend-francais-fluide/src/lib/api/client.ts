@@ -23,17 +23,17 @@ export class APIError extends Error {
 const requestInterceptor = (config: AxiosRequestConfig): any => {
   // Récupérer le token depuis le localStorage ou les cookies
   const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
-  
+
   if (token && config.headers) {
     config.headers['Authorization'] = `Bearer ${token}`;
   }
-  
+
   // Ajouter des headers personnalisés
   if (config.headers) {
     config.headers['X-Client-Version'] = '1.0.0';
     config.headers['X-Request-ID'] = generateRequestId();
   }
-  
+
   return config;
 };
 
@@ -41,7 +41,7 @@ const requestInterceptor = (config: AxiosRequestConfig): any => {
 const responseInterceptor = (error: AxiosError): Promise<never> => {
   if (error.response) {
     const { status, data } = error.response as any;
-    
+
     // Gestion des erreurs selon le statut
     switch (status) {
       case 401:
@@ -51,29 +51,29 @@ const responseInterceptor = (error: AxiosError): Promise<never> => {
         window.location.href = '/login';
         toast.error('Session expirée. Veuillez vous reconnecter.');
         break;
-      
+
       case 403:
         toast.error('Accès non autorisé');
         break;
-      
+
       case 404:
         toast.error('Ressource non trouvée');
         break;
-      
+
       case 429:
         toast.error('Trop de requêtes. Veuillez réessayer plus tard.');
         break;
-      
+
       case 500:
       case 502:
       case 503:
         toast.error('Erreur serveur. Veuillez réessayer.');
         break;
-      
+
       default:
         toast.error(data?.message || 'Une erreur est survenue');
     }
-    
+
     throw new APIError(
       status,
       data?.code || 'UNKNOWN_ERROR',
@@ -85,7 +85,7 @@ const responseInterceptor = (error: AxiosError): Promise<never> => {
     toast.error('Impossible de contacter le serveur');
     throw new APIError(0, 'NETWORK_ERROR', 'Erreur réseau');
   }
-  
+
   // Erreur lors de la configuration de la requête
   throw new APIError(0, 'REQUEST_ERROR', error.message);
 };
@@ -101,10 +101,7 @@ export const apiClient: AxiosInstance = axios.create({
 
 // Application des intercepteurs
 apiClient.interceptors.request.use(requestInterceptor as any);
-apiClient.interceptors.response.use(
-  (response) => response,
-  responseInterceptor
-);
+apiClient.interceptors.response.use(response => response, responseInterceptor);
 
 // Fonction utilitaire pour générer un ID de requête
 function generateRequestId(): string {
@@ -121,15 +118,10 @@ export async function apiRequest<T>(
     showError?: boolean;
   }
 ): Promise<T> {
-  const {
-    retries = 2,
-    retryDelay = 1000,
-    showLoading = false,
-    showError = true,
-  } = options || {};
+  const { retries = 2, retryDelay = 1000, showLoading = false, showError = true } = options || {};
 
   let lastError: any;
-  
+
   if (showLoading) {
     toast.loading('Chargement...');
   }
@@ -137,15 +129,15 @@ export async function apiRequest<T>(
   for (let i = 0; i <= retries; i++) {
     try {
       const response = await apiClient.request<T>(config);
-      
+
       if (showLoading) {
         toast.dismiss();
       }
-      
+
       return response.data;
     } catch (error) {
       lastError = error;
-      
+
       if (i < retries) {
         await new Promise(resolve => setTimeout(resolve, retryDelay * (i + 1)));
       }

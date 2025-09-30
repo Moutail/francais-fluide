@@ -4,16 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import {
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  ArrowLeft,
-  AlertTriangle,
-  CheckCircle,
-  Bug
-} from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, AlertTriangle, CheckCircle, Bug } from 'lucide-react';
 import { Button } from '@/components/ui/professional/Button';
 import ErrorDebugPanel from '@/components/debug/ErrorDebugPanel';
 import ErrorNotification from '@/components/ui/ErrorNotification';
@@ -28,7 +19,7 @@ export default function LoginPage() {
   const { showErrorLog, getErrorCount } = useErrorContext();
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -46,31 +37,31 @@ export default function LoginPage() {
 
     try {
       const result = await login(formData.email, formData.password);
-      
+
       if (result.success) {
         setRedirecting(true);
         setRedirectMessage('Connexion réussie ! Redirection en cours...');
-        
+
         // Attendre que le contexte auth soit mis à jour
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         // Faire un appel direct à l'API pour récupérer le rôle
         const token = localStorage.getItem('token');
         if (token) {
           try {
             const profileResponse = await fetch('/api/auth/me', {
-              headers: { 'Authorization': `Bearer ${token}` }
+              headers: { Authorization: `Bearer ${token}` },
             });
-            
+
             if (profileResponse.ok) {
               const profileData = await profileResponse.json();
               const userRole = profileData.user?.role;
-              
+
               console.log('Rôle détecté:', userRole);
-              
+
               // Redirection selon le rôle
               if (['admin', 'super_admin'].includes(userRole)) {
-                setRedirectMessage('Redirection vers l\'interface d\'administration...');
+                setRedirectMessage("Redirection vers l'interface d'administration...");
                 await new Promise(resolve => setTimeout(resolve, 500));
                 window.location.href = '/admin';
                 return;
@@ -80,7 +71,7 @@ export default function LoginPage() {
             console.error('Erreur récupération profil:', profileError);
           }
         }
-        
+
         // Redirection par défaut vers dashboard
         setRedirectMessage('Redirection vers le tableau de bord...');
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -101,7 +92,6 @@ export default function LoginPage() {
     }
   };
 
-
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (error) {
@@ -111,36 +101,30 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 p-4">
+      <div className="w-full max-w-md">
         {/* Logo et titre */}
-        <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 bg-accent-500 rounded-2xl flex items-center justify-center mb-4 shadow-sm">
-            <span className="text-white font-bold text-2xl">F</span>
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-500 shadow-sm">
+            <span className="text-2xl font-bold text-white">F</span>
           </div>
-          <h1 className="text-3xl font-bold text-primary-900 mb-2">
-            Connexion
-          </h1>
-          <p className="text-gray-600">
-            Connectez-vous à votre compte FrançaisFluide
-          </p>
+          <h1 className="mb-2 text-3xl font-bold text-primary-900">Connexion</h1>
+          <p className="text-gray-600">Connectez-vous à votre compte FrançaisFluide</p>
         </div>
 
         {/* Formulaire de connexion */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="rounded-2xl bg-white p-8 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email
-              </label>
+              <label className="mb-2 block text-sm font-medium text-gray-700">Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onChange={e => handleInputChange('email', e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   placeholder="jean@email.com"
                   required
                 />
@@ -149,41 +133,39 @@ export default function LoginPage() {
 
             {/* Mot de passe */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Mot de passe
-              </label>
+              <label className="mb-2 block text-sm font-medium text-gray-700">Mot de passe</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onChange={e => handleInputChange('password', e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-12 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
             </div>
 
             {/* Message d'erreur */}
             {error && (
-              <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
+              <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3">
+                <AlertTriangle className="h-5 w-5 flex-shrink-0 text-red-600" />
                 <p className="text-sm text-red-700">{error}</p>
               </div>
             )}
 
             {/* Message de redirection */}
             {redirecting && (
-              <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+              <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 p-3">
+                <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-blue-600"></div>
                 <p className="text-sm text-blue-700">{redirectMessage}</p>
               </div>
             )}
@@ -207,7 +189,7 @@ export default function LoginPage() {
               Pas encore de compte ?{' '}
               <a
                 href="/auth/register"
-                className="text-accent-600 hover:text-accent-500 font-medium"
+                className="font-medium text-accent-600 hover:text-accent-500"
               >
                 Créer un compte
               </a>
@@ -218,30 +200,30 @@ export default function LoginPage() {
           <div className="mt-4 text-center">
             <a
               href="/"
-              className="flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              className="flex items-center justify-center gap-2 text-sm text-gray-600 transition-colors hover:text-gray-900"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="h-4 w-4" />
               Retour à l'accueil
             </a>
           </div>
 
           {/* Boutons de debug (en mode développement) */}
           {isMounted && process.env.NODE_ENV === 'development' && (
-            <div className="mt-4 text-center space-y-2">
+            <div className="mt-4 space-y-2 text-center">
               <button
                 onClick={() => setShowDebugPanel(true)}
-                className="flex items-center justify-center gap-2 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                className="flex items-center justify-center gap-2 text-xs text-gray-500 transition-colors hover:text-gray-700"
               >
-                <Bug className="w-4 h-4" />
+                <Bug className="h-4 w-4" />
                 Voir les erreurs de debug
               </button>
-              
+
               {getErrorCount() > 0 && (
                 <button
                   onClick={showErrorLog}
-                  className="flex items-center justify-center gap-2 text-xs text-red-600 hover:text-red-700 transition-colors"
+                  className="flex items-center justify-center gap-2 text-xs text-red-600 transition-colors hover:text-red-700"
                 >
-                  <Bug className="w-4 h-4" />
+                  <Bug className="h-4 w-4" />
                   Journal d'erreurs ({getErrorCount()})
                 </button>
               )}
@@ -251,10 +233,7 @@ export default function LoginPage() {
       </div>
 
       {/* Panneau de debug */}
-      <ErrorDebugPanel 
-        isOpen={showDebugPanel} 
-        onClose={() => setShowDebugPanel(false)} 
-      />
+      <ErrorDebugPanel isOpen={showDebugPanel} onClose={() => setShowDebugPanel(false)} />
 
       {/* Notification d'erreur persistante */}
       {showErrorNotification && error && (

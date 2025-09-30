@@ -78,7 +78,11 @@ export class AnalyticsCalculator {
   private exerciseResults: ExerciseResult[];
   private progressData: ProgressData[];
 
-  constructor(userProfile: UserProfile, exerciseResults: ExerciseResult[], progressData: ProgressData[]) {
+  constructor(
+    userProfile: UserProfile,
+    exerciseResults: ExerciseResult[],
+    progressData: ProgressData[]
+  ) {
     this.userProfile = userProfile;
     this.exerciseResults = exerciseResults;
     this.progressData = progressData;
@@ -99,7 +103,7 @@ export class AnalyticsCalculator {
       learningPattern: this.detectLearningPattern(),
       progressPrediction: this.predictProgress(),
       activityHeatmap: this.generateActivityHeatmap(),
-      comparison: this.calculateComparison()
+      comparison: this.calculateComparison(),
     };
   }
 
@@ -122,13 +126,14 @@ export class AnalyticsCalculator {
 
   // Calculer la série actuelle
   private calculateCurrentStreak(): number {
-    const sortedResults = [...this.exerciseResults].sort((a, b) => 
-      new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
+    const sortedResults = [...this.exerciseResults].sort(
+      (a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
     );
 
     let streak = 0;
     for (const result of sortedResults) {
-      if (result.accuracy >= 0.7) { // Seuil de réussite
+      if (result.accuracy >= 0.7) {
+        // Seuil de réussite
         streak++;
       } else {
         break;
@@ -140,8 +145,8 @@ export class AnalyticsCalculator {
 
   // Calculer la meilleure série
   private calculateBestStreak(): number {
-    const sortedResults = [...this.exerciseResults].sort((a, b) => 
-      new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime()
+    const sortedResults = [...this.exerciseResults].sort(
+      (a, b) => new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime()
     );
 
     let maxStreak = 0;
@@ -170,15 +175,17 @@ export class AnalyticsCalculator {
   private calculateImprovementRate(): number {
     if (this.exerciseResults.length < 2) return 0;
 
-    const sortedResults = [...this.exerciseResults].sort((a, b) => 
-      new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime()
+    const sortedResults = [...this.exerciseResults].sort(
+      (a, b) => new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime()
     );
 
     const firstHalf = sortedResults.slice(0, Math.floor(sortedResults.length / 2));
     const secondHalf = sortedResults.slice(Math.floor(sortedResults.length / 2));
 
-    const firstHalfAvg = firstHalf.reduce((sum, result) => sum + result.score, 0) / firstHalf.length;
-    const secondHalfAvg = secondHalf.reduce((sum, result) => sum + result.score, 0) / secondHalf.length;
+    const firstHalfAvg =
+      firstHalf.reduce((sum, result) => sum + result.score, 0) / firstHalf.length;
+    const secondHalfAvg =
+      secondHalf.reduce((sum, result) => sum + result.score, 0) / secondHalf.length;
 
     return ((secondHalfAvg - firstHalfAvg) / firstHalfAvg) * 100;
   }
@@ -197,14 +204,14 @@ export class AnalyticsCalculator {
       regularity: Math.round(regularity),
       intensity: Math.round(intensity),
       improvement: Math.round(improvement),
-      consistency: Math.round(consistency)
+      consistency: Math.round(consistency),
     };
   }
 
   // Calculer la régularité
   private calculateRegularity(): number {
-    const last30Days = this.exerciseResults.filter(result => 
-      new Date(result.completedAt) >= subDays(new Date(), 30)
+    const last30Days = this.exerciseResults.filter(
+      result => new Date(result.completedAt) >= subDays(new Date(), 30)
     );
 
     if (last30Days.length === 0) return 0;
@@ -219,8 +226,8 @@ export class AnalyticsCalculator {
 
   // Calculer l'intensité
   private calculateIntensity(): number {
-    const last7Days = this.exerciseResults.filter(result => 
-      new Date(result.completedAt) >= subDays(new Date(), 7)
+    const last7Days = this.exerciseResults.filter(
+      result => new Date(result.completedAt) >= subDays(new Date(), 7)
     );
 
     if (last7Days.length === 0) return 0;
@@ -244,12 +251,13 @@ export class AnalyticsCalculator {
 
     const scores = this.exerciseResults.map(result => result.score);
     const mean = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-    const variance = scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / scores.length;
+    const variance =
+      scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / scores.length;
     const standardDeviation = Math.sqrt(variance);
 
     // Score basé sur l'écart-type (plus bas = plus consistant)
     const coefficientOfVariation = standardDeviation / mean;
-    return Math.max(0, 100 - (coefficientOfVariation * 100));
+    return Math.max(0, 100 - coefficientOfVariation * 100);
   }
 
   // Analyser les erreurs
@@ -261,46 +269,55 @@ export class AnalyticsCalculator {
         if (!answer.isCorrect) {
           // Simuler des catégories d'erreurs basées sur le type de question
           const category = this.categorizeError(answer);
-          const existing = errorCategories.get(category) || { count: 0, lastOccurrence: new Date(0) };
+          const existing = errorCategories.get(category) || {
+            count: 0,
+            lastOccurrence: new Date(0),
+          };
           errorCategories.set(category, {
             count: existing.count + 1,
-            lastOccurrence: new Date(result.completedAt) > existing.lastOccurrence 
-              ? new Date(result.completedAt) 
-              : existing.lastOccurrence
+            lastOccurrence:
+              new Date(result.completedAt) > existing.lastOccurrence
+                ? new Date(result.completedAt)
+                : existing.lastOccurrence,
           });
         }
       });
     });
 
-    const totalErrors = Array.from(errorCategories.values()).reduce((sum, cat) => sum + cat.count, 0);
+    const totalErrors = Array.from(errorCategories.values()).reduce(
+      (sum, cat) => sum + cat.count,
+      0
+    );
 
-    return Array.from(errorCategories.entries()).map(([category, data]) => {
-      const percentage = (data.count / totalErrors) * 100;
-      const trend = this.calculateErrorTrend(category);
-      const severity = this.calculateErrorSeverity(data.count, percentage);
+    return Array.from(errorCategories.entries())
+      .map(([category, data]) => {
+        const percentage = (data.count / totalErrors) * 100;
+        const trend = this.calculateErrorTrend(category);
+        const severity = this.calculateErrorSeverity(data.count, percentage);
 
-      return {
-        category,
-        count: data.count,
-        percentage: Math.round(percentage * 100) / 100,
-        trend,
-        severity,
-        lastOccurrence: data.lastOccurrence
-      };
-    }).sort((a, b) => b.count - a.count);
+        return {
+          category,
+          count: data.count,
+          percentage: Math.round(percentage * 100) / 100,
+          trend,
+          severity,
+          lastOccurrence: data.lastOccurrence,
+        };
+      })
+      .sort((a, b) => b.count - a.count);
   }
 
   // Catégoriser une erreur
   private categorizeError(answer: any): string {
     // Simulation basée sur le contenu de la réponse
     const content = answer.answer.toLowerCase();
-    
+
     if (content.includes('être') || content.includes('avoir')) return 'Conjugaison';
     if (content.includes('le ') || content.includes('la ')) return 'Articles';
     if (content.includes('s') || content.includes('x')) return 'Accords';
     if (content.includes('à') || content.includes('de')) return 'Prépositions';
     if (content.includes('et') || content.includes('ou')) return 'Conjonctions';
-    
+
     return 'Autres';
   }
 
@@ -342,13 +359,14 @@ export class AnalyticsCalculator {
     if (regularity >= 70 && intensity >= 60 && improvement > 0) {
       return {
         type: 'consistent',
-        description: 'Vous maintenez une pratique régulière et intensive avec des améliorations constantes.',
+        description:
+          'Vous maintenez une pratique régulière et intensive avec des améliorations constantes.',
         confidence: 0.9,
         recommendations: [
           'Continuez à maintenir ce rythme',
           'Essayez des exercices plus difficiles',
-          'Partagez vos progrès avec d\'autres apprenants'
-        ]
+          "Partagez vos progrès avec d'autres apprenants",
+        ],
       };
     }
 
@@ -360,8 +378,8 @@ export class AnalyticsCalculator {
         recommendations: [
           'Augmentez la durée de vos sessions',
           'Ajoutez des exercices plus intensifs',
-          'Fixez-vous des objectifs quotidiens'
-        ]
+          'Fixez-vous des objectifs quotidiens',
+        ],
       };
     }
 
@@ -373,8 +391,8 @@ export class AnalyticsCalculator {
         recommendations: [
           'Établissez une routine quotidienne',
           'Répartissez vos sessions sur la semaine',
-          'Utilisez des rappels pour maintenir la régularité'
-        ]
+          'Utilisez des rappels pour maintenir la régularité',
+        ],
       };
     }
 
@@ -384,22 +402,22 @@ export class AnalyticsCalculator {
         description: 'Vos performances semblent en déclin récemment.',
         confidence: 0.6,
         recommendations: [
-          'Revoyez vos méthodes d\'apprentissage',
+          "Revoyez vos méthodes d'apprentissage",
           'Consultez un tuteur ou un professeur',
-          'Prenez une pause et revenez avec de nouveaux objectifs'
-        ]
+          'Prenez une pause et revenez avec de nouveaux objectifs',
+        ],
       };
     }
 
     return {
       type: 'consistent',
-      description: 'Votre pattern d\'apprentissage est équilibré.',
+      description: "Votre pattern d'apprentissage est équilibré.",
       confidence: 0.5,
       recommendations: [
         'Continuez à pratiquer régulièrement',
-        'Variez les types d\'exercices',
-        'Fixez-vous des objectifs à court terme'
-      ]
+        "Variez les types d'exercices",
+        'Fixez-vous des objectifs à court terme',
+      ],
     };
   }
 
@@ -416,7 +434,7 @@ export class AnalyticsCalculator {
         nextMonth: this.calculateAverageScore(),
         nextQuarter: this.calculateAverageScore(),
         confidence: 0.3,
-        factors: ['Données insuffisantes']
+        factors: ['Données insuffisantes'],
       };
     }
 
@@ -440,7 +458,7 @@ export class AnalyticsCalculator {
       nextMonth: Math.round(nextMonth),
       nextQuarter: Math.round(nextQuarter),
       confidence: Math.round(confidence * 100) / 100,
-      factors
+      factors,
     };
   }
 
@@ -476,7 +494,7 @@ export class AnalyticsCalculator {
       const date = subDays(today, i);
       const dateStr = format(date, 'yyyy-MM-dd');
       const value = activityMap.get(dateStr) || 0;
-      
+
       let level: 0 | 1 | 2 | 3 | 4 = 0;
       if (value > 0) level = 1;
       if (value > 2) level = 2;
@@ -486,7 +504,7 @@ export class AnalyticsCalculator {
       heatmapData.push({
         date: dateStr,
         value,
-        level
+        level,
       });
     }
 
@@ -496,14 +514,14 @@ export class AnalyticsCalculator {
   // Calculer les comparaisons
   private calculateComparison(): ComparisonData {
     const userScore = this.calculateAverageScore();
-    
+
     // Simulation des données de comparaison
     const averageScore = 75; // Score moyen des utilisateurs
     const topScore = 95; // Score des meilleurs utilisateurs
-    
+
     const rank = Math.round((userScore / 100) * 1000); // Simulation du rang
     const percentile = Math.round((userScore / 100) * 100);
-    
+
     const trend = userScore > averageScore ? 'up' : 'down';
     const gap = topScore - userScore;
 
@@ -511,16 +529,16 @@ export class AnalyticsCalculator {
       user: {
         score: Math.round(userScore),
         rank,
-        percentile
+        percentile,
       },
       average: {
         score: averageScore,
-        trend
+        trend,
       },
       topPerformers: {
         score: topScore,
-        gap: Math.round(gap)
-      }
+        gap: Math.round(gap),
+      },
     };
   }
 }

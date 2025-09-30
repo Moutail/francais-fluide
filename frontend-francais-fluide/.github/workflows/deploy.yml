@@ -18,7 +18,7 @@ jobs:
   test:
     name: Tests et Validation
     runs-on: ubuntu-latest
-    
+
     services:
       postgres:
         image: postgres:15
@@ -32,7 +32,7 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-      
+
       redis:
         image: redis:7
         options: >-
@@ -239,7 +239,7 @@ jobs:
         if: always()
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          title: "Déploiement FrançaisFluide"
+          title: 'Déploiement FrançaisFluide'
           description: |
             **Statut:** ${{ job.status }}
             **Branche:** ${{ github.ref }}

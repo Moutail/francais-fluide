@@ -3,10 +3,10 @@ import { SUBSCRIPTION_PLANS, SubscriptionPlan } from './plans';
 
 // Mapping entre les IDs de la base de données et les plans frontend
 const PLAN_MAPPING: Record<string, string> = {
-  'demo': 'free',
-  'etudiant': 'student', 
-  'premium': 'premium',
-  'etablissement': 'enterprise'
+  demo: 'free',
+  etudiant: 'student',
+  premium: 'premium',
+  etablissement: 'enterprise',
 };
 
 export interface UserSubscription {
@@ -22,7 +22,7 @@ export class SubscriptionService {
   static getPlanFromDb(planId: string): SubscriptionPlan | null {
     const frontendPlanId = PLAN_MAPPING[planId];
     if (!frontendPlanId) return null;
-    
+
     return SUBSCRIPTION_PLANS.find(plan => plan.id === frontendPlanId) || null;
   }
 
@@ -36,17 +36,23 @@ export class SubscriptionService {
     return plan?.limits || SUBSCRIPTION_PLANS[0].limits;
   }
 
-  static canUseFeature(subscription: UserSubscription | null, feature: keyof SubscriptionPlan['limits']): boolean {
+  static canUseFeature(
+    subscription: UserSubscription | null,
+    feature: keyof SubscriptionPlan['limits']
+  ): boolean {
     const limits = this.getUserLimits(subscription);
     return limits[feature] === true || limits[feature] === -1;
   }
 
-  static getRemainingUsage(subscription: UserSubscription | null, feature: 'aiCorrections' | 'exercisesPerDay'): number {
+  static getRemainingUsage(
+    subscription: UserSubscription | null,
+    feature: 'aiCorrections' | 'exercisesPerDay'
+  ): number {
     const limits = this.getUserLimits(subscription);
     const limit = limits[feature];
-    
+
     if (limit === -1) return Infinity; // Illimité
-    
+
     // TODO: Implémenter le comptage de l'usage réel
     // Pour l'instant, on retourne la limite
     return limit;
@@ -63,12 +69,12 @@ export class SubscriptionService {
 
   static isSubscriptionActive(subscription: UserSubscription | null): boolean {
     if (!subscription) return false;
-    
+
     if (subscription.status !== 'active') return false;
-    
+
     const now = new Date();
     const endDate = new Date(subscription.endDate);
-    
+
     return endDate > now;
   }
 
@@ -80,12 +86,12 @@ export class SubscriptionService {
   } {
     const isActive = this.isSubscriptionActive(subscription);
     const plan = subscription ? this.getPlanFromDb(subscription.plan) : SUBSCRIPTION_PLANS[0];
-    
+
     return {
       isActive,
       planName: plan?.name || 'Démo Gratuite',
       features: this.getPlanFeatures(subscription),
-      limits: this.getUserLimits(subscription)
+      limits: this.getUserLimits(subscription),
     };
   }
 }
@@ -94,7 +100,7 @@ export class SubscriptionService {
 export const getFrontendPlanById = (backendPlanId: string): SubscriptionPlan | undefined => {
   const frontendPlanId = PLAN_MAPPING[backendPlanId];
   if (!frontendPlanId) return undefined;
-  
+
   return SUBSCRIPTION_PLANS.find(plan => plan.id === frontendPlanId);
 };
 

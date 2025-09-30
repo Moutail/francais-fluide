@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { backendUrl } from '../../_utils/backend';
 
 // GET /api/exercises/[id] - Proxy vers backend
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const token = request.headers.get('authorization') || '';
     const resp = await fetch(backendUrl(`/api/exercises/${params.id}`), {
@@ -27,10 +24,7 @@ export async function GET(
 }
 
 // PUT /api/exercises/[id] - Proxy vers backend
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const token = request.headers.get('authorization') || '';
     const body = await request.json();
@@ -54,10 +48,7 @@ export async function PUT(
 }
 
 // DELETE /api/exercises/[id] - Proxy vers backend
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const token = request.headers.get('authorization') || '';
     const resp = await fetch(backendUrl(`/api/exercises/${params.id}`), {

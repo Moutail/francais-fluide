@@ -13,7 +13,7 @@ export function useSubscription() {
       try {
         setLoading(true);
         setError(null);
-        
+
         const response = await apiClient.getCurrentSubscription();
         if (response.success && response.data) {
           setSubscription(response.data);
@@ -22,7 +22,7 @@ export function useSubscription() {
         }
       } catch (err) {
         console.error('Erreur chargement abonnement:', err);
-        setError('Erreur de chargement de l\'abonnement');
+        setError("Erreur de chargement de l'abonnement");
         setSubscription(null);
       } finally {
         setLoading(false);
@@ -68,13 +68,13 @@ export function useSubscription() {
             setSubscription(null);
           }
         } catch (err) {
-          setError('Erreur de chargement de l\'abonnement');
+          setError("Erreur de chargement de l'abonnement");
           setSubscription(null);
         } finally {
           setLoading(false);
         }
       };
       loadSubscription();
-    }
+    },
   };
 }

@@ -1,12 +1,6 @@
 // src/lib/api/endpoints.ts
 import { apiRequest } from './client';
-import type { 
-  UserProfile, 
-  GrammarError, 
-  TextAnalysis,
-  Achievement,
-  Mission 
-} from '@/types';
+import type { UserProfile, GrammarError, TextAnalysis, Achievement, Mission } from '@/types';
 
 /**
  * API Endpoints pour l'application FrançaisFluide
@@ -22,11 +16,7 @@ export const auth = {
     });
   },
 
-  register: async (data: {
-    email: string;
-    password: string;
-    name: string;
-  }) => {
+  register: async (data: { email: string; password: string; name: string }) => {
     return apiRequest<{ token: string; user: UserProfile }>({
       method: 'POST',
       url: '/auth/register',
@@ -59,18 +49,24 @@ export const auth = {
 
 // === GRAMMAR ===
 export const grammar = {
-  check: async (text: string, options?: {
-    language?: string;
-    rules?: string[];
-    context?: string;
-  }) => {
-    return apiRequest<TextAnalysis>({
-      method: 'POST',
-      url: '/grammar/check',
-      data: { text, ...options },
-    }, {
-      showLoading: true,
-    });
+  check: async (
+    text: string,
+    options?: {
+      language?: string;
+      rules?: string[];
+      context?: string;
+    }
+  ) => {
+    return apiRequest<TextAnalysis>(
+      {
+        method: 'POST',
+        url: '/grammar/check',
+        data: { text, ...options },
+      },
+      {
+        showLoading: true,
+      }
+    );
   },
 
   suggest: async (text: string, errorId: string) => {
@@ -82,7 +78,7 @@ export const grammar = {
   },
 
   explain: async (errorId: string) => {
-    return apiRequest<{ 
+    return apiRequest<{
       rule: string;
       explanation: string;
       examples: string[];
@@ -92,11 +88,7 @@ export const grammar = {
     });
   },
 
-  addCustomRule: async (rule: {
-    pattern: string;
-    message: string;
-    category: string;
-  }) => {
+  addCustomRule: async (rule: { pattern: string; message: string; category: string }) => {
     return apiRequest({
       method: 'POST',
       url: '/grammar/rules',
@@ -172,24 +164,22 @@ export const progress = {
   },
 
   getLeaderboard: async (period: 'day' | 'week' | 'month' | 'all' = 'week') => {
-    return apiRequest<Array<{
-      userId: string;
-      name: string;
-      score: number;
-      level: number;
-      avatar?: string;
-    }>>({
+    return apiRequest<
+      Array<{
+        userId: string;
+        name: string;
+        score: number;
+        level: number;
+        avatar?: string;
+      }>
+    >({
       method: 'GET',
       url: '/progress/leaderboard',
       params: { period },
     });
   },
 
-  trackActivity: async (activity: {
-    type: string;
-    value: number;
-    metadata?: any;
-  }) => {
+  trackActivity: async (activity: { type: string; value: number; metadata?: any }) => {
     return apiRequest({
       method: 'POST',
       url: '/progress/activity',
@@ -200,19 +190,17 @@ export const progress = {
 
 // === EXERCISES ===
 export const exercises = {
-  getList: async (filters?: {
-    difficulty?: string;
-    category?: string;
-    limit?: number;
-  }) => {
-    return apiRequest<Array<{
-      id: string;
-      title: string;
-      description: string;
-      difficulty: string;
-      category: string;
-      estimatedTime: number;
-    }>>({
+  getList: async (filters?: { difficulty?: string; category?: string; limit?: number }) => {
+    return apiRequest<
+      Array<{
+        id: string;
+        title: string;
+        description: string;
+        difficulty: string;
+        category: string;
+        estimatedTime: number;
+      }>
+    >({
       method: 'GET',
       url: '/exercises',
       params: filters,
@@ -245,11 +233,7 @@ export const exercises = {
     });
   },
 
-  generate: async (options: {
-    difficulty: string;
-    category: string;
-    focusAreas?: string[];
-  }) => {
+  generate: async (options: { difficulty: string; category: string; focusAreas?: string[] }) => {
     return apiRequest<{
       id: string;
       content: string;
@@ -265,24 +249,22 @@ export const exercises = {
 // === CONTENT ===
 export const content = {
   getSavedTexts: async () => {
-    return apiRequest<Array<{
-      id: string;
-      title: string;
-      content: string;
-      createdAt: Date;
-      updatedAt: Date;
-      errorCount: number;
-    }>>({
+    return apiRequest<
+      Array<{
+        id: string;
+        title: string;
+        content: string;
+        createdAt: Date;
+        updatedAt: Date;
+        errorCount: number;
+      }>
+    >({
       method: 'GET',
       url: '/content/texts',
     });
   },
 
-  saveText: async (text: {
-    title: string;
-    content: string;
-    tags?: string[];
-  }) => {
+  saveText: async (text: { title: string; content: string; tags?: string[] }) => {
     return apiRequest<{ id: string }>({
       method: 'POST',
       url: '/content/texts',
@@ -290,11 +272,14 @@ export const content = {
     });
   },
 
-  updateText: async (id: string, updates: {
-    title?: string;
-    content?: string;
-    tags?: string[];
-  }) => {
+  updateText: async (
+    id: string,
+    updates: {
+      title?: string;
+      content?: string;
+      tags?: string[];
+    }
+  ) => {
     return apiRequest({
       method: 'PATCH',
       url: `/content/texts/${id}`,
@@ -320,10 +305,7 @@ export const content = {
 
 // === ANALYTICS ===
 export const analytics = {
-  track: async (event: {
-    name: string;
-    properties?: Record<string, any>;
-  }) => {
+  track: async (event: { name: string; properties?: Record<string, any> }) => {
     // Fire and forget - pas besoin d'attendre la réponse
     apiRequest({
       method: 'POST',

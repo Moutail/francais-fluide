@@ -16,7 +16,7 @@ import {
   BookOpen,
   Target,
   Zap,
-  Settings
+  Settings,
 } from 'lucide-react';
 
 export default function TutorialsPage() {
@@ -38,14 +38,14 @@ export default function TutorialsPage() {
     { id: 'exercises', label: 'Exercices', icon: Target },
     { id: 'ai-features', label: 'Fonctionnalités IA', icon: Zap },
     { id: 'settings', label: 'Paramètres', icon: Settings },
-    { id: 'advanced', label: 'Avancé', icon: BookOpen }
+    { id: 'advanced', label: 'Avancé', icon: BookOpen },
   ];
 
   const levels = [
     { id: 'all', label: 'Tous les niveaux' },
     { id: 'beginner', label: 'Débutant' },
     { id: 'intermediate', label: 'Intermédiaire' },
-    { id: 'advanced', label: 'Avancé' }
+    { id: 'advanced', label: 'Avancé' },
   ];
 
   // Tutoriels simulés (à remplacer par de vrais tutoriels)
@@ -53,7 +53,7 @@ export default function TutorialsPage() {
     {
       id: 1,
       title: 'Bienvenue sur FrançaisFluide - Premiers pas',
-      description: 'Découvrez les bases de la plateforme et comment naviguer dans l\'interface.',
+      description: "Découvrez les bases de la plateforme et comment naviguer dans l'interface.",
       category: 'getting-started',
       level: 'beginner',
       duration: '5:30',
@@ -62,7 +62,7 @@ export default function TutorialsPage() {
       author: 'Équipe FrançaisFluide',
       rating: 4.8,
       views: 1250,
-      isNew: true
+      isNew: true,
     },
     {
       id: 2,
@@ -76,12 +76,13 @@ export default function TutorialsPage() {
       author: 'Marie Dubois',
       rating: 4.6,
       views: 890,
-      isNew: false
+      isNew: false,
     },
     {
       id: 3,
-      title: 'Génération d\'exercices personnalisés avec l\'IA',
-      description: 'Découvrez comment créer des exercices adaptés à vos besoins avec l\'intelligence artificielle.',
+      title: "Génération d'exercices personnalisés avec l'IA",
+      description:
+        "Découvrez comment créer des exercices adaptés à vos besoins avec l'intelligence artificielle.",
       category: 'ai-features',
       level: 'intermediate',
       duration: '12:45',
@@ -90,12 +91,13 @@ export default function TutorialsPage() {
       author: 'Jean Martin',
       rating: 4.9,
       views: 2100,
-      isNew: true
+      isNew: true,
     },
     {
       id: 4,
-      title: 'Utilisation du chat IA pour l\'apprentissage',
-      description: 'Comment interagir efficacement avec l\'assistant IA pour maximiser votre apprentissage.',
+      title: "Utilisation du chat IA pour l'apprentissage",
+      description:
+        "Comment interagir efficacement avec l'assistant IA pour maximiser votre apprentissage.",
       category: 'ai-features',
       level: 'intermediate',
       duration: '10:20',
@@ -104,12 +106,12 @@ export default function TutorialsPage() {
       author: 'Sophie Laurent',
       rating: 4.7,
       views: 1650,
-      isNew: false
+      isNew: false,
     },
     {
       id: 5,
       title: 'Configuration des paramètres et préférences',
-      description: 'Personnalisez votre expérience d\'apprentissage selon vos besoins.',
+      description: "Personnalisez votre expérience d'apprentissage selon vos besoins.",
       category: 'settings',
       level: 'beginner',
       duration: '6:30',
@@ -118,7 +120,7 @@ export default function TutorialsPage() {
       author: 'Équipe FrançaisFluide',
       rating: 4.5,
       views: 750,
-      isNew: false
+      isNew: false,
     },
     {
       id: 6,
@@ -132,16 +134,17 @@ export default function TutorialsPage() {
       author: 'Pierre Moreau',
       rating: 4.8,
       views: 3200,
-      isNew: false
-    }
+      isNew: false,
+    },
   ];
 
   const filteredTutorials = tutorials.filter(tutorial => {
-    const matchesSearch = tutorial.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         tutorial.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      tutorial.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tutorial.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || tutorial.category === selectedCategory;
     const matchesLevel = selectedLevel === 'all' || tutorial.level === selectedLevel;
-    
+
     return matchesSearch && matchesCategory && matchesLevel;
   });
 
@@ -152,18 +155,22 @@ export default function TutorialsPage() {
 
   const getLevelColor = (level: string) => {
     switch (level) {
-      case 'beginner': return 'bg-green-100 text-green-800';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800';
-      case 'advanced': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'beginner':
+        return 'bg-green-100 text-green-800';
+      case 'intermediate':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'advanced':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   if (loading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </div>
@@ -173,41 +180,43 @@ export default function TutorialsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
-      
-      <div className="max-w-7xl mx-auto px-4 py-8">
+
+      <div className="mx-auto max-w-7xl px-4 py-8">
         {/* En-tête */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
+          <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-purple-100 rounded-lg">
-                <Video className="w-8 h-8 text-purple-600" />
+              <div className="rounded-lg bg-purple-100 p-3">
+                <Video className="h-8 w-8 text-purple-600" />
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Tutoriels vidéo</h1>
-                <p className="text-gray-600">Apprenez à maîtriser FrançaisFluide avec nos guides vidéo</p>
+                <p className="text-gray-600">
+                  Apprenez à maîtriser FrançaisFluide avec nos guides vidéo
+                </p>
               </div>
             </div>
-            
+
             {/* Bouton d'ajout de tutoriel (pour les administrateurs) */}
-            <button className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-              <Plus className="w-4 h-4" />
+            <button className="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700">
+              <Plus className="h-4 w-4" />
               Ajouter un tutoriel
             </button>
           </div>
 
           {/* Barre de recherche et filtres */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex flex-col lg:flex-row gap-4">
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="flex flex-col gap-4 lg:flex-row">
               {/* Recherche */}
               <div className="flex-1">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                   <input
                     type="text"
                     placeholder="Rechercher un tutoriel..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    onChange={e => setSearchTerm(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
               </div>
@@ -216,21 +225,25 @@ export default function TutorialsPage() {
               <div className="flex gap-4">
                 <select
                   value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  onChange={e => setSelectedCategory(e.target.value)}
+                  className="rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                 >
                   {categories.map(category => (
-                    <option key={category.id} value={category.id}>{category.label}</option>
+                    <option key={category.id} value={category.id}>
+                      {category.label}
+                    </option>
                   ))}
                 </select>
 
                 <select
                   value={selectedLevel}
-                  onChange={(e) => setSelectedLevel(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  onChange={e => setSelectedLevel(e.target.value)}
+                  className="rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                 >
                   {levels.map(level => (
-                    <option key={level.id} value={level.id}>{level.label}</option>
+                    <option key={level.id} value={level.id}>
+                      {level.label}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -239,74 +252,80 @@ export default function TutorialsPage() {
         </div>
 
         {/* Grille des tutoriels */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTutorials.map((tutorial) => {
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filteredTutorials.map(tutorial => {
             const CategoryIcon = getCategoryIcon(tutorial.category);
-            
+
             return (
-              <div key={tutorial.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+              <div
+                key={tutorial.id}
+                className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+              >
                 {/* Thumbnail */}
                 <div className="relative">
-                  <div className="w-full h-48 bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center">
-                    <PlayCircle className="w-16 h-16 text-purple-600" />
+                  <div className="flex h-48 w-full items-center justify-center bg-gradient-to-br from-purple-100 to-blue-100">
+                    <PlayCircle className="h-16 w-16 text-purple-600" />
                   </div>
-                  
+
                   {/* Badges */}
-                  <div className="absolute top-3 left-3 flex gap-2">
+                  <div className="absolute left-3 top-3 flex gap-2">
                     {tutorial.isNew && (
-                      <span className="px-2 py-1 bg-red-500 text-white text-xs font-semibold rounded-full">
+                      <span className="rounded-full bg-red-500 px-2 py-1 text-xs font-semibold text-white">
                         Nouveau
                       </span>
                     )}
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getLevelColor(tutorial.level)}`}>
-                      {tutorial.level === 'beginner' ? 'Débutant' : 
-                       tutorial.level === 'intermediate' ? 'Intermédiaire' : 'Avancé'}
+                    <span
+                      className={`rounded-full px-2 py-1 text-xs font-semibold ${getLevelColor(tutorial.level)}`}
+                    >
+                      {tutorial.level === 'beginner'
+                        ? 'Débutant'
+                        : tutorial.level === 'intermediate'
+                          ? 'Intermédiaire'
+                          : 'Avancé'}
                     </span>
                   </div>
 
                   {/* Durée */}
-                  <div className="absolute bottom-3 right-3 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-sm">
-                    <Clock className="w-3 h-3 inline mr-1" />
+                  <div className="absolute bottom-3 right-3 rounded bg-black bg-opacity-75 px-2 py-1 text-sm text-white">
+                    <Clock className="mr-1 inline h-3 w-3" />
                     {tutorial.duration}
                   </div>
                 </div>
 
                 {/* Contenu */}
                 <div className="p-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <CategoryIcon className="w-4 h-4 text-purple-600" />
+                  <div className="mb-3 flex items-center gap-2">
+                    <CategoryIcon className="h-4 w-4 text-purple-600" />
                     <span className="text-sm text-gray-600">
                       {categories.find(cat => cat.id === tutorial.category)?.label}
                     </span>
                   </div>
 
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                  <h3 className="mb-2 line-clamp-2 text-lg font-semibold text-gray-900">
                     {tutorial.title}
                   </h3>
 
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                    {tutorial.description}
-                  </p>
+                  <p className="mb-4 line-clamp-2 text-sm text-gray-600">{tutorial.description}</p>
 
                   {/* Métadonnées */}
-                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                  <div className="mb-4 flex items-center justify-between text-sm text-gray-500">
                     <div className="flex items-center gap-1">
-                      <User className="w-3 h-3" />
+                      <User className="h-3 w-3" />
                       <span>{tutorial.author}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Star className="w-3 h-3 text-yellow-500" />
+                      <Star className="h-3 w-3 text-yellow-500" />
                       <span>{tutorial.rating}</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                  <div className="mb-4 flex items-center justify-between text-sm text-gray-500">
                     <span>{tutorial.views.toLocaleString()} vues</span>
                   </div>
 
                   {/* Bouton de lecture */}
-                  <button className="w-full flex items-center justify-center gap-2 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-                    <PlayCircle className="w-4 h-4" />
+                  <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-purple-600 py-2 text-white transition-colors hover:bg-purple-700">
+                    <PlayCircle className="h-4 w-4" />
                     Regarder maintenant
                   </button>
                 </div>
@@ -317,10 +336,10 @@ export default function TutorialsPage() {
 
         {/* Message si aucun tutoriel trouvé */}
         {filteredTutorials.length === 0 && (
-          <div className="text-center py-12">
-            <Video className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucun tutoriel trouvé</h3>
-            <p className="text-gray-600 mb-4">
+          <div className="py-12 text-center">
+            <Video className="mx-auto mb-4 h-16 w-16 text-gray-400" />
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">Aucun tutoriel trouvé</h3>
+            <p className="mb-4 text-gray-600">
               Essayez de modifier vos critères de recherche ou de filtrage.
             </p>
             <button
@@ -329,29 +348,32 @@ export default function TutorialsPage() {
                 setSelectedCategory('all');
                 setSelectedLevel('all');
               }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700"
             >
-              <Filter className="w-4 h-4" />
+              <Filter className="h-4 w-4" />
               Réinitialiser les filtres
             </button>
           </div>
         )}
 
         {/* Section d'ajout de tutoriel pour les administrateurs */}
-        <div className="mt-12 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-8 border border-purple-200">
+        <div className="mt-12 rounded-xl border border-purple-200 bg-gradient-to-r from-purple-50 to-blue-50 p-8">
           <div className="text-center">
-            <Upload className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Ajouter un nouveau tutoriel</h3>
-            <p className="text-gray-600 mb-6">
-              Vous avez créé un tutoriel vidéo ? Ajoutez-le à notre bibliothèque pour aider d'autres utilisateurs.
+            <Upload className="mx-auto mb-4 h-12 w-12 text-purple-600" />
+            <h3 className="mb-2 text-xl font-semibold text-gray-900">
+              Ajouter un nouveau tutoriel
+            </h3>
+            <p className="mb-6 text-gray-600">
+              Vous avez créé un tutoriel vidéo ? Ajoutez-le à notre bibliothèque pour aider d'autres
+              utilisateurs.
             </p>
-            <div className="flex gap-4 justify-center">
-              <button className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-                <Upload className="w-4 h-4" />
+            <div className="flex justify-center gap-4">
+              <button className="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-6 py-3 text-white transition-colors hover:bg-purple-700">
+                <Upload className="h-4 w-4" />
                 Télécharger une vidéo
               </button>
-              <button className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-700 border border-purple-300 rounded-lg hover:bg-purple-50 transition-colors">
-                <Plus className="w-4 h-4" />
+              <button className="inline-flex items-center gap-2 rounded-lg border border-purple-300 bg-white px-6 py-3 text-purple-700 transition-colors hover:bg-purple-50">
+                <Plus className="h-4 w-4" />
                 Créer un tutoriel
               </button>
             </div>

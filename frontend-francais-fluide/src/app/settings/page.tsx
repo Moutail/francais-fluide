@@ -20,13 +20,13 @@ import {
   EyeOff,
   CheckCircle,
   AlertTriangle,
-  BarChart3
+  BarChart3,
 } from 'lucide-react';
 
 export default function SettingsPage() {
   const { user, updateProfile, changePassword } = useAuth();
   const { getStatus } = useSubscriptionSimple();
-  
+
   const [activeTab, setActiveTab] = useState('profile');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -39,19 +39,19 @@ export default function SettingsPage() {
     email: '',
     bio: '',
     language: 'fr',
-    timezone: 'America/Montreal'
+    timezone: 'America/Montreal',
   });
 
   // Données de mot de passe
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
   const [showPasswords, setShowPasswords] = useState({
     current: false,
     new: false,
-    confirm: false
+    confirm: false,
   });
 
   // Préférences de notification
@@ -60,7 +60,7 @@ export default function SettingsPage() {
     push: true,
     weekly: true,
     achievements: true,
-    reminders: false
+    reminders: false,
   });
 
   // Charger les données utilisateur
@@ -71,7 +71,7 @@ export default function SettingsPage() {
         email: user.email || '',
         bio: user.bio || '',
         language: user.language || 'fr',
-        timezone: user.timezone || 'America/Montreal'
+        timezone: user.timezone || 'America/Montreal',
       });
     }
   }, [user]);
@@ -110,7 +110,7 @@ export default function SettingsPage() {
       setPasswordData({
         currentPassword: '',
         newPassword: '',
-        confirmPassword: ''
+        confirmPassword: '',
       });
     } catch (err: any) {
       setError(err.message || 'Erreur lors du changement de mot de passe');
@@ -139,14 +139,16 @@ export default function SettingsPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
 
       const data = await response.json();
 
       if (data.success) {
-        setMessage('Désabonnement effectué avec succès. Votre abonnement restera actif jusqu\'à la fin de la période de facturation.');
+        setMessage(
+          "Désabonnement effectué avec succès. Votre abonnement restera actif jusqu'à la fin de la période de facturation."
+        );
         setIsUnsubscribeOpen(false);
         // Recharger les données utilisateur
         window.location.reload();
@@ -161,7 +163,9 @@ export default function SettingsPage() {
   };
 
   const handleAccountDeletion = async () => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.')) {
+    if (
+      !confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.')
+    ) {
       return;
     }
 
@@ -182,20 +186,20 @@ export default function SettingsPage() {
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'billing', label: 'Facturation', icon: CreditCard },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'privacy', label: 'Confidentialité', icon: Globe }
+    { id: 'privacy', label: 'Confidentialité', icon: Globe },
   ];
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
-      
-      <div className="max-w-6xl mx-auto px-4 py-8">
+
+      <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Paramètres</h1>
           <p className="text-gray-600">Gérez vos préférences et informations personnelles</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <nav className="space-y-2">
@@ -203,13 +207,13 @@ export default function SettingsPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                  className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors ${
                     activeTab === tab.id
                       ? 'bg-blue-100 text-blue-700'
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
-                  <tab.icon className="w-5 h-5" />
+                  <tab.icon className="h-5 w-5" />
                   {tab.label}
                 </button>
               ))}
@@ -218,27 +222,33 @@ export default function SettingsPage() {
 
           {/* Contenu principal */}
           <div className="lg:col-span-3">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               {/* Modal de confirmation de désabonnement */}
               {isUnsubscribeOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center">
-                  <div className="absolute inset-0 bg-black/50" onClick={() => setIsUnsubscribeOpen(false)} />
-                  <div className="relative bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmer le désabonnement</h3>
-                    <p className="text-sm text-gray-600 mb-4">
-                      Êtes-vous sûr de vouloir vous désabonner ? Vous perdrez l'accès aux fonctionnalités premium à la fin de votre période actuelle.
+                  <div
+                    className="absolute inset-0 bg-black/50"
+                    onClick={() => setIsUnsubscribeOpen(false)}
+                  />
+                  <div className="relative mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+                    <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                      Confirmer le désabonnement
+                    </h3>
+                    <p className="mb-4 text-sm text-gray-600">
+                      Êtes-vous sûr de vouloir vous désabonner ? Vous perdrez l'accès aux
+                      fonctionnalités premium à la fin de votre période actuelle.
                     </p>
                     <div className="flex justify-end gap-3">
                       <button
                         onClick={() => setIsUnsubscribeOpen(false)}
-                        className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+                        className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
                       >
                         Annuler
                       </button>
                       <button
                         onClick={handleUnsubscribe}
                         disabled={isLoading}
-                        className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                        className="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-50"
                       >
                         {isLoading ? 'Traitement...' : 'Confirmer'}
                       </button>
@@ -248,15 +258,15 @@ export default function SettingsPage() {
               )}
               {/* Messages */}
               {message && (
-                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
+                <div className="mb-6 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-4">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
                   <p className="text-green-700">{message}</p>
                 </div>
               )}
 
               {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                <div className="mb-6 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-4">
+                  <AlertTriangle className="h-5 w-5 text-red-600" />
                   <p className="text-red-700">{error}</p>
                 </div>
               )}
@@ -264,58 +274,64 @@ export default function SettingsPage() {
               {/* Onglet Profil */}
               {activeTab === 'profile' && (
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Informations du profil</h2>
-                  
+                  <h2 className="mb-6 text-xl font-semibold text-gray-900">
+                    Informations du profil
+                  </h2>
+
                   <form onSubmit={handleProfileUpdate} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
                           Nom complet
                         </label>
                         <input
                           type="text"
                           value={profileData.name}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, name: e.target.value }))}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          onChange={e =>
+                            setProfileData(prev => ({ ...prev, name: e.target.value }))
+                          }
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
                           Email
                         </label>
                         <input
                           type="email"
                           value={profileData.email}
                           disabled
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                          className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-gray-500"
                         />
-                        <p className="text-xs text-gray-500 mt-1">L'email ne peut pas être modifié</p>
+                        <p className="mt-1 text-xs text-gray-500">
+                          L'email ne peut pas être modifié
+                        </p>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Bio
-                      </label>
+                      <label className="mb-2 block text-sm font-medium text-gray-700">Bio</label>
                       <textarea
                         value={profileData.bio}
-                        onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
+                        onChange={e => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
                         rows={3}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                         placeholder="Parlez-nous de vous..."
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
                           Langue
                         </label>
                         <select
                           value={profileData.language}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, language: e.target.value }))}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          onChange={e =>
+                            setProfileData(prev => ({ ...prev, language: e.target.value }))
+                          }
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                         >
                           <option value="fr">Français</option>
                           <option value="en">English</option>
@@ -324,13 +340,15 @@ export default function SettingsPage() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
                           Fuseau horaire
                         </label>
                         <select
                           value={profileData.timezone}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, timezone: e.target.value }))}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          onChange={e =>
+                            setProfileData(prev => ({ ...prev, timezone: e.target.value }))
+                          }
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                         >
                           <option value="America/Montreal">Montréal (GMT-5)</option>
                           <option value="America/Toronto">Toronto (GMT-5)</option>
@@ -343,9 +361,9 @@ export default function SettingsPage() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      <Save className="w-4 h-4" />
+                      <Save className="h-4 w-4" />
                       {isLoading ? 'Sauvegarde...' : 'Sauvegarder'}
                     </button>
                   </form>
@@ -355,68 +373,90 @@ export default function SettingsPage() {
               {/* Onglet Sécurité */}
               {activeTab === 'security' && (
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Sécurité</h2>
-                  
+                  <h2 className="mb-6 text-xl font-semibold text-gray-900">Sécurité</h2>
+
                   <form onSubmit={handlePasswordChange} className="space-y-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="mb-2 block text-sm font-medium text-gray-700">
                         Mot de passe actuel
                       </label>
                       <div className="relative">
                         <input
                           type={showPasswords.current ? 'text' : 'password'}
                           value={passwordData.currentPassword}
-                          onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
-                          className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          onChange={e =>
+                            setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))
+                          }
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 pr-12 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                         />
                         <button
                           type="button"
-                          onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          onClick={() =>
+                            setShowPasswords(prev => ({ ...prev, current: !prev.current }))
+                          }
+                          className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
                         >
-                          {showPasswords.current ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          {showPasswords.current ? (
+                            <EyeOff className="h-5 w-5" />
+                          ) : (
+                            <Eye className="h-5 w-5" />
+                          )}
                         </button>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="mb-2 block text-sm font-medium text-gray-700">
                         Nouveau mot de passe
                       </label>
                       <div className="relative">
                         <input
                           type={showPasswords.new ? 'text' : 'password'}
                           value={passwordData.newPassword}
-                          onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
-                          className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          onChange={e =>
+                            setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))
+                          }
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 pr-12 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
                         >
-                          {showPasswords.new ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          {showPasswords.new ? (
+                            <EyeOff className="h-5 w-5" />
+                          ) : (
+                            <Eye className="h-5 w-5" />
+                          )}
                         </button>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="mb-2 block text-sm font-medium text-gray-700">
                         Confirmer le nouveau mot de passe
                       </label>
                       <div className="relative">
                         <input
                           type={showPasswords.confirm ? 'text' : 'password'}
                           value={passwordData.confirmPassword}
-                          onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                          className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          onChange={e =>
+                            setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))
+                          }
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 pr-12 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                         />
                         <button
                           type="button"
-                          onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          onClick={() =>
+                            setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))
+                          }
+                          className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
                         >
-                          {showPasswords.confirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          {showPasswords.confirm ? (
+                            <EyeOff className="h-5 w-5" />
+                          ) : (
+                            <Eye className="h-5 w-5" />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -424,26 +464,27 @@ export default function SettingsPage() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      <Lock className="w-4 h-4" />
+                      <Lock className="h-4 w-4" />
                       {isLoading ? 'Modification...' : 'Modifier le mot de passe'}
                     </button>
                   </form>
 
                   {/* Suppression de compte */}
-                  <div className="mt-12 pt-8 border-t border-gray-200">
-                    <h3 className="text-lg font-semibold text-red-600 mb-4">Zone dangereuse</h3>
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                      <p className="text-red-700 mb-4">
-                        La suppression de votre compte est irréversible. Toutes vos données seront perdues.
+                  <div className="mt-12 border-t border-gray-200 pt-8">
+                    <h3 className="mb-4 text-lg font-semibold text-red-600">Zone dangereuse</h3>
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                      <p className="mb-4 text-red-700">
+                        La suppression de votre compte est irréversible. Toutes vos données seront
+                        perdues.
                       </p>
                       <button
                         onClick={handleAccountDeletion}
                         disabled={isLoading}
-                        className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="h-4 w-4" />
                         Supprimer mon compte
                       </button>
                     </div>
@@ -454,8 +495,10 @@ export default function SettingsPage() {
               {/* Onglet Notifications */}
               {activeTab === 'notifications' && (
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Préférences de notification</h2>
-                  
+                  <h2 className="mb-6 text-xl font-semibold text-gray-900">
+                    Préférences de notification
+                  </h2>
+
                   <div className="space-y-6">
                     <div className="space-y-4">
                       {Object.entries(notifications).map(([key, value]) => (
@@ -466,7 +509,7 @@ export default function SettingsPage() {
                               {key === 'push' && 'Notifications push'}
                               {key === 'weekly' && 'Rapport hebdomadaire'}
                               {key === 'achievements' && 'Nouveaux succès'}
-                              {key === 'reminders' && 'Rappels d\'exercices'}
+                              {key === 'reminders' && "Rappels d'exercices"}
                             </h3>
                             <p className="text-sm text-gray-600">
                               {key === 'email' && 'Recevez des mises à jour par email'}
@@ -476,14 +519,16 @@ export default function SettingsPage() {
                               {key === 'reminders' && 'Recevez des rappels pour pratiquer'}
                             </p>
                           </div>
-                          <label className="relative inline-flex items-center cursor-pointer">
+                          <label className="relative inline-flex cursor-pointer items-center">
                             <input
                               type="checkbox"
                               checked={value}
-                              onChange={(e) => setNotifications(prev => ({ ...prev, [key]: e.target.checked }))}
-                              className="sr-only peer"
+                              onChange={e =>
+                                setNotifications(prev => ({ ...prev, [key]: e.target.checked }))
+                              }
+                              className="peer sr-only"
                             />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"></div>
                           </label>
                         </div>
                       ))}
@@ -492,9 +537,9 @@ export default function SettingsPage() {
                     <button
                       onClick={handleNotificationUpdate}
                       disabled={isLoading}
-                      className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      <Bell className="w-4 h-4" />
+                      <Bell className="h-4 w-4" />
                       {isLoading ? 'Sauvegarde...' : 'Sauvegarder les préférences'}
                     </button>
                   </div>
@@ -504,28 +549,30 @@ export default function SettingsPage() {
               {/* Onglet Facturation */}
               {activeTab === 'billing' && (
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Facturation et abonnement</h2>
-                  
+                  <h2 className="mb-6 text-xl font-semibold text-gray-900">
+                    Facturation et abonnement
+                  </h2>
+
                   <div className="space-y-6">
                     {/* Plan actuel */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                      <h3 className="text-lg font-semibold text-blue-900 mb-2">Plan actuel</h3>
-                      <p className="text-blue-700 mb-4">
+                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-6">
+                      <h3 className="mb-2 text-lg font-semibold text-blue-900">Plan actuel</h3>
+                      <p className="mb-4 text-blue-700">
                         {getStatus().planName} - {getStatus().isActive ? 'Actif' : 'Inactif'}
                       </p>
                       <div className="flex gap-3">
                         <a
                           href="/subscription"
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
                         >
-                          <CreditCard className="w-4 h-4" />
+                          <CreditCard className="h-4 w-4" />
                           Gérer l'abonnement
                         </a>
                         <button
                           onClick={() => setIsUnsubscribeOpen(true)}
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                          className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="h-4 w-4" />
                           Me désabonner
                         </button>
                       </div>
@@ -533,9 +580,11 @@ export default function SettingsPage() {
 
                     {/* Historique des factures */}
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Historique des factures</h3>
-                      <div className="text-center py-8 text-gray-500">
-                        <CreditCard className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                      <h3 className="mb-4 text-lg font-semibold text-gray-900">
+                        Historique des factures
+                      </h3>
+                      <div className="py-8 text-center text-gray-500">
+                        <CreditCard className="mx-auto mb-3 h-12 w-12 text-gray-300" />
                         <p>Aucune facture disponible</p>
                       </div>
                     </div>
@@ -547,12 +596,14 @@ export default function SettingsPage() {
               {activeTab === 'analytics' && (
                 <div className="space-y-8">
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Analytics et Performance</h2>
+                    <h2 className="mb-6 text-xl font-semibold text-gray-900">
+                      Analytics et Performance
+                    </h2>
                     <ErrorAnalytics />
                   </div>
-                  
+
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Recommandations IA</h2>
+                    <h2 className="mb-6 text-xl font-semibold text-gray-900">Recommandations IA</h2>
                     <PersonalizedRecommendations />
                   </div>
                 </div>
@@ -561,25 +612,31 @@ export default function SettingsPage() {
               {/* Onglet Confidentialité */}
               {activeTab === 'privacy' && (
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Confidentialité et données</h2>
-                  
+                  <h2 className="mb-6 text-xl font-semibold text-gray-900">
+                    Confidentialité et données
+                  </h2>
+
                   <div className="space-y-6">
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Export de données</h3>
-                      <p className="text-gray-600 mb-4">
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-6">
+                      <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                        Export de données
+                      </h3>
+                      <p className="mb-4 text-gray-600">
                         Téléchargez une copie de toutes vos données personnelles.
                       </p>
-                      <button className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                      <button className="rounded-lg bg-gray-600 px-4 py-2 text-white transition-colors hover:bg-gray-700">
                         Télécharger mes données
                       </button>
                     </div>
 
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Suppression de données</h3>
-                      <p className="text-gray-600 mb-4">
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-6">
+                      <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                        Suppression de données
+                      </h3>
+                      <p className="mb-4 text-gray-600">
                         Supprimez définitivement toutes vos données personnelles.
                       </p>
-                      <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                      <button className="rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700">
                         Supprimer mes données
                       </button>
                     </div>

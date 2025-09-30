@@ -2,23 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  Lock,
-  Eye,
-  EyeOff,
-  CheckCircle,
-  AlertTriangle,
-  ArrowLeft
-} from 'lucide-react';
+import { Lock, Eye, EyeOff, CheckCircle, AlertTriangle, ArrowLeft } from 'lucide-react';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
-  
+
   const [formData, setFormData] = useState({
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -58,7 +51,7 @@ export default function ResetPasswordPage() {
         },
         body: JSON.stringify({
           token,
-          password: formData.password
+          password: formData.password,
         }),
       });
 
@@ -87,22 +80,16 @@ export default function ResetPasswordPage() {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full">
-          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-green-600" />
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 p-4">
+        <div className="w-full max-w-md">
+          <div className="rounded-2xl bg-white p-8 text-center shadow-xl">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+              <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Mot de passe réinitialisé !
-            </h1>
-            <p className="text-gray-600 mb-6">
-              Votre mot de passe a été modifié avec succès.
-            </p>
-            <p className="text-sm text-gray-500 mb-6">
-              Redirection vers la page de connexion...
-            </p>
-            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <h1 className="mb-2 text-2xl font-bold text-gray-900">Mot de passe réinitialisé !</h1>
+            <p className="mb-6 text-gray-600">Votre mot de passe a été modifié avec succès.</p>
+            <p className="mb-6 text-sm text-gray-500">Redirection vers la page de connexion...</p>
+            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
           </div>
         </div>
       </div>
@@ -111,21 +98,19 @@ export default function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full">
-          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle className="w-8 h-8 text-red-600" />
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 p-4">
+        <div className="w-full max-w-md">
+          <div className="rounded-2xl bg-white p-8 text-center shadow-xl">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+              <AlertTriangle className="h-8 w-8 text-red-600" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Lien invalide
-            </h1>
-            <p className="text-gray-600 mb-6">
+            <h1 className="mb-2 text-2xl font-bold text-gray-900">Lien invalide</h1>
+            <p className="mb-6 text-gray-600">
               Ce lien de réinitialisation est invalide ou a expiré.
             </p>
             <button
               onClick={() => router.push('/auth/forgot-password')}
-              className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+              className="w-full rounded-lg bg-blue-600 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
             >
               Demander un nouveau lien
             </button>
@@ -136,78 +121,78 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 p-4">
+      <div className="w-full max-w-md">
         {/* Logo et titre */}
-        <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-4">
-            <span className="text-white font-bold text-2xl">F</span>
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600">
+            <span className="text-2xl font-bold text-white">F</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Nouveau mot de passe
-          </h1>
-          <p className="text-gray-600">
-            Entrez votre nouveau mot de passe
-          </p>
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">Nouveau mot de passe</h1>
+          <p className="text-gray-600">Entrez votre nouveau mot de passe</p>
         </div>
 
         {/* Formulaire */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="rounded-2xl bg-white p-8 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Nouveau mot de passe */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
                 Nouveau mot de passe
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onChange={e => handleInputChange('password', e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-12 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
             </div>
 
             {/* Confirmation mot de passe */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
                 Confirmer le mot de passe
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
-                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onChange={e => handleInputChange('confirmPassword', e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-12 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
 
             {/* Message d'erreur */}
             {error && (
-              <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
+              <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3">
+                <AlertTriangle className="h-5 w-5 flex-shrink-0 text-red-600" />
                 <p className="text-sm text-red-700">{error}</p>
               </div>
             )}
@@ -216,11 +201,11 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold text-lg shadow-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 py-3 text-lg font-semibold text-white shadow-lg transition-all hover:from-blue-700 hover:to-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                   Réinitialisation...
                 </>
               ) : (
@@ -233,9 +218,9 @@ export default function ResetPasswordPage() {
           <div className="mt-6 text-center">
             <a
               href="/auth/login"
-              className="flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              className="flex items-center justify-center gap-2 text-sm text-gray-600 transition-colors hover:text-gray-900"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="h-4 w-4" />
               Retour à la connexion
             </a>
           </div>

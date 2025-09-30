@@ -5,10 +5,7 @@ export async function POST(request: NextRequest) {
   try {
     const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
     if (!backend) {
-      return NextResponse.json(
-        { error: 'NEXT_PUBLIC_BACKEND_URL non configuré' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'NEXT_PUBLIC_BACKEND_URL non configuré' }, { status: 500 });
     }
 
     const authHeader = request.headers.get('authorization') || '';
@@ -16,7 +13,7 @@ export async function POST(request: NextRequest) {
     const res = await fetch(`${backend}/api/ai/grammar`, {
       method: 'POST',
       headers: {
-        'authorization': authHeader,
+        authorization: authHeader,
         'content-type': 'application/json',
       },
       body: JSON.stringify(body),

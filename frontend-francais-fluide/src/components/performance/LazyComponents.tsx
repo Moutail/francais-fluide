@@ -13,10 +13,10 @@ const LoadingFallback: React.FC<{ message?: string }> = ({ message = 'Chargement
   <div className="flex items-center justify-center p-8">
     <div className="flex flex-col items-center space-y-4">
       <div className="relative">
-        <div className="w-12 h-12 border-4 border-blue-200 rounded-full animate-spin"></div>
-        <div className="absolute top-0 left-0 w-12 h-12 border-4 border-blue-600 rounded-full animate-spin border-t-transparent"></div>
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-200"></div>
+        <div className="absolute left-0 top-0 h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
       </div>
-      <p className="text-sm text-gray-600 animate-pulse">{message}</p>
+      <p className="animate-pulse text-sm text-gray-600">{message}</p>
     </div>
   </div>
 );
@@ -24,19 +24,24 @@ const LoadingFallback: React.FC<{ message?: string }> = ({ message = 'Chargement
 // Fallback d'erreur
 const ErrorFallback: React.FC<{ error?: Error; retry?: () => void }> = ({ error, retry }) => (
   <div className="flex flex-col items-center justify-center p-8 text-center">
-    <div className="text-red-500 mb-4">
-      <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <div className="mb-4 text-red-500">
+      <svg className="mx-auto h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
       </svg>
     </div>
-    <h3 className="text-lg font-medium text-gray-900 mb-2">Erreur de chargement</h3>
-    <p className="text-sm text-gray-600 mb-4">
+    <h3 className="mb-2 text-lg font-medium text-gray-900">Erreur de chargement</h3>
+    <p className="mb-4 text-sm text-gray-600">
       {error?.message || 'Impossible de charger ce composant'}
     </p>
     {retry && (
       <button
         onClick={retry}
-        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        className="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
       >
         Réessayer
       </button>
@@ -75,23 +80,29 @@ class LazyErrorBoundary extends React.Component<
 // Enregistrement des composants avec configuration optimisée
 intelligentLazyLoader.registerComponent(
   'SmartEditor',
-  () => import('@/components/editor/SmartEditorOptimized').then(m => ({ default: m.SmartEditorOptimized })),
+  () =>
+    import('@/components/editor/SmartEditorOptimized').then(m => ({
+      default: m.SmartEditorOptimized,
+    })),
   {
     preload: true,
     priority: 'high',
     cache: true,
-    cacheKey: 'smart-editor'
+    cacheKey: 'smart-editor',
   }
 );
 
 intelligentLazyLoader.registerComponent(
   'AnalyticsDashboard',
-  () => import('@/components/analytics/AnalyticsDashboard').then(m => ({ default: m.AnalyticsDashboard })),
+  () =>
+    import('@/components/analytics/AnalyticsDashboard').then(m => ({
+      default: m.AnalyticsDashboard,
+    })),
   {
     preload: false,
     priority: 'medium',
     cache: true,
-    cacheKey: 'analytics-dashboard'
+    cacheKey: 'analytics-dashboard',
   }
 );
 
@@ -102,7 +113,7 @@ intelligentLazyLoader.registerComponent(
     preload: false,
     priority: 'medium',
     cache: true,
-    cacheKey: 'exercise-player'
+    cacheKey: 'exercise-player',
   }
 );
 
@@ -113,7 +124,7 @@ intelligentLazyLoader.registerComponent(
     preload: true,
     priority: 'high',
     cache: true,
-    cacheKey: 'progress-dashboard'
+    cacheKey: 'progress-dashboard',
   }
 );
 
@@ -124,16 +135,16 @@ intelligentLazyLoader.registerComponent(
     preload: false,
     priority: 'low',
     cache: true,
-    cacheKey: 'collaborative-editor'
+    cacheKey: 'collaborative-editor',
   }
 );
 
 // Composants lazy avec React.lazy pour compatibilité
-export const LazySmartEditor = lazy(() => 
+export const LazySmartEditor = lazy(() =>
   import('@/components/editor/SmartEditorOptimized')
     .then(m => ({ default: m.SmartEditorOptimized }))
     .catch(() => ({
-      default: () => <LoadingFallback message="Éditeur intelligent non disponible" />
+      default: () => <LoadingFallback message="Éditeur intelligent non disponible" />,
     }))
 );
 
@@ -141,25 +152,25 @@ export const LazyAnalyticsDashboard = lazy(() =>
   import('@/components/analytics/AnalyticsDashboard')
     .then(m => ({ default: m.AnalyticsDashboard }))
     .catch(() => ({
-      default: () => <LoadingFallback message="Tableau de bord non disponible" />
+      default: () => <LoadingFallback message="Tableau de bord non disponible" />,
     }))
 );
 
 export const LazyExercisePlayer = lazy(() =>
   import('@/components/exercises/ExercisePlayer').catch(() => ({
-    default: () => <LoadingFallback message="Lecteur d'exercices non disponible" />
+    default: () => <LoadingFallback message="Lecteur d'exercices non disponible" />,
   }))
 );
 
 export const LazyProgressDashboard = lazy(() =>
   import('@/components/gamification/ProgressDashboard').catch(() => ({
-    default: () => <LoadingFallback message="Tableau de progression non disponible" />
+    default: () => <LoadingFallback message="Tableau de progression non disponible" />,
   }))
 );
 
 export const LazyCollaborativeEditor = lazy(() =>
   import('@/components/editor/CollaborativeEditor').catch(() => ({
-    default: () => <LoadingFallback message="Éditeur collaboratif non disponible" />
+    default: () => <LoadingFallback message="Éditeur collaboratif non disponible" />,
   }))
 );
 
@@ -168,7 +179,7 @@ export const LazyCharts = lazy(() =>
   import('@/components/charts/ProgressChart')
     .then(m => ({ default: m.default }))
     .catch(() => ({
-      default: () => <LoadingFallback message="Graphiques non disponibles" />
+      default: () => <LoadingFallback message="Graphiques non disponibles" />,
     }))
 );
 
@@ -176,12 +187,12 @@ export const LazyGamificationComponents = lazy(() =>
   import('@/components/gamification/ProgressDashboard')
     .then(m => ({ default: m.default }))
     .catch(() => ({
-      default: () => <LoadingFallback message="Composants de gamification non disponibles" />
+      default: () => <LoadingFallback message="Composants de gamification non disponibles" />,
     }))
 );
 
 // Wrappers avec Suspense et ErrorBoundary
-export const SmartEditorWithSuspense: React.FC<any> = (props) => (
+export const SmartEditorWithSuspense: React.FC<any> = props => (
   <LazyErrorBoundary>
     <Suspense fallback={<LoadingFallback message="Chargement de l'éditeur intelligent..." />}>
       <LazySmartEditor {...props} />
@@ -189,7 +200,7 @@ export const SmartEditorWithSuspense: React.FC<any> = (props) => (
   </LazyErrorBoundary>
 );
 
-export const AnalyticsDashboardWithSuspense: React.FC<any> = (props) => (
+export const AnalyticsDashboardWithSuspense: React.FC<any> = props => (
   <LazyErrorBoundary>
     <Suspense fallback={<LoadingFallback message="Chargement du tableau de bord..." />}>
       <LazyAnalyticsDashboard {...props} />
@@ -197,7 +208,7 @@ export const AnalyticsDashboardWithSuspense: React.FC<any> = (props) => (
   </LazyErrorBoundary>
 );
 
-export const ExercisePlayerWithSuspense: React.FC<any> = (props) => (
+export const ExercisePlayerWithSuspense: React.FC<any> = props => (
   <LazyErrorBoundary>
     <Suspense fallback={<LoadingFallback message="Chargement du lecteur d'exercices..." />}>
       <LazyExercisePlayer {...props} />
@@ -205,7 +216,7 @@ export const ExercisePlayerWithSuspense: React.FC<any> = (props) => (
   </LazyErrorBoundary>
 );
 
-export const ProgressDashboardWithSuspense: React.FC<any> = (props) => (
+export const ProgressDashboardWithSuspense: React.FC<any> = props => (
   <LazyErrorBoundary>
     <Suspense fallback={<LoadingFallback message="Chargement de la progression..." />}>
       <LazyProgressDashboard {...props} />
@@ -213,7 +224,7 @@ export const ProgressDashboardWithSuspense: React.FC<any> = (props) => (
   </LazyErrorBoundary>
 );
 
-export const CollaborativeEditorWithSuspense: React.FC<any> = (props) => (
+export const CollaborativeEditorWithSuspense: React.FC<any> = props => (
   <LazyErrorBoundary>
     <Suspense fallback={<LoadingFallback message="Chargement de l'éditeur collaboratif..." />}>
       <LazyCollaborativeEditor {...props} />
@@ -244,7 +255,7 @@ export const usePreloadComponents = () => {
       'SmartEditor',
       'AnalyticsDashboard',
       'ExercisePlayer',
-      'ProgressDashboard'
+      'ProgressDashboard',
     ]);
   }, []);
 
@@ -253,7 +264,7 @@ export const usePreloadComponents = () => {
     preloadAnalytics,
     preloadExercises,
     preloadProgress,
-    preloadAll
+    preloadAll,
   };
 };
 
@@ -308,8 +319,8 @@ export const LazyComponentsMonitor: React.FC = () => {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 bg-black bg-opacity-75 text-white p-3 rounded-lg text-xs font-mono z-50">
-      <div className="font-bold mb-2">Lazy Components</div>
+    <div className="fixed bottom-4 right-4 z-50 rounded-lg bg-black bg-opacity-75 p-3 font-mono text-xs text-white">
+      <div className="mb-2 font-bold">Lazy Components</div>
       <div>Total: {metrics.totalComponents}</div>
       <div>Loaded: {metrics.loadedComponents}</div>
       <div>Loading: {metrics.loadingComponents}</div>
@@ -327,5 +338,5 @@ export {
   LazyProgressDashboard as ProgressDashboard,
   LazyCollaborativeEditor as CollaborativeEditor,
   LazyCharts as Charts,
-  LazyGamificationComponents as GamificationComponents
+  LazyGamificationComponents as GamificationComponents,
 };

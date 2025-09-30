@@ -5,10 +5,7 @@ export async function POST(request: NextRequest) {
   try {
     const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
     if (!backend) {
-      return NextResponse.json(
-        { error: 'NEXT_PUBLIC_BACKEND_URL non configuré' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'NEXT_PUBLIC_BACKEND_URL non configuré' }, { status: 500 });
     }
 
     const body = await request.json().catch(() => ({}));

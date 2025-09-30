@@ -14,14 +14,16 @@ interface RateLimitStatus {
 export default function RateLimitDebug() {
   const [status, setStatus] = useState<RateLimitStatus | null>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [testResults, setTestResults] = useState<Array<{
-    endpoint: string;
-    status: number;
-    timestamp: string;
-    success: boolean;
-    responseTime?: number;
-    error?: string;
-  }>>([]);
+  const [testResults, setTestResults] = useState<
+    Array<{
+      endpoint: string;
+      status: number;
+      timestamp: string;
+      success: boolean;
+      responseTime?: number;
+      error?: string;
+    }>
+  >([]);
   const isMounted = useIsMounted();
 
   useEffect(() => {
@@ -32,11 +34,7 @@ export default function RateLimitDebug() {
   }, []);
 
   const testEndpoints = async () => {
-    const endpoints = [
-      '/api/progress',
-      '/api/auth/me',
-      '/api/exercises'
-    ];
+    const endpoints = ['/api/progress', '/api/auth/me', '/api/exercises'];
 
     const results: Array<{
       endpoint: string;
@@ -46,24 +44,24 @@ export default function RateLimitDebug() {
       responseTime?: number;
       error?: string;
     }> = [];
-    
+
     for (const endpoint of endpoints) {
       try {
         const startTime = Date.now();
         const response = await fetch(endpoint, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            'Content-Type': 'application/json',
+          },
         });
         const endTime = Date.now();
-        
+
         results.push({
           endpoint,
           status: response.status,
           timestamp: new Date().toLocaleString('fr-FR'),
           success: response.ok,
-          responseTime: endTime - startTime
+          responseTime: endTime - startTime,
         });
 
         // Vérifier les headers de rate limiting
@@ -76,7 +74,7 @@ export default function RateLimitDebug() {
             isLimited: response.status === 429,
             remaining: remaining ? parseInt(remaining) : 0,
             resetTime: resetTime ? parseInt(resetTime) * 1000 : 0,
-            retryAfter: retryAfter ? parseInt(retryAfter) : undefined
+            retryAfter: retryAfter ? parseInt(retryAfter) : undefined,
           });
         }
       } catch (error) {
@@ -85,7 +83,7 @@ export default function RateLimitDebug() {
           status: 0,
           timestamp: new Date().toLocaleString('fr-FR'),
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
         });
       }
     }
@@ -102,39 +100,30 @@ export default function RateLimitDebug() {
   if (!isMounted || !isVisible) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 bg-white border border-gray-300 rounded-lg shadow-lg p-4 max-w-md">
-      <div className="flex items-center justify-between mb-3">
+    <div className="fixed bottom-4 right-4 z-50 max-w-md rounded-lg border border-gray-300 bg-white p-4 shadow-lg">
+      <div className="mb-3 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-900">Debug Rate Limiting</h3>
-        <button
-          onClick={() => setIsVisible(false)}
-          className="text-gray-400 hover:text-gray-600"
-        >
+        <button onClick={() => setIsVisible(false)} className="text-gray-400 hover:text-gray-600">
           ×
         </button>
       </div>
 
       {/* Status du rate limiting */}
       {status && (
-        <div className="mb-3 p-2 bg-gray-50 rounded">
-          <div className="flex items-center gap-2 mb-1">
+        <div className="mb-3 rounded bg-gray-50 p-2">
+          <div className="mb-1 flex items-center gap-2">
             {status.isLimited ? (
-              <XCircle className="w-4 h-4 text-red-500" />
+              <XCircle className="h-4 w-4 text-red-500" />
             ) : (
-              <CheckCircle className="w-4 h-4 text-green-500" />
+              <CheckCircle className="h-4 w-4 text-green-500" />
             )}
-            <span className="text-sm font-medium">
-              {status.isLimited ? 'Rate Limited' : 'OK'}
-            </span>
+            <span className="text-sm font-medium">{status.isLimited ? 'Rate Limited' : 'OK'}</span>
           </div>
           {status.remaining !== undefined && (
-            <p className="text-xs text-gray-600">
-              Requêtes restantes: {status.remaining}
-            </p>
+            <p className="text-xs text-gray-600">Requêtes restantes: {status.remaining}</p>
           )}
           {status.retryAfter && (
-            <p className="text-xs text-red-600">
-              Réessayer dans: {status.retryAfter}s
-            </p>
+            <p className="text-xs text-red-600">Réessayer dans: {status.retryAfter}s</p>
           )}
         </div>
       )}
@@ -143,17 +132,17 @@ export default function RateLimitDebug() {
       <div className="space-y-2">
         <button
           onClick={testEndpoints}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+          className="flex w-full items-center justify-center gap-2 rounded bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700"
         >
-          <RefreshCw className="w-4 h-4" />
+          <RefreshCw className="h-4 w-4" />
           Tester les endpoints
         </button>
-        
+
         <button
           onClick={clearCache}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700"
+          className="flex w-full items-center justify-center gap-2 rounded bg-gray-600 px-3 py-2 text-sm text-white hover:bg-gray-700"
         >
-          <AlertTriangle className="w-4 h-4" />
+          <AlertTriangle className="h-4 w-4" />
           Vider le cache
         </button>
       </div>
@@ -165,17 +154,13 @@ export default function RateLimitDebug() {
           {testResults.map((result, index) => (
             <div
               key={index}
-              className={`text-xs p-2 rounded ${
-                result.success
-                  ? 'bg-green-50 text-green-700'
-                  : 'bg-red-50 text-red-700'
+              className={`rounded p-2 text-xs ${
+                result.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
               }`}
             >
               <div className="flex justify-between">
                 <span className="font-mono">{result.endpoint}</span>
-                <span className="font-bold">
-                  {result.status === 0 ? 'ERR' : result.status}
-                </span>
+                <span className="font-bold">{result.status === 0 ? 'ERR' : result.status}</span>
               </div>
               <div className="text-xs opacity-75">
                 {result.timestamp}

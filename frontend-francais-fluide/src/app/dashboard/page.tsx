@@ -23,7 +23,7 @@ import {
   Clock,
   AlertTriangle,
   RefreshCw,
-  Server
+  Server,
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -38,7 +38,7 @@ export default function DashboardPage() {
     wordsWritten: 0,
     accuracy: 0,
     exercisesCompleted: 0,
-    currentStreak: 0
+    currentStreak: 0,
   };
 
   // Le hook useApi extrait déjà response.data, donc progress contient directement les données
@@ -48,7 +48,12 @@ export default function DashboardPage() {
   useEffect(() => {
     if (progressError && typeof progressError === 'string' && !progressError.includes('Token')) {
       console.error('Erreur critique de progression:', progressError);
-    } else if (progressError && typeof progressError === 'object' && (progressError as any)?.message && !(progressError as any)?.message.includes('Token')) {
+    } else if (
+      progressError &&
+      typeof progressError === 'object' &&
+      (progressError as any)?.message &&
+      !(progressError as any)?.message.includes('Token')
+    ) {
       console.error('Erreur critique de progression:', progressError);
     }
   }, [progressError]);
@@ -66,9 +71,9 @@ export default function DashboardPage() {
 
   if (!mounted || authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </div>
@@ -85,14 +90,14 @@ export default function DashboardPage() {
       <Navigation />
 
       {/* Dashboard Content */}
-      <div className="py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
+      <div className="px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl">
           {/* Hero */}
-          <Card className="mb-8 backdrop-blur-sm bg-white/70 border-white/40 shadow-sm">
+          <Card className="mb-8 border-white/40 bg-white/70 shadow-sm backdrop-blur-sm">
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
+                  <h1 className="mb-1 text-2xl font-bold text-gray-900 md:text-3xl">
                     Bonjour {user?.name || 'Utilisateur'} 👋
                   </h1>
                   <p className="text-gray-600">
@@ -104,26 +109,26 @@ export default function DashboardPage() {
           </Card>
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">
+            <h1 className="mb-2 text-3xl font-bold tracking-tight text-gray-900">
               Tableau de bord
             </h1>
-            <p className="text-gray-600 mb-6">
+            <p className="mb-6 text-gray-600">
               Bonjour {user?.name || 'Utilisateur'}, voici un aperçu de votre progression.
             </p>
 
             {/* Plan d'abonnement */}
-            <Card className="mb-8 backdrop-blur-sm bg-white/70 border-white/40 shadow-sm">
+            <Card className="mb-8 border-white/40 bg-white/70 shadow-sm backdrop-blur-sm">
               <CardContent>
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
                       Plan: {getStatus().planName}
                     </h3>
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="mt-1 flex items-center gap-2">
                       {isActive() ? (
-                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <CheckCircle className="h-4 w-4 text-green-600" />
                       ) : (
-                        <XCircle className="w-4 h-4 text-red-600" />
+                        <XCircle className="h-4 w-4 text-red-600" />
                       )}
                       <span className="text-sm text-gray-600">
                         {isActive() ? 'Actif' : 'Inactif'}
@@ -131,13 +136,18 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-gray-600 mb-2">Fonctionnalités disponibles:</p>
+                    <p className="mb-2 text-sm text-gray-600">Fonctionnalités disponibles:</p>
                     <div className="flex flex-wrap gap-2">
-                      {getStatus().features.slice(0, 3).map((feature: string, index: number) => (
-                        <span key={index} className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200/60">
-                          {feature}
-                        </span>
-                      ))}
+                      {getStatus()
+                        .features.slice(0, 3)
+                        .map((feature: string, index: number) => (
+                          <span
+                            key={index}
+                            className="rounded-full border border-blue-200/60 bg-blue-50 px-2.5 py-1 text-xs text-blue-700"
+                          >
+                            {feature}
+                          </span>
+                        ))}
                       {getStatus().features.length > 3 && (
                         <span className="text-xs text-gray-500">
                           +{getStatus().features.length - 3} autres
@@ -151,44 +161,53 @@ export default function DashboardPage() {
           </div>
 
           {/* Actions Principales */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="hover:shadow-md transition-all duration-200 cursor-pointer backdrop-blur-sm bg-white/70 border-white/40" onClick={() => (window.location.href = '/editor')}>
+          <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+            <Card
+              className="cursor-pointer border-white/40 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:shadow-md"
+              onClick={() => (window.location.href = '/editor')}
+            >
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center ring-1 ring-blue-200/60">
-                    <Edit3 className="w-6 h-6 text-blue-600" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 ring-1 ring-blue-200/60">
+                    <Edit3 className="h-6 w-6 text-blue-600" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">Éditeur de texte</h3>
-                    <p className="text-gray-600 text-sm">Corrigez vos textes avec l'IA</p>
+                    <p className="text-sm text-gray-600">Corrigez vos textes avec l'IA</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-md transition-all duration-200 cursor-pointer backdrop-blur-sm bg-white/70 border-white/40" onClick={() => (window.location.href = '/exercices')}>
+            <Card
+              className="cursor-pointer border-white/40 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:shadow-md"
+              onClick={() => (window.location.href = '/exercices')}
+            >
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center ring-1 ring-green-200/60">
-                    <BookOpen className="w-6 h-6 text-green-600" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 ring-1 ring-green-200/60">
+                    <BookOpen className="h-6 w-6 text-green-600" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">Exercices</h3>
-                    <p className="text-gray-600 text-sm">Améliorez vos compétences</p>
+                    <p className="text-sm text-gray-600">Améliorez vos compétences</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-md transition-all duration-200 cursor-pointer backdrop-blur-sm bg-white/70 border-white/40" onClick={() => (window.location.href = '/progression')}>
+            <Card
+              className="cursor-pointer border-white/40 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:shadow-md"
+              onClick={() => (window.location.href = '/progression')}
+            >
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center ring-1 ring-purple-200/60">
-                    <BarChart3 className="w-6 h-6 text-purple-600" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50 ring-1 ring-purple-200/60">
+                    <BarChart3 className="h-6 w-6 text-purple-600" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">Progression</h3>
-                    <p className="text-gray-600 text-sm">Suivez vos performances</p>
+                    <p className="text-sm text-gray-600">Suivez vos performances</p>
                   </div>
                 </div>
               </CardContent>
@@ -196,7 +215,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Métriques */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
             <MetricCard
               title="Mots écrits"
               value={currentProgress.wordsWritten}
@@ -230,21 +249,28 @@ export default function DashboardPage() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                      <AlertTriangle className="h-5 w-5 text-yellow-600" />
                       <div>
-                        <h3 className="font-semibold text-yellow-800">Problème de connexion détecté</h3>
+                        <h3 className="font-semibold text-yellow-800">
+                          Problème de connexion détecté
+                        </h3>
                         <p className="text-sm text-yellow-700">
-                          Impossible de charger les données de progression. Utilisation des données par défaut.
+                          Impossible de charger les données de progression. Utilisation des données
+                          par défaut.
                         </p>
                       </div>
                     </div>
                     <div className="flex gap-2">
                       <Button onClick={() => refetchProgress()} variant="secondary" size="sm">
-                        <RefreshCw className="w-4 h-4 mr-2" />
+                        <RefreshCw className="mr-2 h-4 w-4" />
                         Réessayer
                       </Button>
-                      <Button onClick={() => setShowDiagnostics(!showDiagnostics)} variant="ghost" size="sm">
-                        <Server className="w-4 h-4 mr-2" />
+                      <Button
+                        onClick={() => setShowDiagnostics(!showDiagnostics)}
+                        variant="ghost"
+                        size="sm"
+                      >
+                        <Server className="mr-2 h-4 w-4" />
                         Diagnostic
                       </Button>
                     </div>
@@ -262,8 +288,8 @@ export default function DashboardPage() {
           )}
 
           {/* Actions Rapides et Activités */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="backdrop-blur-sm bg-white/70 border-white/40">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <Card className="border-white/40 bg-white/70 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle>Actions rapides</CardTitle>
               </CardHeader>
@@ -272,9 +298,9 @@ export default function DashboardPage() {
                   <Button
                     onClick={() => (window.location.href = '/editor')}
                     variant="ghost"
-                    className="w-full justify-start p-3 h-auto rounded-xl"
+                    className="h-auto w-full justify-start rounded-xl p-3"
                   >
-                    <Edit3 className="w-5 h-5 mr-3" />
+                    <Edit3 className="mr-3 h-5 w-5" />
                     <div className="text-left">
                       <div className="font-medium">Éditeur de texte</div>
                       <div className="text-sm text-gray-600">Corrigez vos textes avec l'IA</div>
@@ -283,9 +309,9 @@ export default function DashboardPage() {
                   <Button
                     onClick={() => (window.location.href = '/exercices')}
                     variant="ghost"
-                    className="w-full justify-start p-3 h-auto rounded-xl"
+                    className="h-auto w-full justify-start rounded-xl p-3"
                   >
-                    <BookOpen className="w-5 h-5 mr-3" />
+                    <BookOpen className="mr-3 h-5 w-5" />
                     <div className="text-left">
                       <div className="font-medium">Exercices</div>
                       <div className="text-sm text-gray-600">Pratiquez la grammaire</div>
@@ -294,9 +320,9 @@ export default function DashboardPage() {
                   <Button
                     onClick={() => (window.location.href = '/dictation')}
                     variant="ghost"
-                    className="w-full justify-start p-3 h-auto rounded-xl"
+                    className="h-auto w-full justify-start rounded-xl p-3"
                   >
-                    <Headphones className="w-5 h-5 mr-3" />
+                    <Headphones className="mr-3 h-5 w-5" />
                     <div className="text-left">
                       <div className="font-medium">Dictées audio</div>
                       <div className="text-sm text-gray-600">Améliorez votre écoute</div>
@@ -305,9 +331,9 @@ export default function DashboardPage() {
                   <Button
                     onClick={() => (window.location.href = '/analytics')}
                     variant="ghost"
-                    className="w-full justify-start p-3 h-auto rounded-xl"
+                    className="h-auto w-full justify-start rounded-xl p-3"
                   >
-                    <BarChart3 className="w-5 h-5 mr-3" />
+                    <BarChart3 className="mr-3 h-5 w-5" />
                     <div className="text-left">
                       <div className="font-medium">Analytics</div>
                       <div className="text-sm text-gray-600">Analysez vos performances</div>
@@ -317,14 +343,14 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="backdrop-blur-sm bg-white/70 border-white/40">
+            <Card className="border-white/40 bg-white/70 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle>Activités récentes</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 text-sm text-gray-600">
-                    <Clock className="w-4 h-4" />
+                    <Clock className="h-4 w-4" />
                     <span>Aucune activité récente</span>
                   </div>
                 </div>

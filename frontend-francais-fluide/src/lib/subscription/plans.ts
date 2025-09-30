@@ -37,7 +37,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Correction de base (5 par jour)',
       'Exercices simples (3 par jour)',
       'Statistiques de base',
-      'Support communautaire'
+      'Support communautaire',
     ],
     limits: {
       aiCorrections: 5,
@@ -50,8 +50,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       voiceAssistant: false,
       offlineMode: false,
       intelligentTutor: false,
-      personalizedLearning: false
-    }
+      personalizedLearning: false,
+    },
   },
   {
     id: 'student',
@@ -59,7 +59,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     price: 14.99,
     currency: 'CAD',
     interval: 'month',
-    description: 'Idéal pour les étudiants et l\'apprentissage personnel',
+    description: "Idéal pour les étudiants et l'apprentissage personnel",
     color: 'from-blue-500 to-cyan-500',
     features: [
       'Corrections IA illimitées',
@@ -68,7 +68,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Tuteur IA basique',
       'Analytics avancées',
       'Assistant IA basique',
-      'Export des données'
+      'Export des données',
     ],
     limits: {
       aiCorrections: -1, // illimité
@@ -81,8 +81,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       voiceAssistant: false,
       offlineMode: false,
       intelligentTutor: true,
-      personalizedLearning: true
-    }
+      personalizedLearning: true,
+    },
   },
   {
     id: 'premium',
@@ -94,7 +94,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     color: 'from-purple-500 to-pink-500',
     popular: true,
     features: [
-      'Tout de l\'Étudiant',
+      "Tout de l'Étudiant",
       'Exercices illimités',
       'Dictées audio illimitées',
       'Assistant de dissertation IA',
@@ -102,7 +102,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Tuteur IA premium',
       'Exercices personnalisés',
       'Analytics premium',
-      'Export des données'
+      'Export des données',
     ],
     limits: {
       aiCorrections: -1,
@@ -115,8 +115,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       voiceAssistant: false,
       offlineMode: false,
       intelligentTutor: true,
-      personalizedLearning: true
-    }
+      personalizedLearning: true,
+    },
   },
   {
     id: 'enterprise',
@@ -132,7 +132,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Gestion multi-utilisateurs',
       'Tableau de bord administrateur',
       'Rapports personnalisés',
-      'Export des données avancé'
+      'Export des données avancé',
     ],
     limits: {
       aiCorrections: -1,
@@ -145,9 +145,9 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       voiceAssistant: false,
       offlineMode: false,
       intelligentTutor: true,
-      personalizedLearning: true
-    }
-  }
+      personalizedLearning: true,
+    },
+  },
 ];
 
 export const getPlanById = (id: string): SubscriptionPlan | undefined => {
@@ -157,10 +157,8 @@ export const getPlanById = (id: string): SubscriptionPlan | undefined => {
 export const getUpgradeBenefits = (currentPlan: string, targetPlan: string): string[] => {
   const current = getPlanById(currentPlan);
   const target = getPlanById(targetPlan);
-  
+
   if (!current || !target) return [];
-  
-  return target.features.filter(feature => 
-    !current.features.includes(feature)
-  );
+
+  return target.features.filter(feature => !current.features.includes(feature));
 };

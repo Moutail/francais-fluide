@@ -25,27 +25,20 @@ const COLORS = [
   '#ec4899', // pink-500
 ];
 
-export default function ErrorDistribution({
-  data,
-  className = ''
-}: ErrorDistributionProps) {
+export default function ErrorDistribution({ data, className = '' }: ErrorDistributionProps) {
   const dataWithColors = data.map((item, index) => ({
     ...item,
-    color: item.color || COLORS[index % COLORS.length]
+    color: item.color || COLORS[index % COLORS.length],
   }));
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+        <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
           <p className="font-semibold text-gray-900">{data.category}</p>
-          <p className="text-sm text-gray-600">
-            Erreurs: {data.count}
-          </p>
-          <p className="text-sm text-gray-600">
-            Pourcentage: {data.percentage.toFixed(1)}%
-          </p>
+          <p className="text-sm text-gray-600">Erreurs: {data.count}</p>
+          <p className="text-sm text-gray-600">Pourcentage: {data.percentage.toFixed(1)}%</p>
         </div>
       );
     }
@@ -54,18 +47,18 @@ export default function ErrorDistribution({
 
   const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
     if (percent < 0.05) return null; // Ne pas afficher les labels pour les petits segments
-    
+
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
     return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="white" 
-        textAnchor={x > cx ? 'start' : 'end'} 
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor={x > cx ? 'start' : 'end'}
         dominantBaseline="central"
         fontSize={12}
         fontWeight="bold"
@@ -77,15 +70,12 @@ export default function ErrorDistribution({
 
   const renderCustomizedLegend = (props: any) => {
     const { payload } = props;
-    
+
     return (
-      <div className="flex flex-wrap gap-4 justify-center mt-4">
+      <div className="mt-4 flex flex-wrap justify-center gap-4">
         {payload.map((entry: any, index: number) => (
           <div key={`item-${index}`} className="flex items-center gap-2">
-            <div 
-              className="w-3 h-3 rounded-full" 
-              style={{ backgroundColor: entry.color }}
-            />
+            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: entry.color }} />
             <span className="text-sm text-gray-600">{entry.value}</span>
           </div>
         ))}
@@ -96,14 +86,10 @@ export default function ErrorDistribution({
   return (
     <Card className={`p-6 ${className}`}>
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Distribution des Erreurs
-        </h3>
-        <p className="text-sm text-gray-600">
-          Répartition des erreurs par catégorie
-        </p>
+        <h3 className="mb-2 text-lg font-semibold text-gray-900">Distribution des Erreurs</h3>
+        <p className="text-sm text-gray-600">Répartition des erreurs par catégorie</p>
       </div>
-      
+
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -128,11 +114,11 @@ export default function ErrorDistribution({
           </PieChart>
         </ResponsiveContainer>
       </div>
-      
+
       {data.length === 0 && (
-        <div className="flex items-center justify-center h-80 text-gray-500">
+        <div className="flex h-80 items-center justify-center text-gray-500">
           <div className="text-center">
-            <div className="text-4xl mb-2">📊</div>
+            <div className="mb-2 text-4xl">📊</div>
             <p>Aucune donnée d'erreur disponible</p>
           </div>
         </div>

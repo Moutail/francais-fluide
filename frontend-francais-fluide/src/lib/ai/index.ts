@@ -33,39 +33,26 @@ type APIStats = {
 
 // Corrections avancées
 export { useAdvancedCorrections } from './advanced-corrections';
-export type { 
-  AdvancedCorrection,
-  CorrectionContext,
-} from './advanced-corrections';
+export type { AdvancedCorrection, CorrectionContext } from './advanced-corrections';
 
 // Générateur de contenu
 export { aiContentGenerator, useAIContentGenerator } from './content-generator';
-export type { 
-  ContentGenerationRequest, 
-  UserProfile, 
-  GeneratedExercise, 
-  GeneratedText, 
-  PedagogicalExplanation, 
-  ReformulationSuggestion 
+export type {
+  ContentGenerationRequest,
+  UserProfile,
+  GeneratedExercise,
+  GeneratedText,
+  PedagogicalExplanation,
+  ReformulationSuggestion,
 } from './content-generator';
 
 // Gestionnaire de sécurité
 export { aiSecurityManager, useAISecurity } from './security';
-export type { 
-  SecurityConfig, 
-  RateLimitInfo, 
-  CostInfo, 
-  SecurityEvent 
-} from './security';
+export type { SecurityConfig, RateLimitInfo, CostInfo, SecurityEvent } from './security';
 
 // Gestionnaire d'API
 export { apiManager, useAPIManager } from './api-manager';
-export type { 
-  APIProvider, 
-  APIRequest, 
-  APIResponse, 
-  QuotaInfo 
-} from './api-manager';
+export type { APIProvider, APIRequest, APIResponse, QuotaInfo } from './api-manager';
 
 // Assistant IA
 export { AIAssistant, AIAssistantButton } from '../../components/ai/AIAssistant';
@@ -80,7 +67,7 @@ export function initializeAIServices(): void {
 
   // Initialiser le gestionnaire d'API
   apiManager.getAPIStats();
-  console.log('🌐 Gestionnaire d\'API initialisé');
+  console.log("🌐 Gestionnaire d'API initialisé");
 
   // Vérifier la disponibilité des providers
   const stats: APIStats = apiManager.getAPIStats();
@@ -101,13 +88,13 @@ export function initializeAIServices(): void {
 // Fonction de nettoyage
 export function cleanupAIServices(): void {
   console.log('🧹 Nettoyage des services IA...');
-  
+
   // Nettoyer les caches
   aiContentGenerator.clearCache();
-  
+
   // Réinitialiser les quotas si nécessaire
   apiManager.resetDailyQuotas();
-  
+
   console.log('✅ Nettoyage terminé');
 }
 
@@ -115,7 +102,7 @@ export function cleanupAIServices(): void {
 export function useAIInitialization(): void {
   React.useEffect(() => {
     initializeAIServices();
-    
+
     return () => {
       cleanupAIServices();
     };
@@ -128,28 +115,27 @@ export const DEFAULT_AI_CONFIG = {
   correction: {
     maxRetries: 3,
     timeout: 30000,
-    fallbackToLocal: true
+    fallbackToLocal: true,
   },
-  
+
   // Génération de contenu
   contentGeneration: {
     maxLength: 2000,
     temperature: 0.7,
-    maxTokens: 1500
+    maxTokens: 1500,
   },
-  
+
   // Sécurité
   security: {
     enableRateLimiting: true,
     enableContentFiltering: true,
-    maxRequestsPerMinute: 30
+    maxRequestsPerMinute: 30,
   },
-  
+
   // API
   api: {
     preferredProviders: ['openai', 'claude', 'languageTool'],
     timeout: 30000,
-    retryAttempts: 2
-  }
+    retryAttempts: 2,
+  },
 };
-

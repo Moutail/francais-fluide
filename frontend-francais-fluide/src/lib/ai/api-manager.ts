@@ -77,18 +77,18 @@ const API_PROVIDERS: APIProvider[] = [
     rateLimit: {
       requestsPerMinute: 60,
       requestsPerHour: 5000,
-      requestsPerDay: 50000
+      requestsPerDay: 50000,
     },
     cost: {
       perRequest: 0.002,
       perToken: 0.00003,
-      freeQuota: 0
+      freeQuota: 0,
     },
     features: ['correction', 'explanation', 'content_generation', 'chat'],
     status: 'active',
     lastUsed: 0,
     successRate: 95,
-    averageResponseTime: 1200
+    averageResponseTime: 1200,
   },
 
   // Claude (Payant)
@@ -102,18 +102,18 @@ const API_PROVIDERS: APIProvider[] = [
     rateLimit: {
       requestsPerMinute: 50,
       requestsPerHour: 1000,
-      requestsPerDay: 10000
+      requestsPerDay: 10000,
     },
     cost: {
       perRequest: 0.0015,
       perToken: 0.00002,
-      freeQuota: 0
+      freeQuota: 0,
     },
     features: ['correction', 'explanation', 'content_generation', 'chat'],
     status: 'active',
     lastUsed: 0,
     successRate: 92,
-    averageResponseTime: 1500
+    averageResponseTime: 1500,
   },
 
   // LanguageTool (Gratuit avec limites)
@@ -127,18 +127,18 @@ const API_PROVIDERS: APIProvider[] = [
     rateLimit: {
       requestsPerMinute: 20,
       requestsPerHour: 1000,
-      requestsPerDay: 10000
+      requestsPerDay: 10000,
     },
     cost: {
       perRequest: 0,
       perToken: 0,
-      freeQuota: 10000
+      freeQuota: 10000,
     },
     features: ['correction', 'grammar_check'],
     status: 'active',
     lastUsed: 0,
     successRate: 85,
-    averageResponseTime: 800
+    averageResponseTime: 800,
   },
 
   // Hugging Face (Gratuit avec limites)
@@ -152,18 +152,18 @@ const API_PROVIDERS: APIProvider[] = [
     rateLimit: {
       requestsPerMinute: 30,
       requestsPerHour: 500,
-      requestsPerDay: 5000
+      requestsPerDay: 5000,
     },
     cost: {
       perRequest: 0,
       perToken: 0,
-      freeQuota: 1000
+      freeQuota: 1000,
     },
     features: ['correction', 'explanation', 'translation'],
     status: 'active',
     lastUsed: 0,
     successRate: 80,
-    averageResponseTime: 2000
+    averageResponseTime: 2000,
   },
 
   // LibreTranslate (Gratuit)
@@ -177,19 +177,19 @@ const API_PROVIDERS: APIProvider[] = [
     rateLimit: {
       requestsPerMinute: 10,
       requestsPerHour: 100,
-      requestsPerDay: 1000
+      requestsPerDay: 1000,
     },
     cost: {
       perRequest: 0,
       perToken: 0,
-      freeQuota: Infinity
+      freeQuota: Infinity,
     },
     features: ['translation'],
     status: 'active',
     lastUsed: 0,
     successRate: 75,
-    averageResponseTime: 3000
-  }
+    averageResponseTime: 3000,
+  },
 ];
 
 class APIManager {
@@ -229,7 +229,7 @@ class APIManager {
         monthlyUsed: 0,
         monthlyLimit: provider.rateLimit.requestsPerDay * 30,
         resetTime: this.getNextResetTime(),
-        remaining: provider.rateLimit.requestsPerDay
+        remaining: provider.rateLimit.requestsPerDay,
       });
     }
   }
@@ -242,21 +242,21 @@ class APIManager {
     preferredProviders?: string[]
   ): Promise<APIResponse> {
     const providers = preferredProviders || this.getAvailableProviders();
-    
+
     for (const providerId of providers) {
       try {
         const response = await this.callProvider(providerId, request);
-        
+
         if (response.success) {
           // Mettre à jour les statistiques
           this.updateProviderStats(providerId, response);
           this.updateQuotaUsage(providerId, response.cost);
-          
+
           return response;
         }
       } catch (error) {
         console.error(`Erreur avec ${providerId}:`, error);
-        
+
         // Marquer le provider comme en erreur temporairement
         this.markProviderError(providerId);
         continue;
@@ -264,14 +264,14 @@ class APIManager {
     }
 
     // Si tous les providers ont échoué
-    throw new Error('Tous les providers d\'API sont indisponibles');
+    throw new Error("Tous les providers d'API sont indisponibles");
   }
 
   /**
    * Appelle un provider spécifique
    */
   private async callProvider(
-    providerId: string, 
+    providerId: string,
     request: Partial<APIRequest>
   ): Promise<APIResponse> {
     const provider = this.providers.get(providerId);
@@ -295,23 +295,23 @@ class APIManager {
     }
 
     const startTime = Date.now();
-    
+
     try {
       const apiKey = this.getApiKey(providerId);
       const fullRequest = this.buildRequest(provider, request, apiKey);
-      
+
       const response = await fetch(fullRequest.url, {
         method: fullRequest.method,
         headers: fullRequest.headers,
         body: fullRequest.body ? JSON.stringify(fullRequest.body) : undefined,
-        signal: AbortSignal.timeout(fullRequest.timeout)
+        signal: AbortSignal.timeout(fullRequest.timeout),
       });
 
       const responseTime = Date.now() - startTime;
       const responseData = await response.json();
-      
+
       const cost = this.calculateCost(provider, responseData);
-      
+
       return {
         provider: providerId,
         success: response.ok,
@@ -321,12 +321,11 @@ class APIManager {
         responseTime,
         cost,
         tokensUsed: responseData.usage?.total_tokens,
-        retryCount: 0
+        retryCount: 0,
       };
-      
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      
+
       return {
         provider: providerId,
         success: false,
@@ -334,7 +333,7 @@ class APIManager {
         statusCode: 0,
         responseTime,
         cost: 0,
-        retryCount: 0
+        retryCount: 0,
       };
     }
   }
@@ -343,15 +342,15 @@ class APIManager {
    * Construit la requête complète
    */
   private buildRequest(
-    provider: APIProvider, 
-    request: Partial<APIRequest>, 
+    provider: APIProvider,
+    request: Partial<APIRequest>,
     apiKey?: string
   ): { url: string; method: string; headers: Record<string, string>; body?: any; timeout: number } {
     const url = `${provider.baseUrl}${request.endpoint || ''}`;
-    
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...request.headers
+      ...request.headers,
     };
 
     // Ajouter l'authentification
@@ -371,7 +370,7 @@ class APIManager {
       method: request.method || 'POST',
       headers,
       body: request.body,
-      timeout: request.timeout || 30000
+      timeout: request.timeout || 30000,
     };
   }
 
@@ -388,11 +387,11 @@ class APIManager {
    */
   private calculateCost(provider: APIProvider, responseData: any): number {
     const baseCost = provider.cost.perRequest;
-    
+
     if (provider.cost.perToken > 0 && responseData.usage?.total_tokens) {
-      return baseCost + (responseData.usage.total_tokens * provider.cost.perToken);
+      return baseCost + responseData.usage.total_tokens * provider.cost.perToken;
     }
-    
+
     return baseCost;
   }
 
@@ -402,7 +401,7 @@ class APIManager {
   private checkQuota(providerId: string): boolean {
     const quota = this.quotaTracking.get(providerId);
     const provider = this.providers.get(providerId);
-    
+
     if (!quota || !provider) return false;
 
     // Vérifier le quota quotidien
@@ -431,14 +430,14 @@ class APIManager {
     if (!provider) return;
 
     provider.lastUsed = Date.now();
-    
+
     // Mettre à jour le taux de succès
     const success = response.success ? 1 : 0;
-    provider.successRate = (provider.successRate * 0.9) + (success * 0.1);
-    
+    provider.successRate = provider.successRate * 0.9 + success * 0.1;
+
     // Mettre à jour le temps de réponse moyen
-    provider.averageResponseTime = (provider.averageResponseTime * 0.9) + (response.responseTime * 0.1);
-    
+    provider.averageResponseTime = provider.averageResponseTime * 0.9 + response.responseTime * 0.1;
+
     this.providers.set(providerId, provider);
   }
 
@@ -452,14 +451,14 @@ class APIManager {
     quota.dailyUsed += 1;
     quota.monthlyUsed += 1;
     quota.remaining = Math.max(0, quota.dailyLimit - quota.dailyUsed);
-    
+
     this.quotaTracking.set(providerId, quota);
-    
+
     // Enregistrer dans l'historique
     this.requestHistory.push({
       provider: providerId,
       timestamp: Date.now(),
-      cost
+      cost,
     });
 
     // Mettre à jour les coûts dans le gestionnaire de sécurité
@@ -477,13 +476,16 @@ class APIManager {
     this.providers.set(providerId, provider);
 
     // Réactiver après 5 minutes
-    setTimeout(() => {
-      const provider = this.providers.get(providerId);
-      if (provider) {
-        provider.status = 'active';
-        this.providers.set(providerId, provider);
-      }
-    }, 5 * 60 * 1000);
+    setTimeout(
+      () => {
+        const provider = this.providers.get(providerId);
+        if (provider) {
+          provider.status = 'active';
+          this.providers.set(providerId, provider);
+        }
+      },
+      5 * 60 * 1000
+    );
   }
 
   /**
@@ -491,13 +493,13 @@ class APIManager {
    */
   private getAvailableProviders(): string[] {
     const available = [];
-    
+
     for (const provider of this.providers.values()) {
       if (provider.status === 'active' && this.checkQuota(provider.id)) {
         available.push(provider.id);
       }
     }
-    
+
     // Trier par priorité
     return available.sort((a, b) => {
       const providerA = this.providers.get(a)!;
@@ -539,23 +541,26 @@ class APIManager {
       successRate: provider.successRate,
       averageResponseTime: provider.averageResponseTime,
       lastUsed: provider.lastUsed,
-      quota: this.quotaTracking.get(provider.id)
+      quota: this.quotaTracking.get(provider.id),
     }));
 
     const totalRequests = this.requestHistory.length;
     const totalCost = this.requestHistory.reduce((sum, req) => sum + req.cost, 0);
-    
-    const requestsByProvider = this.requestHistory.reduce((counts, req) => {
-      counts[req.provider] = (counts[req.provider] || 0) + 1;
-      return counts;
-    }, {} as Record<string, number>);
+
+    const requestsByProvider = this.requestHistory.reduce(
+      (counts, req) => {
+        counts[req.provider] = (counts[req.provider] || 0) + 1;
+        return counts;
+      },
+      {} as Record<string, number>
+    );
 
     return {
       providers: providerStats,
       totalRequests,
       totalCost,
       requestsByProvider,
-      fallbackChain: this.fallbackChain
+      fallbackChain: this.fallbackChain,
     };
   }
 
@@ -607,9 +612,12 @@ export const useAPIManager = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const makeRequest = React.useCallback((request: Partial<APIRequest>, preferredProviders?: string[]) => {
-    return apiManager.makeRequest(request, preferredProviders);
-  }, []);
+  const makeRequest = React.useCallback(
+    (request: Partial<APIRequest>, preferredProviders?: string[]) => {
+      return apiManager.makeRequest(request, preferredProviders);
+    },
+    []
+  );
 
   const getQuotaInfo = React.useCallback((providerId: string) => {
     return apiManager.getQuotaInfo(providerId);
@@ -629,7 +637,7 @@ export const useAPIManager = () => {
     getQuotaInfo,
     disableProvider,
     enableProvider,
-    resetDailyQuotas: apiManager.resetDailyQuotas.bind(apiManager)
+    resetDailyQuotas: apiManager.resetDailyQuotas.bind(apiManager),
   };
 };
 

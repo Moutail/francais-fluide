@@ -4,14 +4,7 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/professional/Card';
 import { Button } from '@/components/ui/professional/Button';
 import AchievementCard from './AchievementCard';
-import { 
-  Trophy, 
-  Filter,
-  CheckCircle,
-  Clock,
-  TrendingUp,
-  Award
-} from 'lucide-react';
+import { Trophy, Filter, CheckCircle, Clock, TrendingUp, Award } from 'lucide-react';
 
 interface Achievement {
   id: string;
@@ -44,14 +37,13 @@ interface AchievementsGridProps {
   loading?: boolean;
 }
 
-export default function AchievementsGrid({ 
-  achievements, 
+export default function AchievementsGrid({
+  achievements,
   currentProgress,
   stats,
   onAchievementClick,
-  loading = false 
+  loading = false,
 }: AchievementsGridProps) {
-  
   const [filter, setFilter] = useState<'all' | 'earned' | 'available' | string>('all');
   const [sortBy, setSortBy] = useState<'name' | 'type' | 'progress' | 'earned'>('type');
 
@@ -60,7 +52,7 @@ export default function AchievementsGrid({
     exercises_completed: 'Exercices',
     streak: 'Série',
     level: 'Niveau',
-    accuracy: 'Précision'
+    accuracy: 'Précision',
   };
 
   const filterOptions = [
@@ -70,15 +62,15 @@ export default function AchievementsGrid({
     ...Object.entries(typeLabels).map(([key, label]) => ({
       value: key,
       label,
-      icon: TrendingUp
-    }))
+      icon: TrendingUp,
+    })),
   ];
 
   const sortOptions = [
     { value: 'type', label: 'Par type' },
     { value: 'name', label: 'Par nom' },
     { value: 'progress', label: 'Par progression' },
-    { value: 'earned', label: 'Par statut' }
+    { value: 'earned', label: 'Par statut' },
   ];
 
   const getFilteredAchievements = () => {
@@ -109,10 +101,16 @@ export default function AchievementsGrid({
         case 'type':
           return a.type.localeCompare(b.type) || a.threshold - b.threshold;
         case 'progress':
-          const aProgress = a.earned ? 100 : (currentProgress ? 
-            Math.min(100, (currentProgress[a.type] / a.threshold) * 100) : 0);
-          const bProgress = b.earned ? 100 : (currentProgress ? 
-            Math.min(100, (currentProgress[b.type] / b.threshold) * 100) : 0);
+          const aProgress = a.earned
+            ? 100
+            : currentProgress
+              ? Math.min(100, (currentProgress[a.type] / a.threshold) * 100)
+              : 0;
+          const bProgress = b.earned
+            ? 100
+            : currentProgress
+              ? Math.min(100, (currentProgress[b.type] / b.threshold) * 100)
+              : 0;
           return bProgress - aProgress;
         case 'earned':
           if (a.earned && !b.earned) return -1;
@@ -127,31 +125,34 @@ export default function AchievementsGrid({
   const filteredAchievements = getFilteredAchievements();
 
   // Grouper par type pour l'affichage
-  const achievementsByType = filteredAchievements.reduce((acc, achievement) => {
-    if (!acc[achievement.type]) {
-      acc[achievement.type] = [];
-    }
-    acc[achievement.type].push(achievement);
-    return acc;
-  }, {} as Record<string, Achievement[]>);
+  const achievementsByType = filteredAchievements.reduce(
+    (acc, achievement) => {
+      if (!acc[achievement.type]) {
+        acc[achievement.type] = [];
+      }
+      acc[achievement.type].push(achievement);
+      return acc;
+    },
+    {} as Record<string, Achievement[]>
+  );
 
   if (loading) {
     return (
       <div className="space-y-6">
         {/* Skeleton pour les statistiques */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           {[...Array(4)].map((_, i) => (
-            <Card key={i} className="p-4 animate-pulse">
-              <div className="h-16 bg-gray-200 rounded"></div>
+            <Card key={i} className="animate-pulse p-4">
+              <div className="h-16 rounded bg-gray-200"></div>
             </Card>
           ))}
         </div>
-        
+
         {/* Skeleton pour la grille */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[...Array(6)].map((_, i) => (
-            <Card key={i} className="p-4 animate-pulse">
-              <div className="h-24 bg-gray-200 rounded"></div>
+            <Card key={i} className="animate-pulse p-4">
+              <div className="h-24 rounded bg-gray-200"></div>
             </Card>
           ))}
         </div>
@@ -163,10 +164,10 @@ export default function AchievementsGrid({
     <div className="space-y-6">
       {/* Statistiques */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <Card className="p-4">
             <div className="flex items-center gap-3">
-              <Trophy className="w-8 h-8 text-yellow-600" />
+              <Trophy className="h-8 w-8 text-yellow-600" />
               <div>
                 <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
                 <div className="text-sm text-gray-600">Total</div>
@@ -176,7 +177,7 @@ export default function AchievementsGrid({
 
           <Card className="p-4">
             <div className="flex items-center gap-3">
-              <CheckCircle className="w-8 h-8 text-green-600" />
+              <CheckCircle className="h-8 w-8 text-green-600" />
               <div>
                 <div className="text-2xl font-bold text-gray-900">{stats.earned}</div>
                 <div className="text-sm text-gray-600">Obtenus</div>
@@ -186,7 +187,7 @@ export default function AchievementsGrid({
 
           <Card className="p-4">
             <div className="flex items-center gap-3">
-              <Clock className="w-8 h-8 text-orange-600" />
+              <Clock className="h-8 w-8 text-orange-600" />
               <div>
                 <div className="text-2xl font-bold text-gray-900">{stats.remaining}</div>
                 <div className="text-sm text-gray-600">Restants</div>
@@ -196,7 +197,7 @@ export default function AchievementsGrid({
 
           <Card className="p-4">
             <div className="flex items-center gap-3">
-              <Award className="w-8 h-8 text-blue-600" />
+              <Award className="h-8 w-8 text-blue-600" />
               <div>
                 <div className="text-2xl font-bold text-gray-900">{stats.progress}%</div>
                 <div className="text-sm text-gray-600">Progression</div>
@@ -208,7 +209,7 @@ export default function AchievementsGrid({
 
       {/* Filtres et tri */}
       <Card className="p-4">
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex flex-wrap gap-2">
             {filterOptions.map(option => {
               const Icon = option.icon;
@@ -216,11 +217,11 @@ export default function AchievementsGrid({
                 <Button
                   key={option.value}
                   onClick={() => setFilter(option.value)}
-                  variant={filter === option.value ? "primary" : "secondary"}
+                  variant={filter === option.value ? 'primary' : 'secondary'}
                   size="sm"
                   className="flex items-center gap-1"
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="h-4 w-4" />
                   {option.label}
                 </Button>
               );
@@ -228,11 +229,11 @@ export default function AchievementsGrid({
           </div>
 
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-500" />
+            <Filter className="h-4 w-4 text-gray-500" />
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              onChange={e => setSortBy(e.target.value as any)}
+              className="rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
             >
               {sortOptions.map(option => (
                 <option key={option.value} value={option.value}>
@@ -247,12 +248,11 @@ export default function AchievementsGrid({
       {/* Grille des achievements */}
       {filteredAchievements.length === 0 ? (
         <Card className="p-8 text-center">
-          <Trophy className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Aucun succès trouvé
-          </h3>
+          <Trophy className="mx-auto mb-4 h-16 w-16 text-gray-300" />
+          <h3 className="mb-2 text-lg font-medium text-gray-900">Aucun succès trouvé</h3>
           <p className="text-gray-600">
-            Essayez de changer les filtres ou continuez à utiliser l'application pour débloquer de nouveaux succès !
+            Essayez de changer les filtres ou continuez à utiliser l'application pour débloquer de
+            nouveaux succès !
           </p>
         </Card>
       ) : sortBy === 'type' ? (
@@ -260,7 +260,7 @@ export default function AchievementsGrid({
         <div className="space-y-8">
           {Object.entries(achievementsByType).map(([type, typeAchievements]) => (
             <div key={type}>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
                 <span className="text-2xl">
                   {type === 'words_written' && '✍️'}
                   {type === 'exercises_completed' && '📚'}
@@ -273,8 +273,8 @@ export default function AchievementsGrid({
                   ({typeAchievements.length})
                 </span>
               </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {typeAchievements.map(achievement => (
                   <AchievementCard
                     key={achievement.id}
@@ -290,7 +290,7 @@ export default function AchievementsGrid({
         </div>
       ) : (
         // Affichage en grille simple
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredAchievements.map(achievement => (
             <AchievementCard
               key={achievement.id}

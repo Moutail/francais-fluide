@@ -3,6 +3,7 @@
 ## 🎯 Vue d'ensemble
 
 Le backend de correction grammaticale de FrançaisFluide est un système robuste qui combine :
+
 - **Détection locale** avec des règles de grammaire françaises avancées
 - **Intégration LanguageTool** comme fallback pour une couverture complète
 - **Cache en mémoire** pour optimiser les performances
@@ -26,22 +27,27 @@ test-grammar-api.js                   # Tests de l'API
 #### Règles de Grammaire Implémentées
 
 **Concordance des Temps**
+
 - Détection des erreurs de concordance après les conjonctions temporelles
 - Correction des temps inappropriés dans les subordonnées
 
 **Subjonctif**
+
 - Détection des expressions nécessitant le subjonctif
 - Suggestions de conjugaisons correctes
 
 **Participes Passés Complexes**
+
 - Gestion des accords avec "avoir" et "être"
 - Détection des erreurs d'accord complexes
 
 **Barbarismes et Anglicismes**
+
 - Détection des expressions incorrectes courantes
 - Suggestions d'alternatives françaises
 
 **Pléonasmes**
+
 - Identification des redondances ("monter en haut", "sortir dehors")
 - Suggestions de formulations plus concises
 
@@ -82,6 +88,7 @@ test-grammar-api.js                   # Tests de l'API
 ```
 
 **Réponse :**
+
 ```json
 {
   "success": true,
@@ -208,12 +215,12 @@ node test-grammar-api.js
 
 ```typescript
 const config = {
-  enableLanguageTool: true,        // Activer LanguageTool
-  enableCaching: true,             // Activer le cache
-  maxTextLength: 10000,           // Longueur max du texte
-  cacheTTL: 5 * 60 * 1000,       // TTL du cache (5 min)
-  rateLimitWindow: 60 * 1000,     // Fenêtre de rate limiting (1 min)
-  rateLimitMaxRequests: 10        // Max requêtes par fenêtre
+  enableLanguageTool: true, // Activer LanguageTool
+  enableCaching: true, // Activer le cache
+  maxTextLength: 10000, // Longueur max du texte
+  cacheTTL: 5 * 60 * 1000, // TTL du cache (5 min)
+  rateLimitWindow: 60 * 1000, // Fenêtre de rate limiting (1 min)
+  rateLimitMaxRequests: 10, // Max requêtes par fenêtre
 };
 
 const service = new GrammarBackendService(config);
@@ -265,10 +272,10 @@ const newRule = {
   check: (match: RegExpExecArray) => {
     // Logique de vérification
     return {
-      message: 'Message d\'erreur',
-      suggestions: ['suggestion1', 'suggestion2']
+      message: "Message d'erreur",
+      suggestions: ['suggestion1', 'suggestion2'],
     };
-  }
+  },
 };
 
 // Ajouter à ADVANCED_GRAMMAR_RULES

@@ -43,9 +43,10 @@ const ANALYTICS_CONFIG = {
     apiHost: process.env.NEXT_PUBLIC_PLAUSIBLE_API_HOST || 'https://plausible.io',
   },
   custom: {
-    enabled: process.env.NEXT_PUBLIC_CUSTOM_ANALYTICS_ENDPOINT && process.env.NODE_ENV === 'production',
+    enabled:
+      process.env.NEXT_PUBLIC_CUSTOM_ANALYTICS_ENDPOINT && process.env.NODE_ENV === 'production',
     endpoint: process.env.NEXT_PUBLIC_CUSTOM_ANALYTICS_ENDPOINT,
-  }
+  },
 };
 
 class AnalyticsTracker {
@@ -79,7 +80,6 @@ class AnalyticsTracker {
 
       // Traiter la queue d'événements
       this.processEventQueue();
-
     } catch (error) {
       console.error('❌ Erreur initialisation analytics:', error);
     }
@@ -111,7 +111,7 @@ class AnalyticsTracker {
         custom_map: {
           custom_parameter_1: 'user_level',
           custom_parameter_2: 'subscription_type',
-        }
+        },
       });
 
       console.log('✅ Google Analytics initialisé');
@@ -161,7 +161,7 @@ class AnalyticsTracker {
           event_label: event.label,
           value: event.value,
           custom_parameters: event.custom_parameters,
-          ...this.userProperties
+          ...this.userProperties,
         });
       }
 
@@ -172,8 +172,8 @@ class AnalyticsTracker {
             category: event.category,
             label: event.label,
             value: event.value,
-            ...event.custom_parameters
-          }
+            ...event.custom_parameters,
+          },
         });
       }
 
@@ -183,7 +183,6 @@ class AnalyticsTracker {
       }
 
       console.log('📊 Event tracked:', event);
-
     } catch (error) {
       console.error('❌ Erreur tracking événement:', error);
     }
@@ -203,7 +202,7 @@ class AnalyticsTracker {
           custom_map: {
             custom_parameter_1: 'user_level',
             custom_parameter_2: 'subscription_type',
-          }
+          },
         });
       }
 
@@ -217,7 +216,6 @@ class AnalyticsTracker {
 
       this.pageViews.push(pageView);
       console.log('📄 Page view tracked:', pageView);
-
     } catch (error) {
       console.error('❌ Erreur tracking page view:', error);
     }
@@ -237,12 +235,11 @@ class AnalyticsTracker {
           custom_map: {
             custom_parameter_1: 'user_level',
             custom_parameter_2: 'subscription_type',
-          }
+          },
         });
       }
 
       console.log('👤 User properties set:', properties);
-
     } catch (error) {
       console.error('❌ Erreur définition propriétés utilisateur:', error);
     }
@@ -309,7 +306,7 @@ class AnalyticsTracker {
    */
   private getSessionId(): string {
     if (typeof window === 'undefined') return 'server-session';
-    
+
     let sessionId = localStorage.getItem('analytics-session-id');
     if (!sessionId) {
       sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -349,7 +346,7 @@ class AnalyticsTracker {
         text_length: textLength,
         errors_found: errorsFound,
         user_level: level,
-      }
+      },
     });
   };
 
@@ -363,7 +360,7 @@ class AnalyticsTracker {
         exercise_type: exerciseType,
         difficulty,
         theme,
-      }
+      },
     });
   };
 
@@ -377,7 +374,7 @@ class AnalyticsTracker {
         exercise_type: exerciseType,
         score,
         time_spent: timeSpent,
-      }
+      },
     });
   };
 
@@ -391,7 +388,7 @@ class AnalyticsTracker {
         provider,
         response_time: responseTime,
         confidence,
-      }
+      },
     });
   };
 
@@ -405,7 +402,7 @@ class AnalyticsTracker {
         content_type: type,
         user_level: level,
         success,
-      }
+      },
     });
   };
 
@@ -419,7 +416,7 @@ class AnalyticsTracker {
         user_level: level,
         progress_percentage: progress,
         achievements_count: achievements.length,
-      }
+      },
     });
   };
 
@@ -431,7 +428,7 @@ class AnalyticsTracker {
       custom_parameters: {
         feature,
         context,
-      }
+      },
     });
   };
 
@@ -444,7 +441,7 @@ class AnalyticsTracker {
         error_type: errorType,
         component,
         severity,
-      }
+      },
     });
   };
 }

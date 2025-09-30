@@ -214,7 +214,7 @@ Réponds en JSON:
   "alternatives": ["alternative1", "alternative2"],
   "level": "{level}",
   "improvements": ["amélioration1", "amélioration2"]
-}`
+}`,
 };
 
 class AIContentGenerator {
@@ -233,7 +233,7 @@ class AIContentGenerator {
    */
   public async generateExercise(request: ContentGenerationRequest): Promise<GeneratedExercise> {
     const cacheKey = this.generateCacheKey('exercise', request);
-    
+
     // Vérifier le cache
     const cached = this.cache.get(cacheKey);
     if (cached) {
@@ -247,18 +247,18 @@ class AIContentGenerator {
 
     const prompt = this.buildExercisePrompt(request);
     const response = await this.callAIAPI(prompt, 'exercise');
-    
+
     // Parser et valider la réponse
     const exercise = this.parseExerciseResponse(response);
-    
+
     // Mettre en cache
     this.cache.set(cacheKey, exercise);
-    
+
     // Enregistrer dans l'historique
     this.generationHistory.push({
       type: 'exercise',
       timestamp: Date.now(),
-      cost: this.estimateCost(prompt.length, response.length)
+      cost: this.estimateCost(prompt.length, response.length),
     });
 
     return exercise;
@@ -269,7 +269,7 @@ class AIContentGenerator {
    */
   public async generateText(request: ContentGenerationRequest): Promise<GeneratedText> {
     const cacheKey = this.generateCacheKey('text', request);
-    
+
     const cached = this.cache.get(cacheKey);
     if (cached) {
       return cached;
@@ -281,15 +281,15 @@ class AIContentGenerator {
 
     const prompt = this.buildTextPrompt(request);
     const response = await this.callAIAPI(prompt, 'text');
-    
+
     const text = this.parseTextResponse(response);
-    
+
     this.cache.set(cacheKey, text);
-    
+
     this.generationHistory.push({
       type: 'text',
       timestamp: Date.now(),
-      cost: this.estimateCost(prompt.length, response.length)
+      cost: this.estimateCost(prompt.length, response.length),
     });
 
     return text;
@@ -299,12 +299,12 @@ class AIContentGenerator {
    * Génère une explication pédagogique
    */
   public async generateExplanation(
-    concept: string, 
-    level: string, 
+    concept: string,
+    level: string,
     context?: string
   ): Promise<PedagogicalExplanation> {
     const cacheKey = `explanation-${concept}-${level}-${context || 'general'}`;
-    
+
     const cached = this.cache.get(cacheKey);
     if (cached) {
       return cached;
@@ -316,15 +316,15 @@ class AIContentGenerator {
 
     const prompt = this.buildExplanationPrompt(concept, level, context);
     const response = await this.callAIAPI(prompt, 'explanation');
-    
+
     const explanation = this.parseExplanationResponse(response);
-    
+
     this.cache.set(cacheKey, explanation);
-    
+
     this.generationHistory.push({
       type: 'explanation',
       timestamp: Date.now(),
-      cost: this.estimateCost(prompt.length, response.length)
+      cost: this.estimateCost(prompt.length, response.length),
     });
 
     return explanation;
@@ -334,12 +334,12 @@ class AIContentGenerator {
    * Génère des suggestions de reformulation
    */
   public async generateReformulation(
-    original: string, 
-    level: string, 
+    original: string,
+    level: string,
     context?: string
   ): Promise<ReformulationSuggestion[]> {
     const cacheKey = `reformulation-${original}-${level}-${context || 'general'}`;
-    
+
     const cached = this.cache.get(cacheKey);
     if (cached) {
       return cached;
@@ -351,15 +351,15 @@ class AIContentGenerator {
 
     const prompt = this.buildReformulationPrompt(original, level, context);
     const response = await this.callAIAPI(prompt, 'reformulation');
-    
+
     const suggestions = this.parseReformulationResponse(response);
-    
+
     this.cache.set(cacheKey, suggestions);
-    
+
     this.generationHistory.push({
       type: 'reformulation',
       timestamp: Date.now(),
-      cost: this.estimateCost(prompt.length, response.length)
+      cost: this.estimateCost(prompt.length, response.length),
     });
 
     return suggestions;
@@ -395,7 +395,7 @@ class AIContentGenerator {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -403,12 +403,12 @@ class AIContentGenerator {
         messages: [
           {
             role: 'system',
-            content: 'Tu es un expert pédagogique en français. Réponds uniquement en JSON valide.'
+            content: 'Tu es un expert pédagogique en français. Réponds uniquement en JSON valide.',
           },
           {
             role: 'user',
-            content: prompt
-          }
+            content: prompt,
+          },
         ],
         temperature: 0.7,
         max_tokens: 3000,
@@ -445,8 +445,8 @@ class AIContentGenerator {
         messages: [
           {
             role: 'user',
-            content: prompt
-          }
+            content: prompt,
+          },
         ],
         temperature: 0.7,
       }),
@@ -466,7 +466,7 @@ class AIContentGenerator {
   private buildExercisePrompt(request: ContentGenerationRequest): string {
     const template = CONTENT_GENERATION_PROMPTS.exercise;
     const profile = request.userProfile;
-    
+
     return template
       .replace('{level}', request.level)
       .replace('{theme}', request.theme || 'général')
@@ -482,7 +482,7 @@ class AIContentGenerator {
    */
   private buildTextPrompt(request: ContentGenerationRequest): string {
     const template = CONTENT_GENERATION_PROMPTS.text;
-    
+
     return template
       .replace('{level}', request.level)
       .replace('{theme}', request.theme || 'général')
@@ -495,7 +495,7 @@ class AIContentGenerator {
    */
   private buildExplanationPrompt(concept: string, level: string, context?: string): string {
     const template = CONTENT_GENERATION_PROMPTS.explanation;
-    
+
     return template
       .replace('{concept}', concept)
       .replace('{level}', level)
@@ -507,7 +507,7 @@ class AIContentGenerator {
    */
   private buildReformulationPrompt(original: string, level: string, context?: string): string {
     const template = CONTENT_GENERATION_PROMPTS.reformulation;
-    
+
     return template
       .replace('{original}', original)
       .replace('{level}', level)
@@ -531,7 +531,7 @@ class AIContentGenerator {
   private parseExerciseResponse(response: string): GeneratedExercise {
     try {
       const parsed = JSON.parse(response);
-      
+
       // Validation et nettoyage
       return {
         id: parsed.id || `exercise-${Date.now()}`,
@@ -546,7 +546,7 @@ class AIContentGenerator {
         hints: parsed.hints || [],
         solution: parsed.solution || { answers: {}, explanations: {}, score: 0, feedback: '' },
         explanations: parsed.explanations || [],
-        relatedTopics: parsed.relatedTopics || []
+        relatedTopics: parsed.relatedTopics || [],
       };
     } catch (error) {
       console.error('Erreur parsing exercice:', error);
@@ -560,7 +560,7 @@ class AIContentGenerator {
   private parseTextResponse(response: string): GeneratedText {
     try {
       const parsed = JSON.parse(response);
-      
+
       return {
         id: parsed.id || `text-${Date.now()}`,
         title: parsed.title || 'Texte généré',
@@ -571,7 +571,7 @@ class AIContentGenerator {
         grammarPoints: parsed.grammarPoints || [],
         readingTime: parsed.readingTime || 3,
         comprehensionQuestions: parsed.comprehensionQuestions || [],
-        culturalNotes: parsed.culturalNotes || []
+        culturalNotes: parsed.culturalNotes || [],
       };
     } catch (error) {
       console.error('Erreur parsing texte:', error);
@@ -585,7 +585,7 @@ class AIContentGenerator {
   private parseExplanationResponse(response: string): PedagogicalExplanation {
     try {
       const parsed = JSON.parse(response);
-      
+
       return {
         concept: parsed.concept || '',
         definition: parsed.definition || '',
@@ -595,7 +595,7 @@ class AIContentGenerator {
         commonMistakes: parsed.commonMistakes || [],
         practiceTips: parsed.practiceTips || [],
         relatedConcepts: parsed.relatedConcepts || [],
-        visualAids: parsed.visualAids || []
+        visualAids: parsed.visualAids || [],
       };
     } catch (error) {
       console.error('Erreur parsing explication:', error);
@@ -609,7 +609,7 @@ class AIContentGenerator {
   private parseReformulationResponse(response: string): ReformulationSuggestion[] {
     try {
       const parsed = JSON.parse(response);
-      
+
       if (Array.isArray(parsed)) {
         return parsed;
       } else {
@@ -630,7 +630,7 @@ class AIContentGenerator {
       this.rateLimiter.count = 0;
       this.rateLimiter.resetTime = now + 60000; // Reset toutes les minutes
     }
-    
+
     return this.rateLimiter.count < 30; // Max 30 requêtes par minute
   }
 
@@ -654,17 +654,20 @@ class AIContentGenerator {
    */
   public getGenerationStats(): any {
     const totalCost = this.generationHistory.reduce((sum, item) => sum + item.cost, 0);
-    const typeCounts = this.generationHistory.reduce((counts, item) => {
-      counts[item.type] = (counts[item.type] || 0) + 1;
-      return counts;
-    }, {} as Record<string, number>);
+    const typeCounts = this.generationHistory.reduce(
+      (counts, item) => {
+        counts[item.type] = (counts[item.type] || 0) + 1;
+        return counts;
+      },
+      {} as Record<string, number>
+    );
 
     return {
       totalGenerations: this.generationHistory.length,
       totalCost,
       cacheSize: this.cache.size,
       typeCounts,
-      averageCost: totalCost / this.generationHistory.length || 0
+      averageCost: totalCost / this.generationHistory.length || 0,
     };
   }
 
@@ -712,33 +715,43 @@ export const useAIContentGenerator = () => {
     }
   }, []);
 
-  const generateExplanation = React.useCallback(async (concept: string, level: string, context?: string) => {
-    setIsGenerating(true);
-    try {
-      const explanation = await aiContentGenerator.generateExplanation(concept, level, context);
-      setLastGeneration(explanation);
-      return explanation;
-    } catch (error) {
-      console.error('Erreur génération explication:', error);
-      throw error;
-    } finally {
-      setIsGenerating(false);
-    }
-  }, []);
+  const generateExplanation = React.useCallback(
+    async (concept: string, level: string, context?: string) => {
+      setIsGenerating(true);
+      try {
+        const explanation = await aiContentGenerator.generateExplanation(concept, level, context);
+        setLastGeneration(explanation);
+        return explanation;
+      } catch (error) {
+        console.error('Erreur génération explication:', error);
+        throw error;
+      } finally {
+        setIsGenerating(false);
+      }
+    },
+    []
+  );
 
-  const generateReformulation = React.useCallback(async (original: string, level: string, context?: string) => {
-    setIsGenerating(true);
-    try {
-      const suggestions = await aiContentGenerator.generateReformulation(original, level, context);
-      setLastGeneration(suggestions);
-      return suggestions;
-    } catch (error) {
-      console.error('Erreur génération reformulation:', error);
-      throw error;
-    } finally {
-      setIsGenerating(false);
-    }
-  }, []);
+  const generateReformulation = React.useCallback(
+    async (original: string, level: string, context?: string) => {
+      setIsGenerating(true);
+      try {
+        const suggestions = await aiContentGenerator.generateReformulation(
+          original,
+          level,
+          context
+        );
+        setLastGeneration(suggestions);
+        return suggestions;
+      } catch (error) {
+        console.error('Erreur génération reformulation:', error);
+        throw error;
+      } finally {
+        setIsGenerating(false);
+      }
+    },
+    []
+  );
 
   return {
     generateExercise,
@@ -748,7 +761,7 @@ export const useAIContentGenerator = () => {
     isGenerating,
     lastGeneration,
     getStats: aiContentGenerator.getGenerationStats.bind(aiContentGenerator),
-    clearCache: aiContentGenerator.clearCache.bind(aiContentGenerator)
+    clearCache: aiContentGenerator.clearCache.bind(aiContentGenerator),
   };
 };
 

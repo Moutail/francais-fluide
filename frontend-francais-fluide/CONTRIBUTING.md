@@ -54,7 +54,7 @@ Si c'est votre première contribution, nous recommandons de :
 
 ### Prérequis
 
-- Node.js 18+ 
+- Node.js 18+
 - npm ou yarn
 - Git
 - Un éditeur de code (VS Code recommandé)
@@ -62,23 +62,27 @@ Si c'est votre première contribution, nous recommandons de :
 ### Installation
 
 1. **Fork et cloner le repository**
+
    ```bash
    git clone https://github.com/votre-username/francais-fluide.git
    cd francais-fluide
    ```
 
 2. **Installer les dépendances**
+
    ```bash
    npm install
    ```
 
 3. **Configurer les variables d'environnement**
+
    ```bash
    cp .env.example .env.local
    # Éditer .env.local avec vos valeurs
    ```
 
 4. **Démarrer le serveur de développement**
+
    ```bash
    npm run dev
    ```
@@ -160,13 +164,13 @@ interface ButtonProps {
   variant?: 'primary' | 'secondary';
 }
 
-export const Button: React.FC<ButtonProps> = ({ 
-  children, 
-  onClick, 
-  variant = 'primary' 
+export const Button: React.FC<ButtonProps> = ({
+  children,
+  onClick,
+  variant = 'primary'
 }) => {
   return (
-    <button 
+    <button
       className={`btn btn-${variant}`}
       onClick={onClick}
     >
@@ -226,7 +230,7 @@ describe('Button', () => {
   it('calls onClick when clicked', () => {
     const handleClick = jest.fn();
     render(<Button onClick={handleClick}>Click me</Button>);
-    
+
     fireEvent.click(screen.getByText('Click me'));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
@@ -313,6 +317,7 @@ npm run test:coverage
 ### 5. Pull Request
 
 1. **Pusher votre branche**
+
    ```bash
    git push origin feature/nom-de-la-fonctionnalite
    ```
@@ -332,20 +337,24 @@ npm run test:coverage
 
 ```markdown
 ## Description
+
 Brève description des changements
 
 ## Type de changement
+
 - [ ] Bug fix
 - [ ] Nouvelle fonctionnalité
 - [ ] Breaking change
 - [ ] Documentation
 
 ## Tests
+
 - [ ] Tests unitaires ajoutés/mis à jour
 - [ ] Tests d'intégration ajoutés/mis à jour
 - [ ] Tests E2E ajoutés/mis à jour
 
 ## Checklist
+
 - [ ] Code respecte les standards du projet
 - [ ] Tests passent
 - [ ] Documentation mise à jour
@@ -364,28 +373,35 @@ Brève description des changements
 
 ```markdown
 ## Description du bug
+
 Description claire du problème
 
 ## Étapes pour reproduire
+
 1. Aller à '...'
 2. Cliquer sur '...'
 3. Voir l'erreur
 
 ## Comportement attendu
+
 Description du comportement attendu
 
 ## Comportement actuel
+
 Description du comportement actuel
 
 ## Captures d'écran
+
 Si applicable, ajoutez des captures d'écran
 
 ## Environnement
+
 - OS: [ex. Windows 10]
 - Navigateur: [ex. Chrome 91]
 - Version: [ex. 1.0.0]
 
 ## Informations supplémentaires
+
 Toute autre information pertinente
 ```
 
@@ -401,18 +417,23 @@ Toute autre information pertinente
 
 ```markdown
 ## Résumé
+
 Description courte de la fonctionnalité
 
 ## Problème à résoudre
+
 Quel problème cette fonctionnalité résout-elle ?
 
 ## Solution proposée
+
 Description détaillée de la solution
 
 ## Alternatives considérées
+
 Autres solutions envisagées
 
 ## Informations supplémentaires
+
 Toute autre information pertinente
 ```
 

@@ -63,6 +63,7 @@ Authorization: Bearer <your-jwt-token>
 Connecte un utilisateur existant.
 
 **Requête :**
+
 ```json
 {
   "email": "user@example.com",
@@ -71,6 +72,7 @@ Connecte un utilisateur existant.
 ```
 
 **Réponse :**
+
 ```json
 {
   "success": true,
@@ -93,6 +95,7 @@ Connecte un utilisateur existant.
 Crée un nouveau compte utilisateur.
 
 **Requête :**
+
 ```json
 {
   "name": "John Doe",
@@ -102,6 +105,7 @@ Crée un nouveau compte utilisateur.
 ```
 
 **Réponse :**
+
 ```json
 {
   "success": true,
@@ -124,6 +128,7 @@ Crée un nouveau compte utilisateur.
 Rafraîchit un token expiré.
 
 **Requête :**
+
 ```json
 {
   "refreshToken": "refresh-token-here"
@@ -141,6 +146,7 @@ Déconnecte l'utilisateur actuel.
 Analyse un texte pour détecter les erreurs grammaticales.
 
 **Requête :**
+
 ```json
 {
   "text": "il manger du pain",
@@ -153,6 +159,7 @@ Analyse un texte pour détecter les erreurs grammaticales.
 ```
 
 **Réponse :**
+
 ```json
 {
   "success": true,
@@ -197,6 +204,7 @@ Analyse un texte pour détecter les erreurs grammaticales.
 Récupère la liste des règles grammaticales disponibles.
 
 **Réponse :**
+
 ```json
 {
   "success": true,
@@ -219,6 +227,7 @@ Récupère la liste des règles grammaticales disponibles.
 Suggère des améliorations de style et de clarté.
 
 **Requête :**
+
 ```json
 {
   "text": "Cette phrase est très longue et pourrait être divisée pour améliorer la lisibilité.",
@@ -233,12 +242,14 @@ Suggère des améliorations de style et de clarté.
 Récupère la liste des exercices disponibles.
 
 **Paramètres de requête :**
+
 - `category` : Filtre par catégorie (grammar, vocabulary, conjugation, spelling)
 - `difficulty` : Filtre par difficulté (beginner, intermediate, advanced)
 - `limit` : Nombre d'exercices à retourner (défaut: 20)
 - `offset` : Décalage pour la pagination (défaut: 0)
 
 **Réponse :**
+
 ```json
 {
   "success": true,
@@ -270,6 +281,7 @@ Récupère la liste des exercices disponibles.
 Récupère un exercice spécifique.
 
 **Réponse :**
+
 ```json
 {
   "success": true,
@@ -298,6 +310,7 @@ Récupère un exercice spécifique.
 Soumet les réponses d'un exercice.
 
 **Requête :**
+
 ```json
 {
   "answers": [
@@ -312,6 +325,7 @@ Soumet les réponses d'un exercice.
 ```
 
 **Réponse :**
+
 ```json
 {
   "success": true,
@@ -348,6 +362,7 @@ Soumet les réponses d'un exercice.
 Récupère la progression de l'utilisateur connecté.
 
 **Réponse :**
+
 ```json
 {
   "success": true,
@@ -382,6 +397,7 @@ Récupère la progression de l'utilisateur connecté.
 Met à jour la progression de l'utilisateur.
 
 **Requête :**
+
 ```json
 {
   "event": {
@@ -400,10 +416,12 @@ Met à jour la progression de l'utilisateur.
 Récupère les analytics détaillés de progression.
 
 **Paramètres de requête :**
+
 - `period` : Période (week, month, year)
 - `category` : Catégorie d'exercice
 
 **Réponse :**
+
 ```json
 {
   "success": true,
@@ -446,6 +464,7 @@ Récupère les analytics détaillés de progression.
 Récupère le profil de l'utilisateur connecté.
 
 **Réponse :**
+
 ```json
 {
   "success": true,
@@ -472,6 +491,7 @@ Récupère le profil de l'utilisateur connecté.
 Met à jour le profil de l'utilisateur.
 
 **Requête :**
+
 ```json
 {
   "name": "John Doe Updated",
@@ -487,6 +507,7 @@ Met à jour le profil de l'utilisateur.
 Récupère les achievements de l'utilisateur.
 
 **Réponse :**
+
 ```json
 {
   "success": true,
@@ -561,6 +582,7 @@ Endpoint WebSocket pour la collaboration en temps réel.
 Crée une nouvelle salle de collaboration.
 
 **Requête :**
+
 ```json
 {
   "name": "Salle de travail",
@@ -570,6 +592,7 @@ Crée une nouvelle salle de collaboration.
 ```
 
 **Réponse :**
+
 ```json
 {
   "success": true,
@@ -666,9 +689,9 @@ class FrancaisFluideAPI {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.token}`
+        Authorization: `Bearer ${this.token}`,
       },
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ text }),
     });
 
     return response.json();
@@ -680,8 +703,8 @@ class FrancaisFluideAPI {
 
     const response = await fetch(url.toString(), {
       headers: {
-        'Authorization': `Bearer ${this.token}`
-      }
+        Authorization: `Bearer ${this.token}`,
+      },
     });
 
     return response.json();
@@ -725,7 +748,7 @@ class FrancaisFluideAPI:
         params = {}
         if category:
             params['category'] = category
-        
+
         response = requests.get(
             f'{self.base_url}/exercises',
             headers=self.headers,
@@ -775,4 +798,4 @@ Pour toute question sur l'API :
 
 ---
 
-*Cette documentation est mise à jour régulièrement. Dernière mise à jour : 2024-01-01*
+_Cette documentation est mise à jour régulièrement. Dernière mise à jour : 2024-01-01_

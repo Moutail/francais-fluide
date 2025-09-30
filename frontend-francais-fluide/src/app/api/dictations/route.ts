@@ -16,7 +16,9 @@ export async function GET(request: NextRequest) {
     const res = await fetch(`${backend}/api/dictations${query}`, {
       method: 'GET',
     });
-    const data = await res.json().catch(() => ({ success: false, error: 'Réponse invalide du backend' }));
+    const data = await res
+      .json()
+      .catch(() => ({ success: false, error: 'Réponse invalide du backend' }));
     return NextResponse.json(data, { status: res.status });
   } catch (error) {
     console.error('Erreur proxy récupération dictées:', error);
@@ -44,7 +46,9 @@ export async function POST(request: NextRequest) {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(body),
     });
-    const data = await res.json().catch(() => ({ success: false, error: 'Réponse invalide du backend' }));
+    const data = await res
+      .json()
+      .catch(() => ({ success: false, error: 'Réponse invalide du backend' }));
     return NextResponse.json(data, { status: res.status });
   } catch (error) {
     console.error('Erreur proxy création dictée:', error);

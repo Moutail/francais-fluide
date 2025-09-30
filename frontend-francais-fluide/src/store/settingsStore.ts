@@ -11,7 +11,7 @@ interface SettingsState {
     reminderEnabled: boolean;
     reminderTime: string; // format HH:MM
   };
-  
+
   // Interface utilisateur
   ui: {
     theme: 'light' | 'dark' | 'system';
@@ -20,7 +20,7 @@ interface SettingsState {
     highContrast: boolean;
     compactMode: boolean;
   };
-  
+
   // Feedback
   feedback: {
     soundEffects: boolean;
@@ -29,7 +29,7 @@ interface SettingsState {
     celebrations: boolean;
     notifications: boolean;
   };
-  
+
   // Confidentialité
   privacy: {
     shareProgress: boolean;
@@ -46,7 +46,10 @@ interface SettingsState {
   resetSettings: () => void;
 }
 
-const defaultSettings: Omit<SettingsState, 'updatePreferences' | 'updateUI' | 'updateFeedback' | 'updatePrivacy' | 'resetSettings'> = {
+const defaultSettings: Omit<
+  SettingsState,
+  'updatePreferences' | 'updateUI' | 'updateFeedback' | 'updatePrivacy' | 'resetSettings'
+> = {
   preferences: {
     difficulty: 'adaptive',
     focusAreas: [],
@@ -78,26 +81,26 @@ const defaultSettings: Omit<SettingsState, 'updatePreferences' | 'updateUI' | 'u
 
 export const useSettingsStore = create<SettingsState>()(
   persist(
-    (set) => ({
+    set => ({
       ...defaultSettings,
 
-      updatePreferences: (prefs) =>
-        set((state) => ({
+      updatePreferences: prefs =>
+        set(state => ({
           preferences: { ...state.preferences, ...prefs },
         })),
 
-      updateUI: (ui) =>
-        set((state) => ({
+      updateUI: ui =>
+        set(state => ({
           ui: { ...state.ui, ...ui },
         })),
 
-      updateFeedback: (feedback) =>
-        set((state) => ({
+      updateFeedback: feedback =>
+        set(state => ({
           feedback: { ...state.feedback, ...feedback },
         })),
 
-      updatePrivacy: (privacy) =>
-        set((state) => ({
+      updatePrivacy: privacy =>
+        set(state => ({
           privacy: { ...state.privacy, ...privacy },
         })),
 

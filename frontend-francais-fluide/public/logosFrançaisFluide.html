@@ -1,491 +1,680 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Logos FrançaisFluide</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 40px 20px;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        h1 {
-            text-align: center;
-            color: #1e293b;
-            margin-bottom: 10px;
-            font-size: 32px;
-        }
-        
-        .subtitle {
-            text-align: center;
-            color: #64748b;
-            margin-bottom: 40px;
-            font-size: 14px;
-        }
-        
-        .logos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-        
-        .logo-card {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .logo-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-        }
-        
-        .logo-wrapper {
-            background: #fafafa;
-            border-radius: 12px;
-            padding: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-            min-height: 150px;
-        }
-        
-        .logo-wrapper.dark {
-            background: #1e293b;
-        }
-        
-        .logo-title {
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 8px;
-            font-size: 18px;
-        }
-        
-        .logo-description {
-            color: #64748b;
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 15px;
-        }
-        
-        .variations {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .variation {
-            flex: 1;
-            background: #f8fafc;
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-        }
-        
-        .variation.dark {
-            background: #1e293b;
-        }
-        
-        .code-block {
-            background: #f1f5f9;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 15px;
-            font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 11px;
-            color: #475569;
-            overflow-x: auto;
-        }
-        
-        .copy-btn {
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 16px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.2s ease;
-        }
-        
-        .copy-btn:hover {
-            background: #1d4ed8;
-        }
-        
-        .section-title {
-            text-align: center;
-            color: #1e293b;
-            margin: 60px 0 30px;
-            font-size: 24px;
-            font-weight: 600;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          'Inter',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 40px 20px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: #1e293b;
+        margin-bottom: 10px;
+        font-size: 32px;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #64748b;
+        margin-bottom: 40px;
+        font-size: 14px;
+      }
+
+      .logos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+        margin-bottom: 40px;
+      }
+
+      .logo-card {
+        background: white;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+      }
+
+      .logo-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      .logo-wrapper {
+        background: #fafafa;
+        border-radius: 12px;
+        padding: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+        min-height: 150px;
+      }
+
+      .logo-wrapper.dark {
+        background: #1e293b;
+      }
+
+      .logo-title {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 8px;
+        font-size: 18px;
+      }
+
+      .logo-description {
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 15px;
+      }
+
+      .variations {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .variation {
+        flex: 1;
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+      }
+
+      .variation.dark {
+        background: #1e293b;
+      }
+
+      .code-block {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 15px;
+        font-family: 'Monaco', 'Courier New', monospace;
+        font-size: 11px;
+        color: #475569;
+        overflow-x: auto;
+      }
+
+      .copy-btn {
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 12px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: background 0.2s ease;
+      }
+
+      .copy-btn:hover {
+        background: #1d4ed8;
+      }
+
+      .section-title {
+        text-align: center;
+        color: #1e293b;
+        margin: 60px 0 30px;
+        font-size: 24px;
+        font-weight: 600;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>Logos FrançaisFluide</h1>
-        <p class="subtitle">Collection de logos professionnels pour votre plateforme d'apprentissage</p>
-        
-        <div class="logos-grid">
-            <!-- Logo 1: Plume Élégante -->
-            <div class="logo-card">
-                <div class="logo-wrapper">
-                    <svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Icône Plume stylisée -->
-                        <defs>
-                            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
-                            </linearGradient>
-                        </defs>
-                        <g transform="translate(10, 15)">
-                            <!-- Plume -->
-                            <path d="M15 5 Q10 8 8 15 T10 28 Q12 30 15 28 L25 18 Q28 15 28 12 L25 8 Q22 5 18 5 Z M18 12 L20 14 L16 18 L14 16 Z" 
-                                  fill="url(#grad1)" />
-                            <path d="M25 8 L30 3 Q32 2 32 4 L28 12" 
-                                  stroke="url(#grad1)" stroke-width="2" fill="none" stroke-linecap="round" />
-                        </g>
-                        <!-- Texte -->
-                        <text x="45" y="35" font-family="Georgia, serif" font-size="22" font-weight="500" fill="#1e293b">
-                            FrançaisFluide
-                        </text>
-                    </svg>
-                </div>
-                <h3 class="logo-title">Logo Plume Élégante</h3>
-                <p class="logo-description">Design classique avec une plume stylisée, évoquant l'écriture et l'élégance du français.</p>
-                <div class="variations">
-                    <div class="variation">
-                        <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="40" height="40" rx="8" fill="#f0f9ff"/>
-                            <path d="M12 10 Q8 12 6 18 T8 28 Q10 30 13 28 L22 20 Q25 17 25 14 L22 10 Q19 8 15 8 Z M15 14 L17 16 L14 19 L12 17 Z" 
-                                  fill="#2563eb" />
-                            <path d="M22 10 L26 6 Q28 5 28 7 L24 14" 
-                                  stroke="#2563eb" stroke-width="2" fill="none" stroke-linecap="round" />
-                        </svg>
-                        <p style="font-size: 11px; color: #64748b; margin-top: 5px;">Icône seule</p>
-                    </div>
-                    <div class="variation dark">
-                        <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 10 Q8 12 6 18 T8 28 Q10 30 13 28 L22 20 Q25 17 25 14 L22 10 Q19 8 15 8 Z M15 14 L17 16 L14 19 L12 17 Z" 
-                                  fill="#ffffff" />
-                            <path d="M22 10 L26 6 Q28 5 28 7 L24 14" 
-                                  stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" />
-                        </svg>
-                        <p style="font-size: 11px; color: #94a3b8; margin-top: 5px;">Sur fond sombre</p>
-                    </div>
-                </div>
-            </div>
+      <h1>Logos FrançaisFluide</h1>
+      <p class="subtitle">
+        Collection de logos professionnels pour votre plateforme d'apprentissage
+      </p>
 
-            <!-- Logo 2: FF Monogramme -->
-            <div class="logo-card">
-                <div class="logo-wrapper">
-                    <svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
-                            </linearGradient>
-                        </defs>
-                        <!-- Monogramme FF -->
-                        <g transform="translate(10, 10)">
-                            <rect x="0" y="0" width="40" height="40" rx="8" fill="url(#grad2)" />
-                            <text x="20" y="30" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="white" text-anchor="middle">
-                                FF
-                            </text>
-                        </g>
-                        <!-- Texte -->
-                        <text x="60" y="35" font-family="Inter, sans-serif" font-size="20" font-weight="500" fill="#1e293b">
-                            FrançaisFluide
-                        </text>
-                    </svg>
-                </div>
-                <h3 class="logo-title">Monogramme Moderne</h3>
-                <p class="logo-description">Design minimaliste avec les initiales FF dans un carré aux coins arrondis.</p>
-                <div class="variations">
-                    <div class="variation">
-                        <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="0" y="0" width="40" height="40" rx="8" fill="#2563eb" />
-                            <text x="20" y="26" font-family="Inter, sans-serif" font-size="18" font-weight="700" fill="white" text-anchor="middle">
-                                FF
-                            </text>
-                        </svg>
-                        <p style="font-size: 11px; color: #64748b; margin-top: 5px;">Icône seule</p>
-                    </div>
-                    <div class="variation">
-                        <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="0" y="0" width="40" height="40" rx="8" fill="none" stroke="#2563eb" stroke-width="2" />
-                            <text x="20" y="26" font-family="Inter, sans-serif" font-size="18" font-weight="700" fill="#2563eb" text-anchor="middle">
-                                FF
-                            </text>
-                        </svg>
-                        <p style="font-size: 11px; color: #64748b; margin-top: 5px;">Version outline</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Logo 3: Accent Français -->
-            <div class="logo-card">
-                <div class="logo-wrapper">
-                    <svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Logo avec accent -->
-                        <g transform="translate(10, 15)">
-                            <text x="0" y="25" font-family="Georgia, serif" font-size="26" font-weight="400" fill="#1e293b">
-                                Français
-                            </text>
-                            <text x="85" y="25" font-family="Georgia, serif" font-size="26" font-weight="600" fill="#2563eb">
-                                Fluide
-                            </text>
-                            <!-- Accent décoratif -->
-                            <path d="M 75 5 Q 80 0 85 5" stroke="#2563eb" stroke-width="2.5" fill="none" stroke-linecap="round" />
-                        </g>
-                    </svg>
-                </div>
-                <h3 class="logo-title">Accent Typographique</h3>
-                <p class="logo-description">Jeu typographique avec un accent décoratif symbolisant la fluidité et le français.</p>
-                <div class="variations">
-                    <div class="variation">
-                        <svg width="100" height="30" viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg">
-                            <text x="0" y="20" font-family="Georgia, serif" font-size="16" font-weight="600" fill="#1e293b">
-                                F
-                            </text>
-                            <text x="10" y="20" font-family="Georgia, serif" font-size="16" font-weight="400" fill="#64748b">
-                                rançais
-                            </text>
-                            <text x="55" y="20" font-family="Georgia, serif" font-size="16" font-weight="600" fill="#2563eb">
-                                F
-                            </text>
-                            <text x="65" y="20" font-family="Georgia, serif" font-size="16" font-weight="400" fill="#64748b">
-                                luide
-                            </text>
-                        </svg>
-                        <p style="font-size: 11px; color: #64748b; margin-top: 5px;">Version compacte</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Logo 4: Vague Fluide -->
-            <div class="logo-card">
-                <div class="logo-wrapper">
-                    <svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
-                            </linearGradient>
-                        </defs>
-                        <!-- Vague fluide -->
-                        <g transform="translate(10, 20)">
-                            <path d="M 0 10 Q 10 0, 20 10 T 40 10" 
-                                  stroke="url(#grad3)" stroke-width="3" fill="none" stroke-linecap="round" />
-                            <circle cx="0" cy="10" r="3" fill="#3b82f6" />
-                            <circle cx="40" cy="10" r="3" fill="#2563eb" />
-                        </g>
-                        <!-- Texte -->
-                        <text x="60" y="35" font-family="Inter, sans-serif" font-size="20" font-weight="300" fill="#1e293b">
-                            Français
-                        </text>
-                        <text x="133" y="35" font-family="Inter, sans-serif" font-size="20" font-weight="600" fill="#1e293b">
-                            Fluide
-                        </text>
-                    </svg>
-                </div>
-                <h3 class="logo-title">Vague Fluide</h3>
-                <p class="logo-description">Représentation abstraite de la fluidité avec une courbe élégante.</p>
-                <div class="variations">
-                    <div class="variation">
-                        <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M 5 15 Q 15 5, 25 15 T 45 15" 
-                                  stroke="#2563eb" stroke-width="3" fill="none" stroke-linecap="round" />
-                            <circle cx="5" cy="15" r="3" fill="#3b82f6" />
-                            <circle cx="45" cy="15" r="3" fill="#2563eb" />
-                        </svg>
-                        <p style="font-size: 11px; color: #64748b; margin-top: 5px;">Symbole seul</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Logo 5: Livre Ouvert -->
-            <div class="logo-card">
-                <div class="logo-wrapper">
-                    <svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="grad4" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
-                            </linearGradient>
-                        </defs>
-                        <!-- Livre ouvert stylisé -->
-                        <g transform="translate(10, 15)">
-                            <path d="M 15 10 L 15 25 Q 15 30, 20 30 L 25 30 Q 30 30, 30 25 L 30 10" 
-                                  stroke="url(#grad4)" stroke-width="2" fill="none" />
-                            <path d="M 15 10 Q 10 8, 5 10 L 5 28 Q 10 26, 15 28" 
-                                  fill="#e0e7ff" stroke="#2563eb" stroke-width="1.5" />
-                            <path d="M 30 10 Q 35 8, 40 10 L 40 28 Q 35 26, 30 28" 
-                                  fill="#e0e7ff" stroke="#2563eb" stroke-width="1.5" />
-                        </g>
-                        <!-- Texte -->
-                        <text x="60" y="35" font-family="Inter, sans-serif" font-size="20" font-weight="500" fill="#1e293b">
-                            FrançaisFluide
-                        </text>
-                    </svg>
-                </div>
-                <h3 class="logo-title">Livre Académique</h3>
-                <p class="logo-description">Symbole classique de l'apprentissage avec un livre ouvert stylisé.</p>
-                <div class="variations">
-                    <div class="variation">
-                        <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="40" height="40" rx="8" fill="#f0f9ff"/>
-                            <g transform="translate(8, 10)">
-                                <path d="M 12 5 L 12 15 Q 12 18, 15 18 L 18 18 Q 21 18, 21 15 L 21 5" 
-                                      stroke="#2563eb" stroke-width="2" fill="none" />
-                                <path d="M 12 5 Q 9 4, 6 5 L 6 17 Q 9 16, 12 17" 
-                                      fill="#dbeafe" stroke="#2563eb" stroke-width="1.5" />
-                                <path d="M 21 5 Q 24 4, 27 5 L 27 17 Q 24 16, 21 17" 
-                                      fill="#dbeafe" stroke="#2563eb" stroke-width="1.5" />
-                            </g>
-                        </svg>
-                        <p style="font-size: 11px; color: #64748b; margin-top: 5px;">Icône app</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Logo 6: Minimaliste -->
-            <div class="logo-card">
-                <div class="logo-wrapper">
-                    <svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Design ultra minimaliste -->
-                        <text x="10" y="38" font-family="Inter, sans-serif" font-size="28" font-weight="300" fill="#64748b">
-                            français
-                        </text>
-                        <text x="90" y="38" font-family="Inter, sans-serif" font-size="28" font-weight="700" fill="#1e293b">
-                            fluide
-                        </text>
-                        <!-- Point accent -->
-                        <circle cx="155" cy="20" r="3" fill="#2563eb" />
-                    </svg>
-                </div>
-                <h3 class="logo-title">Ultra Minimaliste</h3>
-                <p class="logo-description">Design épuré avec contraste de poids typographique et un point d'accent subtil.</p>
-                <div class="variations">
-                    <div class="variation">
-                        <svg width="80" height="30" viewBox="0 0 80 30" xmlns="http://www.w3.org/2000/svg">
-                            <text x="5" y="20" font-family="Inter, sans-serif" font-size="18" font-weight="300" fill="#64748b">
-                                f
-                            </text>
-                            <text x="12" y="20" font-family="Inter, sans-serif" font-size="18" font-weight="700" fill="#1e293b">
-                                f
-                            </text>
-                            <circle cx="25" cy="10" r="2" fill="#2563eb" />
-                        </svg>
-                        <p style="font-size: 11px; color: #64748b; margin-top: 5px;">Version courte</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section Utilisation -->
-        <h2 class="section-title">💼 Comment Utiliser Ces Logos</h2>
-        
+      <div class="logos-grid">
+        <!-- Logo 1: Plume Élégante -->
         <div class="logo-card">
-            <h3 class="logo-title">Intégration dans Next.js</h3>
-            <p class="logo-description">Créez un fichier <strong>Logo.tsx</strong> dans <code>src/components/ui/</code> :</p>
-            <div class="code-block">
-// src/components/ui/Logo.tsx
-import React from 'react';
-
-interface LogoProps {
-  variant?: 'full' | 'icon' | 'text';
-  className?: string;
-  width?: number;
-  height?: number;
-}
-
-export const Logo: React.FC&lt;LogoProps&gt; = ({ 
-  variant = 'full', 
-  className = '', 
-  width = 200, 
-  height = 60 
-}) =&gt; {
-  if (variant === 'icon') {
-    return (
-      &lt;svg width="40" height="40" viewBox="0 0 40 40" className={className}&gt;
-        &lt;rect x="0" y="0" width="40" height="40" rx="8" fill="#2563eb" /&gt;
-        &lt;text x="20" y="26" fontFamily="Inter" fontSize="18" fontWeight="700" fill="white" textAnchor="middle"&gt;
-          FF
-        &lt;/text&gt;
-      &lt;/svg&gt;
-    );
-  }
-
-  return (
-    &lt;svg width={width} height={height} viewBox="0 0 200 60" className={className}&gt;
-      &lt;defs&gt;
-        &lt;linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="0%"&gt;
-          &lt;stop offset="0%" style={{ stopColor: '#2563eb', stopOpacity: 1 }} /&gt;
-          &lt;stop offset="100%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} /&gt;
-        &lt;/linearGradient&gt;
-      &lt;/defs&gt;
-      &lt;g transform="translate(10, 10)"&gt;
-        &lt;rect x="0" y="0" width="40" height="40" rx="8" fill="url(#logoGrad)" /&gt;
-        &lt;text x="20" y="30" fontFamily="Inter" fontSize="20" fontWeight="700" fill="white" textAnchor="middle"&gt;
-          FF
-        &lt;/text&gt;
-      &lt;/g&gt;
-      &lt;text x="60" y="35" fontFamily="Inter" fontSize="20" fontWeight="500" fill="#1e293b"&gt;
-        FrançaisFluide
-      &lt;/text&gt;
-    &lt;/svg&gt;
-  );
-};
+          <div class="logo-wrapper">
+            <svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+              <!-- Icône Plume stylisée -->
+              <defs>
+                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color: #2563eb; stop-opacity: 1" />
+                  <stop offset="100%" style="stop-color: #1e40af; stop-opacity: 1" />
+                </linearGradient>
+              </defs>
+              <g transform="translate(10, 15)">
+                <!-- Plume -->
+                <path
+                  d="M15 5 Q10 8 8 15 T10 28 Q12 30 15 28 L25 18 Q28 15 28 12 L25 8 Q22 5 18 5 Z M18 12 L20 14 L16 18 L14 16 Z"
+                  fill="url(#grad1)"
+                />
+                <path
+                  d="M25 8 L30 3 Q32 2 32 4 L28 12"
+                  stroke="url(#grad1)"
+                  stroke-width="2"
+                  fill="none"
+                  stroke-linecap="round"
+                />
+              </g>
+              <!-- Texte -->
+              <text
+                x="45"
+                y="35"
+                font-family="Georgia, serif"
+                font-size="22"
+                font-weight="500"
+                fill="#1e293b"
+              >
+                FrançaisFluide
+              </text>
+            </svg>
+          </div>
+          <h3 class="logo-title">Logo Plume Élégante</h3>
+          <p class="logo-description">
+            Design classique avec une plume stylisée, évoquant l'écriture et l'élégance du français.
+          </p>
+          <div class="variations">
+            <div class="variation">
+              <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                <rect width="40" height="40" rx="8" fill="#f0f9ff" />
+                <path
+                  d="M12 10 Q8 12 6 18 T8 28 Q10 30 13 28 L22 20 Q25 17 25 14 L22 10 Q19 8 15 8 Z M15 14 L17 16 L14 19 L12 17 Z"
+                  fill="#2563eb"
+                />
+                <path
+                  d="M22 10 L26 6 Q28 5 28 7 L24 14"
+                  stroke="#2563eb"
+                  stroke-width="2"
+                  fill="none"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <p style="font-size: 11px; color: #64748b; margin-top: 5px">Icône seule</p>
             </div>
-        </div>
-
-        <div class="logo-card">
-            <h3 class="logo-title">Utilisation dans le Header</h3>
-            <div class="code-block">
-// Dans votre Header.tsx
-import { Logo } from '@/components/ui/Logo';
-
-&lt;header className="bg-white border-b"&gt;
-  &lt;div className="flex items-center"&gt;
-    &lt;Logo variant="full" className="h-10" /&gt;
-    {/* ou pour mobile */}
-    &lt;Logo variant="icon" className="md:hidden" /&gt;
-  &lt;/div&gt;
-&lt;/header&gt;
+            <div class="variation dark">
+              <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 10 Q8 12 6 18 T8 28 Q10 30 13 28 L22 20 Q25 17 25 14 L22 10 Q19 8 15 8 Z M15 14 L17 16 L14 19 L12 17 Z"
+                  fill="#ffffff"
+                />
+                <path
+                  d="M22 10 L26 6 Q28 5 28 7 L24 14"
+                  stroke="#ffffff"
+                  stroke-width="2"
+                  fill="none"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <p style="font-size: 11px; color: #94a3b8; margin-top: 5px">Sur fond sombre</p>
             </div>
+          </div>
         </div>
 
+        <!-- Logo 2: FF Monogramme -->
         <div class="logo-card">
-            <h3 class="logo-title">Favicon et Meta Tags</h3>
-            <p class="logo-description">Pour le favicon, utilisez la version icône (FF monogramme) et générez les différentes tailles :</p>
-            <ul style="color: #64748b; font-size: 14px; line-height: 1.8; margin-left: 20px;">
-                <li>favicon.ico (32x32)</li>
-                <li>icon-192.png (192x192) pour PWA</li>
-                <li>icon-512.png (512x512) pour PWA</li>
-                <li>apple-touch-icon.png (180x180) pour iOS</li>
-            </ul>
+          <div class="logo-wrapper">
+            <svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style="stop-color: #2563eb; stop-opacity: 1" />
+                  <stop offset="100%" style="stop-color: #3b82f6; stop-opacity: 1" />
+                </linearGradient>
+              </defs>
+              <!-- Monogramme FF -->
+              <g transform="translate(10, 10)">
+                <rect x="0" y="0" width="40" height="40" rx="8" fill="url(#grad2)" />
+                <text
+                  x="20"
+                  y="30"
+                  font-family="Inter, sans-serif"
+                  font-size="20"
+                  font-weight="700"
+                  fill="white"
+                  text-anchor="middle"
+                >
+                  FF
+                </text>
+              </g>
+              <!-- Texte -->
+              <text
+                x="60"
+                y="35"
+                font-family="Inter, sans-serif"
+                font-size="20"
+                font-weight="500"
+                fill="#1e293b"
+              >
+                FrançaisFluide
+              </text>
+            </svg>
+          </div>
+          <h3 class="logo-title">Monogramme Moderne</h3>
+          <p class="logo-description">
+            Design minimaliste avec les initiales FF dans un carré aux coins arrondis.
+          </p>
+          <div class="variations">
+            <div class="variation">
+              <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                <rect x="0" y="0" width="40" height="40" rx="8" fill="#2563eb" />
+                <text
+                  x="20"
+                  y="26"
+                  font-family="Inter, sans-serif"
+                  font-size="18"
+                  font-weight="700"
+                  fill="white"
+                  text-anchor="middle"
+                >
+                  FF
+                </text>
+              </svg>
+              <p style="font-size: 11px; color: #64748b; margin-top: 5px">Icône seule</p>
+            </div>
+            <div class="variation">
+              <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                <rect
+                  x="0"
+                  y="0"
+                  width="40"
+                  height="40"
+                  rx="8"
+                  fill="none"
+                  stroke="#2563eb"
+                  stroke-width="2"
+                />
+                <text
+                  x="20"
+                  y="26"
+                  font-family="Inter, sans-serif"
+                  font-size="18"
+                  font-weight="700"
+                  fill="#2563eb"
+                  text-anchor="middle"
+                >
+                  FF
+                </text>
+              </svg>
+              <p style="font-size: 11px; color: #64748b; margin-top: 5px">Version outline</p>
+            </div>
+          </div>
         </div>
+
+        <!-- Logo 3: Accent Français -->
+        <div class="logo-card">
+          <div class="logo-wrapper">
+            <svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+              <!-- Logo avec accent -->
+              <g transform="translate(10, 15)">
+                <text
+                  x="0"
+                  y="25"
+                  font-family="Georgia, serif"
+                  font-size="26"
+                  font-weight="400"
+                  fill="#1e293b"
+                >
+                  Français
+                </text>
+                <text
+                  x="85"
+                  y="25"
+                  font-family="Georgia, serif"
+                  font-size="26"
+                  font-weight="600"
+                  fill="#2563eb"
+                >
+                  Fluide
+                </text>
+                <!-- Accent décoratif -->
+                <path
+                  d="M 75 5 Q 80 0 85 5"
+                  stroke="#2563eb"
+                  stroke-width="2.5"
+                  fill="none"
+                  stroke-linecap="round"
+                />
+              </g>
+            </svg>
+          </div>
+          <h3 class="logo-title">Accent Typographique</h3>
+          <p class="logo-description">
+            Jeu typographique avec un accent décoratif symbolisant la fluidité et le français.
+          </p>
+          <div class="variations">
+            <div class="variation">
+              <svg width="100" height="30" viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg">
+                <text
+                  x="0"
+                  y="20"
+                  font-family="Georgia, serif"
+                  font-size="16"
+                  font-weight="600"
+                  fill="#1e293b"
+                >
+                  F
+                </text>
+                <text
+                  x="10"
+                  y="20"
+                  font-family="Georgia, serif"
+                  font-size="16"
+                  font-weight="400"
+                  fill="#64748b"
+                >
+                  rançais
+                </text>
+                <text
+                  x="55"
+                  y="20"
+                  font-family="Georgia, serif"
+                  font-size="16"
+                  font-weight="600"
+                  fill="#2563eb"
+                >
+                  F
+                </text>
+                <text
+                  x="65"
+                  y="20"
+                  font-family="Georgia, serif"
+                  font-size="16"
+                  font-weight="400"
+                  fill="#64748b"
+                >
+                  luide
+                </text>
+              </svg>
+              <p style="font-size: 11px; color: #64748b; margin-top: 5px">Version compacte</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logo 4: Vague Fluide -->
+        <div class="logo-card">
+          <div class="logo-wrapper">
+            <svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style="stop-color: #3b82f6; stop-opacity: 1" />
+                  <stop offset="100%" style="stop-color: #2563eb; stop-opacity: 1" />
+                </linearGradient>
+              </defs>
+              <!-- Vague fluide -->
+              <g transform="translate(10, 20)">
+                <path
+                  d="M 0 10 Q 10 0, 20 10 T 40 10"
+                  stroke="url(#grad3)"
+                  stroke-width="3"
+                  fill="none"
+                  stroke-linecap="round"
+                />
+                <circle cx="0" cy="10" r="3" fill="#3b82f6" />
+                <circle cx="40" cy="10" r="3" fill="#2563eb" />
+              </g>
+              <!-- Texte -->
+              <text
+                x="60"
+                y="35"
+                font-family="Inter, sans-serif"
+                font-size="20"
+                font-weight="300"
+                fill="#1e293b"
+              >
+                Français
+              </text>
+              <text
+                x="133"
+                y="35"
+                font-family="Inter, sans-serif"
+                font-size="20"
+                font-weight="600"
+                fill="#1e293b"
+              >
+                Fluide
+              </text>
+            </svg>
+          </div>
+          <h3 class="logo-title">Vague Fluide</h3>
+          <p class="logo-description">
+            Représentation abstraite de la fluidité avec une courbe élégante.
+          </p>
+          <div class="variations">
+            <div class="variation">
+              <svg width="50" height="30" viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M 5 15 Q 15 5, 25 15 T 45 15"
+                  stroke="#2563eb"
+                  stroke-width="3"
+                  fill="none"
+                  stroke-linecap="round"
+                />
+                <circle cx="5" cy="15" r="3" fill="#3b82f6" />
+                <circle cx="45" cy="15" r="3" fill="#2563eb" />
+              </svg>
+              <p style="font-size: 11px; color: #64748b; margin-top: 5px">Symbole seul</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logo 5: Livre Ouvert -->
+        <div class="logo-card">
+          <div class="logo-wrapper">
+            <svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="grad4" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color: #3b82f6; stop-opacity: 1" />
+                  <stop offset="100%" style="stop-color: #2563eb; stop-opacity: 1" />
+                </linearGradient>
+              </defs>
+              <!-- Livre ouvert stylisé -->
+              <g transform="translate(10, 15)">
+                <path
+                  d="M 15 10 L 15 25 Q 15 30, 20 30 L 25 30 Q 30 30, 30 25 L 30 10"
+                  stroke="url(#grad4)"
+                  stroke-width="2"
+                  fill="none"
+                />
+                <path
+                  d="M 15 10 Q 10 8, 5 10 L 5 28 Q 10 26, 15 28"
+                  fill="#e0e7ff"
+                  stroke="#2563eb"
+                  stroke-width="1.5"
+                />
+                <path
+                  d="M 30 10 Q 35 8, 40 10 L 40 28 Q 35 26, 30 28"
+                  fill="#e0e7ff"
+                  stroke="#2563eb"
+                  stroke-width="1.5"
+                />
+              </g>
+              <!-- Texte -->
+              <text
+                x="60"
+                y="35"
+                font-family="Inter, sans-serif"
+                font-size="20"
+                font-weight="500"
+                fill="#1e293b"
+              >
+                FrançaisFluide
+              </text>
+            </svg>
+          </div>
+          <h3 class="logo-title">Livre Académique</h3>
+          <p class="logo-description">
+            Symbole classique de l'apprentissage avec un livre ouvert stylisé.
+          </p>
+          <div class="variations">
+            <div class="variation">
+              <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                <rect width="40" height="40" rx="8" fill="#f0f9ff" />
+                <g transform="translate(8, 10)">
+                  <path
+                    d="M 12 5 L 12 15 Q 12 18, 15 18 L 18 18 Q 21 18, 21 15 L 21 5"
+                    stroke="#2563eb"
+                    stroke-width="2"
+                    fill="none"
+                  />
+                  <path
+                    d="M 12 5 Q 9 4, 6 5 L 6 17 Q 9 16, 12 17"
+                    fill="#dbeafe"
+                    stroke="#2563eb"
+                    stroke-width="1.5"
+                  />
+                  <path
+                    d="M 21 5 Q 24 4, 27 5 L 27 17 Q 24 16, 21 17"
+                    fill="#dbeafe"
+                    stroke="#2563eb"
+                    stroke-width="1.5"
+                  />
+                </g>
+              </svg>
+              <p style="font-size: 11px; color: #64748b; margin-top: 5px">Icône app</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logo 6: Minimaliste -->
+        <div class="logo-card">
+          <div class="logo-wrapper">
+            <svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+              <!-- Design ultra minimaliste -->
+              <text
+                x="10"
+                y="38"
+                font-family="Inter, sans-serif"
+                font-size="28"
+                font-weight="300"
+                fill="#64748b"
+              >
+                français
+              </text>
+              <text
+                x="90"
+                y="38"
+                font-family="Inter, sans-serif"
+                font-size="28"
+                font-weight="700"
+                fill="#1e293b"
+              >
+                fluide
+              </text>
+              <!-- Point accent -->
+              <circle cx="155" cy="20" r="3" fill="#2563eb" />
+            </svg>
+          </div>
+          <h3 class="logo-title">Ultra Minimaliste</h3>
+          <p class="logo-description">
+            Design épuré avec contraste de poids typographique et un point d'accent subtil.
+          </p>
+          <div class="variations">
+            <div class="variation">
+              <svg width="80" height="30" viewBox="0 0 80 30" xmlns="http://www.w3.org/2000/svg">
+                <text
+                  x="5"
+                  y="20"
+                  font-family="Inter, sans-serif"
+                  font-size="18"
+                  font-weight="300"
+                  fill="#64748b"
+                >
+                  f
+                </text>
+                <text
+                  x="12"
+                  y="20"
+                  font-family="Inter, sans-serif"
+                  font-size="18"
+                  font-weight="700"
+                  fill="#1e293b"
+                >
+                  f
+                </text>
+                <circle cx="25" cy="10" r="2" fill="#2563eb" />
+              </svg>
+              <p style="font-size: 11px; color: #64748b; margin-top: 5px">Version courte</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Utilisation -->
+      <h2 class="section-title">💼 Comment Utiliser Ces Logos</h2>
+
+      <div class="logo-card">
+        <h3 class="logo-title">Intégration dans Next.js</h3>
+        <p class="logo-description">
+          Créez un fichier <strong>Logo.tsx</strong> dans <code>src/components/ui/</code> :
+        </p>
+        <div class="code-block">
+          // src/components/ui/Logo.tsx import React from 'react'; interface LogoProps { variant?:
+          'full' | 'icon' | 'text'; className?: string; width?: number; height?: number; } export
+          const Logo: React.FC&lt;LogoProps&gt; = ({ variant = 'full', className = '', width = 200,
+          height = 60 }) =&gt; { if (variant === 'icon') { return ( &lt;svg width="40" height="40"
+          viewBox="0 0 40 40" className={className}&gt; &lt;rect x="0" y="0" width="40" height="40"
+          rx="8" fill="#2563eb" /&gt; &lt;text x="20" y="26" fontFamily="Inter" fontSize="18"
+          fontWeight="700" fill="white" textAnchor="middle"&gt; FF &lt;/text&gt; &lt;/svg&gt; ); }
+          return ( &lt;svg width={width} height={height} viewBox="0 0 200 60"
+          className={className}&gt; &lt;defs&gt; &lt;linearGradient id="logoGrad" x1="0%" y1="0%"
+          x2="100%" y2="0%"&gt; &lt;stop offset="0%" style={{ stopColor: '#2563eb', stopOpacity: 1
+          }} /&gt; &lt;stop offset="100%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} /&gt;
+          &lt;/linearGradient&gt; &lt;/defs&gt; &lt;g transform="translate(10, 10)"&gt; &lt;rect
+          x="0" y="0" width="40" height="40" rx="8" fill="url(#logoGrad)" /&gt; &lt;text x="20"
+          y="30" fontFamily="Inter" fontSize="20" fontWeight="700" fill="white"
+          textAnchor="middle"&gt; FF &lt;/text&gt; &lt;/g&gt; &lt;text x="60" y="35"
+          fontFamily="Inter" fontSize="20" fontWeight="500" fill="#1e293b"&gt; FrançaisFluide
+          &lt;/text&gt; &lt;/svg&gt; ); };
+        </div>
+      </div>
+
+      <div class="logo-card">
+        <h3 class="logo-title">Utilisation dans le Header</h3>
+        <div class="code-block">
+          // Dans votre Header.tsx import { Logo } from '@/components/ui/Logo'; &lt;header
+          className="bg-white border-b"&gt; &lt;div className="flex items-center"&gt; &lt;Logo
+          variant="full" className="h-10" /&gt; {/* ou pour mobile */} &lt;Logo variant="icon"
+          className="md:hidden" /&gt; &lt;/div&gt; &lt;/header&gt;
+        </div>
+      </div>
+
+      <div class="logo-card">
+        <h3 class="logo-title">Favicon et Meta Tags</h3>
+        <p class="logo-description">
+          Pour le favicon, utilisez la version icône (FF monogramme) et générez les différentes
+          tailles :
+        </p>
+        <ul style="color: #64748b; font-size: 14px; line-height: 1.8; margin-left: 20px">
+          <li>favicon.ico (32x32)</li>
+          <li>icon-192.png (192x192) pour PWA</li>
+          <li>icon-512.png (512x512) pour PWA</li>
+          <li>apple-touch-icon.png (180x180) pour iOS</li>
+        </ul>
+      </div>
     </div>
-</body>
+  </body>
 </html>

@@ -31,7 +31,7 @@ export class LanguageToolClient {
         this.cache.delete(iterator.value);
       }
     }
-    
+
     this.cache.set(key, { data, timestamp: Date.now() });
   }
 
@@ -46,14 +46,14 @@ export class LanguageToolClient {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           ...(AI_CONFIG.LANGUAGETOOL_API_KEY && {
-            'Authorization': `Bearer ${AI_CONFIG.LANGUAGETOOL_API_KEY}`
-          })
+            Authorization: `Bearer ${AI_CONFIG.LANGUAGETOOL_API_KEY}`,
+          }),
         },
         body: new URLSearchParams({
           text: text,
           language: 'fr',
-          enabledOnly: 'false'
-        })
+          enabledOnly: 'false',
+        }),
       });
 
       if (!response.ok) {
@@ -61,24 +61,25 @@ export class LanguageToolClient {
       }
 
       const result = await response.json();
-      
+
       // Convertir le format LanguageTool vers notre format
       const convertedResult = {
         corrected_text: text,
-        errors: result.matches?.map((match: any) => ({
-          original: match.context?.text?.substring(match.offset, match.offset + match.length),
-          correction: match.replacements?.[0]?.value || '',
-          explanation: match.message,
-          type: this.getErrorType(match.rule?.category?.id),
-          offset: match.offset,
-          length: match.length
-        })) || [],
-        suggestions: result.matches?.map((match: any) => match.replacements?.[0]?.value).filter(Boolean) || []
+        errors:
+          result.matches?.map((match: any) => ({
+            original: match.context?.text?.substring(match.offset, match.offset + match.length),
+            correction: match.replacements?.[0]?.value || '',
+            explanation: match.message,
+            type: this.getErrorType(match.rule?.category?.id),
+            offset: match.offset,
+            length: match.length,
+          })) || [],
+        suggestions:
+          result.matches?.map((match: any) => match.replacements?.[0]?.value).filter(Boolean) || [],
       };
 
       this.setCache(cacheKey, convertedResult);
       return convertedResult;
-
     } catch (error) {
       console.error('Erreur LanguageTool:', error);
       throw new Error('Erreur lors de la vérification grammaticale');
@@ -87,11 +88,11 @@ export class LanguageToolClient {
 
   private getErrorType(categoryId: string): string {
     const typeMap: { [key: string]: string } = {
-      'TYPOS': 'orthographe',
-      'GRAMMAR': 'grammaire',
-      'PUNCTUATION': 'ponctuation',
-      'STYLE': 'style',
-      'TYPOGRAPHY': 'typographie'
+      TYPOS: 'orthographe',
+      GRAMMAR: 'grammaire',
+      PUNCTUATION: 'ponctuation',
+      STYLE: 'style',
+      TYPOGRAPHY: 'typographie',
     };
     return typeMap[categoryId] || 'autre';
   }

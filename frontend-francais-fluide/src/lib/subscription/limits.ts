@@ -30,7 +30,7 @@ export class SubscriptionLimiter {
         allowed: false,
         remaining: 0,
         limit: 0,
-        message: 'Plan non trouvé'
+        message: 'Plan non trouvé',
       };
     }
 
@@ -42,7 +42,7 @@ export class SubscriptionLimiter {
       return {
         allowed: true,
         remaining: -1,
-        limit: -1
+        limit: -1,
       };
     }
 
@@ -53,9 +53,9 @@ export class SubscriptionLimiter {
       allowed,
       remaining,
       limit,
-      message: allowed 
+      message: allowed
         ? `${remaining} corrections restantes`
-        : `Limite atteinte (${limit}/jour). Passez à un plan supérieur !`
+        : `Limite atteinte (${limit}/jour). Passez à un plan supérieur !`,
     };
   }
 
@@ -66,7 +66,7 @@ export class SubscriptionLimiter {
         allowed: false,
         remaining: 0,
         limit: 0,
-        message: 'Plan non trouvé'
+        message: 'Plan non trouvé',
       };
     }
 
@@ -78,7 +78,7 @@ export class SubscriptionLimiter {
       return {
         allowed: true,
         remaining: -1,
-        limit: -1
+        limit: -1,
       };
     }
 
@@ -89,9 +89,9 @@ export class SubscriptionLimiter {
       allowed,
       remaining,
       limit,
-      message: allowed 
+      message: allowed
         ? `${remaining} exercices restants`
-        : `Limite atteinte (${limit}/jour). Passez à un plan supérieur !`
+        : `Limite atteinte (${limit}/jour). Passez à un plan supérieur !`,
     };
   }
 
@@ -102,9 +102,7 @@ export class SubscriptionLimiter {
 
   getUpgradePrompt(feature: string): string {
     const plan = SUBSCRIPTION_PLANS.find(p => p.id === this.usage.planId);
-    const nextPlan = SUBSCRIPTION_PLANS.find(p => 
-      p.price > (plan?.price || 0) && p.price > 0
-    );
+    const nextPlan = SUBSCRIPTION_PLANS.find(p => p.price > (plan?.price || 0) && p.price > 0);
 
     if (!nextPlan) {
       return 'Fonctionnalité non disponible dans votre plan actuel.';
@@ -139,7 +137,7 @@ export function useSubscriptionLimits(userPlan: string = 'free') {
     aiCorrections: 2, // Simulé
     exercisesCompleted: 1, // Simulé
     lastResetDate: new Date().toISOString(),
-    planId: userPlan
+    planId: userPlan,
   };
 
   const limiter = new SubscriptionLimiter(usage);
@@ -153,7 +151,7 @@ export function useSubscriptionLimits(userPlan: string = 'free') {
     hasVoiceAssistant: limiter.checkFeature('voiceAssistant'),
     hasOfflineMode: limiter.checkFeature('offlineMode'),
     hasCustomExercises: limiter.checkFeature('customExercises'),
-    getUpgradePrompt: (feature: string) => limiter.getUpgradePrompt(feature)
+    getUpgradePrompt: (feature: string) => limiter.getUpgradePrompt(feature),
   };
 }
 

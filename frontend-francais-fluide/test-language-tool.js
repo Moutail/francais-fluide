@@ -8,33 +8,33 @@ const testTexts = [
   {
     name: 'Erreurs de conjugaison',
     text: 'Je suis aller au magasin hier. Il a manger une pomme.',
-    expectedErrors: ['aller', 'manger']
+    expectedErrors: ['aller', 'manger'],
   },
   {
-    name: 'Erreurs d\'accord',
-    text: 'C\'est un belle voiture rouge. Les enfants est content.',
-    expectedErrors: ['belle', 'est']
+    name: "Erreurs d'accord",
+    text: "C'est un belle voiture rouge. Les enfants est content.",
+    expectedErrors: ['belle', 'est'],
   },
   {
-    name: 'Erreurs d\'orthographe',
-    text: 'Je vais au magazin demain. C\'est trés beau.',
-    expectedErrors: ['magazin', 'trés']
+    name: "Erreurs d'orthographe",
+    text: "Je vais au magazin demain. C'est trés beau.",
+    expectedErrors: ['magazin', 'trés'],
   },
   {
     name: 'Erreurs de style',
-    text: 'Je pense que c\'est bien. Je pense que c\'est correct.',
-    expectedErrors: ['répétition']
-  }
+    text: "Je pense que c'est bien. Je pense que c'est correct.",
+    expectedErrors: ['répétition'],
+  },
 ];
 
 async function testLanguageToolAPI() {
-  console.log('🧪 Test de l\'API LanguageTool\n');
+  console.log("🧪 Test de l'API LanguageTool\n");
 
   try {
     // Test de santé de l'API
     console.log('1. Test de connexion...');
     const healthResponse = await fetch(`${API_URL}/languages`);
-    
+
     if (healthResponse.ok) {
       console.log('✅ API LanguageTool accessible');
     } else {
@@ -46,7 +46,7 @@ async function testLanguageToolAPI() {
     console.log('\n2. Test des langues supportées...');
     const languages = await healthResponse.json();
     const frenchSupported = languages.some(lang => lang.longCode === 'fr' || lang.code === 'fr');
-    
+
     if (frenchSupported) {
       console.log('✅ Français supporté');
     } else {
@@ -55,11 +55,11 @@ async function testLanguageToolAPI() {
 
     // Test de correction grammaticale
     console.log('\n3. Test de correction grammaticale...');
-    
+
     for (const testCase of testTexts) {
       console.log(`\n   Test: ${testCase.name}`);
       console.log(`   Texte: "${testCase.text}"`);
-      
+
       try {
         const response = await fetch(`${API_URL}/check`, {
           method: 'POST',
@@ -70,20 +70,22 @@ async function testLanguageToolAPI() {
             text: testCase.text,
             language: 'fr',
             enabledOnly: 'false',
-            level: 'picky'
-          })
+            level: 'picky',
+          }),
         });
 
         if (response.ok) {
           const data = await response.json();
           const errors = data.matches || [];
-          
+
           console.log(`   ✅ ${errors.length} erreur(s) détectée(s)`);
-          
+
           if (errors.length > 0) {
             errors.forEach((error, index) => {
               console.log(`      ${index + 1}. ${error.message}`);
-              console.log(`         Suggestions: ${error.replacements.map(r => r.value).join(', ')}`);
+              console.log(
+                `         Suggestions: ${error.replacements.map(r => r.value).join(', ')}`
+              );
             });
           }
         } else {
@@ -97,7 +99,7 @@ async function testLanguageToolAPI() {
     // Test de performance
     console.log('\n4. Test de performance...');
     const startTime = Date.now();
-    
+
     const perfResponse = await fetch(`${API_URL}/check`, {
       method: 'POST',
       headers: {
@@ -105,16 +107,16 @@ async function testLanguageToolAPI() {
       },
       body: new URLSearchParams({
         text: 'Je suis aller au magasin hier pour acheter des pommes.',
-        language: 'fr'
-      })
+        language: 'fr',
+      }),
     });
-    
+
     const endTime = Date.now();
     const responseTime = endTime - startTime;
-    
+
     if (perfResponse.ok) {
       console.log(`✅ Temps de réponse: ${responseTime}ms`);
-      
+
       if (responseTime < 2000) {
         console.log('✅ Performance acceptable');
       } else {
@@ -136,8 +138,7 @@ async function testLanguageToolAPI() {
     console.log('✅ Français supporté');
     console.log('✅ Correction grammaticale fonctionnelle');
     console.log('✅ Performance acceptable');
-    console.log('✅ Prêt pour l\'intégration');
-
+    console.log("✅ Prêt pour l'intégration");
   } catch (error) {
     console.error('❌ Erreur lors des tests:', error.message);
   }

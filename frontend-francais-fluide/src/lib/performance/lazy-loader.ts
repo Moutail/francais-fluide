@@ -12,18 +12,18 @@ export interface LazyLoadConfig {
   threshold?: number; // Distance avant de charger (en pixels)
   rootMargin?: string; // Marge autour du viewport
   delay?: number; // Délai avant de charger (en ms)
-  
+
   // Configuration de préchargement
   preload?: boolean; // Précharger automatiquement
   preloadDistance?: number; // Distance de préchargement
-  
+
   // Configuration de fallback
   fallback?: ReactElement;
   errorBoundary?: ComponentType<any>;
-  
+
   // Configuration de priorité
   priority?: 'high' | 'medium' | 'low';
-  
+
   // Configuration de cache
   cache?: boolean;
   cacheKey?: string;
@@ -66,7 +66,7 @@ class IntelligentLazyLoader {
     this.loadQueue = [];
     this.cache = new Map();
     this.preloadCache = new Set();
-    
+
     this.metrics = {
       totalComponents: 0,
       loadedComponents: 0,
@@ -74,7 +74,7 @@ class IntelligentLazyLoader {
       errorComponents: 0,
       averageLoadTime: 0,
       cacheHitRate: 0,
-      preloadAccuracy: 0
+      preloadAccuracy: 0,
     };
 
     this.initializeObservers();
@@ -88,19 +88,19 @@ class IntelligentLazyLoader {
 
     // Observer principal pour le chargement
     this.intersectionObserver = new IntersectionObserver(
-      (entries) => this.handleIntersection(entries),
+      entries => this.handleIntersection(entries),
       {
         rootMargin: '50px',
-        threshold: 0.1
+        threshold: 0.1,
       }
     );
 
     // Observer pour le préchargement
     this.preloadObserver = new IntersectionObserver(
-      (entries) => this.handlePreloadIntersection(entries),
+      entries => this.handlePreloadIntersection(entries),
       {
         rootMargin: '200px',
-        threshold: 0
+        threshold: 0,
       }
     );
   }
@@ -121,11 +121,11 @@ class IntelligentLazyLoader {
       preloadDistance: 200,
       priority: 'medium',
       cache: true,
-      ...config
+      ...config,
     };
 
     const lazyComponent = lazy(importFn);
-    
+
     const entry: LazyLoadEntry = {
       id,
       component: lazyComponent,
@@ -134,7 +134,7 @@ class IntelligentLazyLoader {
       loading: false,
       error: null,
       loadTime: 0,
-      lastUsed: 0
+      lastUsed: 0,
     };
 
     this.entries.set(id, entry);
@@ -151,11 +151,7 @@ class IntelligentLazyLoader {
   /**
    * Crée un wrapper React pour un composant différé
    */
-  public createLazyWrapper(
-    id: string,
-    props: any = {},
-    fallback?: ReactElement
-  ): ReactElement {
+  public createLazyWrapper(id: string, props: any = {}, fallback?: ReactElement): ReactElement {
     const entry = this.entries.get(id);
     if (!entry) {
       throw new Error(`Component ${id} not registered`);
@@ -173,7 +169,7 @@ class IntelligentLazyLoader {
         props,
         config,
         onLoad: () => this.handleComponentLoad(id),
-        onError: (error: Error) => this.handleComponentError(id, error)
+        onError: (error: Error) => this.handleComponentError(id, error),
       })
     );
   }
@@ -191,7 +187,7 @@ class IntelligentLazyLoader {
     try {
       // Déclencher le chargement du composant
       await this.triggerComponentLoad(id);
-      
+
       const endTime = performance.now();
       entry.loadTime = endTime - startTime;
       entry.loaded = true;
@@ -202,7 +198,6 @@ class IntelligentLazyLoader {
       this.updateAverageLoadTime();
 
       console.log(`⚡ Preloaded component: ${id} (${entry.loadTime.toFixed(2)}ms)`);
-
     } catch (error) {
       entry.error = error as Error;
       entry.loading = false;
@@ -225,7 +220,7 @@ class IntelligentLazyLoader {
    */
   public preloadOnNavigation(route: string): void {
     const componentsToPreload = this.getComponentsForRoute(route);
-    
+
     if (componentsToPreload.length > 0) {
       this.preloadComponents(componentsToPreload);
     }
@@ -288,7 +283,7 @@ class IntelligentLazyLoader {
 
     try {
       await this.triggerComponentLoad(id);
-      
+
       const endTime = performance.now();
       entry.loadTime = endTime - startTime;
       entry.loaded = true;
@@ -299,7 +294,6 @@ class IntelligentLazyLoader {
       this.updateAverageLoadTime();
 
       console.log(`✅ Loaded component: ${id} (${entry.loadTime.toFixed(2)}ms)`);
-
     } catch (error) {
       entry.error = error as Error;
       entry.loading = false;
@@ -318,7 +312,7 @@ class IntelligentLazyLoader {
 
     // Simuler le chargement du composant lazy
     // En réalité, cela se fait automatiquement quand React.lazy charge le composant
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       // Petit délai pour simuler le chargement
       setTimeout(resolve, 0);
     });
@@ -356,7 +350,7 @@ class IntelligentLazyLoader {
       '/': ['SmartEditor', 'ProgressDashboard'],
       '/exercises': ['ExercisePlayer', 'ExerciseSelector'],
       '/analytics': ['AnalyticsDashboard', 'ProgressChart'],
-      '/settings': ['SettingsPanel', 'ThemeProvider']
+      '/settings': ['SettingsPanel', 'ThemeProvider'],
     };
 
     return routeComponentMap[route] || [];
@@ -382,12 +376,16 @@ class IntelligentLazyLoader {
       { className: 'flex items-center justify-center p-4' },
       React.createElement('div', {
         key: 'spinner',
-        className: 'animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'
+        className: 'animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600',
       }),
-      React.createElement('span', {
-        key: 'text',
-        className: 'ml-2 text-gray-600'
-      }, 'Chargement...')
+      React.createElement(
+        'span',
+        {
+          key: 'text',
+          className: 'ml-2 text-gray-600',
+        },
+        'Chargement...'
+      )
     );
   }
 
@@ -403,7 +401,7 @@ class IntelligentLazyLoader {
         // Marquer comme non chargé pour libérer la mémoire
         entry.loaded = false;
         entry.loadTime = 0;
-        
+
         console.log(`🧹 Cleaned up unused component: ${id}`);
       }
     }
@@ -436,7 +434,7 @@ class IntelligentLazyLoader {
   public intelligentPreload(): void {
     // Analyser les patterns d'utilisation pour précharger intelligemment
     const frequentlyUsedComponents = this.getFrequentlyUsedComponents();
-    
+
     if (frequentlyUsedComponents.length > 0) {
       this.preloadComponents(frequentlyUsedComponents);
     }
@@ -451,10 +449,7 @@ class IntelligentLazyLoader {
     const recentThreshold = 24 * 60 * 60 * 1000; // 24 heures
 
     return entries
-      .filter(entry => 
-        entry.loaded && 
-        now - entry.lastUsed < recentThreshold
-      )
+      .filter(entry => entry.loaded && now - entry.lastUsed < recentThreshold)
       .sort((a, b) => b.lastUsed - a.lastUsed)
       .slice(0, 3)
       .map(entry => entry.id);
@@ -476,7 +471,7 @@ const LazyLoadWrapper: React.FC<LazyLoadWrapperProps> = ({
   component: Component,
   props,
   onLoad,
-  onError
+  onError,
 }) => {
   React.useEffect(() => {
     onLoad();
@@ -509,13 +504,16 @@ export const useLazyLoader = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const registerComponent = React.useCallback((
-    id: string,
-    importFn: () => Promise<{ default: ComponentType<any> }>,
-    config?: LazyLoadConfig
-  ) => {
-    intelligentLazyLoader.registerComponent(id, importFn, config);
-  }, []);
+  const registerComponent = React.useCallback(
+    (
+      id: string,
+      importFn: () => Promise<{ default: ComponentType<any> }>,
+      config?: LazyLoadConfig
+    ) => {
+      intelligentLazyLoader.registerComponent(id, importFn, config);
+    },
+    []
+  );
 
   const preloadComponent = React.useCallback((id: string) => {
     return intelligentLazyLoader.preloadComponent(id);
@@ -525,13 +523,12 @@ export const useLazyLoader = () => {
     return intelligentLazyLoader.preloadComponents(ids);
   }, []);
 
-  const createWrapper = React.useCallback((
-    id: string,
-    props: any = {},
-    fallback?: ReactElement
-  ) => {
-    return intelligentLazyLoader.createLazyWrapper(id, props, fallback);
-  }, []);
+  const createWrapper = React.useCallback(
+    (id: string, props: any = {}, fallback?: ReactElement) => {
+      return intelligentLazyLoader.createLazyWrapper(id, props, fallback);
+    },
+    []
+  );
 
   const getStatus = React.useCallback((id: string) => {
     return intelligentLazyLoader.getComponentStatus(id);
@@ -544,11 +541,13 @@ export const useLazyLoader = () => {
     preloadComponents,
     createWrapper,
     getStatus,
-    cleanup: intelligentLazyLoader.cleanup.bind(intelligentLazyLoader)
+    cleanup: intelligentLazyLoader.cleanup.bind(intelligentLazyLoader),
   };
 };
 
 // Composants prêts à l'emploi
 export const LazySmartEditor = intelligentLazyLoader.createLazyWrapper.bind(intelligentLazyLoader);
-export const LazyAnalyticsDashboard = intelligentLazyLoader.createLazyWrapper.bind(intelligentLazyLoader);
-export const LazyExercisePlayer = intelligentLazyLoader.createLazyWrapper.bind(intelligentLazyLoader);
+export const LazyAnalyticsDashboard =
+  intelligentLazyLoader.createLazyWrapper.bind(intelligentLazyLoader);
+export const LazyExercisePlayer =
+  intelligentLazyLoader.createLazyWrapper.bind(intelligentLazyLoader);

@@ -5,15 +5,15 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/professional/Card';
 import { Button } from '@/components/ui/professional/Button';
 import { ServerDiagnostics, DiagnosticResult } from '@/lib/diagnostics';
-import { 
-  CheckCircle, 
-  XCircle, 
-  AlertTriangle, 
-  RefreshCw, 
-  Server, 
-  Database, 
+import {
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  RefreshCw,
+  Server,
+  Database,
   Key,
-  Activity
+  Activity,
 } from 'lucide-react';
 
 interface ServerDiagnosticPanelProps {
@@ -42,13 +42,13 @@ export function ServerDiagnosticPanel({ className }: ServerDiagnosticPanelProps)
   const getStatusIcon = (status: DiagnosticResult['status']) => {
     switch (status) {
       case 'success':
-        return <CheckCircle className="w-5 h-5 text-green-600" />;
+        return <CheckCircle className="h-5 w-5 text-green-600" />;
       case 'error':
-        return <XCircle className="w-5 h-5 text-red-600" />;
+        return <XCircle className="h-5 w-5 text-red-600" />;
       case 'warning':
-        return <AlertTriangle className="w-5 h-5 text-yellow-600" />;
+        return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
       default:
-        return <Activity className="w-5 h-5 text-gray-600" />;
+        return <Activity className="h-5 w-5 text-gray-600" />;
     }
   };
 
@@ -66,11 +66,11 @@ export function ServerDiagnosticPanel({ className }: ServerDiagnosticPanelProps)
   };
 
   const getTestIcon = (test: string) => {
-    if (test.includes('Connectivité')) return <Server className="w-4 h-4" />;
-    if (test.includes('Authentification')) return <Key className="w-4 h-4" />;
-    if (test.includes('Progression')) return <Activity className="w-4 h-4" />;
-    if (test.includes('Base de données')) return <Database className="w-4 h-4" />;
-    return <Activity className="w-4 h-4" />;
+    if (test.includes('Connectivité')) return <Server className="h-4 w-4" />;
+    if (test.includes('Authentification')) return <Key className="h-4 w-4" />;
+    if (test.includes('Progression')) return <Activity className="h-4 w-4" />;
+    if (test.includes('Base de données')) return <Database className="h-4 w-4" />;
+    return <Activity className="h-4 w-4" />;
   };
 
   return (
@@ -78,7 +78,7 @@ export function ServerDiagnosticPanel({ className }: ServerDiagnosticPanelProps)
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <Server className="w-5 h-5" />
+            <Server className="h-5 w-5" />
             Diagnostic Serveur
           </CardTitle>
           <Button
@@ -88,7 +88,7 @@ export function ServerDiagnosticPanel({ className }: ServerDiagnosticPanelProps)
             size="sm"
             className="flex items-center gap-2"
           >
-            <RefreshCw className={`w-4 h-4 ${isRunning ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 ${isRunning ? 'animate-spin' : ''}`} />
             {isRunning ? 'Diagnostic...' : 'Lancer'}
           </Button>
         </div>
@@ -98,12 +98,12 @@ export function ServerDiagnosticPanel({ className }: ServerDiagnosticPanelProps)
           </p>
         )}
       </CardHeader>
-      
+
       <CardContent>
         {results.length === 0 ? (
-          <div className="text-center py-8">
-            <Server className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 mb-4">
+          <div className="py-8 text-center">
+            <Server className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+            <p className="mb-4 text-gray-600">
               Cliquez sur "Lancer" pour diagnostiquer la connexion au serveur
             </p>
             <Button onClick={runDiagnostic} disabled={isRunning}>
@@ -113,24 +113,21 @@ export function ServerDiagnosticPanel({ className }: ServerDiagnosticPanelProps)
         ) : (
           <div className="space-y-4">
             {results.map((result, index) => (
-              <div
-                key={index}
-                className={`p-4 rounded-lg border ${getStatusColor(result.status)}`}
-              >
+              <div key={index} className={`rounded-lg border p-4 ${getStatusColor(result.status)}`}>
                 <div className="flex items-start gap-3">
                   {getStatusIcon(result.status)}
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="mb-1 flex items-center gap-2">
                       {getTestIcon(result.test)}
                       <h4 className="font-medium text-gray-900">{result.test}</h4>
                     </div>
-                    <p className="text-sm text-gray-700 mb-2">{result.message}</p>
+                    <p className="mb-2 text-sm text-gray-700">{result.message}</p>
                     {result.details && (
                       <details className="text-xs text-gray-600">
                         <summary className="cursor-pointer hover:text-gray-800">
                           Détails techniques
                         </summary>
-                        <pre className="mt-2 p-2 bg-white rounded border text-xs overflow-auto">
+                        <pre className="mt-2 overflow-auto rounded border bg-white p-2 text-xs">
                           {JSON.stringify(result.details, null, 2)}
                         </pre>
                       </details>
@@ -139,19 +136,15 @@ export function ServerDiagnosticPanel({ className }: ServerDiagnosticPanelProps)
                 </div>
               </div>
             ))}
-            
-            <div className="pt-4 border-t border-gray-200">
+
+            <div className="border-t border-gray-200 pt-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-600">
-                  {results.filter(r => r.status === 'success').length} / {results.length} tests réussis
+                  {results.filter(r => r.status === 'success').length} / {results.length} tests
+                  réussis
                 </span>
-                <Button
-                  onClick={runDiagnostic}
-                  disabled={isRunning}
-                  variant="ghost"
-                  size="sm"
-                >
-                  <RefreshCw className={`w-4 h-4 mr-2 ${isRunning ? 'animate-spin' : ''}`} />
+                <Button onClick={runDiagnostic} disabled={isRunning} variant="ghost" size="sm">
+                  <RefreshCw className={`mr-2 h-4 w-4 ${isRunning ? 'animate-spin' : ''}`} />
                   Relancer
                 </Button>
               </div>

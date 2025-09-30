@@ -25,7 +25,7 @@ export default function ExercisePlayer({
   onComplete,
   onSkip,
   mode = 'practice',
-  showHints = true
+  showHints = true,
 }: ExercisePlayerProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [questionStates, setQuestionStates] = useState<QuestionState[]>([]);
@@ -41,7 +41,7 @@ export default function ExercisePlayer({
       id: q.id,
       answer: '',
       isCorrect: null,
-      timeSpent: 0
+      timeSpent: 0,
     }));
     setQuestionStates(initialStates);
   }, [exercise]);
@@ -60,40 +60,41 @@ export default function ExercisePlayer({
 
   // Gérer la réponse à une question
   const handleAnswer = useCallback((questionId: string, answer: string) => {
-    setQuestionStates(prev => prev.map(state => 
-      state.id === questionId 
-        ? { ...state, answer, timeSpent: state.timeSpent + 1 }
-        : state
-    ));
+    setQuestionStates(prev =>
+      prev.map(state =>
+        state.id === questionId ? { ...state, answer, timeSpent: state.timeSpent + 1 } : state
+      )
+    );
   }, []);
 
   // Vérifier la réponse
-  const checkAnswer = useCallback((questionId: string) => {
-    const question = exercise.questions.find(q => q.id === questionId);
-    const questionState = questionStates.find(s => s.id === questionId);
-    
-    if (!question || !questionState) return;
+  const checkAnswer = useCallback(
+    (questionId: string) => {
+      const question = exercise.questions.find(q => q.id === questionId);
+      const questionState = questionStates.find(s => s.id === questionId);
 
-    const isCorrect = questionState.answer.toLowerCase().trim() === 
-      question.correctAnswer.toLowerCase().trim();
+      if (!question || !questionState) return;
 
-    setQuestionStates(prev => prev.map(state => 
-      state.id === questionId 
-        ? { ...state, isCorrect }
-        : state
-    ));
+      const isCorrect =
+        questionState.answer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
 
-    // Mettre à jour le streak
-    if (isCorrect) {
-      setStreak(prev => prev + 1);
-      setScore(prev => prev + (exercise.scoring?.maxPoints || 100) / exercise.questions.length);
-    } else {
-      setStreak(0);
-    }
+      setQuestionStates(prev =>
+        prev.map(state => (state.id === questionId ? { ...state, isCorrect } : state))
+      );
 
-    setShowFeedback(true);
-    setTimeout(() => setShowFeedback(false), 2000);
-  }, [exercise, questionStates]);
+      // Mettre à jour le streak
+      if (isCorrect) {
+        setStreak(prev => prev + 1);
+        setScore(prev => prev + (exercise.scoring?.maxPoints || 100) / exercise.questions.length);
+      } else {
+        setStreak(0);
+      }
+
+      setShowFeedback(true);
+      setTimeout(() => setShowFeedback(false), 2000);
+    },
+    [exercise, questionStates]
+  );
 
   // Passer à la question suivante
   const nextQuestion = useCallback(() => {
@@ -114,8 +115,13 @@ export default function ExercisePlayer({
       return total;
     }, 0);
 
-    const timeBonus = mode === 'exam' ? 0 : 
-      Math.max(0, timeRemaining * (exercise.scoring?.timeBonus || 20) / (exercise.estimatedTime * 60));
+    const timeBonus =
+      mode === 'exam'
+        ? 0
+        : Math.max(
+            0,
+            (timeRemaining * (exercise.scoring?.timeBonus || 20)) / (exercise.estimatedTime * 60)
+          );
 
     const finalScore = Math.round(totalScore + timeBonus);
 
@@ -123,15 +129,15 @@ export default function ExercisePlayer({
       exerciseId: exercise.id,
       score: finalScore,
       maxScore: exercise.scoring?.maxPoints || 100,
-      timeSpent: (exercise.estimatedTime * 60) - timeRemaining,
+      timeSpent: exercise.estimatedTime * 60 - timeRemaining,
       answers: questionStates.map(state => ({
         questionId: state.id,
         answer: state.answer,
         isCorrect: state.isCorrect || false,
-        timeSpent: state.timeSpent
+        timeSpent: state.timeSpent,
       })),
       completedAt: new Date().toISOString(),
-      accuracy: questionStates.filter(s => s.isCorrect).length / questionStates.length
+      accuracy: questionStates.filter(s => s.isCorrect).length / questionStates.length,
     };
 
     setIsCompleted(true);
@@ -157,27 +163,37 @@ export default function ExercisePlayer({
           <h3 className="text-xl font-semibold">
             Question {index + 1} sur {exercise.questions.length}
           </h3>
-          <Badge variant={questionState?.isCorrect === true ? 'success' : 
-                          questionState?.isCorrect === false ? 'error' : 'default'}>
-            {questionState?.isCorrect === true ? 'Correct' : 
-             questionState?.isCorrect === false ? 'Incorrect' : 'En attente'}
+          <Badge
+            variant={
+              questionState?.isCorrect === true
+                ? 'success'
+                : questionState?.isCorrect === false
+                  ? 'error'
+                  : 'default'
+            }
+          >
+            {questionState?.isCorrect === true
+              ? 'Correct'
+              : questionState?.isCorrect === false
+                ? 'Incorrect'
+                : 'En attente'}
           </Badge>
         </div>
 
-        <div className="bg-gray-50 p-6 rounded-lg">
-          <p className="text-lg mb-4">{question.text}</p>
-          
+        <div className="rounded-lg bg-gray-50 p-6">
+          <p className="mb-4 text-lg">{question.text}</p>
+
           {question.type === 'multiple-choice' && (
             <div className="space-y-2">
               {question.options?.map((option: string, optionIndex: number) => (
-                <label key={optionIndex} className="flex items-center space-x-3 cursor-pointer">
+                <label key={optionIndex} className="flex cursor-pointer items-center space-x-3">
                   <input
                     type="radio"
                     name={`question-${question.id}`}
                     value={option}
                     checked={questionState?.answer === option}
-                    onChange={(e) => handleAnswer(question.id, e.target.value)}
-                    className="w-4 h-4 text-blue-600"
+                    onChange={e => handleAnswer(question.id, e.target.value)}
+                    className="h-4 w-4 text-blue-600"
                   />
                   <span className="text-base">{option}</span>
                 </label>
@@ -190,9 +206,9 @@ export default function ExercisePlayer({
               <input
                 type="text"
                 value={questionState?.answer || ''}
-                onChange={(e) => handleAnswer(question.id, e.target.value)}
+                onChange={e => handleAnswer(question.id, e.target.value)}
                 placeholder="Votre réponse..."
-                className="w-full p-3 border border-gray-300 rounded-lg text-lg"
+                className="w-full rounded-lg border border-gray-300 p-3 text-lg"
               />
               {question.options && (
                 <div className="flex flex-wrap gap-2">
@@ -216,16 +232,16 @@ export default function ExercisePlayer({
             <div className="space-y-4">
               <textarea
                 value={questionState?.answer || ''}
-                onChange={(e) => handleAnswer(question.id, e.target.value)}
+                onChange={e => handleAnswer(question.id, e.target.value)}
                 placeholder="Votre correction..."
-                className="w-full p-3 border border-gray-300 rounded-lg text-lg min-h-[100px]"
+                className="min-h-[100px] w-full rounded-lg border border-gray-300 p-3 text-lg"
               />
             </div>
           )}
         </div>
 
         {showHints && question.explanation && (
-          <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="rounded-lg bg-blue-50 p-4">
             <p className="text-sm text-blue-800">
               💡 <strong>Indice :</strong> {question.explanation}
             </p>
@@ -240,11 +256,8 @@ export default function ExercisePlayer({
           >
             Vérifier
           </Button>
-          
-          <Button
-            onClick={nextQuestion}
-            disabled={questionState?.isCorrect === null}
-          >
+
+          <Button onClick={nextQuestion} disabled={questionState?.isCorrect === null}>
             {index === exercise.questions.length - 1 ? 'Terminer' : 'Suivant'}
           </Button>
         </div>
@@ -256,17 +269,17 @@ export default function ExercisePlayer({
   const feedbackVariants = {
     initial: { scale: 0, opacity: 0 },
     animate: { scale: 1, opacity: 1 },
-    exit: { scale: 0, opacity: 0 }
+    exit: { scale: 0, opacity: 0 },
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="mx-auto max-w-4xl p-6">
       <Card className="p-8">
         {/* En-tête */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{exercise.title}</h1>
-            <p className="text-gray-600 mt-2">{exercise.description}</p>
+            <p className="mt-2 text-gray-600">{exercise.description}</p>
           </div>
           <div className="text-right">
             <div className="text-2xl font-bold text-blue-600">
@@ -278,22 +291,26 @@ export default function ExercisePlayer({
 
         {/* Barre de progression */}
         <div className="mb-8">
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
+          <div className="mb-2 flex justify-between text-sm text-gray-600">
             <span>Progression</span>
-            <span>{currentQuestionIndex + 1} / {exercise.questions.length}</span>
+            <span>
+              {currentQuestionIndex + 1} / {exercise.questions.length}
+            </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="h-2 w-full rounded-full bg-gray-200">
             <motion.div
-              className="bg-blue-600 h-2 rounded-full"
+              className="h-2 rounded-full bg-blue-600"
               initial={{ width: 0 }}
-              animate={{ width: `${((currentQuestionIndex + 1) / exercise.questions.length) * 100}%` }}
+              animate={{
+                width: `${((currentQuestionIndex + 1) / exercise.questions.length) * 100}%`,
+              }}
               transition={{ duration: 0.3 }}
             />
           </div>
         </div>
 
         {/* Score et streak */}
-        <div className="flex gap-4 mb-8">
+        <div className="mb-8 flex gap-4">
           <div className="flex items-center gap-2">
             <span className="text-lg font-semibold">Score:</span>
             <span className="text-xl font-bold text-green-600">{Math.round(score)}</span>
@@ -306,20 +323,18 @@ export default function ExercisePlayer({
 
         {/* Instructions */}
         {exercise.content.instructions && (
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+          <div className="mb-6 border-l-4 border-yellow-400 bg-yellow-50 p-4">
             <p className="text-yellow-800">{exercise.content.instructions}</p>
           </div>
         )}
 
         {/* Questions */}
         <AnimatePresence mode="wait">
-          {exercise.questions.map((question, index) => 
-            renderQuestion(question, index)
-          )}
+          {exercise.questions.map((question, index) => renderQuestion(question, index))}
         </AnimatePresence>
 
         {/* Actions */}
-        <div className="flex justify-between mt-8 pt-6 border-t">
+        <div className="mt-8 flex justify-between border-t pt-6">
           <Button variant="outline" onClick={onSkip}>
             Passer
           </Button>
@@ -327,7 +342,7 @@ export default function ExercisePlayer({
             onClick={handleComplete}
             disabled={!isCompleted && currentQuestionIndex < exercise.questions.length - 1}
           >
-            {isCompleted ? 'Terminé' : 'Terminer l\'exercice'}
+            {isCompleted ? 'Terminé' : "Terminer l'exercice"}
           </Button>
         </div>
       </Card>
@@ -336,13 +351,13 @@ export default function ExercisePlayer({
       <AnimatePresence>
         {showFeedback && (
           <motion.div
-            className="fixed top-4 right-4 z-50"
+            className="fixed right-4 top-4 z-50"
             variants={feedbackVariants}
             initial="initial"
             animate="animate"
             exit="exit"
           >
-            <Card className="p-4 bg-green-100 border-green-400">
+            <Card className="border-green-400 bg-green-100 p-4">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🎉</span>
                 <span className="font-semibold text-green-800">Correct !</span>

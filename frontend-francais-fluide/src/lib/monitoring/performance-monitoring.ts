@@ -15,7 +15,7 @@ export interface WebVitals {
   FCP: number; // First Contentful Paint
   LCP: number; // Largest Contentful Paint
   TTFB: number; // Time to First Byte
-  
+
   // Métriques supplémentaires
   FMP: number; // First Meaningful Paint
   SI: number; // Speed Index
@@ -94,7 +94,6 @@ class PerformanceMonitor {
 
       this.isInitialized = true;
       console.log('✅ Performance monitoring initialisé');
-
     } catch (error) {
       console.error('❌ Erreur initialisation performance monitoring:', error);
     }
@@ -139,7 +138,7 @@ class PerformanceMonitor {
   private initializeNavigationTiming(): void {
     if (!window.performance.getEntriesByType) return;
 
-    const observer = new PerformanceObserver((list) => {
+    const observer = new PerformanceObserver(list => {
       const entries = list.getEntries();
       for (const entry of entries) {
         if (entry.entryType === 'navigation') {
@@ -156,7 +155,7 @@ class PerformanceMonitor {
    * Initialise le monitoring des ressources
    */
   private initializeResourceTiming(): void {
-    const observer = new PerformanceObserver((list) => {
+    const observer = new PerformanceObserver(list => {
       const entries = list.getEntries();
       for (const entry of entries) {
         if (entry.entryType === 'resource') {
@@ -190,7 +189,7 @@ class PerformanceMonitor {
    */
   private initializePerformanceErrorMonitoring(): void {
     // Observer pour les erreurs de performance
-    const observer = new PerformanceObserver((list) => {
+    const observer = new PerformanceObserver(list => {
       const entries = list.getEntries();
       for (const entry of entries) {
         if (entry.entryType === 'measure' && entry.duration > 1000) {
@@ -226,7 +225,7 @@ class PerformanceMonitor {
 
     // Évaluer la performance
     const rating = this.evaluatePerformance(name, value);
-    
+
     // Envoyer vers les services de monitoring
     this.sendToMonitoring(name, value, rating);
 
@@ -238,11 +237,11 @@ class PerformanceMonitor {
    */
   private recordNavigationTiming(entry: PerformanceNavigationTiming): void {
     const navigationMetrics = {
-      'dns_lookup': entry.domainLookupEnd - entry.domainLookupStart,
-      'tcp_connection': entry.connectEnd - entry.connectStart,
-      'request_response': entry.responseEnd - entry.requestStart,
-      'dom_processing': entry.domComplete - entry.domInteractive,
-      'page_load': entry.duration,
+      dns_lookup: entry.domainLookupEnd - entry.domainLookupStart,
+      tcp_connection: entry.connectEnd - entry.connectStart,
+      request_response: entry.responseEnd - entry.requestStart,
+      dom_processing: entry.domComplete - entry.domInteractive,
+      page_load: entry.duration,
     };
 
     Object.entries(navigationMetrics).forEach(([name, value]) => {
@@ -255,9 +254,9 @@ class PerformanceMonitor {
    */
   private recordResourceTiming(entry: PerformanceResourceTiming): void {
     const resourceMetrics = {
-      'resource_duration': entry.duration,
-      'resource_size': entry.transferSize,
-      'resource_type': entry.initiatorType,
+      resource_duration: entry.duration,
+      resource_size: entry.transferSize,
+      resource_type: entry.initiatorType,
     };
 
     // Filtrer les ressources importantes
@@ -276,10 +275,10 @@ class PerformanceMonitor {
    */
   public recordCustomMetric(name: string, value: number): void {
     this.customMetrics.set(name, value);
-    
+
     // Créer un événement personnalisé
     const event = new CustomEvent('performance-metric', {
-      detail: { name, value, timestamp: Date.now() }
+      detail: { name, value, timestamp: Date.now() },
     });
     window.dispatchEvent(event);
   }
@@ -291,16 +290,16 @@ class PerformanceMonitor {
     const startTime = performance.now();
     const startMark = `${name}-start`;
     const endMark = `${name}-end`;
-    
+
     performance.mark(startMark);
-    
+
     try {
       const result = operation();
       return result;
     } finally {
       performance.mark(endMark);
       performance.measure(name, startMark, endMark);
-      
+
       const duration = performance.now() - startTime;
       this.recordCustomMetric(name, duration);
     }
@@ -313,16 +312,16 @@ class PerformanceMonitor {
     const startTime = performance.now();
     const startMark = `${name}-start`;
     const endMark = `${name}-end`;
-    
+
     performance.mark(startMark);
-    
+
     try {
       const result = await operation();
       return result;
     } finally {
       performance.mark(endMark);
       performance.measure(name, startMark, endMark);
-      
+
       const duration = performance.now() - startTime;
       this.recordCustomMetric(name, duration);
     }
@@ -331,7 +330,10 @@ class PerformanceMonitor {
   /**
    * Évalue la performance d'une métrique
    */
-  private evaluatePerformance(metric: string, value: number): 'good' | 'needs-improvement' | 'poor' {
+  private evaluatePerformance(
+    metric: string,
+    value: number
+  ): 'good' | 'needs-improvement' | 'poor' {
     const threshold = this.thresholds[metric as keyof PerformanceThresholds];
     if (!threshold) return 'good';
 
@@ -345,7 +347,7 @@ class PerformanceMonitor {
    */
   private getNavigationTiming(): any {
     if (!window.performance.getEntriesByType) return null;
-    
+
     const entries = window.performance.getEntriesByType('navigation');
     return entries[0] || null;
   }
@@ -355,7 +357,7 @@ class PerformanceMonitor {
    */
   private getResourceTiming(): any[] {
     if (!window.performance.getEntriesByType) return [];
-    
+
     return window.performance.getEntriesByType('resource').slice(-10); // 10 dernières ressources
   }
 
@@ -424,14 +426,14 @@ class PerformanceMonitor {
 
     const latestMetrics = this.metrics[this.metrics.length - 1];
     const webVitals = latestMetrics.webVitals;
-    
+
     let score = 100;
     let count = 0;
 
     Object.entries(webVitals).forEach(([metric, value]) => {
       const rating = this.evaluatePerformance(metric, value);
       count++;
-      
+
       switch (rating) {
         case 'good':
           score += 0;
@@ -454,13 +456,15 @@ class PerformanceMonitor {
   public getPerformanceRecommendations(): string[] {
     const recommendations: string[] = [];
     const latestMetrics = this.metrics[this.metrics.length - 1];
-    
+
     if (!latestMetrics) return recommendations;
 
     const webVitals = latestMetrics.webVitals;
 
     if (webVitals.LCP && webVitals.LCP > 4000) {
-      recommendations.push('Optimisez les images et le chargement des ressources pour améliorer le LCP');
+      recommendations.push(
+        'Optimisez les images et le chargement des ressources pour améliorer le LCP'
+      );
     }
 
     if (webVitals.FID && webVitals.FID > 300) {
@@ -517,9 +521,12 @@ export const usePerformanceMonitoring = () => {
     return performanceMonitor.measureOperation(name, operation);
   }, []);
 
-  const measureAsyncOperation = React.useCallback(<T>(name: string, operation: () => Promise<T>): Promise<T> => {
-    return performanceMonitor.measureAsyncOperation(name, operation);
-  }, []);
+  const measureAsyncOperation = React.useCallback(
+    <T>(name: string, operation: () => Promise<T>): Promise<T> => {
+      return performanceMonitor.measureAsyncOperation(name, operation);
+    },
+    []
+  );
 
   const recordCustomMetric = React.useCallback((name: string, value: number) => {
     performanceMonitor.recordCustomMetric(name, value);
@@ -533,7 +540,7 @@ export const usePerformanceMonitoring = () => {
     measureAsyncOperation,
     recordCustomMetric,
     getRecommendations: performanceMonitor.getPerformanceRecommendations.bind(performanceMonitor),
-    updateThresholds: performanceMonitor.updateThresholds.bind(performanceMonitor)
+    updateThresholds: performanceMonitor.updateThresholds.bind(performanceMonitor),
   };
 };
 

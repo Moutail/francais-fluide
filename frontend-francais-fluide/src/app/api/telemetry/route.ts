@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const authHeader = request.headers.get('authorization');
     if (!authHeader) {
       return NextResponse.json(
-        { success: false, message: 'Token d\'authentification manquant' },
+        { success: false, message: "Token d'authentification manquant" },
         { status: 401 }
       );
     }
@@ -20,22 +20,21 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': authHeader
+        Authorization: authHeader,
       },
-      body: JSON.stringify({ events })
+      body: JSON.stringify({ events }),
     });
 
     const data = await response.json();
 
     if (!response.ok) {
       return NextResponse.json(
-        { success: false, message: data.message || 'Erreur lors de l\'envoi de la télémétrie' },
+        { success: false, message: data.message || "Erreur lors de l'envoi de la télémétrie" },
         { status: response.status }
       );
     }
 
     return NextResponse.json(data);
-
   } catch (error) {
     console.error('Erreur API télémétrie:', error);
     return NextResponse.json(

@@ -20,11 +20,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Refresh token invalide' }, { status: 401 });
     }
 
-    const accessToken = jwt.sign(
-      { userId: payload.userId, email: payload.email },
-      JWT_SECRET,
-      { expiresIn: ACCESS_TOKEN_TTL }
-    );
+    const accessToken = jwt.sign({ userId: payload.userId, email: payload.email }, JWT_SECRET, {
+      expiresIn: ACCESS_TOKEN_TTL,
+    });
 
     return NextResponse.json({ success: true, token: accessToken });
   } catch (error) {
@@ -32,4 +30,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }
-

@@ -16,7 +16,8 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@babel/plugin-transform-runtime": "^7.28.3",
@@ -84,6 +85,8 @@
     "eslint": "^8",
     "eslint-config-next": "14.0.0",
     "eslint-plugin-tailwindcss": "^3.18.2",
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.6",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "prisma": "^5.22.0",

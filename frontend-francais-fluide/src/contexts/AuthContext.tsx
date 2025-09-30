@@ -23,12 +23,19 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAuthenticated: boolean;
-  register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (
+    name: string,
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; error?: string }>;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   refreshToken: () => Promise<boolean>;
   updateProfile: (data: any) => Promise<{ success: boolean; error?: string }>;
-  changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string
+  ) => Promise<{ success: boolean; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,10 +48,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const initAuth = async () => {
-      console.log('🔐 AuthContext: Initialisation de l\'authentification');
+      console.log("🔐 AuthContext: Initialisation de l'authentification");
       const token = localStorage.getItem('token');
       console.log('🔐 AuthContext: Token trouvé:', !!token);
-      
+
       if (!token) {
         console.log('🔐 AuthContext: Aucun token, utilisateur non connecté');
         setLoading(false);
@@ -56,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         apiClient.setToken(token);
         const response = await apiClient.getProfile();
         console.log('🔐 AuthContext: Réponse profil:', response);
-        
+
         if (response.success) {
           console.log('🔐 AuthContext: Utilisateur connecté:', response.user);
           setUser(response.user);
@@ -66,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(null);
         }
       } catch (error) {
-        console.error('🔐 AuthContext: Erreur lors de l\'init:', error);
+        console.error("🔐 AuthContext: Erreur lors de l'init:", error);
         logAuthError('init_auth', error, { token: !!token });
         localStorage.removeItem('token');
         setUser(null);
@@ -80,20 +87,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Vérification périodique du token
   useEffect(() => {
-    const interval = setInterval(async () => {
-      const token = localStorage.getItem('token');
-      if (token && user) {
-        try {
-          const response = await apiClient.getProfile();
-          if (!response.success) {
-            localStorage.removeItem('token');
-            setUser(null);
+    const interval = setInterval(
+      async () => {
+        const token = localStorage.getItem('token');
+        if (token && user) {
+          try {
+            const response = await apiClient.getProfile();
+            if (!response.success) {
+              localStorage.removeItem('token');
+              setUser(null);
+            }
+          } catch (error) {
+            console.warn('Vérification token échouée:', error);
           }
-        } catch (error) {
-          console.warn('Vérification token échouée:', error);
         }
-      }
-    }, 30 * 60 * 1000); // 30 minutes
+      },
+      30 * 60 * 1000
+    ); // 30 minutes
 
     return () => clearInterval(interval);
   }, [user]);
@@ -105,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const session = {
           role: user.role,
           userId: user.id,
-          loginTime: new Date().toISOString()
+          loginTime: new Date().toISOString(),
         };
         document.cookie = `adminSession=${encodeURIComponent(JSON.stringify(session))}; Max-Age=${8 * 60 * 60}; Path=/; SameSite=Lax`;
       } catch {
@@ -118,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       errorLogger.info('AUTH', 'Tentative de connexion', { email });
       const response = await apiClient.login({ email, password });
-      
+
       if (response.success && response.token) {
         localStorage.setItem('token', response.token);
         apiClient.setToken(response.token);
@@ -130,7 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const session = {
             role,
             userId: response.user?.id,
-            loginTime: new Date().toISOString()
+            loginTime: new Date().toISOString(),
           };
           // Cookie valable 8h
           document.cookie = `adminSession=${encodeURIComponent(JSON.stringify(session))}; Max-Age=${8 * 60 * 60}; Path=/; SameSite=Lax`;
@@ -153,7 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (name: string, email: string, password: string) => {
     try {
-      errorLogger.info('AUTH', 'Tentative d\'inscription', { email });
+      errorLogger.info('AUTH', "Tentative d'inscription", { email });
       const response = await apiClient.register({ name, email, password });
 
       if (response.success && (response as any).token) {
@@ -167,11 +177,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         return { success: true };
       } else {
-        return { success: false, error: 'Erreur d\'inscription' };
+        return { success: false, error: "Erreur d'inscription" };
       }
     } catch (error) {
       logAuthError('register_error', error, { email });
-      return { success: false, error: 'Erreur d\'inscription' };
+      return { success: false, error: "Erreur d'inscription" };
     }
   };
 
@@ -221,17 +231,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      loading,
-      isAuthenticated,
-      register,
-      login,
-      logout,
-      refreshToken,
-      updateProfile,
-      changePassword
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        isAuthenticated,
+        register,
+        login,
+        logout,
+        refreshToken,
+        updateProfile,
+        changePassword,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

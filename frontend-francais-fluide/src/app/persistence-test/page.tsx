@@ -12,7 +12,7 @@ export default function PersistenceTestPage() {
   const [currentDocument, setCurrentDocument] = useState({
     id: 'test-doc-1',
     title: 'Document de Test',
-    content: 'Ceci est un document de test pour la persistance...'
+    content: 'Ceci est un document de test pour la persistance...',
   });
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({
     // Use safe default for SSR; update in useEffect on client
@@ -20,7 +20,7 @@ export default function PersistenceTestPage() {
     isSyncing: false,
     lastSync: null,
     pendingItems: 0,
-    error: null
+    error: null,
   });
   const [storageStats, setStorageStats] = useState<StorageStats | null>(null);
 
@@ -32,7 +32,7 @@ export default function PersistenceTestPage() {
     saveStatus,
     error: saveError,
     saveNow,
-    forceSave
+    forceSave,
   } = useAutoSave({
     documentId: currentDocument.id,
     title: currentDocument.title,
@@ -40,13 +40,13 @@ export default function PersistenceTestPage() {
     enabled: true,
     debounceMs: 2000,
     saveIntervalMs: 30000,
-    onSave: (doc) => {
+    onSave: doc => {
       console.log('Document sauvegardé:', doc);
       loadDocuments();
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Erreur de sauvegarde:', error);
-    }
+    },
   });
 
   // Charger les documents
@@ -68,7 +68,7 @@ export default function PersistenceTestPage() {
         documentCount: documents.length,
         syncQueueSize: syncStatus.pendingItems,
         cacheSize: 512 * 1024, // 512KB
-        lastCleanup: new Date()
+        lastCleanup: new Date(),
       };
       setStorageStats(stats);
     } catch (error) {
@@ -111,7 +111,7 @@ export default function PersistenceTestPage() {
     const newDoc = {
       id: `test-doc-${Date.now()}`,
       title: 'Nouveau Document',
-      content: 'Contenu du nouveau document...'
+      content: 'Contenu du nouveau document...',
     };
     setCurrentDocument(newDoc);
   };
@@ -148,36 +148,30 @@ export default function PersistenceTestPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="mx-auto max-w-6xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          <h1 className="mb-4 text-3xl font-bold text-gray-900">
             Test de Persistance et Synchronisation
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-lg text-gray-600">
             Testez le système de sauvegarde automatique et de synchronisation
           </p>
         </div>
 
         {/* Indicateur de synchronisation */}
-        <Card className="p-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
-              État de Synchronisation
-            </h2>
+        <Card className="mb-8 p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900">État de Synchronisation</h2>
             <SyncIndicator showDetails={true} onSyncNow={handleForceSync} />
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">
-                {documents.length}
-              </div>
+              <div className="text-2xl font-bold text-blue-600">{documents.length}</div>
               <div className="text-sm text-gray-600">Documents</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {syncStatus.pendingItems}
-              </div>
+              <div className="text-2xl font-bold text-green-600">{syncStatus.pendingItems}</div>
               <div className="text-sm text-gray-600">En attente</div>
             </div>
             <div className="text-center">
@@ -197,13 +191,11 @@ export default function PersistenceTestPage() {
           </div>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* Éditeur de document */}
           <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Éditeur de Document
-              </h3>
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Éditeur de Document</h3>
               <div className="flex items-center gap-2">
                 <Badge variant={hasUnsavedChanges ? 'error' : 'success'}>
                   {hasUnsavedChanges ? 'Non sauvegardé' : 'Sauvegardé'}
@@ -216,32 +208,32 @@ export default function PersistenceTestPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Titre
-                </label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Titre</label>
                 <input
                   type="text"
                   value={currentDocument.title}
-                  onChange={(e) => setCurrentDocument(prev => ({
-                    ...prev,
-                    title: e.target.value
-                  }))}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={e =>
+                    setCurrentDocument(prev => ({
+                      ...prev,
+                      title: e.target.value,
+                    }))
+                  }
+                  className="w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Contenu
-                </label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Contenu</label>
                 <textarea
                   value={currentDocument.content}
-                  onChange={(e) => setCurrentDocument(prev => ({
-                    ...prev,
-                    content: e.target.value
-                  }))}
+                  onChange={e =>
+                    setCurrentDocument(prev => ({
+                      ...prev,
+                      content: e.target.value,
+                    }))
+                  }
                   rows={8}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Tapez votre contenu ici... La sauvegarde se fait automatiquement."
                 />
               </div>
@@ -265,7 +257,7 @@ export default function PersistenceTestPage() {
               )}
 
               {saveError && (
-                <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
+                <div className="rounded bg-red-50 p-2 text-sm text-red-600">
                   Erreur: {saveError}
                 </div>
               )}
@@ -274,25 +266,21 @@ export default function PersistenceTestPage() {
 
           {/* Liste des documents */}
           <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Documents Sauvegardés
-              </h3>
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Documents Sauvegardés</h3>
               <Button onClick={loadDocuments} variant="outline" size="sm">
                 Actualiser
               </Button>
             </div>
 
-            <div className="space-y-3 max-h-96 overflow-y-auto">
+            <div className="max-h-96 space-y-3 overflow-y-auto">
               {documents.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  Aucun document sauvegardé
-                </div>
+                <div className="py-8 text-center text-gray-500">Aucun document sauvegardé</div>
               ) : (
-                documents.map((doc) => (
+                documents.map(doc => (
                   <div
                     key={doc.id}
-                    className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+                    className="flex items-center justify-between rounded-lg border border-gray-200 p-3 hover:bg-gray-50"
                   >
                     <div className="flex-1">
                       <div className="font-medium text-gray-900">{doc.title}</div>
@@ -305,11 +293,13 @@ export default function PersistenceTestPage() {
                     </div>
                     <div className="flex gap-2">
                       <Button
-                        onClick={() => setCurrentDocument({
-                          id: doc.id,
-                          title: doc.title,
-                          content: doc.content
-                        })}
+                        onClick={() =>
+                          setCurrentDocument({
+                            id: doc.id,
+                            title: doc.title,
+                            content: doc.content,
+                          })
+                        }
                         size="sm"
                         variant="outline"
                       >
@@ -333,28 +323,26 @@ export default function PersistenceTestPage() {
 
         {/* Statistiques détaillées */}
         {storageStats && (
-          <Card className="p-6 mt-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Statistiques de Stockage
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="mt-8 p-6">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900">Statistiques de Stockage</h3>
+
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               <div>
-                <div className="text-sm font-medium text-gray-600 mb-2">Taille totale</div>
+                <div className="mb-2 text-sm font-medium text-gray-600">Taille totale</div>
                 <div className="text-2xl font-bold text-blue-600">
                   {Math.round(storageStats.totalSize / 1024)} KB
                 </div>
               </div>
-              
+
               <div>
-                <div className="text-sm font-medium text-gray-600 mb-2">Cache</div>
+                <div className="mb-2 text-sm font-medium text-gray-600">Cache</div>
                 <div className="text-2xl font-bold text-green-600">
                   {Math.round(storageStats.cacheSize / 1024)} KB
                 </div>
               </div>
-              
+
               <div>
-                <div className="text-sm font-medium text-gray-600 mb-2">Dernier nettoyage</div>
+                <div className="mb-2 text-sm font-medium text-gray-600">Dernier nettoyage</div>
                 <div className="text-sm text-gray-900">
                   {storageStats.lastCleanup?.toLocaleString() || 'Jamais'}
                 </div>
@@ -364,11 +352,9 @@ export default function PersistenceTestPage() {
         )}
 
         {/* Actions de test */}
-        <Card className="p-6 mt-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Actions de Test
-          </h3>
-          
+        <Card className="mt-8 p-6">
+          <h3 className="mb-4 text-lg font-semibold text-gray-900">Actions de Test</h3>
+
           <div className="flex flex-wrap gap-4">
             <Button onClick={handleForceSync} variant="outline">
               🔄 Forcer la synchronisation
@@ -386,17 +372,28 @@ export default function PersistenceTestPage() {
         </Card>
 
         {/* Instructions */}
-        <Card className="p-6 mt-8 bg-yellow-50">
-          <h3 className="text-lg font-semibold text-yellow-900 mb-3">
-            📋 Instructions de Test
-          </h3>
-          <div className="text-sm text-yellow-800 space-y-2">
-            <p>1. <strong>Modifiez le titre ou le contenu</strong> et observez la sauvegarde automatique</p>
-            <p>2. <strong>Testez le mode hors ligne</strong> en désactivant votre connexion</p>
-            <p>3. <strong>Créez plusieurs documents</strong> pour tester la persistance</p>
-            <p>4. <strong>Observez l'indicateur de synchronisation</strong> en temps réel</p>
-            <p>5. <strong>Testez la compression</strong> avec du contenu long</p>
-            <p>6. <strong>Vérifiez la queue de synchronisation</strong> en mode hors ligne</p>
+        <Card className="mt-8 bg-yellow-50 p-6">
+          <h3 className="mb-3 text-lg font-semibold text-yellow-900">📋 Instructions de Test</h3>
+          <div className="space-y-2 text-sm text-yellow-800">
+            <p>
+              1. <strong>Modifiez le titre ou le contenu</strong> et observez la sauvegarde
+              automatique
+            </p>
+            <p>
+              2. <strong>Testez le mode hors ligne</strong> en désactivant votre connexion
+            </p>
+            <p>
+              3. <strong>Créez plusieurs documents</strong> pour tester la persistance
+            </p>
+            <p>
+              4. <strong>Observez l'indicateur de synchronisation</strong> en temps réel
+            </p>
+            <p>
+              5. <strong>Testez la compression</strong> avec du contenu long
+            </p>
+            <p>
+              6. <strong>Vérifiez la queue de synchronisation</strong> en mode hors ligne
+            </p>
           </div>
         </Card>
       </div>

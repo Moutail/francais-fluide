@@ -21,53 +21,53 @@ interface UserState {
 
 export const useUserStore = create<UserState>()(
   persist(
-    immer((set) => ({
+    immer(set => ({
       user: null,
       isAuthenticated: false,
       isLoading: false,
       error: null,
 
-      setUser: (user) =>
-        set((state) => {
+      setUser: user =>
+        set(state => {
           state.user = user;
           state.isAuthenticated = true;
           state.error = null;
         }),
 
-      updateUser: (updates) =>
-        set((state) => {
+      updateUser: updates =>
+        set(state => {
           if (state.user) {
             Object.assign(state.user, updates);
           }
         }),
 
-      updateStatistics: (stats) =>
-        set((state) => {
+      updateStatistics: stats =>
+        set(state => {
           if (state.user?.statistics) {
             Object.assign(state.user.statistics, stats);
           }
         }),
 
       logout: () =>
-        set((state) => {
+        set(state => {
           state.user = null;
           state.isAuthenticated = false;
         }),
 
-      setLoading: (loading) =>
-        set((state) => {
+      setLoading: loading =>
+        set(state => {
           state.isLoading = loading;
         }),
 
-      setError: (error) =>
-        set((state) => {
+      setError: error =>
+        set(state => {
           state.error = error;
         }),
     })),
     {
       name: 'user-storage',
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
+      partialize: state => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,
       }),

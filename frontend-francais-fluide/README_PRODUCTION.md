@@ -159,33 +159,37 @@ const securityConfig = {
   rateLimiting: {
     maxRequestsPerMinute: 30,
     maxRequestsPerHour: 100,
-    maxRequestsPerDay: 500
+    maxRequestsPerDay: 500,
   },
   costMonitoring: {
     dailyBudget: 10, // $10/jour
-    monthlyBudget: 200 // $200/mois
-  }
+    monthlyBudget: 200, // $200/mois
+  },
 };
 ```
 
 ## 📈 Scaling Progressif
 
 ### **Phase 1: MVP (0-1K utilisateurs)**
+
 - **Coût**: ~$50-100/mois
 - **Services**: Vercel Free + Railway Hobby
 - **Uptime**: 99.9%
 
 ### **Phase 2: Growth (1K-10K utilisateurs)**
+
 - **Coût**: ~$200-500/mois
 - **Services**: Vercel Pro + Railway Pro
 - **Uptime**: 99.95%
 
 ### **Phase 3: Scale (10K-100K utilisateurs)**
+
 - **Coût**: ~$1K-3K/mois
 - **Services**: Enterprise plans
 - **Uptime**: 99.99%
 
 ### **Phase 4: Enterprise (100K+ utilisateurs)**
+
 - **Coût**: ~$5K-15K/mois
 - **Services**: Multi-cloud
 - **Uptime**: 99.99%
@@ -199,8 +203,8 @@ import { useAICorrections } from '@/lib/ai';
 
 const { correctText } = useAICorrections();
 const result = await correctText({
-  text: "Je suis aller au marché",
-  level: 'intermediate'
+  text: 'Je suis aller au marché',
+  level: 'intermediate',
 });
 // → Corrections avec OpenAI/Claude + fallback LanguageTool
 ```
@@ -214,7 +218,7 @@ const { generateExercise } = useAIContentGenerator();
 const exercise = await generateExercise({
   type: 'exercise',
   level: 'beginner',
-  theme: 'famille'
+  theme: 'famille',
 });
 // → Exercice personnalisé généré par IA
 ```
@@ -224,7 +228,7 @@ const exercise = await generateExercise({
 ```typescript
 import { AIAssistant } from '@/components/ai/AIAssistant';
 
-<AIAssistant 
+<AIAssistant
   mode="tutor"
   userLevel="intermediate"
   theme="grammaire"
@@ -235,6 +239,7 @@ import { AIAssistant } from '@/components/ai/AIAssistant';
 ## 📋 Checklist de Déploiement
 
 ### ✅ **Pré-Déploiement**
+
 - [ ] Variables d'environnement configurées
 - [ ] Tests unitaires et d'intégration passent
 - [ ] Build de production réussi
@@ -242,6 +247,7 @@ import { AIAssistant } from '@/components/ai/AIAssistant';
 - [ ] Performance optimisée (Lighthouse > 90)
 
 ### ✅ **Déploiement**
+
 - [ ] Frontend déployé sur Vercel
 - [ ] Backend déployé sur Railway
 - [ ] Base de données migrée
@@ -249,6 +255,7 @@ import { AIAssistant } from '@/components/ai/AIAssistant';
 - [ ] SSL/TLS activé
 
 ### ✅ **Post-Déploiement**
+
 - [ ] Tests de smoke passent
 - [ ] Monitoring actif
 - [ ] Alertes configurées
@@ -299,12 +306,12 @@ npm run deps:update
 
 ### **Engagements de Performance**
 
-| Métrique | Objectif | Mesure |
-|----------|----------|--------|
-| **Disponibilité** | 99.9% | Uptime mensuel |
-| **Temps de Réponse** | < 2s | P95 des requêtes |
-| **Temps de Récupération** | < 15min | RTO |
-| **Support** | 24/7 | Incidents critiques |
+| Métrique                  | Objectif | Mesure              |
+| ------------------------- | -------- | ------------------- |
+| **Disponibilité**         | 99.9%    | Uptime mensuel      |
+| **Temps de Réponse**      | < 2s     | P95 des requêtes    |
+| **Temps de Récupération** | < 15min  | RTO                 |
+| **Support**               | 24/7     | Incidents critiques |
 
 ### **Niveaux de Service**
 

@@ -8,7 +8,7 @@ beforeEach(() => {
   // Nettoyer les données de test avant chaque test
   cy.clearLocalStorage();
   cy.clearCookies();
-  
+
   // Intercepter les appels API pour les tests
   cy.intercept('POST', '/api/grammar', { fixture: 'grammar-response.json' }).as('grammarCheck');
   cy.intercept('GET', '/api/progress', { fixture: 'progress-response.json' }).as('getProgress');

@@ -62,7 +62,7 @@ export class AdaptiveExerciseEngine {
 
     // Filtrer les exercices selon le plan d'abonnement
     const availableExercises = this.filterBySubscription(this.exercises, subscriptionPlan);
-    
+
     // Calculer les scores de recommandation
     const recommendations = availableExercises
       .filter(ex => !userProgress.completedExercises.includes(ex.id))
@@ -140,7 +140,9 @@ export class AdaptiveExerciseEngine {
       // Ajouter des jalons hebdomadaires
       if (day % 7 === 0) {
         const week = Math.ceil(day / 7);
-        weeklyMilestones.push(`Semaine ${week}: Maîtriser ${this.getWeeklyGoal(week, userProgress)}`);
+        weeklyMilestones.push(
+          `Semaine ${week}: Maîtriser ${this.getWeeklyGoal(week, userProgress)}`
+        );
       }
     }
 
@@ -149,7 +151,7 @@ export class AdaptiveExerciseEngine {
     return {
       dailyGoals,
       weeklyMilestones,
-      estimatedProgress
+      estimatedProgress,
     };
   }
 
@@ -168,7 +170,7 @@ export class AdaptiveExerciseEngine {
         strengths: [],
         weaknesses: [],
         recommendations: [],
-        nextFocus: []
+        nextFocus: [],
       };
     }
 
@@ -182,7 +184,7 @@ export class AdaptiveExerciseEngine {
       strengths,
       weaknesses,
       recommendations,
-      nextFocus
+      nextFocus,
     };
   }
 
@@ -194,7 +196,7 @@ export class AdaptiveExerciseEngine {
     let reason = '';
 
     // Score basé sur les zones faibles
-    const weakAreaMatch = exercise.targetSkills.filter(skill => 
+    const weakAreaMatch = exercise.targetSkills.filter(skill =>
       userProgress.weakAreas.includes(skill)
     ).length;
     score += weakAreaMatch * 0.4;
@@ -218,9 +220,9 @@ export class AdaptiveExerciseEngine {
 
     // Générer la raison
     if (weakAreaMatch > 0) {
-      reason = `Cible vos zones faibles: ${exercise.targetSkills.filter(s => 
-        userProgress.weakAreas.includes(s)
-      ).join(', ')}`;
+      reason = `Cible vos zones faibles: ${exercise.targetSkills
+        .filter(s => userProgress.weakAreas.includes(s))
+        .join(', ')}`;
     } else if (difficultyMatch > 0.5) {
       reason = `Niveau adapté à votre progression`;
     } else if (preferenceMatch > 0) {
@@ -235,7 +237,7 @@ export class AdaptiveExerciseEngine {
       reason,
       expectedDifficulty: difficultyMatch,
       estimatedTime: exercise.estimatedTime,
-      learningValue: score
+      learningValue: score,
     };
   }
 
@@ -247,7 +249,7 @@ export class AdaptiveExerciseEngine {
     // Préférer les exercices légèrement plus difficiles que le niveau actuel
     const idealLevel = userLevel + 0.5;
     const diff = Math.abs(exerciseLevel - idealLevel);
-    
+
     return Math.max(0, 1 - diff);
   }
 
@@ -258,30 +260,27 @@ export class AdaptiveExerciseEngine {
       .filter(Boolean);
 
     const typeCount = recentTypes.filter(type => type === exercise.type).length;
-    return Math.max(0, 1 - (typeCount / 3)); // Bonus si pas trop répétitif
+    return Math.max(0, 1 - typeCount / 3); // Bonus si pas trop répétitif
   }
 
   private updateWeakAndStrongAreas(progress: UserProgress): void {
     const skillScores = Object.entries(progress.errorPatterns)
       .map(([skill, errors]) => ({
         skill,
-        errorRate: errors / (progress.completedExercises.length || 1)
+        errorRate: errors / (progress.completedExercises.length || 1),
       }))
       .sort((a, b) => a.errorRate - b.errorRate);
 
     const threshold = 0.3; // 30% d'erreurs
-    progress.weakAreas = skillScores
-      .filter(s => s.errorRate > threshold)
-      .map(s => s.skill);
-    
-    progress.strongAreas = skillScores
-      .filter(s => s.errorRate < threshold)
-      .map(s => s.skill);
+    progress.weakAreas = skillScores.filter(s => s.errorRate > threshold).map(s => s.skill);
+
+    progress.strongAreas = skillScores.filter(s => s.errorRate < threshold).map(s => s.skill);
   }
 
   private updateUserLevel(progress: UserProgress): void {
-    const avgScore = Object.values(progress.scores).reduce((a, b) => a + b, 0) / 
-                    Object.values(progress.scores).length || 0;
+    const avgScore =
+      Object.values(progress.scores).reduce((a, b) => a + b, 0) /
+        Object.values(progress.scores).length || 0;
 
     if (avgScore >= 80 && progress.completedExercises.length >= 20) {
       progress.currentLevel = 'advanced';
@@ -324,28 +323,26 @@ export class AdaptiveExerciseEngine {
       learningVelocity: 3,
       preferredTypes: [],
       weakAreas: [],
-      strongAreas: []
+      strongAreas: [],
     };
   }
 
   private getDefaultRecommendations(count: number): AdaptiveRecommendation[] {
-    return this.exercises
-      .slice(0, count)
-      .map(exercise => ({
-        exercise,
-        priority: 'medium' as const,
-        reason: 'Exercice recommandé pour débuter',
-        expectedDifficulty: 0.5,
-        estimatedTime: exercise.estimatedTime,
-        learningValue: 0.5
-      }));
+    return this.exercises.slice(0, count).map(exercise => ({
+      exercise,
+      priority: 'medium' as const,
+      reason: 'Exercice recommandé pour débuter',
+      expectedDifficulty: 0.5,
+      estimatedTime: exercise.estimatedTime,
+      learningValue: 0.5,
+    }));
   }
 
   private getDefaultLearningPlan() {
     return {
       dailyGoals: {},
       weeklyMilestones: [],
-      estimatedProgress: 0
+      estimatedProgress: 0,
     };
   }
 
@@ -354,7 +351,7 @@ export class AdaptiveExerciseEngine {
       'les bases de la grammaire',
       'le vocabulaire essentiel',
       'la conjugaison des verbes',
-      'la compréhension écrite'
+      'la compréhension écrite',
     ];
     return goals[(week - 1) % goals.length];
   }
@@ -362,22 +359,22 @@ export class AdaptiveExerciseEngine {
   private calculateEstimatedProgress(userProgress: UserProgress, duration: number): number {
     const currentProgress = (userProgress.completedExercises.length / 100) * 100;
     const dailyIncrease = userProgress.learningVelocity * 0.1;
-    return Math.min(100, currentProgress + (dailyIncrease * duration));
+    return Math.min(100, currentProgress + dailyIncrease * duration);
   }
 
   private generateRecommendations(userProgress: UserProgress): string[] {
     const recommendations = [];
-    
+
     if (userProgress.weakAreas.length > 0) {
       recommendations.push(`Concentrez-vous sur: ${userProgress.weakAreas.join(', ')}`);
     }
-    
+
     if (userProgress.learningVelocity < 2) {
-      recommendations.push('Essayez de faire plus d\'exercices par jour pour progresser plus vite');
+      recommendations.push("Essayez de faire plus d'exercices par jour pour progresser plus vite");
     }
-    
+
     if (userProgress.preferredTypes.length === 0) {
-      recommendations.push('Explorez différents types d\'exercices pour trouver vos préférences');
+      recommendations.push("Explorez différents types d'exercices pour trouver vos préférences");
     }
 
     return recommendations;
@@ -397,7 +394,13 @@ export function useAdaptiveExercises() {
     return engine.getRecommendations(userId, subscriptionPlan, count);
   };
 
-  const updateProgress = (userId: string, exerciseId: string, score: number, timeSpent: number, errors: { [skill: string]: number }) => {
+  const updateProgress = (
+    userId: string,
+    exerciseId: string,
+    score: number,
+    timeSpent: number,
+    errors: { [skill: string]: number }
+  ) => {
     engine.updateProgress(userId, exerciseId, score, timeSpent, errors);
   };
 
@@ -413,6 +416,6 @@ export function useAdaptiveExercises() {
     getRecommendations,
     updateProgress,
     generateLearningPlan,
-    analyzePerformance
+    analyzePerformance,
   };
 }

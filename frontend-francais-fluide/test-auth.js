@@ -4,10 +4,10 @@ const fetch = require('node-fetch');
 const BASE_URL = 'http://localhost:3000';
 
 async function testAuth() {
-  console.log('🧪 Test de l\'authentification...\n');
+  console.log("🧪 Test de l'authentification...\n");
 
   // Test d'inscription
-  console.log('1️⃣ Test d\'inscription...');
+  console.log("1️⃣ Test d'inscription...");
   try {
     const registerResponse = await fetch(`${BASE_URL}/api/auth/register`, {
       method: 'POST',
@@ -17,19 +17,19 @@ async function testAuth() {
       body: JSON.stringify({
         name: 'Test User',
         email: 'test@francaisfluide.com',
-        password: 'testpassword123'
-      })
+        password: 'testpassword123',
+      }),
     });
 
     const registerData = await registerResponse.json();
-    
+
     if (registerData.success) {
       console.log('✅ Inscription réussie');
       console.log('   Utilisateur:', registerData.user.name);
       console.log('   Email:', registerData.user.email);
       console.log('   Token:', registerData.token ? 'Présent' : 'Manquant');
     } else {
-      console.log('❌ Erreur d\'inscription:', registerData.error);
+      console.log("❌ Erreur d'inscription:", registerData.error);
     }
   } catch (error) {
     console.log('❌ Erreur de connexion:', error.message);
@@ -44,12 +44,12 @@ async function testAuth() {
       },
       body: JSON.stringify({
         email: 'test@francaisfluide.com',
-        password: 'testpassword123'
-      })
+        password: 'testpassword123',
+      }),
     });
 
     const loginData = await loginResponse.json();
-    
+
     if (loginData.success) {
       console.log('✅ Connexion réussie');
       console.log('   Utilisateur:', loginData.user.name);
@@ -72,12 +72,12 @@ async function testAuth() {
       },
       body: JSON.stringify({
         email: 'test@francaisfluide.com',
-        password: 'mauvaispassword'
-      })
+        password: 'mauvaispassword',
+      }),
     });
 
     const wrongLoginData = await wrongLoginResponse.json();
-    
+
     if (!wrongLoginData.success) {
       console.log('✅ Erreur correctement gérée:', wrongLoginData.error);
     } else {
@@ -91,7 +91,7 @@ async function testAuth() {
   console.log('- Inscription: Fonctionne');
   console.log('- Connexion: Fonctionne');
   console.log('- Validation: Fonctionne');
-  console.log('\n🚀 L\'authentification est opérationnelle !');
+  console.log("\n🚀 L'authentification est opérationnelle !");
 }
 
 // Exécuter les tests

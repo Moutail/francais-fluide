@@ -9,14 +9,10 @@ import {
   Users,
   CreditCard,
   BookOpen,
-  MessageSquare,
-  Clock,
   DollarSign,
   ArrowLeft,
   Download,
-  Calendar,
-  Filter,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
 
 interface AnalyticsData {
@@ -44,22 +40,22 @@ export default function AdminAnalyticsPage() {
     const loadAnalytics = async () => {
       setIsLoading(true);
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       const mockData: AnalyticsData[] = [
         {
           period: '2024-01-01',
           totalUsers: 1200,
           newUsers: 45,
           activeUsers: 180,
-          revenue: 26750.50,
+          revenue: 26750.5,
           subscriptions: 25,
           grammarChecks: 3421,
           exercisesCompleted: 892,
           averageSessionTime: 18.5,
           conversionRate: 12.3,
           churnRate: 2.1,
-          mrr: 26750.50,
-          arr: 321006.00
+          mrr: 26750.5,
+          arr: 321006.0,
         },
         {
           period: '2024-01-02',
@@ -74,7 +70,7 @@ export default function AdminAnalyticsPage() {
           conversionRate: 13.1,
           churnRate: 1.8,
           mrr: 28950.25,
-          arr: 347403.00
+          arr: 347403.0,
         },
         {
           period: '2024-01-03',
@@ -89,10 +85,10 @@ export default function AdminAnalyticsPage() {
           conversionRate: 14.2,
           churnRate: 1.5,
           mrr: 31200.75,
-          arr: 374409.00
-        }
+          arr: 374409.0,
+        },
       ];
-      
+
       setAnalytics(mockData);
       setIsLoading(false);
     };
@@ -112,7 +108,7 @@ export default function AdminAnalyticsPage() {
     conversionRate: 0,
     churnRate: 0,
     mrr: 0,
-    arr: 0
+    arr: 0,
   };
 
   const previousData = analytics[analytics.length - 2] || currentData;
@@ -129,9 +125,9 @@ export default function AdminAnalyticsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 size-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
           <p className="text-gray-600">Chargement des analytics...</p>
         </div>
       </div>
@@ -141,17 +137,20 @@ export default function AdminAnalyticsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+      <div className="border-b border-gray-200 bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-4">
-              <a href="/admin" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
-                <ArrowLeft className="w-5 h-5" />
+              <a
+                href="/admin"
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+              >
+                <ArrowLeft className="size-5" />
                 Retour
               </a>
               <div className="h-6 w-px bg-gray-300" />
               <div className="flex items-center gap-3">
-                <BarChart3 className="w-6 h-6 text-purple-600" />
+                <BarChart3 className="size-6 text-purple-600" />
                 <div>
                   <h1 className="text-xl font-bold text-gray-900">Analytics & Statistiques</h1>
                   <p className="text-sm text-gray-600">Données détaillées de l'application</p>
@@ -161,20 +160,20 @@ export default function AdminAnalyticsPage() {
             <div className="flex items-center gap-3">
               <select
                 value={selectedPeriod}
-                onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                onChange={e => setSelectedPeriod(e.target.value)}
+                className="rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
               >
                 <option value="7d">7 derniers jours</option>
                 <option value="30d">30 derniers jours</option>
                 <option value="90d">90 derniers jours</option>
                 <option value="1y">1 an</option>
               </select>
-              <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                <Download className="w-4 h-4" />
+              <button className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-200">
+                <Download className="size-4" />
                 Exporter
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                <RefreshCw className="w-4 h-4" />
+              <button className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700">
+                <RefreshCw className="size-4" />
                 Actualiser
               </button>
             </div>
@@ -182,128 +181,138 @@ export default function AdminAnalyticsPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Métriques principales */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Users className="w-6 h-6 text-blue-600" />
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="rounded-lg bg-blue-100 p-2">
+                <Users className="size-6 text-blue-600" />
               </div>
               <div className="flex items-center gap-1">
                 {userGrowth >= 0 ? (
-                  <TrendingUp className="w-4 h-4 text-green-500" />
+                  <TrendingUp className="size-4 text-green-500" />
                 ) : (
-                  <TrendingDown className="w-4 h-4 text-red-500" />
+                  <TrendingDown className="size-4 text-red-500" />
                 )}
-                <span className={`text-sm font-medium ${userGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {userGrowth >= 0 ? '+' : ''}{userGrowth.toFixed(1)}%
+                <span
+                  className={`text-sm font-medium ${userGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                >
+                  {userGrowth >= 0 ? '+' : ''}
+                  {userGrowth.toFixed(1)}%
                 </span>
               </div>
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">
+            <div className="mb-1 text-3xl font-bold text-gray-900">
               {currentData.totalUsers.toLocaleString()}
             </div>
             <div className="text-sm text-gray-600">Utilisateurs total</div>
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="mt-1 text-xs text-gray-500">
               +{currentData.newUsers} nouveaux aujourd'hui
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <DollarSign className="w-6 h-6 text-green-600" />
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="rounded-lg bg-green-100 p-2">
+                <DollarSign className="size-6 text-green-600" />
               </div>
               <div className="flex items-center gap-1">
                 {revenueGrowth >= 0 ? (
-                  <TrendingUp className="w-4 h-4 text-green-500" />
+                  <TrendingUp className="size-4 text-green-500" />
                 ) : (
-                  <TrendingDown className="w-4 h-4 text-red-500" />
+                  <TrendingDown className="size-4 text-red-500" />
                 )}
-                <span className={`text-sm font-medium ${revenueGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {revenueGrowth >= 0 ? '+' : ''}{revenueGrowth.toFixed(1)}%
+                <span
+                  className={`text-sm font-medium ${revenueGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                >
+                  {revenueGrowth >= 0 ? '+' : ''}
+                  {revenueGrowth.toFixed(1)}%
                 </span>
               </div>
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">
+            <div className="mb-1 text-3xl font-bold text-gray-900">
               ${currentData.revenue.toLocaleString()}
             </div>
             <div className="text-sm text-gray-600">Revenus totaux</div>
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="mt-1 text-xs text-gray-500">
               MRR: ${currentData.mrr.toLocaleString()}
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <CreditCard className="w-6 h-6 text-purple-600" />
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="rounded-lg bg-purple-100 p-2">
+                <CreditCard className="size-6 text-purple-600" />
               </div>
               <div className="flex items-center gap-1">
                 {subscriptionGrowth >= 0 ? (
-                  <TrendingUp className="w-4 h-4 text-green-500" />
+                  <TrendingUp className="size-4 text-green-500" />
                 ) : (
-                  <TrendingDown className="w-4 h-4 text-red-500" />
+                  <TrendingDown className="size-4 text-red-500" />
                 )}
-                <span className={`text-sm font-medium ${subscriptionGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {subscriptionGrowth >= 0 ? '+' : ''}{subscriptionGrowth.toFixed(1)}%
+                <span
+                  className={`text-sm font-medium ${subscriptionGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                >
+                  {subscriptionGrowth >= 0 ? '+' : ''}
+                  {subscriptionGrowth.toFixed(1)}%
                 </span>
               </div>
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">
-              {currentData.subscriptions}
-            </div>
+            <div className="mb-1 text-3xl font-bold text-gray-900">{currentData.subscriptions}</div>
             <div className="text-sm text-gray-600">Nouveaux abonnements</div>
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="mt-1 text-xs text-gray-500">
               Taux de conversion: {currentData.conversionRate}%
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <BookOpen className="w-6 h-6 text-orange-600" />
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="rounded-lg bg-orange-100 p-2">
+                <BookOpen className="size-6 text-orange-600" />
               </div>
               <div className="flex items-center gap-1">
                 {activityGrowth >= 0 ? (
-                  <TrendingUp className="w-4 h-4 text-green-500" />
+                  <TrendingUp className="size-4 text-green-500" />
                 ) : (
-                  <TrendingDown className="w-4 h-4 text-red-500" />
+                  <TrendingDown className="size-4 text-red-500" />
                 )}
-                <span className={`text-sm font-medium ${activityGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {activityGrowth >= 0 ? '+' : ''}{activityGrowth.toFixed(1)}%
+                <span
+                  className={`text-sm font-medium ${activityGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                >
+                  {activityGrowth >= 0 ? '+' : ''}
+                  {activityGrowth.toFixed(1)}%
                 </span>
               </div>
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-1">
+            <div className="mb-1 text-3xl font-bold text-gray-900">
               {currentData.grammarChecks.toLocaleString()}
             </div>
             <div className="text-sm text-gray-600">Corrections aujourd'hui</div>
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="mt-1 text-xs text-gray-500">
               {currentData.exercisesCompleted} exercices complétés
             </div>
           </div>
         </div>
 
         {/* Graphiques */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="mb-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* Évolution des utilisateurs */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Évolution des utilisateurs</h3>
-            <div className="h-64 flex items-end justify-between gap-2">
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900">Évolution des utilisateurs</h3>
+            <div className="flex h-64 items-end justify-between gap-2">
               {analytics.map((data, index) => (
-                <div key={data.period} className="flex-1 flex flex-col items-center">
-                  <div className="w-full bg-gray-100 rounded-t-lg relative">
+                <div key={data.period} className="flex flex-1 flex-col items-center">
+                  <div className="relative w-full rounded-t-lg bg-gray-100">
                     <div
-                      className="bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg transition-all duration-500"
+                      className="rounded-t-lg bg-gradient-to-t from-blue-500 to-blue-400 transition-all duration-500"
                       style={{ height: `${(data.totalUsers / 1500) * 200}px` }}
                     />
-                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-xs font-medium text-gray-600">
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-medium text-gray-600">
                       {data.totalUsers}
                     </div>
                   </div>
-                  <div className="text-xs text-gray-500 mt-2">
+                  <div className="mt-2 text-xs text-gray-500">
                     {new Date(data.period).toLocaleDateString('fr-FR', { day: 'numeric' })}
                   </div>
                 </div>
@@ -312,21 +321,21 @@ export default function AdminAnalyticsPage() {
           </div>
 
           {/* Évolution des revenus */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Évolution des revenus</h3>
-            <div className="h-64 flex items-end justify-between gap-2">
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900">Évolution des revenus</h3>
+            <div className="flex h-64 items-end justify-between gap-2">
               {analytics.map((data, index) => (
-                <div key={data.period} className="flex-1 flex flex-col items-center">
-                  <div className="w-full bg-gray-100 rounded-t-lg relative">
+                <div key={data.period} className="flex flex-1 flex-col items-center">
+                  <div className="relative w-full rounded-t-lg bg-gray-100">
                     <div
-                      className="bg-gradient-to-t from-green-500 to-green-400 rounded-t-lg transition-all duration-500"
+                      className="rounded-t-lg bg-gradient-to-t from-green-500 to-green-400 transition-all duration-500"
                       style={{ height: `${(data.revenue / 35000) * 200}px` }}
                     />
-                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-xs font-medium text-gray-600">
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-medium text-gray-600">
                       ${(data.revenue / 1000).toFixed(0)}k
                     </div>
                   </div>
-                  <div className="text-xs text-gray-500 mt-2">
+                  <div className="mt-2 text-xs text-gray-500">
                     {new Date(data.period).toLocaleDateString('fr-FR', { day: 'numeric' })}
                   </div>
                 </div>
@@ -336,93 +345,103 @@ export default function AdminAnalyticsPage() {
         </div>
 
         {/* Métriques détaillées */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Engagement</h3>
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900">Engagement</h3>
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <span className="text-gray-600">Utilisateurs actifs</span>
                 <span className="font-semibold text-gray-900">{currentData.activeUsers}</span>
               </div>
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <span className="text-gray-600">Temps de session moyen</span>
-                <span className="font-semibold text-gray-900">{currentData.averageSessionTime} min</span>
+                <span className="font-semibold text-gray-900">
+                  {currentData.averageSessionTime} min
+                </span>
               </div>
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <span className="text-gray-600">Exercices complétés</span>
-                <span className="font-semibold text-gray-900">{currentData.exercisesCompleted}</span>
+                <span className="font-semibold text-gray-900">
+                  {currentData.exercisesCompleted}
+                </span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Conversion</h3>
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900">Conversion</h3>
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <span className="text-gray-600">Taux de conversion</span>
                 <span className="font-semibold text-gray-900">{currentData.conversionRate}%</span>
               </div>
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <span className="text-gray-600">Taux de désabonnement</span>
                 <span className="font-semibold text-gray-900">{currentData.churnRate}%</span>
               </div>
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <span className="text-gray-600">Nouveaux abonnements</span>
                 <span className="font-semibold text-gray-900">{currentData.subscriptions}</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenus</h3>
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900">Revenus</h3>
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <span className="text-gray-600">Revenus récurrents mensuels</span>
-                <span className="font-semibold text-gray-900">${currentData.mrr.toLocaleString()}</span>
+                <span className="font-semibold text-gray-900">
+                  ${currentData.mrr.toLocaleString()}
+                </span>
               </div>
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <span className="text-gray-600">Revenus récurrents annuels</span>
-                <span className="font-semibold text-gray-900">${currentData.arr.toLocaleString()}</span>
+                <span className="font-semibold text-gray-900">
+                  ${currentData.arr.toLocaleString()}
+                </span>
               </div>
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <span className="text-gray-600">Revenus totaux</span>
-                <span className="font-semibold text-gray-900">${currentData.revenue.toLocaleString()}</span>
+                <span className="font-semibold text-gray-900">
+                  ${currentData.revenue.toLocaleString()}
+                </span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Tableau des performances */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+          <div className="border-b border-gray-200 px-6 py-4">
             <h3 className="text-lg font-semibold text-gray-900">Performances détaillées</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     Date
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     Utilisateurs
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     Revenus
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     Abonnements
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     Corrections
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     Conversion
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {analytics.map((data) => (
+                {analytics.map(data => (
                   <tr key={data.period} className="hover:bg-gray-50">
                     <td className="px-6 py-4 text-sm text-gray-900">
                       {new Date(data.period).toLocaleDateString('fr-FR')}
@@ -433,15 +452,11 @@ export default function AdminAnalyticsPage() {
                     <td className="px-6 py-4 text-sm text-gray-900">
                       ${data.revenue.toLocaleString()}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {data.subscriptions}
-                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{data.subscriptions}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">
                       {data.grammarChecks.toLocaleString()}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {data.conversionRate}%
-                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{data.conversionRate}%</td>
                   </tr>
                 ))}
               </tbody>

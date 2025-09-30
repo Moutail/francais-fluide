@@ -38,10 +38,10 @@ try {
 const packageJsonPath = path.join(__dirname, 'package.json');
 if (fs.existsSync(packageJsonPath)) {
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-  
+
   console.log('\n📦 Dépendances installées :');
   const requiredDeps = ['@prisma/client', 'prisma', 'bcryptjs', 'jsonwebtoken'];
-  
+
   requiredDeps.forEach(dep => {
     if (packageJson.dependencies[dep] || packageJson.devDependencies[dep]) {
       console.log(`  ✅ ${dep}`);

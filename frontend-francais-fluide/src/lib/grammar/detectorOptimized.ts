@@ -51,38 +51,38 @@ class LRUCache<K, V> {
 const COMPILED_PATTERNS = {
   // Conjugaison
   conjugaison3pSingulier: /\b(il|elle|on)\s+([\w]+er|[\w]+ir|[\w]+re)\b/gi,
-  
+
   // Orthographe
   aVsA: /\b(a|à)\s+(le|la|les|un|une|des|du)\b/gi,
   etVsEst: /\b(et|est)\s+(très|vraiment|super|trop|plus|moins)\b/gi,
-  
+
   // Ponctuation
   espacePonctuationDouble: /(\w)([;:!?])/g,
-  
+
   // Style
   repetitionMot: /\b(\w{4,})\s+(?:\w+\s+){0,3}\1\b/gi,
-  
+
   // Homophones
   sesVsCes: /\bses\b(?=\s+(?:amis?|parents?|enfants?))/gi,
   caVsCes: /\bça\b(?=\s+(?:enfants?|personnes?|gens))/gi,
   ouVsOu: /\bou\b(?=\s+(?:est|sont|était|étaient))/gi,
   laVsLa: /\bla\b(?=\s+(?:bas|haut))/gi,
-  
+
   // Anglicismes
   definitivement: /\b(dfinitivement|définitivement)\b/gi,
   supporter: /\b(supporter)\b/gi,
   opportunite: /\b(opportunité)\b(?=\s+de)/gi,
-  
+
   // Expressions
   malgreQue: /\bmalgré\s+que\b/gi,
   pallierA: /\bpallier\s+à\b/gi,
   seRappelerDe: /\bse\s+rappeler\s+de\b/gi,
-  
+
   // Analyse contextuelle
   voixPassive: /\b(est|sont|était|étaient|sera|seront)\s+(\w+é|ée|és|ées)\b/gi,
   phraseLongue: /[.!?]+/g,
   mots: /\s+/g,
-  syllabes: /[aeiouy]/gi
+  syllabes: /[aeiouy]/gi,
 };
 
 // Base de règles grammaticales optimisées
@@ -94,23 +94,23 @@ export const OPTIMIZED_GRAMMAR_RULES: GrammarRule[] = [
     pattern: COMPILED_PATTERNS.conjugaison3pSingulier,
     check: (match: RegExpExecArray) => {
       const [, sujet, verbe] = match;
-      
+
       if (verbe.endsWith('er') || verbe.endsWith('ir') || verbe.endsWith('re')) {
         const racine = verbe.slice(0, -2);
-        const suggestions = verbe.endsWith('er') 
-          ? [racine + 'e'] 
+        const suggestions = verbe.endsWith('er')
+          ? [racine + 'e']
           : verbe.endsWith('ir')
-          ? [racine + 'it']
-          : [racine];
-          
+            ? [racine + 'it']
+            : [racine];
+
         return {
           message: `Le verbe "${verbe}" n'est pas conjugué avec "${sujet}"`,
-          suggestions
+          suggestions,
         };
       }
-      
+
       return null;
-    }
+    },
   },
   {
     id: 'a-vs-à',
@@ -119,16 +119,16 @@ export const OPTIMIZED_GRAMMAR_RULES: GrammarRule[] = [
     pattern: COMPILED_PATTERNS.aVsA,
     check: (match: RegExpExecArray) => {
       const [, aOuA, article] = match;
-      
+
       if (aOuA === 'à') {
         return {
           message: `"à" est une préposition, ici il faut le verbe "a"`,
-          suggestions: ['a ' + article]
+          suggestions: ['a ' + article],
         };
       }
-      
+
       return null;
-    }
+    },
   },
   {
     id: 'et-vs-est',
@@ -137,16 +137,16 @@ export const OPTIMIZED_GRAMMAR_RULES: GrammarRule[] = [
     pattern: COMPILED_PATTERNS.etVsEst,
     check: (match: RegExpExecArray) => {
       const [, etOuEst, adverbe] = match;
-      
+
       if (etOuEst === 'et') {
         return {
           message: `Avant un adverbe comme "${adverbe}", utilisez "est" (verbe être) et non "et" (conjonction)`,
-          suggestions: ['est ' + adverbe]
+          suggestions: ['est ' + adverbe],
         };
       }
-      
+
       return null;
-    }
+    },
   },
   {
     id: 'espace-ponctuation-double',
@@ -157,9 +157,9 @@ export const OPTIMIZED_GRAMMAR_RULES: GrammarRule[] = [
       const [, mot, ponctuation] = match;
       return {
         message: `En français, il faut une espace avant "${ponctuation}"`,
-        suggestions: [mot + ' ' + ponctuation]
+        suggestions: [mot + ' ' + ponctuation],
       };
-    }
+    },
   },
   {
     id: 'repetition-mot',
@@ -168,17 +168,17 @@ export const OPTIMIZED_GRAMMAR_RULES: GrammarRule[] = [
     pattern: COMPILED_PATTERNS.repetitionMot,
     check: (match: RegExpExecArray) => {
       const [fullMatch, motRepete] = match;
-      
+
       // Ignorer les mots courants qui peuvent se répéter
       const motsAutorises = new Set(['pour', 'dans', 'avec', 'sans', 'mais', 'donc']);
       if (motsAutorises.has(motRepete.toLowerCase())) return null;
-      
+
       return {
         message: `Le mot "${motRepete}" est répété rapidement`,
-        suggestions: ['[Reformuler pour éviter la répétition]']
+        suggestions: ['[Reformuler pour éviter la répétition]'],
       };
-    }
-  }
+    },
+  },
 ];
 
 /**
@@ -203,7 +203,7 @@ export class OptimizedGrammarDetector {
     this.performanceMetrics = {
       totalChecks: 0,
       cacheHits: 0,
-      averageTime: 0
+      averageTime: 0,
     };
   }
 
@@ -217,22 +217,22 @@ export class OptimizedGrammarDetector {
     // Vérifier le cache
     const cacheKey = this.getCacheKey(text);
     const cachedErrors = this.cache.get(cacheKey);
-    
+
     if (cachedErrors) {
       this.performanceMetrics.cacheHits++;
       const endTime = performance.now();
       this.updateAverageTime(endTime - startTime);
-      
+
       return {
         text,
         errors: cachedErrors,
         statistics: this.getCachedStatistics(text, cachedErrors),
-        suggestions: this.buildSuggestions(cachedErrors)
+        suggestions: this.buildSuggestions(cachedErrors),
       };
     }
 
     const errors: GrammarError[] = [];
-    
+
     // 1. Appliquer les règles grammaticales (optimisées)
     errors.push(...this.findMatchesOptimized(text));
 
@@ -247,7 +247,7 @@ export class OptimizedGrammarDetector {
 
     // Mettre en cache
     this.cache.set(cacheKey, errors);
-    
+
     const endTime = performance.now();
     this.updateAverageTime(endTime - startTime);
 
@@ -255,7 +255,7 @@ export class OptimizedGrammarDetector {
       text,
       errors,
       statistics: this.calculateStatisticsOptimized(text, errors),
-      suggestions: this.buildSuggestions(errors)
+      suggestions: this.buildSuggestions(errors),
     };
   }
 
@@ -264,16 +264,16 @@ export class OptimizedGrammarDetector {
    */
   private findMatchesOptimized(text: string): GrammarError[] {
     const errors: GrammarError[] = [];
-    
+
     // Paralléliser le traitement des règles
     for (const rule of this.rules) {
       let match;
       // Réinitialiser le lastIndex pour éviter les problèmes de concurrence
       rule.pattern.lastIndex = 0;
-      
+
       while ((match = rule.pattern.exec(text)) !== null) {
         const checkResult = rule.check(match);
-        
+
         if (checkResult) {
           errors.push({
             id: rule.id,
@@ -282,7 +282,7 @@ export class OptimizedGrammarDetector {
             message: checkResult.message,
             start: match.index,
             end: match.index + match[0].length,
-            suggestions: checkResult.suggestions
+            suggestions: checkResult.suggestions,
           });
         }
       }
@@ -302,7 +302,7 @@ export class OptimizedGrammarDetector {
       { pattern: COMPILED_PATTERNS.sesVsCes, correct: 'ces', message: 'Confusion ses/ces' },
       { pattern: COMPILED_PATTERNS.caVsCes, correct: 'ces', message: 'Confusion ça/ces' },
       { pattern: COMPILED_PATTERNS.ouVsOu, correct: 'où', message: 'Confusion ou/où' },
-      { pattern: COMPILED_PATTERNS.laVsLa, correct: 'là', message: 'Confusion la/là' }
+      { pattern: COMPILED_PATTERNS.laVsLa, correct: 'là', message: 'Confusion la/là' },
     ];
 
     for (const homophone of homophonePatterns) {
@@ -316,16 +316,28 @@ export class OptimizedGrammarDetector {
           message: homophone.message,
           start: match.index,
           end: match.index + match[0].length,
-          suggestions: [homophone.correct]
+          suggestions: [homophone.correct],
         });
       }
     }
 
     // Anglicismes
     const anglicismePatterns = [
-      { pattern: COMPILED_PATTERNS.definitivement, suggestion: 'certainement', message: 'Anglicisme : "definitively"' },
-      { pattern: COMPILED_PATTERNS.supporter, suggestion: 'soutenir', message: 'Anglicisme : préférez "soutenir"' },
-      { pattern: COMPILED_PATTERNS.opportunite, suggestion: 'occasion', message: 'Anglicisme : préférez "occasion"' }
+      {
+        pattern: COMPILED_PATTERNS.definitivement,
+        suggestion: 'certainement',
+        message: 'Anglicisme : "definitively"',
+      },
+      {
+        pattern: COMPILED_PATTERNS.supporter,
+        suggestion: 'soutenir',
+        message: 'Anglicisme : préférez "soutenir"',
+      },
+      {
+        pattern: COMPILED_PATTERNS.opportunite,
+        suggestion: 'occasion',
+        message: 'Anglicisme : préférez "occasion"',
+      },
     ];
 
     for (const anglicisme of anglicismePatterns) {
@@ -339,16 +351,28 @@ export class OptimizedGrammarDetector {
           message: anglicisme.message,
           start: match.index,
           end: match.index + match[0].length,
-          suggestions: [anglicisme.suggestion]
+          suggestions: [anglicisme.suggestion],
         });
       }
     }
 
     // Expressions incorrectes
     const expressionPatterns = [
-      { pattern: COMPILED_PATTERNS.malgreQue, suggestion: 'bien que', message: '"Malgré que" est incorrect' },
-      { pattern: COMPILED_PATTERNS.pallierA, suggestion: 'pallier', message: 'On dit "pallier quelque chose", pas "pallier à"' },
-      { pattern: COMPILED_PATTERNS.seRappelerDe, suggestion: 'se rappeler', message: 'On dit "se rappeler quelque chose"' }
+      {
+        pattern: COMPILED_PATTERNS.malgreQue,
+        suggestion: 'bien que',
+        message: '"Malgré que" est incorrect',
+      },
+      {
+        pattern: COMPILED_PATTERNS.pallierA,
+        suggestion: 'pallier',
+        message: 'On dit "pallier quelque chose", pas "pallier à"',
+      },
+      {
+        pattern: COMPILED_PATTERNS.seRappelerDe,
+        suggestion: 'se rappeler',
+        message: 'On dit "se rappeler quelque chose"',
+      },
     ];
 
     for (const expression of expressionPatterns) {
@@ -362,7 +386,7 @@ export class OptimizedGrammarDetector {
           message: expression.message,
           start: match.index,
           end: match.index + match[0].length,
-          suggestions: [expression.suggestion]
+          suggestions: [expression.suggestion],
         });
       }
     }
@@ -382,7 +406,7 @@ export class OptimizedGrammarDetector {
 
     for (const sentence of sentences) {
       const wordCount = sentence.trim().split(COMPILED_PATTERNS.mots).length;
-      
+
       if (wordCount > 35) {
         errors.push({
           id: 'phrase-trop-longue',
@@ -391,10 +415,10 @@ export class OptimizedGrammarDetector {
           message: 'Cette phrase est très longue. Considérez la diviser pour plus de clarté.',
           start: currentOffset,
           end: currentOffset + sentence.length,
-          suggestions: []
+          suggestions: [],
         });
       }
-      
+
       currentOffset += sentence.length + 1;
     }
 
@@ -405,7 +429,7 @@ export class OptimizedGrammarDetector {
 
     while ((match = COMPILED_PATTERNS.voixPassive.exec(text)) !== null) {
       passiveCount++;
-      
+
       if (passiveCount > 3) {
         errors.push({
           id: 'voix-passive-excessive',
@@ -414,7 +438,7 @@ export class OptimizedGrammarDetector {
           message: 'Utilisation excessive de la voix passive. Privilégiez la voix active.',
           start: match.index,
           end: match.index + match[0].length,
-          suggestions: []
+          suggestions: [],
         });
         break;
       }
@@ -429,14 +453,14 @@ export class OptimizedGrammarDetector {
   private calculateStatisticsOptimized(text: string, errors: GrammarError[]): any {
     const cacheKey = `stats-${text.substring(0, 50)}-${errors.length}`;
     const cachedStats = this.statisticsCache.get(cacheKey);
-    
+
     if (cachedStats) {
       return cachedStats;
     }
 
     const words = text.split(COMPILED_PATTERNS.mots).filter(w => w.length > 0);
     const sentences = text.split(COMPILED_PATTERNS.phraseLongue).filter(s => s.trim().length > 0);
-    
+
     const wordCount = words.length;
     const characterCount = text.length;
     const errorRate = wordCount > 0 ? errors.length / wordCount : 0;
@@ -444,7 +468,7 @@ export class OptimizedGrammarDetector {
       wordCount,
       characterCount,
       errorRate,
-      readabilityScore: this.calculateReadabilityOptimized(text)
+      readabilityScore: this.calculateReadabilityOptimized(text),
     };
 
     this.statisticsCache.set(cacheKey, stats);
@@ -457,16 +481,17 @@ export class OptimizedGrammarDetector {
   private calculateReadabilityOptimized(text: string): number {
     const words = text.split(COMPILED_PATTERNS.mots).filter(w => w.length > 0);
     const sentences = text.split(COMPILED_PATTERNS.phraseLongue).filter(s => s.trim().length > 0);
-    
+
     // Compter les syllabes de manière optimisée
     let syllableCount = 0;
     for (const word of words) {
       syllableCount += this.countSyllablesOptimized(word);
     }
-    
+
     // Formule de Flesch adaptée au français
-    const score = 206.835 - 1.015 * (words.length / sentences.length) - 84.6 * (syllableCount / words.length);
-    
+    const score =
+      206.835 - 1.015 * (words.length / sentences.length) - 84.6 * (syllableCount / words.length);
+
     return Math.max(0, Math.min(100, Math.round(score)));
   }
 
@@ -477,7 +502,7 @@ export class OptimizedGrammarDetector {
     word = word.toLowerCase();
     let count = 0;
     let previousWasVowel = false;
-    
+
     for (let i = 0; i < word.length; i++) {
       const isVowel = COMPILED_PATTERNS.syllabes.test(word[i]);
       if (isVowel && !previousWasVowel) {
@@ -485,11 +510,11 @@ export class OptimizedGrammarDetector {
       }
       previousWasVowel = isVowel;
     }
-    
+
     // Ajustements pour le français
     if (word.endsWith('e') && count > 1) count--;
     if (word.endsWith('es') && count > 1) count--;
-    
+
     return Math.max(1, count);
   }
 
@@ -498,11 +523,11 @@ export class OptimizedGrammarDetector {
    */
   private groupErrorsByCategory(errors: GrammarError[]): Record<string, number> {
     const categories: Record<string, number> = {};
-    
+
     for (const error of errors) {
       categories[error.type] = (categories[error.type] || 0) + 1;
     }
-    
+
     return categories;
   }
 
@@ -521,7 +546,7 @@ export class OptimizedGrammarDetector {
           suggestions.push({
             text: rep,
             confidence: 0.6,
-            explanation: err.message
+            explanation: err.message,
           });
         }
       }
@@ -553,8 +578,8 @@ export class OptimizedGrammarDetector {
    * Mise à jour du temps moyen
    */
   private updateAverageTime(time: number): void {
-    this.performanceMetrics.averageTime = 
-      (this.performanceMetrics.averageTime * (this.performanceMetrics.totalChecks - 1) + time) / 
+    this.performanceMetrics.averageTime =
+      (this.performanceMetrics.averageTime * (this.performanceMetrics.totalChecks - 1) + time) /
       this.performanceMetrics.totalChecks;
   }
 
@@ -564,11 +589,12 @@ export class OptimizedGrammarDetector {
   public getPerformanceMetrics() {
     return {
       ...this.performanceMetrics,
-      cacheHitRate: this.performanceMetrics.totalChecks > 0 
-        ? (this.performanceMetrics.cacheHits / this.performanceMetrics.totalChecks) * 100 
-        : 0,
+      cacheHitRate:
+        this.performanceMetrics.totalChecks > 0
+          ? (this.performanceMetrics.cacheHits / this.performanceMetrics.totalChecks) * 100
+          : 0,
       cacheSize: this.cache.size(),
-      statisticsCacheSize: this.statisticsCache.size()
+      statisticsCacheSize: this.statisticsCache.size(),
     };
   }
 
@@ -594,11 +620,11 @@ export class OptimizedGrammarDetector {
   public warmupCache(): void {
     // Précharger les patterns les plus courants
     const commonTexts = [
-      "Bonjour, comment allez-vous ?",
-      "Il mange du pain avec du beurre.",
-      "Elle est très belle et intelligente.",
-      "Nous allons au parc pour jouer.",
-      "Le chat dort sur le canapé."
+      'Bonjour, comment allez-vous ?',
+      'Il mange du pain avec du beurre.',
+      'Elle est très belle et intelligente.',
+      'Nous allons au parc pour jouer.',
+      'Le chat dort sur le canapé.',
     ];
 
     for (const text of commonTexts) {

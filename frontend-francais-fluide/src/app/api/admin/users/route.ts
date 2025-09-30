@@ -15,10 +15,12 @@ export async function GET(request: NextRequest) {
     const res = await fetch(`${backend}/api/admin/users`, {
       method: 'GET',
       headers: {
-        'authorization': authHeader,
+        authorization: authHeader,
       },
     });
-    const data = await res.json().catch(() => ({ success: false, error: 'Réponse invalide du backend' }));
+    const data = await res
+      .json()
+      .catch(() => ({ success: false, error: 'Réponse invalide du backend' }));
     return NextResponse.json(data, { status: res.status });
   } catch (error) {
     console.error('Erreur proxy récupération utilisateurs:', error);

@@ -3,17 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/professional/Button';
 import { Card } from '@/components/ui/professional/Card';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Plus, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  Plus,
   Calendar,
   Clock,
   CheckCircle,
   AlertCircle,
   BookOpen,
   Trophy,
-  Bell
+  Bell,
 } from 'lucide-react';
 
 interface CalendarEvent {
@@ -35,12 +35,12 @@ interface CalendarWidgetProps {
   loading?: boolean;
 }
 
-export default function CalendarWidget({ 
-  events = [], 
+export default function CalendarWidget({
+  events = [],
   onEventClick,
   onAddEvent,
   onEventComplete,
-  loading = false 
+  loading = false,
 }: CalendarWidgetProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -51,8 +51,18 @@ export default function CalendarWidget({
   const currentYear = currentDate.getFullYear();
 
   const monthNames = [
-    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    'Janvier',
+    'Février',
+    'Mars',
+    'Avril',
+    'Mai',
+    'Juin',
+    'Juillet',
+    'Août',
+    'Septembre',
+    'Octobre',
+    'Novembre',
+    'Décembre',
   ];
 
   const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
@@ -61,14 +71,14 @@ export default function CalendarWidget({
     exercise: BookOpen,
     study: Calendar,
     achievement: Trophy,
-    reminder: Bell
+    reminder: Bell,
   };
 
   const typeColors = {
     exercise: 'bg-blue-100 text-blue-800 border-blue-200',
     study: 'bg-green-100 text-green-800 border-green-200',
     achievement: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    reminder: 'bg-purple-100 text-purple-800 border-purple-200'
+    reminder: 'bg-purple-100 text-purple-800 border-purple-200',
   };
 
   // Générer les jours du mois
@@ -86,7 +96,7 @@ export default function CalendarWidget({
       days.push({
         date: prevDate,
         isCurrentMonth: false,
-        events: getEventsForDate(prevDate)
+        events: getEventsForDate(prevDate),
       });
     }
 
@@ -96,7 +106,7 @@ export default function CalendarWidget({
       days.push({
         date,
         isCurrentMonth: true,
-        events: getEventsForDate(date)
+        events: getEventsForDate(date),
       });
     }
 
@@ -107,7 +117,7 @@ export default function CalendarWidget({
       days.push({
         date: nextDate,
         isCurrentMonth: false,
-        events: getEventsForDate(nextDate)
+        events: getEventsForDate(nextDate),
       });
     }
 
@@ -115,17 +125,11 @@ export default function CalendarWidget({
   };
 
   const getEventsForDate = (date: Date) => {
-    return events.filter(event => 
-      event.date.toDateString() === date.toDateString()
-    );
+    return events.filter(event => event.date.toDateString() === date.toDateString());
   };
 
   const navigateMonth = (direction: 'prev' | 'next') => {
-    setCurrentDate(new Date(
-      currentYear,
-      currentMonth + (direction === 'next' ? 1 : -1),
-      1
-    ));
+    setCurrentDate(new Date(currentYear, currentMonth + (direction === 'next' ? 1 : -1), 1));
   };
 
   const isToday = (date: Date) => {
@@ -157,10 +161,10 @@ export default function CalendarWidget({
   return (
     <div className="space-y-6">
       {/* En-tête avec statistiques */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <CheckCircle className="w-8 h-8 text-green-600" />
+            <CheckCircle className="h-8 w-8 text-green-600" />
             <div>
               <div className="text-2xl font-bold text-gray-900">{completedToday}</div>
               <div className="text-sm text-gray-600">Complétés aujourd'hui</div>
@@ -170,7 +174,7 @@ export default function CalendarWidget({
 
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <Clock className="w-8 h-8 text-orange-600" />
+            <Clock className="h-8 w-8 text-orange-600" />
             <div>
               <div className="text-2xl font-bold text-gray-900">{pendingToday}</div>
               <div className="text-sm text-gray-600">En attente aujourd'hui</div>
@@ -180,7 +184,7 @@ export default function CalendarWidget({
 
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <Trophy className="w-8 h-8 text-yellow-600" />
+            <Trophy className="h-8 w-8 text-yellow-600" />
             <div>
               <div className="text-2xl font-bold text-gray-900">
                 {events.filter(e => e.completed).reduce((sum, e) => sum + e.points, 0)}
@@ -194,45 +198,29 @@ export default function CalendarWidget({
       {/* Calendrier principal */}
       <Card className="p-6">
         {/* Navigation */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button
-              onClick={() => navigateMonth('prev')}
-              variant="secondary"
-              size="sm"
-            >
-              <ChevronLeft className="w-4 h-4" />
+            <Button onClick={() => navigateMonth('prev')} variant="secondary" size="sm">
+              <ChevronLeft className="h-4 w-4" />
             </Button>
-            
+
             <h2 className="text-xl font-semibold text-gray-900">
               {monthNames[currentMonth]} {currentYear}
             </h2>
-            
-            <Button
-              onClick={() => navigateMonth('next')}
-              variant="secondary"
-              size="sm"
-            >
-              <ChevronRight className="w-4 h-4" />
+
+            <Button onClick={() => navigateMonth('next')} variant="secondary" size="sm">
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
 
           <div className="flex items-center gap-2">
-            <Button
-              onClick={() => setCurrentDate(new Date())}
-              variant="secondary"
-              size="sm"
-            >
+            <Button onClick={() => setCurrentDate(new Date())} variant="secondary" size="sm">
               Aujourd'hui
             </Button>
-            
+
             {selectedDate && onAddEvent && (
-              <Button
-                onClick={handleAddEvent}
-                size="sm"
-                className="flex items-center gap-1"
-              >
-                <Plus className="w-4 h-4" />
+              <Button onClick={handleAddEvent} size="sm" className="flex items-center gap-1">
+                <Plus className="h-4 w-4" />
                 Ajouter
               </Button>
             )}
@@ -253,14 +241,11 @@ export default function CalendarWidget({
             <div
               key={index}
               onClick={() => handleDateClick(day.date)}
-              className={`
-                relative p-2 min-h-24 cursor-pointer border border-gray-100 hover:bg-gray-50
-                ${day.isCurrentMonth ? 'bg-white' : 'bg-gray-50 text-gray-400'}
-                ${isToday(day.date) ? 'bg-blue-50 border-blue-200' : ''}
-                ${isSelected(day.date) ? 'ring-2 ring-blue-500' : ''}
-              `}
+              className={`relative min-h-24 cursor-pointer border border-gray-100 p-2 hover:bg-gray-50 ${day.isCurrentMonth ? 'bg-white' : 'bg-gray-50 text-gray-400'} ${isToday(day.date) ? 'border-blue-200 bg-blue-50' : ''} ${isSelected(day.date) ? 'ring-2 ring-blue-500' : ''} `}
             >
-              <div className={`text-sm font-medium mb-1 ${isToday(day.date) ? 'text-blue-600' : ''}`}>
+              <div
+                className={`mb-1 text-sm font-medium ${isToday(day.date) ? 'text-blue-600' : ''}`}
+              >
                 {day.date.getDate()}
               </div>
 
@@ -271,26 +256,22 @@ export default function CalendarWidget({
                   return (
                     <div
                       key={event.id}
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         onEventClick?.(event);
                       }}
-                      className={`
-                        flex items-center gap-1 px-1 py-0.5 rounded text-xs border cursor-pointer
-                        ${typeColors[event.type]}
-                        ${event.completed ? 'opacity-60 line-through' : ''}
-                      `}
+                      className={`flex cursor-pointer items-center gap-1 rounded border px-1 py-0.5 text-xs ${typeColors[event.type]} ${event.completed ? 'line-through opacity-60' : ''} `}
                       title={event.title}
                     >
-                      <Icon className="w-3 h-3 flex-shrink-0" />
+                      <Icon className="h-3 w-3 flex-shrink-0" />
                       <span className="truncate">{event.title}</span>
-                      {event.completed && <CheckCircle className="w-3 h-3 flex-shrink-0" />}
+                      {event.completed && <CheckCircle className="h-3 w-3 flex-shrink-0" />}
                     </div>
                   );
                 })}
-                
+
                 {day.events.length > 2 && (
-                  <div className="text-xs text-gray-500 text-center">
+                  <div className="text-center text-xs text-gray-500">
                     +{day.events.length - 2} autres
                   </div>
                 )}
@@ -303,31 +284,25 @@ export default function CalendarWidget({
       {/* Détails de la date sélectionnée */}
       {selectedDate && (
         <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">
               {selectedDate.toLocaleDateString('fr-FR', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
-                day: 'numeric'
+                day: 'numeric',
               })}
             </h3>
-            <div className="text-sm text-gray-600">
-              {selectedDateEvents.length} événement(s)
-            </div>
+            <div className="text-sm text-gray-600">{selectedDateEvents.length} événement(s)</div>
           </div>
 
           {selectedDateEvents.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+            <div className="py-8 text-center text-gray-500">
+              <Calendar className="mx-auto mb-3 h-12 w-12 text-gray-300" />
               <p>Aucun événement prévu pour cette date</p>
               {onAddEvent && (
-                <Button
-                  onClick={handleAddEvent}
-                  className="mt-3"
-                  size="sm"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
+                <Button onClick={handleAddEvent} className="mt-3" size="sm">
+                  <Plus className="mr-1 h-4 w-4" />
                   Ajouter un événement
                 </Button>
               )}
@@ -339,33 +314,27 @@ export default function CalendarWidget({
                 return (
                   <div
                     key={event.id}
-                    className={`
-                      flex items-start gap-3 p-3 rounded-lg border cursor-pointer hover:shadow-sm
-                      ${typeColors[event.type]}
-                      ${event.completed ? 'opacity-60' : ''}
-                    `}
+                    className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 hover:shadow-sm ${typeColors[event.type]} ${event.completed ? 'opacity-60' : ''} `}
                     onClick={() => onEventClick?.(event)}
                   >
-                    <Icon className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                    <div className="flex-1 min-w-0">
+                    <Icon className="mt-0.5 h-5 w-5 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
                       <div className={`font-medium ${event.completed ? 'line-through' : ''}`}>
                         {event.title}
                       </div>
                       {event.description && (
-                        <div className="text-sm mt-1 text-gray-600">
-                          {event.description}
-                        </div>
+                        <div className="mt-1 text-sm text-gray-600">{event.description}</div>
                       )}
-                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                      <div className="mt-2 flex items-center gap-4 text-xs text-gray-500">
                         {event.time && (
                           <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
+                            <Clock className="h-3 w-3" />
                             {event.time}
                           </div>
                         )}
                         {event.points > 0 && (
                           <div className="flex items-center gap-1">
-                            <Trophy className="w-3 h-3" />
+                            <Trophy className="h-3 w-3" />
                             {event.points} points
                           </div>
                         )}
@@ -373,11 +342,11 @@ export default function CalendarWidget({
                     </div>
                     <div className="flex items-center gap-2">
                       {event.completed ? (
-                        <CheckCircle className="w-5 h-5 text-green-600" />
+                        <CheckCircle className="h-5 w-5 text-green-600" />
                       ) : (
                         onEventComplete && (
                           <Button
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               onEventComplete(event.id);
                             }}

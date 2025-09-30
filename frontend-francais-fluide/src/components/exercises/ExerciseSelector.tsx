@@ -15,7 +15,7 @@ interface ExerciseSelectorProps {
 export default function ExerciseSelector({
   userProfile,
   onSelectExercise,
-  onGenerateAdaptive
+  onGenerateAdaptive,
 }: ExerciseSelectorProps) {
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | 'all'>('all');
   const [selectedType, setSelectedType] = useState<ExerciseType | 'all'>('all');
@@ -49,7 +49,7 @@ export default function ExerciseSelector({
   const difficultyColors = {
     beginner: 'bg-green-100 text-green-800',
     intermediate: 'bg-yellow-100 text-yellow-800',
-    advanced: 'bg-red-100 text-red-800'
+    advanced: 'bg-red-100 text-red-800',
   };
 
   const typeIcons = {
@@ -57,46 +57,41 @@ export default function ExerciseSelector({
     vocabulary: '📚',
     writing: '✍️',
     comprehension: '📖',
-    listening: '🎧'
+    listening: '🎧',
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="mx-auto max-w-6xl p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
-          Choisissez un Exercice
-        </h1>
+        <h1 className="mb-4 text-3xl font-bold text-gray-900">Choisissez un Exercice</h1>
         <p className="text-gray-600">
-          Sélectionnez un exercice adapté à votre niveau ou laissez-nous vous en proposer un adaptatif.
+          Sélectionnez un exercice adapté à votre niveau ou laissez-nous vous en proposer un
+          adaptatif.
         </p>
       </div>
 
       {/* Filtres */}
-      <Card className="p-6 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <Card className="mb-8 p-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           {/* Recherche */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Recherche
-            </label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">Recherche</label>
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
               placeholder="Rechercher un exercice..."
-              className="w-full p-2 border border-gray-300 rounded-lg"
+              className="w-full rounded-lg border border-gray-300 p-2"
             />
           </div>
 
           {/* Difficulté */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Difficulté
-            </label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">Difficulté</label>
             <select
               value={selectedDifficulty}
-              onChange={(e) => setSelectedDifficulty(e.target.value as Difficulty | 'all')}
-              className="w-full p-2 border border-gray-300 rounded-lg"
+              onChange={e => setSelectedDifficulty(e.target.value as Difficulty | 'all')}
+              className="w-full rounded-lg border border-gray-300 p-2"
             >
               <option value="all">Tous les niveaux</option>
               <option value="beginner">Débutant</option>
@@ -107,13 +102,11 @@ export default function ExerciseSelector({
 
           {/* Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Type
-            </label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">Type</label>
             <select
               value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value as ExerciseType | 'all')}
-              className="w-full p-2 border border-gray-300 rounded-lg"
+              onChange={e => setSelectedType(e.target.value as ExerciseType | 'all')}
+              className="w-full rounded-lg border border-gray-300 p-2"
             >
               <option value="all">Tous les types</option>
               <option value="grammar">Grammaire</option>
@@ -126,13 +119,11 @@ export default function ExerciseSelector({
 
           {/* Catégorie */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Catégorie
-            </label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">Catégorie</label>
             <select
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg"
+              onChange={e => setSelectedCategory(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 p-2"
             >
               <option value="all">Toutes les catégories</option>
               <option value={TEXT_CATEGORIES.LITERATURE}>Littérature</option>
@@ -146,10 +137,10 @@ export default function ExerciseSelector({
       </Card>
 
       {/* Actions rapides */}
-      <div className="flex gap-4 mb-8">
+      <div className="mb-8 flex gap-4">
         <Button
           onClick={onGenerateAdaptive}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold"
+          className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
         >
           🎯 Exercice Adaptatif
         </Button>
@@ -161,15 +152,15 @@ export default function ExerciseSelector({
             setSearchQuery('');
           }}
           variant="outline"
-          className="px-6 py-3 rounded-lg"
+          className="rounded-lg px-6 py-3"
         >
           🔄 Réinitialiser
         </Button>
       </div>
 
       {/* Liste des exercices */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredExercises.map((exercise) => (
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {filteredExercises.map(exercise => (
           <motion.div
             key={exercise.id}
             initial={{ opacity: 0, y: 20 }}
@@ -177,19 +168,17 @@ export default function ExerciseSelector({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <Card className="p-6 h-full flex flex-col cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => onSelectExercise(exercise)}>
+            <Card
+              className="flex h-full cursor-pointer flex-col p-6 transition-shadow hover:shadow-lg"
+              onClick={() => onSelectExercise(exercise)}
+            >
               {/* En-tête */}
-              <div className="flex items-start justify-between mb-4">
+              <div className="mb-4 flex items-start justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-2xl">{typeIcons[exercise.type]}</span>
                   <div>
-                    <h3 className="font-semibold text-lg text-gray-900">
-                      {exercise.title}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {exercise.description}
-                    </p>
+                    <h3 className="text-lg font-semibold text-gray-900">{exercise.title}</h3>
+                    <p className="text-sm text-gray-600">{exercise.description}</p>
                   </div>
                 </div>
                 <Badge className={difficultyColors[exercise.difficulty]}>
@@ -198,18 +187,16 @@ export default function ExerciseSelector({
               </div>
 
               {/* Contenu */}
-              <div className="flex-1 mb-4">
-                <p className="text-gray-700 text-sm mb-3">
-                  {exercise.content.instructions}
-                </p>
-                
+              <div className="mb-4 flex-1">
+                <p className="mb-3 text-sm text-gray-700">{exercise.content.instructions}</p>
+
                 {/* Tags */}
                 {exercise.tags && exercise.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {exercise.tags.slice(0, 3).map((tag) => (
+                  <div className="mb-3 flex flex-wrap gap-1">
+                    {exercise.tags.slice(0, 3).map(tag => (
                       <span
                         key={tag}
-                        className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded"
+                        className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-600"
                       >
                         {tag}
                       </span>
@@ -228,18 +215,18 @@ export default function ExerciseSelector({
               {/* Actions */}
               <div className="flex gap-2">
                 <Button
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     onSelectExercise(exercise);
                   }}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
                 >
                   Commencer
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     // Afficher les détails
                   }}
@@ -254,14 +241,10 @@ export default function ExerciseSelector({
 
       {/* Message si aucun exercice */}
       {filteredExercises.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">🔍</div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            Aucun exercice trouvé
-          </h3>
-          <p className="text-gray-600 mb-4">
-            Essayez de modifier vos critères de recherche.
-          </p>
+        <div className="py-12 text-center">
+          <div className="mb-4 text-6xl">🔍</div>
+          <h3 className="mb-2 text-xl font-semibold text-gray-900">Aucun exercice trouvé</h3>
+          <p className="mb-4 text-gray-600">Essayez de modifier vos critères de recherche.</p>
           <Button
             onClick={() => {
               setSelectedDifficulty('all');

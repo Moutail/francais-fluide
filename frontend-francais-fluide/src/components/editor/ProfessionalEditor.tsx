@@ -1,17 +1,8 @@
 // src/components/editor/ProfessionalEditor.tsx
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/professional/Card';
 import { Button } from '@/components/ui/professional/Button';
-import { 
-  CheckCircle, 
-  AlertCircle, 
-  Info, 
-  Zap, 
-  FileText, 
-  Save,
-  Download,
-  Upload
-} from 'lucide-react';
+import { CheckCircle, AlertCircle, Info, Save, Download } from 'lucide-react';
 
 interface ProfessionalEditorProps {
   initialValue?: string;
@@ -26,7 +17,7 @@ export const ProfessionalEditor: React.FC<ProfessionalEditorProps> = ({
   placeholder = 'Commencez à écrire votre texte...',
   onContentChange,
   onSave,
-  className
+  className,
 }) => {
   const [content, setContent] = useState(initialValue);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -37,7 +28,7 @@ export const ProfessionalEditor: React.FC<ProfessionalEditorProps> = ({
   const handleContentChange = (value: string) => {
     setContent(value);
     onContentChange?.(value);
-    
+
     // Simuler l'analyse en temps réel
     if (value.length > 0) {
       setIsAnalyzing(true);
@@ -46,10 +37,15 @@ export const ProfessionalEditor: React.FC<ProfessionalEditorProps> = ({
         // Simuler des erreurs et suggestions
         setErrors([
           { id: 1, message: 'Accord du participe passé', position: 15, type: 'grammar' },
-          { id: 2, message: 'Ponctuation manquante', position: 45, type: 'punctuation' }
+          { id: 2, message: 'Ponctuation manquante', position: 45, type: 'punctuation' },
         ]);
         setSuggestions([
-          { id: 1, message: 'Considérez utiliser "qui" au lieu de "que"', position: 25, type: 'style' }
+          {
+            id: 1,
+            message: 'Considérez utiliser "qui" au lieu de "que"',
+            position: 25,
+            type: 'style',
+          },
         ]);
       }, 1000);
     } else {
@@ -78,21 +74,17 @@ export const ProfessionalEditor: React.FC<ProfessionalEditorProps> = ({
                 size="sm"
                 className="flex items-center gap-2"
               >
-                <Save className="w-4 h-4" />
+                <Save className="size-4" />
                 Sauvegarder
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" />
+              <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                <Download className="size-4" />
                 Exporter
               </Button>
             </div>
           </div>
         </CardHeader>
-        
+
         <CardContent>
           <div className="space-y-4">
             {/* Zone d'édition */}
@@ -100,22 +92,22 @@ export const ProfessionalEditor: React.FC<ProfessionalEditorProps> = ({
               <textarea
                 ref={textareaRef}
                 value={content}
-                onChange={(e) => handleContentChange(e.target.value)}
+                onChange={e => handleContentChange(e.target.value)}
                 placeholder={placeholder}
-                className="w-full h-64 p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none font-sans text-gray-900 leading-relaxed"
+                className="h-64 w-full resize-none rounded-md border border-gray-300 p-4 font-sans leading-relaxed text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              
+
               {/* Indicateur d'analyse */}
               {isAnalyzing && (
-                <div className="absolute top-2 right-2 flex items-center gap-2 text-sm text-gray-500">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                <div className="absolute right-2 top-2 flex items-center gap-2 text-sm text-gray-500">
+                  <div className="size-4 animate-spin rounded-full border-b-2 border-blue-600"></div>
                   Analyse en cours...
                 </div>
               )}
             </div>
 
             {/* Statistiques */}
-            <div className="flex items-center justify-between text-sm text-gray-600 border-t pt-4">
+            <div className="flex items-center justify-between border-t pt-4 text-sm text-gray-600">
               <div className="flex items-center gap-4">
                 <span>{wordCount} mots</span>
                 <span>{characterCount} caractères</span>
@@ -123,19 +115,23 @@ export const ProfessionalEditor: React.FC<ProfessionalEditorProps> = ({
               <div className="flex items-center gap-2">
                 {errors.length > 0 && (
                   <div className="flex items-center gap-1 text-red-600">
-                    <AlertCircle className="w-4 h-4" />
-                    <span>{errors.length} erreur{errors.length > 1 ? 's' : ''}</span>
+                    <AlertCircle className="size-4" />
+                    <span>
+                      {errors.length} erreur{errors.length > 1 ? 's' : ''}
+                    </span>
                   </div>
                 )}
                 {suggestions.length > 0 && (
                   <div className="flex items-center gap-1 text-blue-600">
-                    <Info className="w-4 h-4" />
-                    <span>{suggestions.length} suggestion{suggestions.length > 1 ? 's' : ''}</span>
+                    <Info className="size-4" />
+                    <span>
+                      {suggestions.length} suggestion{suggestions.length > 1 ? 's' : ''}
+                    </span>
                   </div>
                 )}
                 {errors.length === 0 && suggestions.length === 0 && content.length > 0 && (
                   <div className="flex items-center gap-1 text-green-600">
-                    <CheckCircle className="w-4 h-4" />
+                    <CheckCircle className="size-4" />
                     <span>Aucune erreur détectée</span>
                   </div>
                 )}
@@ -145,19 +141,25 @@ export const ProfessionalEditor: React.FC<ProfessionalEditorProps> = ({
             {/* Suggestions et erreurs */}
             {(errors.length > 0 || suggestions.length > 0) && (
               <div className="space-y-2">
-                {errors.map((error) => (
-                  <div key={error.id} className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-md">
-                    <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+                {errors.map(error => (
+                  <div
+                    key={error.id}
+                    className="flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3"
+                  >
+                    <AlertCircle className="mt-0.5 size-4 shrink-0 text-red-600" />
                     <div>
                       <p className="text-sm font-medium text-red-800">{error.message}</p>
                       <p className="text-xs text-red-600">Position {error.position}</p>
                     </div>
                   </div>
                 ))}
-                
-                {suggestions.map((suggestion) => (
-                  <div key={suggestion.id} className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                    <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+
+                {suggestions.map(suggestion => (
+                  <div
+                    key={suggestion.id}
+                    className="flex items-start gap-2 rounded-md border border-blue-200 bg-blue-50 p-3"
+                  >
+                    <Info className="mt-0.5 size-4 shrink-0 text-blue-600" />
                     <div>
                       <p className="text-sm font-medium text-blue-800">{suggestion.message}</p>
                       <p className="text-xs text-blue-600">Position {suggestion.position}</p>

@@ -12,10 +12,7 @@ export async function POST(request: NextRequest) {
 
     // Validation des données
     if (!planId || !amount) {
-      return NextResponse.json(
-        { error: 'Plan ID et montant requis' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Plan ID et montant requis' }, { status: 400 });
     }
 
     // Créer un PaymentIntent avec Stripe
@@ -37,9 +34,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Erreur Stripe:', error);
-    return NextResponse.json(
-      { error: 'Erreur lors de la création du paiement' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Erreur lors de la création du paiement' }, { status: 500 });
   }
 }

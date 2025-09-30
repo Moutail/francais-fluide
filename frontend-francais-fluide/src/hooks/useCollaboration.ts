@@ -1,5 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { collaborationManager, type CollaborationRoom, type CollaborationUser, type CollaborationMessage, type CursorPosition, type TextSelection } from '@/lib/websocket/collaboration';
+import {
+  collaborationManager,
+  type CollaborationRoom,
+  type CollaborationUser,
+  type CollaborationMessage,
+  type CursorPosition,
+  type TextSelection,
+} from '@/lib/websocket/collaboration';
 import type { UserProfile } from '@/types';
 
 interface UseCollaborationOptions {
@@ -14,15 +21,15 @@ interface UseCollaborationReturn {
   isConnected: boolean;
   isConnecting: boolean;
   connectionError: string | null;
-  
+
   // Room et utilisateurs
   currentRoom: CollaborationRoom | null;
   users: CollaborationUser[];
   currentUser: CollaborationUser | null;
-  
+
   // Messages de chat
   messages: CollaborationMessage[];
-  
+
   // Actions
   connect: () => void;
   disconnect: () => void;
@@ -34,10 +41,10 @@ interface UseCollaborationReturn {
   sendTypingStarted: () => void;
   sendTypingStopped: () => void;
   toggleRoomLock: () => void;
-  
+
   // État de frappe
   typingUsers: string[];
-  
+
   // Document
   documentContent: string;
   updateDocumentContent: (content: string) => void;
@@ -47,27 +54,27 @@ export function useCollaboration({
   userProfile,
   roomId,
   documentId,
-  autoConnect = true
+  autoConnect = true,
 }: UseCollaborationOptions): UseCollaborationReturn {
   // État de connexion
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
-  
+
   // Room et utilisateurs
   const [currentRoom, setCurrentRoom] = useState<CollaborationRoom | null>(null);
   const [users, setUsers] = useState<CollaborationUser[]>([]);
   const [currentUser, setCurrentUser] = useState<CollaborationUser | null>(null);
-  
+
   // Messages de chat
   const [messages, setMessages] = useState<CollaborationMessage[]>([]);
-  
+
   // État de frappe
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
-  
+
   // Document
   const [documentContent, setDocumentContent] = useState('');
-  
+
   // Refs pour éviter les re-renders inutiles
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastCursorPositionRef = useRef<CursorPosition | null>(null);
@@ -75,10 +82,10 @@ export function useCollaboration({
   // Connexion
   const connect = useCallback(() => {
     if (isConnecting || isConnected) return;
-    
+
     setIsConnecting(true);
     setConnectionError(null);
-    
+
     try {
       collaborationManager.connect(userProfile);
     } catch (error) {
@@ -101,14 +108,17 @@ export function useCollaboration({
   }, []);
 
   // Rejoindre une room
-  const joinRoom = useCallback((newRoomId: string, newDocumentId: string) => {
-    if (!isConnected) {
-      console.warn('Pas connecté au serveur WebSocket');
-      return;
-    }
-    
-    collaborationManager.joinRoom(newRoomId, newDocumentId);
-  }, [isConnected]);
+  const joinRoom = useCallback(
+    (newRoomId: string, newDocumentId: string) => {
+      if (!isConnected) {
+        console.warn('Pas connecté au serveur WebSocket');
+        return;
+      }
+
+      collaborationManager.joinRoom(newRoomId, newDocumentId);
+    },
+    [isConnected]
+  );
 
   // Quitter la room
   const leaveRoom = useCallback(() => {
@@ -118,19 +128,21 @@ export function useCollaboration({
   // Envoyer un message
   const sendMessage = useCallback((content: string) => {
     if (!content.trim()) return;
-    
+
     collaborationManager.sendMessage(content);
   }, []);
 
   // Envoyer la position du curseur
   const sendCursorPosition = useCallback((cursor: CursorPosition) => {
     // Éviter d'envoyer trop souvent la même position
-    if (lastCursorPositionRef.current &&
-        lastCursorPositionRef.current.line === cursor.line &&
-        lastCursorPositionRef.current.column === cursor.column) {
+    if (
+      lastCursorPositionRef.current &&
+      lastCursorPositionRef.current.line === cursor.line &&
+      lastCursorPositionRef.current.column === cursor.column
+    ) {
       return;
     }
-    
+
     lastCursorPositionRef.current = cursor;
     collaborationManager.sendCursorPosition(cursor);
   }, []);
@@ -143,12 +155,12 @@ export function useCollaboration({
   // Indiquer que l'utilisateur tape
   const sendTypingStarted = useCallback(() => {
     collaborationManager.sendTypingStarted();
-    
+
     // Arrêter l'indication de frappe après 2 secondes d'inactivité
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
-    
+
     typingTimeoutRef.current = setTimeout(() => {
       collaborationManager.sendTypingStopped();
     }, 2000);
@@ -160,7 +172,7 @@ export function useCollaboration({
       clearTimeout(typingTimeoutRef.current);
       typingTimeoutRef.current = null;
     }
-    
+
     collaborationManager.sendTypingStopped();
   }, []);
 
@@ -202,7 +214,7 @@ export function useCollaboration({
       setUsers(prev => {
         const exists = prev.find(u => u.id === user.id);
         if (exists) {
-          return prev.map(u => u.id === user.id ? user : u);
+          return prev.map(u => (u.id === user.id ? user : u));
         }
         return [...prev, user];
       });
@@ -214,19 +226,21 @@ export function useCollaboration({
     };
 
     const handleCursorMoved = (data: { userId: string; cursor: CursorPosition }) => {
-      setUsers(prev => prev.map(user => 
-        user.id === data.userId 
-          ? { ...user, cursor: data.cursor, lastSeen: new Date() }
-          : user
-      ));
+      setUsers(prev =>
+        prev.map(user =>
+          user.id === data.userId ? { ...user, cursor: data.cursor, lastSeen: new Date() } : user
+        )
+      );
     };
 
     const handleTextSelected = (data: { userId: string; selection: TextSelection }) => {
-      setUsers(prev => prev.map(user => 
-        user.id === data.userId 
-          ? { ...user, selection: data.selection, lastSeen: new Date() }
-          : user
-      ));
+      setUsers(prev =>
+        prev.map(user =>
+          user.id === data.userId
+            ? { ...user, selection: data.selection, lastSeen: new Date() }
+            : user
+        )
+      );
     };
 
     const handleTypingStarted = (userId: string) => {
@@ -253,11 +267,15 @@ export function useCollaboration({
     };
 
     const handleRoomLocked = (data: { isLocked: boolean; lockOwner?: string }) => {
-      setCurrentRoom(prev => prev ? {
-        ...prev,
-        isLocked: data.isLocked,
-        lockOwner: data.lockOwner
-      } : null);
+      setCurrentRoom(prev =>
+        prev
+          ? {
+              ...prev,
+              isLocked: data.isLocked,
+              lockOwner: data.lockOwner,
+            }
+          : null
+      );
     };
 
     const handleReconnectionFailed = () => {
@@ -328,15 +346,15 @@ export function useCollaboration({
     isConnected,
     isConnecting,
     connectionError,
-    
+
     // Room et utilisateurs
     currentRoom,
     users,
     currentUser,
-    
+
     // Messages de chat
     messages,
-    
+
     // Actions
     connect,
     disconnect,
@@ -348,12 +366,12 @@ export function useCollaboration({
     sendTypingStarted,
     sendTypingStopped,
     toggleRoomLock,
-    
+
     // État de frappe
     typingUsers,
-    
+
     // Document
     documentContent,
-    updateDocumentContent
+    updateDocumentContent,
   };
 }

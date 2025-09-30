@@ -31,7 +31,7 @@ class AIRecommendationService {
 
       // Récupérer les analytics de télémétrie
       const response = await fetch('/api/telemetry', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!response.ok) return this.getDefaultProfile(userId);
@@ -48,15 +48,16 @@ class AIRecommendationService {
       });
 
       // Calculer le temps de réponse moyen
-      const avgResponseTime = Object.values(averageResponseTimes).reduce((acc: number, stats: any) => {
-        return acc + (stats.average || 0);
-      }, 0) / Object.keys(averageResponseTimes).length;
+      const avgResponseTime =
+        Object.values(averageResponseTimes).reduce((acc: number, stats: any) => {
+          return acc + (stats.average || 0);
+        }, 0) / Object.keys(averageResponseTimes).length;
 
       // Calculer le taux de précision (basé sur les patterns)
       const totalErrors = Object.values(errorPatterns).reduce((acc: number, pattern: any) => {
         return acc + pattern.count;
       }, 0);
-      const accuracyRate = Math.max(0, 1 - (totalErrors / 100)); // Estimation
+      const accuracyRate = Math.max(0, 1 - totalErrors / 100); // Estimation
 
       return {
         userId,
@@ -65,7 +66,7 @@ class AIRecommendationService {
         accuracyRate: Math.min(1, accuracyRate),
         preferredExerciseTypes: this.extractPreferredTypes(errorPatterns),
         learningStreak: 0, // À récupérer depuis l'API progress
-        totalExercisesCompleted: analytics.data.totalEvents || 0
+        totalExercisesCompleted: analytics.data.totalEvents || 0,
       };
     } catch (error) {
       console.error('Erreur analyse profil utilisateur:', error);
@@ -105,24 +106,28 @@ class AIRecommendationService {
     const recommendations: AIRecommendation[] = [];
 
     // Analyser les types d'erreurs les plus fréquents
-    const errorCounts = profile.errorPatterns.reduce((acc, error) => {
-      acc[error] = (acc[error] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const errorCounts = profile.errorPatterns.reduce(
+      (acc, error) => {
+        acc[error] = (acc[error] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     const mostCommonErrors = Object.entries(errorCounts)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 3);
 
     mostCommonErrors.forEach(([errorType, count]) => {
-      if (count > 2) { // Seuil d'erreurs fréquentes
+      if (count > 2) {
+        // Seuil d'erreurs fréquentes
         recommendations.push({
           type: 'focus_area',
           title: `Focus sur ${this.getErrorTypeLabel(errorType)}`,
           description: `Vous avez ${count} erreurs de ce type. Concentrez-vous sur cette compétence.`,
           priority: count > 5 ? 'high' : 'medium',
           data: { errorType, count },
-          reasoning: `Pattern d'erreur détecté: ${errorType} (${count} occurrences)`
+          reasoning: `Pattern d'erreur détecté: ${errorType} (${count} occurrences)`,
         });
       }
     });
@@ -135,14 +140,15 @@ class AIRecommendationService {
     const recommendations: AIRecommendation[] = [];
 
     // Si temps de réponse trop long
-    if (profile.averageResponseTime > 60000) { // Plus d'1 minute
+    if (profile.averageResponseTime > 60000) {
+      // Plus d'1 minute
       recommendations.push({
         type: 'difficulty_adjustment',
         title: 'Réduire la difficulté',
         description: 'Vos temps de réponse sont élevés. Essayez des exercices plus faciles.',
         priority: 'high',
         data: { currentTime: profile.averageResponseTime, suggestedTime: 30000 },
-        reasoning: `Temps de réponse moyen: ${Math.round(profile.averageResponseTime/1000)}s (recommandé: <30s)`
+        reasoning: `Temps de réponse moyen: ${Math.round(profile.averageResponseTime / 1000)}s (recommandé: <30s)`,
       });
     }
 
@@ -154,7 +160,7 @@ class AIRecommendationService {
         description: 'Votre taux de réussite est faible. Concentrez-vous sur les bases.',
         priority: 'high',
         data: { currentAccuracy: profile.accuracyRate, targetAccuracy: 0.8 },
-        reasoning: `Taux de précision: ${Math.round(profile.accuracyRate * 100)}% (objectif: >80%)`
+        reasoning: `Taux de précision: ${Math.round(profile.accuracyRate * 100)}% (objectif: >80%)`,
       });
     }
 
@@ -170,10 +176,10 @@ class AIRecommendationService {
       recommendations.push({
         type: 'study_plan',
         title: 'Augmenter la pratique',
-        description: 'Complétez plus d\'exercices pour améliorer vos compétences.',
+        description: "Complétez plus d'exercices pour améliorer vos compétences.",
         priority: 'medium',
         data: { current: profile.totalExercisesCompleted, target: 20 },
-        reasoning: `Seulement ${profile.totalExercisesCompleted} exercices complétés`
+        reasoning: `Seulement ${profile.totalExercisesCompleted} exercices complétés`,
       });
     }
 
@@ -185,7 +191,7 @@ class AIRecommendationService {
         description: 'Pratiquez quotidiennement pour maintenir votre progression.',
         priority: 'medium',
         data: { currentStreak: profile.learningStreak, targetStreak: 7 },
-        reasoning: `Série actuelle: ${profile.learningStreak} jours (objectif: 7 jours)`
+        reasoning: `Série actuelle: ${profile.learningStreak} jours (objectif: 7 jours)`,
       });
     }
 
@@ -200,15 +206,15 @@ class AIRecommendationService {
     if (profile.errorPatterns.length > 0) {
       recommendations.push({
         type: 'study_plan',
-        title: 'Plan d\'étude personnalisé',
+        title: "Plan d'étude personnalisé",
         description: 'Un plan adapté à vos difficultés spécifiques a été créé.',
         priority: 'high',
         data: {
           focusAreas: profile.errorPatterns.slice(0, 3),
           estimatedDuration: '2-3 semaines',
-          exercisesPerDay: 3
+          exercisesPerDay: 3,
         },
-        reasoning: `Basé sur ${profile.errorPatterns.length} types d'erreurs identifiés`
+        reasoning: `Basé sur ${profile.errorPatterns.length} types d'erreurs identifiés`,
       });
     }
 
@@ -224,7 +230,7 @@ class AIRecommendationService {
       accuracyRate: 0.8,
       preferredExerciseTypes: ['grammar', 'vocabulary'],
       learningStreak: 0,
-      totalExercisesCompleted: 0
+      totalExercisesCompleted: 0,
     };
   }
 
@@ -240,10 +246,10 @@ class AIRecommendationService {
 
   private getErrorTypeLabel(errorType: string): string {
     const labels: Record<string, string> = {
-      'answer_selected': 'Sélection de réponses',
-      'answer_changed': 'Changements de réponse',
-      'question_skipped': 'Questions ignorées',
-      'question_completed': 'Questions complétées'
+      answer_selected: 'Sélection de réponses',
+      answer_changed: 'Changements de réponse',
+      question_skipped: 'Questions ignorées',
+      question_completed: 'Questions complétées',
     };
     return labels[errorType] || errorType;
   }
@@ -263,14 +269,14 @@ class AIRecommendationService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           count,
           focusAreas,
           difficulty: this.calculateOptimalDifficulty(recommendations),
-          userProfile: await this.analyzeUserProfile(userId)
-        })
+          userProfile: await this.analyzeUserProfile(userId),
+        }),
       });
 
       const data = await response.json();

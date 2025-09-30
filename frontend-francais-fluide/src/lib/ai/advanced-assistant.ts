@@ -32,7 +32,7 @@ export class AIAssistant {
 
   async askQuestion(question: string, userPlan: string = 'free'): Promise<AIAssistantMessage> {
     const { limiter } = getSubscriptionLimits(userPlan);
-    
+
     // Vérifier les limites d'abonnement
     if (!limiter.checkAICorrections().allowed) {
       return {
@@ -40,7 +40,7 @@ export class AIAssistant {
         role: 'assistant',
         content: `🚫 ${limiter.checkAICorrections().message}\n\n💡 Passez à un plan supérieur pour utiliser l'assistant IA illimité !`,
         timestamp: new Date(),
-        type: 'feedback'
+        type: 'feedback',
       };
     }
 
@@ -58,12 +58,12 @@ export class AIAssistant {
     }
 
     const systemPrompt = this.buildSystemPrompt();
-    
+
     try {
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -72,9 +72,9 @@ export class AIAssistant {
             { role: 'system', content: systemPrompt },
             ...this.conversationHistory.map(msg => ({
               role: msg.role,
-              content: msg.content
+              content: msg.content,
             })),
-            { role: 'user', content: question }
+            { role: 'user', content: question },
           ],
           max_tokens: 500,
           temperature: 0.7,
@@ -82,13 +82,13 @@ export class AIAssistant {
       });
 
       const data = await response.json();
-      
+
       const assistantMessage: AIAssistantMessage = {
         id: `ai-${Date.now()}`,
         role: 'assistant',
         content: data.choices[0].message.content,
         timestamp: new Date(),
-        type: 'explanation'
+        type: 'explanation',
       };
 
       this.conversationHistory.push(assistantMessage);
@@ -102,10 +102,14 @@ export class AIAssistant {
   private async getFallbackResponse(question: string): Promise<AIAssistantMessage> {
     // Réponses prédéfinies pour le mode dégradé
     const responses = {
-      'accord': 'Pour l\'accord du participe passé, souvenez-vous : avec "être", il s\'accorde avec le sujet. Avec "avoir", il s\'accorde avec le COD si celui-ci est placé avant le verbe.',
-      'conjugaison': 'La conjugaison française suit des règles précises. Pour vous aider, je peux vous expliquer les temps principaux : présent, passé composé, imparfait, futur simple.',
-      'orthographe': 'L\'orthographe française peut être complexe, mais voici quelques règles utiles : "é" ou "er" ? Si on peut remplacer par "fait", c\'est "é".',
-      'vocabulaire': 'Pour enrichir votre vocabulaire, je recommande de lire régulièrement et de noter les mots nouveaux dans un carnet.',
+      accord:
+        'Pour l\'accord du participe passé, souvenez-vous : avec "être", il s\'accorde avec le sujet. Avec "avoir", il s\'accorde avec le COD si celui-ci est placé avant le verbe.',
+      conjugaison:
+        'La conjugaison française suit des règles précises. Pour vous aider, je peux vous expliquer les temps principaux : présent, passé composé, imparfait, futur simple.',
+      orthographe:
+        'L\'orthographe française peut être complexe, mais voici quelques règles utiles : "é" ou "er" ? Si on peut remplacer par "fait", c\'est "é".',
+      vocabulaire:
+        'Pour enrichir votre vocabulaire, je recommande de lire régulièrement et de noter les mots nouveaux dans un carnet.',
     };
 
     const lowerQuestion = question.toLowerCase();
@@ -120,7 +124,8 @@ export class AIAssistant {
     } else if (lowerQuestion.includes('vocabulaire')) {
       response += responses.vocabulaire;
     } else {
-      response += 'Pour une réponse plus détaillée et personnalisée, passez à un plan supérieur qui inclut l\'assistant IA avancé !';
+      response +=
+        "Pour une réponse plus détaillée et personnalisée, passez à un plan supérieur qui inclut l'assistant IA avancé !";
     }
 
     return {
@@ -128,7 +133,7 @@ export class AIAssistant {
       role: 'assistant',
       content: response,
       timestamp: new Date(),
-      type: 'explanation'
+      type: 'explanation',
     };
   }
 
@@ -153,7 +158,10 @@ export class AIAssistant {
     - Objectifs: ${this.config.context.learningGoals.join(', ')}`;
   }
 
-  async generateExercise(type: 'grammar' | 'vocabulary' | 'conjugation', userPlan: string = 'free'): Promise<{
+  async generateExercise(
+    type: 'grammar' | 'vocabulary' | 'conjugation',
+    userPlan: string = 'free'
+  ): Promise<{
     question: string;
     options: string[];
     correctAnswer: number;
@@ -161,34 +169,38 @@ export class AIAssistant {
     difficulty: 'easy' | 'medium' | 'hard';
   }> {
     const { limiter } = getSubscriptionLimits(userPlan);
-    
+
     if (!limiter.checkFeature('customExercises') && userPlan === 'free') {
-      throw new Error('Génération d\'exercices personnalisés disponible uniquement avec un abonnement premium');
+      throw new Error(
+        "Génération d'exercices personnalisés disponible uniquement avec un abonnement premium"
+      );
     }
 
     // Exercices prédéfinis pour le mode dégradé
     const exercises = {
       grammar: {
-        question: 'Choisissez la bonne forme du participe passé : "Les enfants sont _____ chez leurs grands-parents."',
+        question:
+          'Choisissez la bonne forme du participe passé : "Les enfants sont _____ chez leurs grands-parents."',
         options: ['allés', 'allé', 'allée', 'allées'],
         correctAnswer: 0,
-        explanation: 'Avec l\'auxiliaire "être", le participe passé s\'accorde avec le sujet "les enfants" (masculin pluriel).',
-        difficulty: 'medium' as const
+        explanation:
+          'Avec l\'auxiliaire "être", le participe passé s\'accorde avec le sujet "les enfants" (masculin pluriel).',
+        difficulty: 'medium' as const,
       },
       vocabulary: {
         question: 'Quel est le synonyme de "rapidement" ?',
         options: ['lentement', 'vite', 'doucement', 'calmement'],
         correctAnswer: 1,
         explanation: '"Vite" est un synonyme de "rapidement", tous deux expriment la vitesse.',
-        difficulty: 'easy' as const
+        difficulty: 'easy' as const,
       },
       conjugation: {
         question: 'Conjuguez le verbe "aller" à la 3e personne du pluriel au présent :',
         options: ['ils vont', 'ils vonts', 'ils alle', 'ils allons'],
         correctAnswer: 0,
         explanation: 'Le verbe "aller" se conjugue "ils vont" au présent de l\'indicatif.',
-        difficulty: 'easy' as const
-      }
+        difficulty: 'easy' as const,
+      },
     };
 
     return exercises[type];

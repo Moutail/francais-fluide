@@ -12,7 +12,10 @@ class ApiClient {
 
   constructor(baseURL: string) {
     this.baseURL = baseURL;
-    this.token = typeof window !== 'undefined' ? (localStorage.getItem('token') || localStorage.getItem('auth_token')) : null;
+    this.token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('token') || localStorage.getItem('auth_token')
+        : null;
   }
 
   setToken(token: string) {
@@ -29,12 +32,9 @@ class ApiClient {
     }
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...(options.headers as Record<string, string> | undefined),
@@ -51,7 +51,7 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
-      
+
       // Gestion des erreurs d'authentification
       if (response.status === 401) {
         // Token expiré ou invalide
@@ -69,16 +69,18 @@ class ApiClient {
 
       if (response.status === 429) {
         logApiError(url, new Error('Trop de requêtes'), { status: 429 });
-        throw new Error('Trop de tentatives de connexion. Veuillez attendre quelques minutes avant de réessayer.');
+        throw new Error(
+          'Trop de tentatives de connexion. Veuillez attendre quelques minutes avant de réessayer.'
+        );
       }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         const errorMessage = errorData.error || errorData.message || `HTTP ${response.status}`;
-        logApiError(url, new Error(errorMessage), { 
-          status: response.status, 
+        logApiError(url, new Error(errorMessage), {
+          status: response.status,
           errorData,
-          config: { method: config.method, headers: config.headers }
+          config: { method: config.method, headers: config.headers },
         });
         throw new Error(errorMessage);
       }
@@ -86,9 +88,9 @@ class ApiClient {
       return await response.json();
     } catch (error) {
       // Logger l'erreur avec plus de détails
-      logApiError(url, error, { 
+      logApiError(url, error, {
         config: { method: config.method, headers: config.headers },
-        body: config.body
+        body: config.body,
       });
       throw error;
     }
@@ -230,11 +232,7 @@ class ApiClient {
   }
 
   // IA Chat
-  async sendChatMessage(data: {
-    message: string;
-    context?: string;
-    conversationId?: string;
-  }) {
+  async sendChatMessage(data: { message: string; context?: string; conversationId?: string }) {
     return this.request<{
       success: boolean;
       data: {
@@ -310,11 +308,13 @@ class ApiClient {
   }
 
   // Exercices
-  async getExercises(params: {
-    level?: number;
-    type?: string;
-    limit?: number;
-  } = {}) {
+  async getExercises(
+    params: {
+      level?: number;
+      type?: string;
+      limit?: number;
+    } = {}
+  ) {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined) {
@@ -335,10 +335,13 @@ class ApiClient {
     }>(`/api/exercises/${id}`);
   }
 
-  async submitExercise(id: string, data: {
-    answers: any[];
-    timeSpent?: number;
-  }) {
+  async submitExercise(
+    id: string,
+    data: {
+      answers: any[];
+      timeSpent?: number;
+    }
+  ) {
     return this.request<{
       success: boolean;
       data: {

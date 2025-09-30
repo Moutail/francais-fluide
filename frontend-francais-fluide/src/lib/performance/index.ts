@@ -13,37 +13,33 @@ import { performanceConfig } from './config';
 
 // Monitoring
 export { performanceMonitor, usePerformanceMonitor } from './monitoring';
-export type { 
-  PerformanceMetrics, 
-  ComponentPerformanceData, 
-  NetworkPerformanceData, 
-  UserExperienceMetrics, 
-  PerformanceReport 
+export type {
+  PerformanceMetrics,
+  ComponentPerformanceData,
+  NetworkPerformanceData,
+  UserExperienceMetrics,
+  PerformanceReport,
 } from './monitoring';
 
 // Optimisation
 export { performanceOptimizer, usePerformanceOptimizer } from './optimizer';
-export type { 
-  OptimizationRule, 
-  OptimizationResult, 
-  OptimizationStrategy, 
-  OptimizationReport 
+export type {
+  OptimizationRule,
+  OptimizationResult,
+  OptimizationStrategy,
+  OptimizationReport,
 } from './optimizer';
 
 // Chargement différé
 export { intelligentLazyLoader, useLazyLoader } from './lazy-loader';
-export type { 
-  LazyLoadConfig, 
-  LazyLoadEntry, 
-  LazyLoadMetrics 
-} from './lazy-loader';
+export type { LazyLoadConfig, LazyLoadEntry, LazyLoadMetrics } from './lazy-loader';
 
 // Configuration
-export { 
-  performanceConfig, 
-  getPerformanceConfig, 
+export {
+  performanceConfig,
+  getPerformanceConfig,
   validatePerformanceConfig,
-  createCustomConfig 
+  createCustomConfig,
 } from './config';
 export type { PerformanceConfig } from './config';
 
@@ -52,19 +48,19 @@ export function initializePerformanceOptimizations(): void {
   console.log(' Initialisation des optimisations de performance...');
 
   // Démarrer le monitoring si activé
-  if ( performanceConfig.monitoring.enabled) {
+  if (performanceConfig.monitoring.enabled) {
     performanceMonitor.startMonitoring();
     console.log(' Monitoring des performances activé');
   }
 
   // Démarrer l'optimiseur si activé
-  if ( performanceConfig.optimizer.enabled) {
+  if (performanceConfig.optimizer.enabled) {
     performanceOptimizer.startOptimization();
     console.log('Optimiseur automatique activé');
   }
 
   // Précharger les composants critiques
-  if ( performanceConfig.optimizer.enableIntelligentPreloading) {
+  if (performanceConfig.optimizer.enableIntelligentPreloading) {
     intelligentLazyLoader.intelligentPreload();
     console.log('Préchargement intelligent activé');
   }
@@ -86,7 +82,7 @@ export function cleanupPerformanceOptimizations(): void {
 export function usePerformanceInitialization(): void {
   React.useEffect(() => {
     initializePerformanceOptimizations();
-    
+
     return () => {
       cleanupPerformanceOptimizations();
     };

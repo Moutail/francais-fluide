@@ -39,19 +39,21 @@ class GlobalErrorHandler implements GlobalErrorAPI {
     }
 
     // Capturer les erreurs JavaScript non gérées
-    window.addEventListener('error', (event) => {
+    window.addEventListener('error', event => {
       this.captureError({
         message: event.message || 'Erreur JavaScript',
         stack: (event as ErrorEvent).error?.stack,
-        source: (event as ErrorEvent).filename ? `Fichier: ${(event as ErrorEvent).filename}:${(event as ErrorEvent).lineno}:${(event as ErrorEvent).colno}` : 'JavaScript',
+        source: (event as ErrorEvent).filename
+          ? `Fichier: ${(event as ErrorEvent).filename}:${(event as ErrorEvent).lineno}:${(event as ErrorEvent).colno}`
+          : 'JavaScript',
         timestamp: new Date().toISOString(),
         url: window.location.href,
-        userAgent: navigator.userAgent
+        userAgent: navigator.userAgent,
       });
     });
 
     // Capturer les promesses rejetées non gérées
-    window.addEventListener('unhandledrejection', (event) => {
+    window.addEventListener('unhandledrejection', event => {
       const anyEvent = event as PromiseRejectionEvent;
       this.captureError({
         message: `Promesse rejetée: ${anyEvent.reason}`,
@@ -59,7 +61,7 @@ class GlobalErrorHandler implements GlobalErrorAPI {
         source: 'Promise Rejection',
         timestamp: new Date().toISOString(),
         url: window.location.href,
-        userAgent: navigator.userAgent
+        userAgent: navigator.userAgent,
       });
     });
 
@@ -67,8 +69,8 @@ class GlobalErrorHandler implements GlobalErrorAPI {
     const originalFetch = window.fetch;
     window.fetch = async (...args) => {
       try {
-        const response = await originalFetch(...args as [RequestInfo, RequestInit?]);
-        
+        const response = await originalFetch(...(args as [RequestInfo, RequestInit?]));
+
         // Capturer les erreurs HTTP
         if (!response.ok) {
           this.captureError({
@@ -76,10 +78,10 @@ class GlobalErrorHandler implements GlobalErrorAPI {
             source: `Fetch: ${String(args[0])}`,
             timestamp: new Date().toISOString(),
             url: window.location.href,
-            userAgent: navigator.userAgent
+            userAgent: navigator.userAgent,
           });
         }
-        
+
         return response;
       } catch (error) {
         this.captureError({
@@ -87,7 +89,7 @@ class GlobalErrorHandler implements GlobalErrorAPI {
           source: `Fetch: ${String(args[0])}`,
           timestamp: new Date().toISOString(),
           url: window.location.href,
-          userAgent: navigator.userAgent
+          userAgent: navigator.userAgent,
         });
         throw error;
       }
@@ -125,7 +127,7 @@ class GlobalErrorHandler implements GlobalErrorAPI {
 
   captureError(errorInfo: ErrorInfo) {
     this.errors.unshift(errorInfo);
-    
+
     // Garder seulement les dernières erreurs
     if (this.errors.length > this.maxErrors) {
       this.errors = this.errors.slice(0, this.maxErrors);
@@ -186,16 +188,19 @@ class GlobalErrorHandler implements GlobalErrorAPI {
 }
 
 // Instance singleton - seulement côté client
-export const globalErrorHandler: GlobalErrorAPI = typeof window !== 'undefined' ? new GlobalErrorHandler() : {
-  captureError: (_errorInfo: ErrorInfo) => {},
-  addErrorListener: (_listener: (error: ErrorInfo) => void) => {},
-  removeErrorListener: (_listener: (error: ErrorInfo) => void) => {},
-  getAllErrors: (): ErrorInfo[] => [],
-  getRecentErrors: (_limit?: number): ErrorInfo[] => [],
-  clearErrors: () => {},
-  exportErrors: () => '[]',
-  showErrors: () => {}
-};
+export const globalErrorHandler: GlobalErrorAPI =
+  typeof window !== 'undefined'
+    ? new GlobalErrorHandler()
+    : {
+        captureError: (_errorInfo: ErrorInfo) => {},
+        addErrorListener: (_listener: (error: ErrorInfo) => void) => {},
+        removeErrorListener: (_listener: (error: ErrorInfo) => void) => {},
+        getAllErrors: (): ErrorInfo[] => [],
+        getRecentErrors: (_limit?: number): ErrorInfo[] => [],
+        clearErrors: () => {},
+        exportErrors: () => '[]',
+        showErrors: () => {},
+      };
 
 // Fonction utilitaire pour capturer manuellement une erreur
 export const captureError = (message: string, error?: Error, source?: string) => {
@@ -209,7 +214,7 @@ export const captureError = (message: string, error?: Error, source?: string) =>
     source: source || 'Manual',
     timestamp: new Date().toISOString(),
     url: window.location.href,
-    userAgent: navigator.userAgent
+    userAgent: navigator.userAgent,
   });
 };
 

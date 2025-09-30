@@ -5,9 +5,7 @@ export async function POST(request: NextRequest) {
   try {
     const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
     if (!backend) {
-      return NextResponse.json(
-        { success: false, error: 'NEXT_PUBLIC_BACKEND_URL non configuré' },
-      );
+      return NextResponse.json({ success: false, error: 'NEXT_PUBLIC_BACKEND_URL non configuré' });
     }
 
     const authHeader = request.headers.get('authorization') || '';
@@ -16,10 +14,7 @@ export async function POST(request: NextRequest) {
 
     // Validation d'entrée
     if (!exerciseId) {
-      return NextResponse.json(
-        { success: false, error: 'exerciseId est requis' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'exerciseId est requis' }, { status: 400 });
     }
 
     const resp = await fetch(`${backend}/api/exercises/${exerciseId}/submit`, {
@@ -29,7 +24,9 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify(body),
     });
-    const data = await resp.json().catch(() => ({ success: false, error: 'Réponse invalide du backend' }));
+    const data = await resp
+      .json()
+      .catch(() => ({ success: false, error: 'Réponse invalide du backend' }));
     return NextResponse.json(data, { status: resp.status });
   } catch (error) {
     console.error('Erreur proxy soumission exercice:', error);

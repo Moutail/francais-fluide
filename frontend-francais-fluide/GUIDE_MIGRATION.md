@@ -3,12 +3,14 @@
 ## 🎯 **Pourquoi Migrer ?**
 
 ### **Problèmes Actuels**
+
 - ❌ **Sécurité** : Clés API exposées côté client
 - ❌ **Performance** : Bundle JavaScript trop lourd
 - ❌ **Scalabilité** : Architecture monolithique
 - ❌ **Maintenance** : Code mélangé frontend/backend
 
 ### **Avantages de la Migration**
+
 - ✅ **Sécurité** : Clés API protégées côté serveur
 - ✅ **Performance** : Code splitting et cache
 - ✅ **Scalabilité** : Architecture microservices
@@ -17,6 +19,7 @@
 ## 🚀 **Plan de Migration**
 
 ### **Phase 1 : Backend API (1 semaine)**
+
 ```bash
 # 1. Créer le backend
 cd backend-api
@@ -31,20 +34,22 @@ npm run dev
 ```
 
 ### **Phase 2 : Migration Frontend (1 semaine)**
+
 ```typescript
 // Avant (API routes Next.js)
 const response = await fetch('/api/auth/login', {
-  body: JSON.stringify({ email, password })
+  body: JSON.stringify({ email, password }),
 });
 
 // Après (Backend séparé)
 const response = await fetch('http://localhost:3001/api/auth/login', {
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email, password })
+  body: JSON.stringify({ email, password }),
 });
 ```
 
 ### **Phase 3 : Déploiement (3 jours)**
+
 - **Backend** : Railway ou Heroku
 - **Frontend** : Vercel
 - **Base de données** : Supabase ou Railway
@@ -72,12 +77,14 @@ francais-fluide/
 ## 🔧 **Configuration Backend**
 
 ### **1. Installation**
+
 ```bash
 cd backend-api
 npm install
 ```
 
 ### **2. Variables d'environnement**
+
 ```env
 PORT=3001
 NODE_ENV=development
@@ -88,6 +95,7 @@ OPENAI_API_KEY="sk-..."
 ```
 
 ### **3. Démarrage**
+
 ```bash
 npm run dev
 # Serveur sur http://localhost:3001
@@ -96,12 +104,13 @@ npm run dev
 ## 🔄 **Migration des Appels API**
 
 ### **Authentification**
+
 ```typescript
 // Avant
 const response = await fetch('/api/auth/login', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email, password })
+  body: JSON.stringify({ email, password }),
 });
 
 // Après
@@ -109,11 +118,12 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email, password })
+  body: JSON.stringify({ email, password }),
 });
 ```
 
 ### **Configuration Frontend**
+
 ```typescript
 // src/lib/config/api.ts
 export const API_CONFIG = {
@@ -122,19 +132,20 @@ export const API_CONFIG = {
     AUTH: {
       LOGIN: '/api/auth/login',
       REGISTER: '/api/auth/register',
-      ME: '/api/auth/me'
+      ME: '/api/auth/me',
     },
     PROGRESS: {
       GET: '/api/progress',
-      UPDATE: '/api/progress'
-    }
-  }
+      UPDATE: '/api/progress',
+    },
+  },
 };
 ```
 
 ## 🚀 **Déploiement**
 
 ### **Backend (Railway)**
+
 ```bash
 # 1. Créer compte Railway
 # 2. Connecter repository GitHub
@@ -143,6 +154,7 @@ export const API_CONFIG = {
 ```
 
 ### **Frontend (Vercel)**
+
 ```bash
 # 1. Créer compte Vercel
 # 2. Connecter repository GitHub
@@ -151,6 +163,7 @@ export const API_CONFIG = {
 ```
 
 ### **Base de Données (Supabase)**
+
 ```bash
 # 1. Créer projet Supabase
 # 2. Configurer PostgreSQL
@@ -161,11 +174,13 @@ export const API_CONFIG = {
 ## 📊 **Monitoring et Logs**
 
 ### **Backend**
+
 - **Logs** : Winston ou Pino
 - **Monitoring** : Sentry
 - **Métriques** : Prometheus + Grafana
 
 ### **Frontend**
+
 - **Analytics** : Google Analytics
 - **Erreurs** : Sentry
 - **Performance** : Web Vitals
@@ -173,11 +188,13 @@ export const API_CONFIG = {
 ## 💰 **Coûts Estimés**
 
 ### **Développement**
+
 - **Temps** : 2-3 semaines
 - **Effort** : Moyen à élevé
 - **Complexité** : Architecture distribuée
 
 ### **Hébergement Mensuel**
+
 - **Frontend** : Vercel (gratuit)
 - **Backend** : Railway ($5-20)
 - **Base de données** : Supabase (gratuit jusqu'à 500MB)
@@ -186,6 +203,7 @@ export const API_CONFIG = {
 ## 🎯 **Recommandation**
 
 **Pour la production, migrer vers une architecture séparée est fortement recommandé** pour :
+
 - 🔒 Sécurité renforcée
 - 🚀 Performance optimisée
 - 📊 Scalabilité améliorée

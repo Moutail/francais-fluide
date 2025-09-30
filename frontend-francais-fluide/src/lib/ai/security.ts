@@ -14,14 +14,14 @@ export interface SecurityConfig {
     maxRequestsPerDay: number;
     windowSize: number; // en millisecondes
   };
-  
+
   apiKeys: {
     rotationEnabled: boolean;
     rotationInterval: number; // en heures
     maxKeysPerProvider: number;
     fallbackKeys: string[];
   };
-  
+
   costMonitoring: {
     enabled: boolean;
     dailyBudget: number; // en USD
@@ -29,7 +29,7 @@ export interface SecurityConfig {
     alertThreshold: number; // pourcentage
     autoDisableOnLimit: boolean;
   };
-  
+
   contentFiltering: {
     enabled: boolean;
     blockInappropriate: boolean;
@@ -37,7 +37,7 @@ export interface SecurityConfig {
     maxInputLength: number;
     allowedLanguages: string[];
   };
-  
+
   fallback: {
     enabled: boolean;
     fallbackProvider: 'languageTool' | 'local' | 'cached';
@@ -102,38 +102,38 @@ const DEFAULT_SECURITY_CONFIG: SecurityConfig = {
     maxRequestsPerMinute: 30,
     maxRequestsPerHour: 100,
     maxRequestsPerDay: 500,
-    windowSize: 60000 // 1 minute
+    windowSize: 60000, // 1 minute
   },
-  
+
   apiKeys: {
     rotationEnabled: true,
     rotationInterval: 24, // 24 heures
     maxKeysPerProvider: 3,
-    fallbackKeys: []
+    fallbackKeys: [],
   },
-  
+
   costMonitoring: {
     enabled: true,
     dailyBudget: 10, // $10 par jour
     monthlyBudget: 200, // $200 par mois
     alertThreshold: 80, // 80%
-    autoDisableOnLimit: true
+    autoDisableOnLimit: true,
   },
-  
+
   contentFiltering: {
     enabled: true,
     blockInappropriate: true,
     blockPersonalInfo: true,
     maxInputLength: 4000,
-    allowedLanguages: ['fr', 'en']
+    allowedLanguages: ['fr', 'en'],
   },
-  
+
   fallback: {
     enabled: true,
     fallbackProvider: 'languageTool',
     degradedMode: true,
-    cachedResponsesOnly: false
-  }
+    cachedResponsesOnly: false,
+  },
 };
 
 class AISecurityManager {
@@ -158,7 +158,7 @@ class AISecurityManager {
       /password|mot de passe|mdp/i,
       /credit card|carte de crédit|numéro de carte/i,
       /ssn|social security|sécurité sociale/i,
-      /personal info|informations personnelles/i
+      /personal info|informations personnelles/i,
     ];
 
     this.initializeApiKeys();
@@ -173,18 +173,18 @@ class AISecurityManager {
     const openaiKeys = [
       process.env.OPENAI_API_KEY,
       process.env.OPENAI_API_KEY_BACKUP,
-      process.env.OPENAI_API_KEY_BACKUP2
+      process.env.OPENAI_API_KEY_BACKUP2,
     ].filter(Boolean) as string[];
 
     const claudeKeys = [
       process.env.ANTHROPIC_API_KEY,
       process.env.ANTHROPIC_API_KEY_BACKUP,
-      process.env.ANTHROPIC_API_KEY_BACKUP2
+      process.env.ANTHROPIC_API_KEY_BACKUP2,
     ].filter(Boolean) as string[];
 
     this.apiKeys.set('openai', openaiKeys);
     this.apiKeys.set('claude', claudeKeys);
-    
+
     // Initialiser les temps de rotation
     this.keyRotationTimes.set('openai', Date.now());
     this.keyRotationTimes.set('claude', Date.now());
@@ -195,19 +195,28 @@ class AISecurityManager {
    */
   private startMonitoring(): void {
     // Vérifier la rotation des clés toutes les heures
-    setInterval(() => {
-      this.checkKeyRotation();
-    }, 60 * 60 * 1000);
+    setInterval(
+      () => {
+        this.checkKeyRotation();
+      },
+      60 * 60 * 1000
+    );
 
     // Vérifier les coûts toutes les 5 minutes
-    setInterval(() => {
-      this.checkCostLimits();
-    }, 5 * 60 * 1000);
+    setInterval(
+      () => {
+        this.checkCostLimits();
+      },
+      5 * 60 * 1000
+    );
 
     // Nettoyer les événements anciens toutes les heures
-    setInterval(() => {
-      this.cleanupOldEvents();
-    }, 60 * 60 * 1000);
+    setInterval(
+      () => {
+        this.cleanupOldEvents();
+      },
+      60 * 60 * 1000
+    );
   }
 
   /**
@@ -222,7 +231,7 @@ class AISecurityManager {
         type: 'rate_limit',
         severity: 'high',
         message: `Utilisateur bloqué tentant d'accéder au service: ${userId}`,
-        userId
+        userId,
       });
       return false;
     }
@@ -234,7 +243,7 @@ class AISecurityManager {
       requestsCount: 0,
       windowStart: now,
       isLimited: false,
-      resetTime: now + this.config.rateLimiting.windowSize
+      resetTime: now + this.config.rateLimiting.windowSize,
     };
 
     // Vérifier si la fenêtre de temps a expiré
@@ -249,13 +258,13 @@ class AISecurityManager {
     const limits = this.config.rateLimiting;
     if (limitInfo.requestsCount >= limits.maxRequestsPerMinute) {
       limitInfo.isLimited = true;
-      
+
       this.logSecurityEvent({
         type: 'rate_limit',
         severity: 'medium',
         message: `Rate limit atteint pour ${provider}: ${limitInfo.requestsCount} requêtes`,
         provider,
-        userId
+        userId,
       });
 
       return false;
@@ -276,14 +285,14 @@ class AISecurityManager {
 
     for (const [provider, costInfo] of this.costTracking.entries()) {
       const config = this.config.costMonitoring;
-      
+
       // Vérifier le budget quotidien
       if (costInfo.dailyCost >= config.dailyBudget) {
         this.logSecurityEvent({
           type: 'cost_limit',
           severity: 'high',
           message: `Budget quotidien dépassé pour ${provider}: $${costInfo.dailyCost}`,
-          provider
+          provider,
         });
 
         if (config.autoDisableOnLimit) {
@@ -297,7 +306,7 @@ class AISecurityManager {
           type: 'cost_limit',
           severity: 'critical',
           message: `Budget mensuel dépassé pour ${provider}: $${costInfo.monthlyCost}`,
-          provider
+          provider,
         });
 
         if (config.autoDisableOnLimit) {
@@ -312,7 +321,7 @@ class AISecurityManager {
           type: 'cost_limit',
           severity: 'medium',
           message: `Seuil d'alerte atteint pour ${provider}: $${costInfo.dailyCost}`,
-          provider
+          provider,
         });
       }
     }
@@ -334,7 +343,7 @@ class AISecurityManager {
         type: 'content_filter',
         severity: 'low',
         message: `Contenu trop long: ${content.length} caractères`,
-        userId
+        userId,
       });
       return { allowed: false, reason: 'Contenu trop long' };
     }
@@ -347,7 +356,7 @@ class AISecurityManager {
           severity: 'high',
           message: `Pattern suspect détecté: ${pattern.source}`,
           userId,
-          metadata: { pattern: pattern.source, content: content.substring(0, 100) }
+          metadata: { pattern: pattern.source, content: content.substring(0, 100) },
         });
         return { allowed: false, reason: 'Contenu suspect détecté' };
       }
@@ -369,7 +378,7 @@ class AISecurityManager {
     if (this.config.apiKeys.rotationEnabled) {
       const lastRotation = this.keyRotationTimes.get(provider) || 0;
       const rotationInterval = this.config.apiKeys.rotationInterval * 60 * 60 * 1000;
-      
+
       if (Date.now() - lastRotation > rotationInterval) {
         this.rotateApiKey(provider);
       }
@@ -395,7 +404,7 @@ class AISecurityManager {
       type: 'api_error',
       severity: 'low',
       message: `Rotation de clé API pour ${provider}`,
-      provider
+      provider,
     });
   }
 
@@ -414,7 +423,7 @@ class AISecurityManager {
       totalRequests: 0,
       averageCostPerRequest: 0,
       budgetRemaining: this.config.costMonitoring.dailyBudget,
-      isOverBudget: false
+      isOverBudget: false,
     };
 
     // Réinitialiser les coûts quotidiens si c'est un nouveau jour
@@ -447,7 +456,7 @@ class AISecurityManager {
       type: 'cost_limit',
       severity: 'critical',
       message: `Provider ${provider} désactivé automatiquement`,
-      provider
+      provider,
     });
   }
 
@@ -458,7 +467,7 @@ class AISecurityManager {
     const securityEvent: SecurityEvent = {
       id: `security-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       timestamp: Date.now(),
-      ...event
+      ...event,
     };
 
     this.securityEvents.push(securityEvent);
@@ -502,7 +511,7 @@ class AISecurityManager {
     for (const provider of this.apiKeys.keys()) {
       const lastRotation = this.keyRotationTimes.get(provider) || 0;
       const rotationInterval = this.config.apiKeys.rotationInterval * 60 * 60 * 1000;
-      
+
       if (Date.now() - lastRotation > rotationInterval) {
         this.rotateApiKey(provider);
       }
@@ -513,7 +522,7 @@ class AISecurityManager {
    * Nettoie les événements anciens
    */
   private cleanupOldEvents(): void {
-    const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+    const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     this.securityEvents = this.securityEvents.filter(event => event.timestamp > oneWeekAgo);
   }
 
@@ -522,26 +531,32 @@ class AISecurityManager {
    */
   public getSecurityStats(): SecurityStats {
     const now = Date.now();
-    const oneDayAgo = now - (24 * 60 * 60 * 1000);
-    const oneWeekAgo = now - (7 * 24 * 60 * 60 * 1000);
+    const oneDayAgo = now - 24 * 60 * 60 * 1000;
+    const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
 
     const recentEvents = this.securityEvents.filter(event => event.timestamp > oneDayAgo);
     const weeklyEvents = this.securityEvents.filter(event => event.timestamp > oneWeekAgo);
 
-    const eventCounts = recentEvents.reduce((counts, event) => {
-      counts[event.type] = (counts[event.type] || 0) + 1;
-      return counts;
-    }, {} as Record<SecurityEvent['type'], number>);
+    const eventCounts = recentEvents.reduce(
+      (counts, event) => {
+        counts[event.type] = (counts[event.type] || 0) + 1;
+        return counts;
+      },
+      {} as Record<SecurityEvent['type'], number>
+    );
 
-    const severityCounts = recentEvents.reduce((counts, event) => {
-      counts[event.severity] = (counts[event.severity] || 0) + 1;
-      return counts;
-    }, {} as Record<SecurityEvent['severity'], number>);
+    const severityCounts = recentEvents.reduce(
+      (counts, event) => {
+        counts[event.severity] = (counts[event.severity] || 0) + 1;
+        return counts;
+      },
+      {} as Record<SecurityEvent['severity'], number>
+    );
 
     return {
       rateLimiting: {
         activeLimiters: this.rateLimiters.size,
-        blockedUsers: this.blockedUsers.size
+        blockedUsers: this.blockedUsers.size,
       },
       costTracking: Object.fromEntries(this.costTracking),
       securityEvents: {
@@ -549,12 +564,12 @@ class AISecurityManager {
         recent: recentEvents.length,
         weekly: weeklyEvents.length,
         byType: eventCounts,
-        bySeverity: severityCounts
+        bySeverity: severityCounts,
       },
       apiKeys: {
         providers: Array.from(this.apiKeys.keys()),
-        rotationEnabled: this.config.apiKeys.rotationEnabled
-      }
+        rotationEnabled: this.config.apiKeys.rotationEnabled,
+      },
     };
   }
 
@@ -563,12 +578,12 @@ class AISecurityManager {
    */
   public updateConfig(newConfig: Partial<SecurityConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    
+
     this.logSecurityEvent({
       type: 'api_error',
       severity: 'low',
       message: 'Configuration de sécurité mise à jour',
-      metadata: { newConfig }
+      metadata: { newConfig },
     });
   }
 
@@ -577,13 +592,13 @@ class AISecurityManager {
    */
   public blockUser(userId: string, reason: string): void {
     this.blockedUsers.add(userId);
-    
+
     this.logSecurityEvent({
       type: 'suspicious_activity',
       severity: 'high',
       message: `Utilisateur bloqué: ${reason}`,
       userId,
-      metadata: { reason }
+      metadata: { reason },
     });
   }
 
@@ -592,12 +607,12 @@ class AISecurityManager {
    */
   public unblockUser(userId: string): void {
     this.blockedUsers.delete(userId);
-    
+
     this.logSecurityEvent({
       type: 'api_error',
       severity: 'low',
       message: `Utilisateur débloqué`,
-      userId
+      userId,
     });
   }
 
@@ -613,11 +628,11 @@ class AISecurityManager {
    */
   public resetRateLimits(): void {
     this.rateLimiters.clear();
-    
+
     this.logSecurityEvent({
       type: 'api_error',
       severity: 'low',
-      message: 'Rate limits réinitialisés'
+      message: 'Rate limits réinitialisés',
     });
   }
 }
@@ -662,7 +677,7 @@ export const useAISecurity = () => {
     getConfig: aiSecurityManager.getConfig.bind(aiSecurityManager),
     updateConfig: aiSecurityManager.updateConfig.bind(aiSecurityManager),
     blockUser: aiSecurityManager.blockUser.bind(aiSecurityManager),
-    unblockUser: aiSecurityManager.unblockUser.bind(aiSecurityManager)
+    unblockUser: aiSecurityManager.unblockUser.bind(aiSecurityManager),
   };
 };
 

@@ -3,6 +3,7 @@
 ## 📋 **Base de Données Utilisée**
 
 ### **PostgreSQL + Prisma ORM**
+
 - **Base de données :** PostgreSQL (recommandé pour la production)
 - **ORM :** Prisma (type-safe, migrations automatiques)
 - **Alternative :** SQLite pour le développement local
@@ -10,6 +11,7 @@
 ## 🚀 **Installation et Configuration**
 
 ### **1. Installer les dépendances**
+
 ```bash
 npm install @prisma/client prisma stripe bcryptjs jsonwebtoken zod
 npm install -D @types/bcryptjs @types/jsonwebtoken tsx
@@ -18,6 +20,7 @@ npm install -D @types/bcryptjs @types/jsonwebtoken tsx
 ### **2. Configurer la base de données**
 
 #### **Option A : PostgreSQL (Recommandé)**
+
 ```bash
 # Installer PostgreSQL
 # Windows : Télécharger depuis https://www.postgresql.org/download/windows/
@@ -32,12 +35,14 @@ DATABASE_URL="postgresql://username:password@localhost:5432/francais_fluide?sche
 ```
 
 #### **Option B : SQLite (Développement)**
+
 ```bash
 # SQLite est inclus avec Node.js
 DATABASE_URL="file:./dev.db"
 ```
 
 ### **3. Initialiser Prisma**
+
 ```bash
 # Générer le client Prisma
 npx prisma generate
@@ -54,6 +59,7 @@ npx prisma studio
 ### **Tables Principales :**
 
 #### **1. Users (Utilisateurs)**
+
 ```sql
 - id: String (CUID)
 - email: String (unique)
@@ -65,6 +71,7 @@ npx prisma studio
 ```
 
 #### **2. Subscriptions (Abonnements)**
+
 ```sql
 - id: String (CUID)
 - userId: String (FK)
@@ -76,6 +83,7 @@ npx prisma studio
 ```
 
 #### **3. Payments (Paiements)**
+
 ```sql
 - id: String (CUID)
 - userId: String (FK)
@@ -88,6 +96,7 @@ npx prisma studio
 ```
 
 #### **4. UserProgress (Progression)**
+
 ```sql
 - id: String (CUID)
 - userId: String (FK)
@@ -104,6 +113,7 @@ npx prisma studio
 ## 🔧 **Scripts Disponibles**
 
 ### **Package.json Scripts :**
+
 ```json
 {
   "db:generate": "prisma generate",
@@ -115,6 +125,7 @@ npx prisma studio
 ```
 
 ### **Commandes Utiles :**
+
 ```bash
 # Générer le client Prisma
 npm run db:generate
@@ -135,11 +146,13 @@ npm run db:seed
 ## 💳 **Configuration Stripe**
 
 ### **1. Créer un compte Stripe**
+
 - Aller sur https://stripe.com
 - Créer un compte développeur
 - Récupérer les clés API
 
 ### **2. Variables d'environnement**
+
 ```env
 STRIPE_PUBLISHABLE_KEY="pk_test_..."
 STRIPE_SECRET_KEY="sk_test_..."
@@ -147,6 +160,7 @@ STRIPE_WEBHOOK_SECRET="whsec_..."
 ```
 
 ### **3. Webhooks Stripe**
+
 - Configurer les webhooks pour les événements :
   - `payment_intent.succeeded`
   - `payment_intent.payment_failed`
@@ -157,6 +171,7 @@ STRIPE_WEBHOOK_SECRET="whsec_..."
 ## 🚀 **Déploiement**
 
 ### **Vercel + Railway (Recommandé)**
+
 ```bash
 # 1. Déployer la base de données sur Railway
 # 2. Configurer les variables d'environnement
@@ -164,6 +179,7 @@ STRIPE_WEBHOOK_SECRET="whsec_..."
 ```
 
 ### **Variables d'environnement de production :**
+
 ```env
 DATABASE_URL="postgresql://user:pass@host:port/db"
 STRIPE_PUBLISHABLE_KEY="pk_live_..."
@@ -175,6 +191,7 @@ NEXTAUTH_URL="https://your-domain.com"
 ## 🔒 **Sécurité**
 
 ### **Bonnes pratiques :**
+
 - ✅ Mots de passe hashés avec bcrypt
 - ✅ JWT pour l'authentification
 - ✅ Validation des données avec Zod
@@ -183,6 +200,7 @@ NEXTAUTH_URL="https://your-domain.com"
 - ✅ Rate limiting sur les API
 
 ### **RGPD/Conformité :**
+
 - ✅ Consentement explicite
 - ✅ Droit à l'oubli
 - ✅ Export des données
@@ -191,6 +209,7 @@ NEXTAUTH_URL="https://your-domain.com"
 ## 📈 **Monitoring**
 
 ### **Métriques importantes :**
+
 - Nombre d'utilisateurs actifs
 - Taux de conversion des abonnements
 - Revenus mensuels
@@ -198,6 +217,7 @@ NEXTAUTH_URL="https://your-domain.com"
 - Performance des requêtes
 
 ### **Outils recommandés :**
+
 - Prisma Studio (gestion des données)
 - Stripe Dashboard (paiements)
 - Vercel Analytics (performance)
