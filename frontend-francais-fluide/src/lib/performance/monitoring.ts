@@ -391,7 +391,7 @@ class PerformanceMonitor {
   ): T {
     // Lier la méthode pour l'utiliser dans la fonction de rendu sans aliasser `this`
     const updateComponentMetrics = this.updateComponentMetrics.bind(this);
-    const Wrapped = React.forwardRef((props, ref) => {
+    const Wrapped = React.forwardRef(function WithPerformance(props, ref) {
       const startTime = performance.now();
       const [renderCount, setRenderCount] = React.useState(0);
 
