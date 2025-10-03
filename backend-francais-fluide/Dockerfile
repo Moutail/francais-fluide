@@ -1,6 +1,9 @@
 # Dockerfile pour FrançaisFluide Backend
 FROM node:18-alpine
 
+# Installer OpenSSL pour Prisma (OBLIGATOIRE)
+RUN apk add --no-cache openssl openssl-dev libc6-compat
+
 # Créer le répertoire de l'application
 WORKDIR /app
 
