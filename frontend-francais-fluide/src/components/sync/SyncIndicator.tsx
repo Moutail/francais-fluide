@@ -25,7 +25,7 @@ export default function SyncIndicator({
   onSyncNow,
 }: SyncIndicatorProps) {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({
-    isOnline: navigator.onLine,
+    isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
     isSyncing: false,
     lastSync: null,
     pendingItems: 0,
@@ -52,6 +52,11 @@ export default function SyncIndicator({
 
   // Écouter les changements de connectivité
   useEffect(() => {
+    // Vérifier que nous sommes côté client
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
     const handleOnline = () => {
       setSyncStatus(prev => ({ ...prev, isOnline: true }));
       // Démarrer la synchronisation automatique

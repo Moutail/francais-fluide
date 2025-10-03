@@ -46,7 +46,7 @@ export class PersistenceManager {
   private db: IDBDatabase | null = null;
   private syncQueue: SyncQueueItem[] = [];
   private syncStatus: SyncStatus = {
-    isOnline: navigator.onLine,
+    isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
     isSyncing: false,
     lastSync: null,
     pendingItems: 0,
@@ -55,12 +55,20 @@ export class PersistenceManager {
   private listeners: Map<string, Array<(...args: any[]) => void>> = new Map();
 
   constructor() {
-    this.initializeDatabase();
-    this.setupOnlineOfflineListeners();
+    // Ne s'initialiser que côté client
+    if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
+      this.initializeDatabase();
+      this.setupOnlineOfflineListeners();
+    }
   }
 
   // Initialiser la base de données IndexedDB
   private async initializeDatabase(): Promise<void> {
+    // Vérifier que nous sommes côté client
+    if (typeof window === 'undefined' || typeof indexedDB === 'undefined') {
+      return Promise.resolve();
+    }
+    
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
@@ -103,6 +111,11 @@ export class PersistenceManager {
 
   // Configurer les écouteurs online/offline
   private setupOnlineOfflineListeners(): void {
+    // Vérifier que nous sommes côté client
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
     window.addEventListener('online', () => {
       this.syncStatus.isOnline = true;
       this.emit('status-changed', this.syncStatus);

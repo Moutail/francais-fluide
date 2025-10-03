@@ -7,6 +7,9 @@ import { useAutoSave } from '@/hooks/useAutoSave';
 import { persistenceManager } from '@/lib/storage/persistence';
 import type { PersistedDocument, SyncStatus, StorageStats } from '@/types';
 
+// Désactiver le SSG pour cette page de test (accès à indexedDB/window requis)
+export const dynamic = 'force-dynamic';
+
 export default function PersistenceTestPage() {
   const [documents, setDocuments] = useState<PersistedDocument[]>([]);
   const [currentDocument, setCurrentDocument] = useState({
