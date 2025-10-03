@@ -144,7 +144,7 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
           value={text}
           onChange={handleTextChange}
           placeholder={placeholder}
-          className="min-h-[200px] w-full resize-none rounded-xl border-2 border-gray-200 p-4 text-lg leading-relaxed transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          className="min-h-[300px] w-full resize-none rounded-xl border-2 border-gray-200 p-3 text-base leading-relaxed transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200 md:min-h-[400px] md:p-4 md:text-lg"
           style={{ fontFamily: 'inherit' }}
         />
 
@@ -152,32 +152,33 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="absolute right-4 top-4 flex items-center gap-2 text-blue-600"
+            className="absolute right-2 top-2 flex items-center gap-1 text-blue-600 md:right-4 md:top-4 md:gap-2"
           >
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-              className="size-4 rounded-full border-2 border-blue-600 border-t-transparent"
+              className="size-3 rounded-full border-2 border-blue-600 border-t-transparent md:size-4"
             />
-            <span className="text-sm font-medium">Analyse...</span>
+            <span className="text-xs font-medium md:text-sm">Analyse...</span>
           </motion.div>
         )}
       </div>
 
-      {/* Bouton de correction grammaticale */}
-      <div className="mt-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      {/* Bouton de correction grammaticale - Responsive */}
+      <div className="mt-3 flex flex-col gap-2 md:mt-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-wrap items-center gap-2 md:gap-3">
           <button
             onClick={checkGrammar}
             disabled={!text.trim() || isCheckingGrammar}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-2 text-sm text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 md:gap-2 md:px-4 md:text-base"
           >
             {isCheckingGrammar ? (
-              <Loader2 className="size-4 animate-spin" />
+              <Loader2 className="size-3 animate-spin md:size-4" />
             ) : (
-              <Wand2 className="size-4" />
+              <Wand2 className="size-3 md:size-4" />
             )}
-            {isCheckingGrammar ? 'Vérification...' : 'Vérifier la grammaire'}
+            <span className="hidden sm:inline">{isCheckingGrammar ? 'Vérification...' : 'Vérifier la grammaire'}</span>
+            <span className="sm:hidden">{isCheckingGrammar ? 'Vérif...' : 'Vérifier'}</span>
           </button>
 
           {serviceUsed && (
@@ -193,26 +194,36 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
               }`}
             >
               <AlertCircle className="size-3" />
-              {serviceUsed === 'openai'
-                ? 'GPT-4'
-                : serviceUsed === 'anthropic'
-                  ? 'Claude'
-                  : serviceUsed === 'languagetool'
-                    ? 'LanguageTool'
-                    : 'Mode basique'}
+              <span className="hidden sm:inline">
+                {serviceUsed === 'openai'
+                  ? 'GPT-4'
+                  : serviceUsed === 'anthropic'
+                    ? 'Claude'
+                    : serviceUsed === 'languagetool'
+                      ? 'LanguageTool'
+                      : 'Mode basique'}
+              </span>
+              <span className="sm:hidden">
+                {serviceUsed === 'openai'
+                  ? 'GPT'
+                  : serviceUsed === 'anthropic'
+                    ? 'Claude'
+                    : serviceUsed === 'languagetool'
+                      ? 'LT'
+                      : 'Basic'}
+              </span>
             </div>
           )}
         </div>
 
         {grammarErrors.length > 0 && (
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-red-600">
-              {grammarErrors.length} erreur{grammarErrors.length > 1 ? 's' : ''} détectée
-              {grammarErrors.length > 1 ? 's' : ''}
+            <span className="text-xs font-medium text-red-600 md:text-sm">
+              {grammarErrors.length} erreur{grammarErrors.length > 1 ? 's' : ''}
             </span>
             <button
               onClick={applyAllCorrections}
-              className="rounded bg-green-600 px-3 py-1 text-sm text-white transition-colors hover:bg-green-700"
+              className="rounded bg-green-600 px-2 py-1 text-xs text-white transition-colors hover:bg-green-700 md:px-3 md:text-sm"
             >
               Corriger tout
             </button>
@@ -220,67 +231,69 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
         )}
       </div>
 
-      {/* Indicateurs de performance */}
-      <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
-        <div className="flex items-center gap-4">
+      {/* Indicateurs de performance - Responsive */}
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-600 md:mt-4 md:text-sm">
+        <div className="flex flex-wrap items-center gap-2 md:gap-4">
           <div className="flex items-center gap-1">
-            <CheckCircle className="size-4 text-green-500" />
+            <CheckCircle className="size-3 text-green-500 md:size-4" />
             <span>{text.trim().split(/\s+/).length} mots</span>
           </div>
           <div className="flex items-center gap-1">
-            <Lightbulb className="size-4 text-yellow-500" />
-            <span>
-              {grammarErrors.length > 0 ? Math.max(0, 100 - grammarErrors.length * 10) : 100}% de
-              précision
+            <Lightbulb className="size-3 text-yellow-500 md:size-4" />
+            <span className="hidden sm:inline">
+              {grammarErrors.length > 0 ? Math.max(0, 100 - grammarErrors.length * 10) : 100}% de précision
+            </span>
+            <span className="sm:hidden">
+              {grammarErrors.length > 0 ? Math.max(0, 100 - grammarErrors.length * 10) : 100}%
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-1">
-          <AlertCircle className="size-4 text-blue-500" />
-          <span>Mode {mode}</span>
+          <AlertCircle className="size-3 text-blue-500 md:size-4" />
+          <span className="capitalize">{mode}</span>
         </div>
       </div>
 
-      {/* Affichage des erreurs grammaticales */}
+      {/* Affichage des erreurs grammaticales - Responsive */}
       {showCorrections && grammarErrors.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-4 space-y-3"
+          className="mt-3 space-y-2 md:mt-4 md:space-y-3"
         >
-          <h4 className="flex items-center gap-2 font-medium text-gray-900">
-            <AlertCircle className="size-5 text-red-500" />
+          <h4 className="flex items-center gap-1 text-sm font-medium text-gray-900 md:gap-2 md:text-base">
+            <AlertCircle className="size-4 text-red-500 md:size-5" />
             Erreurs détectées ({grammarErrors.length})
           </h4>
 
-          <div className="space-y-2">
+          <div className="max-h-[400px] space-y-2 overflow-y-auto md:max-h-[500px]">
             {grammarErrors.map((error, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="rounded-lg border border-red-200 bg-red-50 p-3"
+                className="rounded-lg border border-red-200 bg-red-50 p-2 md:p-3"
               >
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between md:gap-3">
                   <div className="flex-1">
-                    <div className="mb-2 flex items-center gap-2">
+                    <div className="mb-1 flex items-center gap-2 md:mb-2">
                       <span
-                        className={`rounded px-2 py-1 text-xs font-medium ${GrammarCheckService.getErrorTypeColor(error.type)}`}
+                        className={`rounded px-1.5 py-0.5 text-xs font-medium md:px-2 md:py-1 ${GrammarCheckService.getErrorTypeColor(error.type)}`}
                       >
                         {error.type}
                       </span>
                     </div>
-                    <div className="text-sm">
+                    <div className="text-xs md:text-sm">
                       <span className="font-medium text-red-600">"{error.original}"</span>
-                      <span className="mx-2 text-gray-500">→</span>
+                      <span className="mx-1 text-gray-500 md:mx-2">→</span>
                       <span className="font-medium text-green-600">"{error.corrected}"</span>
                     </div>
                     <p className="mt-1 text-xs text-gray-600">{error.explanation}</p>
                   </div>
                   <button
                     onClick={() => applyCorrection(error)}
-                    className="rounded bg-green-600 px-3 py-1 text-xs text-white transition-colors hover:bg-green-700"
+                    className="shrink-0 self-start rounded bg-green-600 px-2 py-1 text-xs text-white transition-colors hover:bg-green-700 md:px-3"
                   >
                     Corriger
                   </button>
@@ -291,18 +304,18 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
         </motion.div>
       )}
 
-      {/* Message de succès si aucune erreur */}
+      {/* Message de succès si aucune erreur - Responsive */}
       {showCorrections && grammarErrors.length === 0 && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-4 rounded-lg border border-green-200 bg-green-50 p-4"
+          className="mt-3 rounded-lg border border-green-200 bg-green-50 p-3 md:mt-4 md:p-4"
         >
-          <div className="flex items-center gap-3">
-            <CheckCircle className="size-5 text-green-600" />
+          <div className="flex items-center gap-2 md:gap-3">
+            <CheckCircle className="size-4 text-green-600 md:size-5" />
             <div>
-              <h4 className="font-medium text-green-900">Excellent !</h4>
-              <p className="text-sm text-green-700">
+              <h4 className="text-sm font-medium text-green-900 md:text-base">Excellent !</h4>
+              <p className="text-xs text-green-700 md:text-sm">
                 Aucune erreur grammaticale détectée dans votre texte.
               </p>
             </div>

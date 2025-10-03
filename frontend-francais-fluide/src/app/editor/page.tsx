@@ -125,25 +125,25 @@ export default function EditorPage() {
       <div className="flex">
         <Sidebar />
 
-        <main className="ml-64 flex-1">
+        <main className="ml-0 flex-1 md:ml-64">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex h-screen flex-col"
+            className="flex min-h-screen flex-col"
           >
-            {/* Barre d'outils */}
-            <div className="border-b border-gray-200 bg-white px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <h1 className="text-2xl font-bold text-gray-900">Éditeur intelligent</h1>
+            {/* Barre d'outils - Responsive */}
+            <div className="border-b border-gray-200 bg-white px-3 py-3 md:px-6 md:py-4">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+                  <h1 className="text-xl font-bold text-gray-900 md:text-2xl">Éditeur intelligent</h1>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600">Mode :</span>
+                    <span className="text-xs text-gray-600 md:text-sm">Mode :</span>
                     <select
                       value={mode}
                       onChange={e => setMode(e.target.value as any)}
-                      className="rounded-md border border-gray-300 px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="rounded-md border border-gray-300 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 md:px-3 md:text-sm"
                     >
                       <option value="practice">Entraînement</option>
                       <option value="exam">Examen</option>
@@ -152,15 +152,16 @@ export default function EditorPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 md:gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleReset}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-1 px-2 py-1 text-xs md:gap-2 md:px-3 md:py-2 md:text-sm"
                   >
-                    <RotateCcw className="h-4 w-4" />
-                    Réinitialiser
+                    <RotateCcw className="size-3 md:size-4" />
+                    <span className="hidden sm:inline">Réinitialiser</span>
+                    <span className="sm:hidden">Reset</span>
                   </Button>
 
                   <Button
@@ -168,36 +169,41 @@ export default function EditorPage() {
                     size="sm"
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-1 px-2 py-1 text-xs md:gap-2 md:px-3 md:py-2 md:text-sm"
                   >
-                    <Save className="h-4 w-4" />
-                    {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
+                    <Save className="size-3 md:size-4" />
+                    <span className="hidden sm:inline">{isSaving ? 'Sauvegarde...' : 'Sauvegarder'}</span>
+                    <span className="sm:hidden">Save</span>
                   </Button>
 
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleExport}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-1 px-2 py-1 text-xs md:gap-2 md:px-3 md:py-2 md:text-sm"
                   >
-                    <Download className="h-4 w-4" />
-                    Exporter
+                    <Download className="size-3 md:size-4" />
+                    <span className="hidden lg:inline">Exporter</span>
                   </Button>
 
-                  <Button variant="outline" size="sm" className="flex items-center gap-2">
-                    <Share2 className="h-4 w-4" />
-                    Partager
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="hidden items-center gap-2 md:flex"
+                  >
+                    <Share2 className="size-4" />
+                    <span className="hidden lg:inline">Partager</span>
                   </Button>
                 </div>
               </div>
             </div>
 
-            {/* Zone d'édition */}
-            <div className="flex-1 p-6">
+            {/* Zone d'édition - Responsive */}
+            <div className="flex-1 p-3 md:p-6">
               <div className="mx-auto h-full max-w-6xl">
-                <div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-4">
+                <div className="flex h-full flex-col gap-4 lg:grid lg:grid-cols-4 lg:gap-6">
                   {/* Éditeur principal */}
-                  <div className="lg:col-span-3">
+                  <div className="min-h-[400px] flex-1 lg:col-span-3 lg:min-h-0">
                     <SmartEditor
                       initialValue={text}
                       onProgressUpdate={handleProgressUpdate}
@@ -207,44 +213,44 @@ export default function EditorPage() {
                     />
                   </div>
 
-                  {/* Panneau latéral (progression utilisateur uniquement, données réelles) */}
-                  <div className="space-y-4">
+                  {/* Panneau latéral - Collapsible sur mobile */}
+                  <div className="lg:space-y-4">
                     {userProgress && (
-                      <Card className="p-4">
+                      <Card className="p-3 md:p-4">
                         <div className="mb-3 flex items-center gap-2">
-                          <User className="h-5 w-5 text-blue-600" />
-                          <h3 className="font-semibold text-gray-900">Votre Progression</h3>
+                          <User className="size-4 text-blue-600 md:size-5" />
+                          <h3 className="text-sm font-semibold text-gray-900 md:text-base">Votre Progression</h3>
                         </div>
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-2 md:space-y-3 lg:grid-cols-1 lg:gap-0">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">Niveau</span>
-                            <span className="font-bold text-blue-600">{userProgress.level}</span>
+                            <span className="text-xs text-gray-600 md:text-sm">Niveau</span>
+                            <span className="text-sm font-bold text-blue-600 md:text-base">{userProgress.level}</span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">XP Total</span>
-                            <span className="font-bold text-purple-600">{userProgress.xp}</span>
+                            <span className="text-xs text-gray-600 md:text-sm">XP Total</span>
+                            <span className="text-sm font-bold text-purple-600 md:text-base">{userProgress.xp}</span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">Mots écrits</span>
-                            <span className="font-bold text-green-600">
+                            <span className="text-xs text-gray-600 md:text-sm">Mots écrits</span>
+                            <span className="text-sm font-bold text-green-600 md:text-base">
                               {userProgress.wordsWritten}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">Exercices</span>
-                            <span className="font-bold text-orange-600">
+                            <span className="text-xs text-gray-600 md:text-sm">Exercices</span>
+                            <span className="text-sm font-bold text-orange-600 md:text-base">
                               {userProgress.exercisesCompleted}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">Précision</span>
-                            <span className="font-bold text-yellow-600">
+                            <span className="text-xs text-gray-600 md:text-sm">Précision</span>
+                            <span className="text-sm font-bold text-yellow-600 md:text-base">
                               {Math.round(userProgress.accuracy)}%
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">Série actuelle</span>
-                            <span className="font-bold text-red-600">
+                            <span className="text-xs text-gray-600 md:text-sm">Série actuelle</span>
+                            <span className="text-sm font-bold text-red-600 md:text-base">
                               {userProgress.currentStreak} jours
                             </span>
                           </div>
@@ -256,46 +262,46 @@ export default function EditorPage() {
               </div>
             </div>
 
-            {/* Panneau de métriques */}
+            {/* Panneau de métriques - Responsive */}
             {metrics && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="border-t border-gray-200 bg-white px-6 py-4"
+                className="border-t border-gray-200 bg-white px-3 py-3 md:px-6 md:py-4"
               >
                 <div className="mx-auto max-w-6xl">
-                  <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5 md:gap-4">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600">{metrics.wordsWritten}</div>
-                      <div className="text-sm text-gray-600">Mots écrits</div>
+                      <div className="text-lg font-bold text-blue-600 md:text-2xl">{metrics.wordsWritten}</div>
+                      <div className="text-xs text-gray-600 md:text-sm">Mots écrits</div>
                     </div>
 
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-orange-600">
+                      <div className="text-lg font-bold text-orange-600 md:text-2xl">
                         {metrics.errorsDetected}
                       </div>
-                      <div className="text-sm text-gray-600">Erreurs détectées</div>
+                      <div className="text-xs text-gray-600 md:text-sm">Erreurs</div>
                     </div>
 
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">
+                      <div className="text-lg font-bold text-green-600 md:text-2xl">
                         {metrics.errorsCorrected}
                       </div>
-                      <div className="text-sm text-gray-600">Corrections</div>
+                      <div className="text-xs text-gray-600 md:text-sm">Corrections</div>
                     </div>
 
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-purple-600">
+                      <div className="text-lg font-bold text-purple-600 md:text-2xl">
                         {metrics.accuracyRate}%
                       </div>
-                      <div className="text-sm text-gray-600">Précision</div>
+                      <div className="text-xs text-gray-600 md:text-sm">Précision</div>
                     </div>
 
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-yellow-600">
+                      <div className="text-lg font-bold text-yellow-600 md:text-2xl">
                         {metrics.streakCount}
                       </div>
-                      <div className="text-sm text-gray-600">Série parfaite</div>
+                      <div className="text-xs text-gray-600 md:text-sm">Série</div>
                     </div>
                   </div>
                 </div>
