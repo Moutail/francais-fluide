@@ -1,91 +1,80 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  password  String
-  role      String   @default("user") // user, admin, super_admin, tester, teacher
-  isActive  Boolean  @default(true)
-  lastLogin DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  progress      UserProgress?
-  subscription  Subscription?
-  achievements  UserAchievement[]
-  submissions   ExerciseSubmission[]
-  conversations Conversation[]
-  usageLogs     UsageLog[]
-  calendarEvents CalendarEvent[]
-  documents     Document[]
+  id              String               @id @default(cuid())
+  email           String               @unique
+  name            String
+  password        String
+  role            String               @default("user")
+  isActive        Boolean              @default(true)
+  lastLogin       DateTime?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  calendarEvents  CalendarEvent[]
+  conversations   Conversation[]
+  dailyUsage      DailyUsage[]
+  documents       Document[]
+  submissions     ExerciseSubmission[]
+  exercises       Exercise[]
+  subscription    Subscription?
+  supportTickets  SupportTicket[]
   telemetryEvents TelemetryEvent[]
-  supportTickets SupportTicket[]
-  exercises     Exercise[]
-  dailyUsage    DailyUsage[]
+  usageLogs       UsageLog[]
+  achievements    UserAchievement[]
+  progress        UserProgress?
 
   @@map("users")
 }
 
 model UserProgress {
-  id               String   @id @default(cuid())
-  userId           String   @unique
-  wordsWritten     Int      @default(0)
-  accuracy         Float    @default(0)
-  timeSpent        Int      @default(0) // en minutes
-  exercisesCompleted Int    @default(0)
-  currentStreak    Int      @default(0)
-  level            Int      @default(1)
-  xp               Int      @default(0)
-  lastActivity     DateTime?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  // Relations
-  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                 String    @id @default(cuid())
+  userId             String    @unique
+  wordsWritten       Int       @default(0)
+  accuracy           Float     @default(0)
+  timeSpent          Int       @default(0)
+  exercisesCompleted Int       @default(0)
+  currentStreak      Int       @default(0)
+  level              Int       @default(1)
+  xp                 Int       @default(0)
+  lastActivity       DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_progress")
 }
 
 model Subscription {
-  id                    String    @id @default(cuid())
-  userId                String    @unique
-  plan                  String    // demo, etudiant, premium, etablissement
-  status                String    // active, pending, cancelled, expired
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+  plan                  String
+  status                String
   startDate             DateTime
   endDate               DateTime
   stripeSubscriptionId  String?
   stripePaymentIntentId String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("subscriptions")
 }
 
 model Achievement {
-  id          String   @id @default(cuid())
-  name        String
-  description String
-  type        String   // words_written, exercises_completed, streak, level, accuracy
-  threshold   Int
-  icon        String?
-  createdAt   DateTime @default(now())
-
-  // Relations
+  id               String            @id @default(cuid())
+  name             String
+  description      String
+  type             String
+  threshold        Int
+  icon             String?
+  createdAt        DateTime          @default(now())
   userAchievements UserAchievement[]
 
   @@map("achievements")
@@ -96,47 +85,41 @@ model UserAchievement {
   userId        String
   achievementId String
   earnedAt      DateTime    @default(now())
-
-  // Relations
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievement Achievement  @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, achievementId])
   @@map("user_achievements")
 }
 
 model Exercise {
-  id          String   @id @default(cuid())
+  id          String               @id @default(cuid())
   title       String
   description String?
-  type        String   // grammar, vocabulary, conjugation, comprehension
-  level       Int      @default(1)
-  difficulty  String   // easy, medium, hard
-  userId      String?  // ID de l'utilisateur qui a créé l'exercice (null pour les exercices par défaut)
-  isGenerated Boolean  @default(false) // true si généré par l'IA
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  questions   Question[]
+  type        String
+  level       Int                  @default(1)
+  difficulty  String
+  userId      String?
+  isGenerated Boolean              @default(false)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
   submissions ExerciseSubmission[]
-  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User?                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions   Question[]
 
   @@map("exercises")
 }
 
 model Question {
-  id          String   @id @default(cuid())
-  exerciseId  String
-  question    String
-  options     String   // JSON string of options
+  id            String   @id @default(cuid())
+  exerciseId    String
+  question      String
+  options       String
   correctAnswer String
-  explanation String?
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-
-  // Relations
-  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  explanation   String?
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  exercise      Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
 
   @@map("questions")
 }
@@ -145,42 +128,36 @@ model ExerciseSubmission {
   id          String   @id @default(cuid())
   userId      String
   exerciseId  String
-  answers     String   // JSON string of answers
-  score       Int      // Score out of 100
-  timeSpent   Int      @default(0) // en secondes
+  answers     String
+  score       Int
+  timeSpent   Int      @default(0)
   completedAt DateTime @default(now())
-
-  // Relations
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  exercise    Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("exercise_submissions")
 }
 
 model Conversation {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
   title     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message[]
 
   @@map("conversations")
 }
 
 model Message {
-  id             String   @id @default(cuid())
+  id             String       @id @default(cuid())
   conversationId String
-  role           String   // user, assistant
+  role           String
   content        String
-  context        String?  // JSON string of context
-  createdAt      DateTime @default(now())
-
-  // Relations
-  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  context        String?
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
   @@map("messages")
 }
@@ -188,12 +165,10 @@ model Message {
 model UsageLog {
   id        String   @id @default(cuid())
   userId    String
-  type      String   // correction, exercise, ai_chat
-  details   String?  // JSON string of additional details
+  type      String
+  details   String?
   createdAt DateTime @default(now())
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("usage_logs")
 }
@@ -202,12 +177,12 @@ model Dictation {
   id          String   @id @default(cuid())
   title       String
   description String?
-  difficulty  String   // beginner, intermediate, advanced
-  duration    Int      // en minutes
+  difficulty  String
+  duration    Int
   audioUrl    String?
   text        String
   category    String?
-  tags        String?  // JSON string of tags
+  tags        String?
   completed   Boolean  @default(false)
   score       Int?
   attempts    Int      @default(0)
@@ -218,20 +193,18 @@ model Dictation {
 }
 
 model CalendarEvent {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   userId      String
   title       String
-  type        String    // exercise, study, achievement, reminder
+  type        String
   date        DateTime
   time        String?
   description String?
-  points      Int       @default(0)
-  completed   Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  points      Int      @default(0)
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("calendar_events")
 }
@@ -241,13 +214,11 @@ model Document {
   userId    String
   title     String
   content   String
-  type      String   // editor, exercise, dictation
-  metadata  String?  // JSON string of additional data
+  type      String
+  metadata  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, type])
   @@map("documents")
@@ -256,15 +227,13 @@ model Document {
 model TelemetryEvent {
   id         String   @id @default(cuid())
   userId     String
-  type       String   // answer_selected, answer_changed, question_completed, question_skipped, exercise_started, exercise_finished
+  type       String
   timestamp  DateTime
-  data       String   // JSON string of event data
+  data       String
   exerciseId String?
   questionId String?
   createdAt  DateTime @default(now())
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("telemetry_events")
 }
@@ -273,31 +242,27 @@ model SupportTicket {
   id          String   @id @default(cuid())
   userId      String
   subject     String
-  category    String   // technical, billing, feature, bug, other
-  priority    String   // low, medium, high
-  status      String   // open, in_progress, resolved, closed
+  category    String
+  priority    String
+  status      String
   description String
-  response    String?  // Réponse de l'équipe support
+  response    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("support_tickets")
 }
 
 model DailyUsage {
-  id        String   @id @default(cuid())
-  userId    String
-  date      DateTime @default(now())
-  aiExercisesGenerated Int @default(0)
-  aiCorrectionsUsed    Int @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                   String   @id @default(cuid())
+  userId               String
+  date                 DateTime @default(now())
+  aiExercisesGenerated Int      @default(0)
+  aiCorrectionsUsed    Int      @default(0)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, date])
   @@map("daily_usage")
