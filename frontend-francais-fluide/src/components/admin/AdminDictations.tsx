@@ -14,7 +14,17 @@ import {
   BarChart3,
   Filter,
 } from 'lucide-react';
-import AudioUploader from './AudioUploader';
+import dynamic from 'next/dynamic';
+
+// Import dynamique pour éviter les erreurs SSR
+const AudioUploader = dynamic(() => import('./AudioUploader'), {
+  ssr: false,
+  loading: () => (
+    <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
+      <p className="text-gray-600">Chargement du composant d'upload...</p>
+    </div>
+  ),
+});
 
 export default function AdminDictations() {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
