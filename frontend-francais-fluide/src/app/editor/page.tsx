@@ -79,8 +79,11 @@ export default function EditorPage() {
     }
   };
 
-  const handleProgressUpdate = (newMetrics: ProgressMetrics) => {
+  const handleProgressUpdate = (newMetrics: ProgressMetrics, newText?: string) => {
     setMetrics(newMetrics);
+    if (newText !== undefined) {
+      setText(newText);
+    }
     // La sauvegarde se fera automatiquement via useEffect avec debounce
   };
 
@@ -126,14 +129,19 @@ export default function EditorPage() {
     saveProgress();
   }, [debouncedMetrics, isAuthenticated, lastSavedMetrics]);
   const handleSave = async () => {
+    console.log('🔍 handleSave appelé');
+    console.log('📝 Texte actuel:', text);
+    console.log('📊 Métriques:', metrics);
+    
     if (!text || text.trim().length === 0) {
+      console.warn('⚠️ Texte vide');
       alert('⚠️ Aucun texte à sauvegarder');
       return;
     }
 
     setIsSaving(true);
     try {
-      // Sauvegarder dans localStorage en attendant l'API
+      // Sauvegarder dans localStorage
       const savedData = {
         content: text,
         mode: mode,
@@ -141,29 +149,29 @@ export default function EditorPage() {
         savedAt: new Date().toISOString(),
       };
       localStorage.setItem('editor_draft', JSON.stringify(savedData));
+      console.log('✅ Texte sauvegardé localement');
 
-      // Essayer de sauvegarder sur le serveur
-      try {
-        const response = await fetch('/api/editor/save', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-          body: JSON.stringify(savedData),
-        });
+      // Essayer de sauvegarder sur le serveur (optionnel)
+      if (isAuthenticated) {
+        try {
+          const response = await fetch('/api/editor/save', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+            body: JSON.stringify(savedData),
+          });
 
-        if (response.ok) {
-          console.log('✅ Texte sauvegardé sur le serveur');
-          alert('✅ Texte sauvegardé avec succès !');
-        } else {
-          console.warn('⚠️ Sauvegarde serveur échouée, sauvegardé localement');
-          alert('✅ Texte sauvegardé localement');
+          if (response.ok) {
+            console.log('✅ Texte sauvegardé sur le serveur');
+          }
+        } catch (serverError) {
+          console.warn('⚠️ Serveur non disponible');
         }
-      } catch (serverError) {
-        console.warn('⚠️ Serveur non disponible, sauvegardé localement');
-        alert('✅ Texte sauvegardé localement');
       }
+
+      alert('✅ Texte sauvegardé avec succès !');
     } catch (error) {
       console.error('❌ Erreur sauvegarde:', error);
       alert('❌ Erreur lors de la sauvegarde');
@@ -221,20 +229,30 @@ Statistiques:
   };
 
   const handleReset = () => {
+    console.log('🔍 handleReset appelé');
+    
     if (confirm('Êtes-vous sûr de vouloir réinitialiser l\'éditeur ? Tout le texte sera perdu.')) {
+      console.log('✅ Confirmation reçue');
       setText('');
       setMetrics(null);
       console.log('✅ Éditeur réinitialisé');
+    } else {
+      console.log('❌ Annulé par l\'utilisateur');
     }
   };
 
   const handleShare = async () => {
+    console.log('🔍 handleShare appelé');
+    console.log('📝 Texte à partager:', text);
+    
     if (!text || text.trim().length === 0) {
+      console.warn('⚠️ Texte vide');
       alert('⚠️ Aucun texte à partager');
       return;
     }
 
     try {
+      console.log('🔄 Tentative de partage...');
       // Créer un résumé du texte
       const summary = text.length > 100 ? text.substring(0, 100) + '...' : text;
       const shareData = {
@@ -358,6 +376,7 @@ Statistiques:
                     <SmartEditor
                       initialValue={text}
                       onProgressUpdate={handleProgressUpdate}
+                      onChange={(newText) => setText(newText)}
                       mode={mode}
                       realTimeCorrection={true}
                       className="h-full"
