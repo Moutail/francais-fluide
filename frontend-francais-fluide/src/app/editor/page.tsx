@@ -32,6 +32,34 @@ export default function EditorPage() {
     }
   }, [isAuthenticated, user]);
 
+  // Restaurer le brouillon sauvegardé au chargement
+  useEffect(() => {
+    const savedDraft = localStorage.getItem('editor_draft');
+    if (savedDraft) {
+      try {
+        const draft = JSON.parse(savedDraft);
+        const savedDate = new Date(draft.savedAt);
+        const now = new Date();
+        const hoursSinceLastSave = (now.getTime() - savedDate.getTime()) / (1000 * 60 * 60);
+
+        // Proposer de restaurer si sauvegardé il y a moins de 24h
+        if (hoursSinceLastSave < 24) {
+          const restore = confirm(
+            `📝 Un brouillon a été trouvé (sauvegardé ${savedDate.toLocaleString('fr-FR')}).\n\nVoulez-vous le restaurer ?`
+          );
+          if (restore) {
+            setText(draft.content || '');
+            setMode(draft.mode || 'practice');
+            setMetrics(draft.metrics || null);
+            console.log('✅ Brouillon restauré');
+          }
+        }
+      } catch (error) {
+        console.error('Erreur restauration brouillon:', error);
+      }
+    }
+  }, []);
+
   const loadUserProgress = async () => {
     try {
       const response = await fetch('/api/progress', {
@@ -98,46 +126,146 @@ export default function EditorPage() {
     saveProgress();
   }, [debouncedMetrics, isAuthenticated, lastSavedMetrics]);
   const handleSave = async () => {
+    if (!text || text.trim().length === 0) {
+      alert('⚠️ Aucun texte à sauvegarder');
+      return;
+    }
+
     setIsSaving(true);
     try {
-      // Sauvegarder le texte
-      const response = await fetch('/api/editor/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({
-          content: text,
-          mode: mode,
-          metrics: metrics,
-        }),
-      });
+      // Sauvegarder dans localStorage en attendant l'API
+      const savedData = {
+        content: text,
+        mode: mode,
+        metrics: metrics,
+        savedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('editor_draft', JSON.stringify(savedData));
 
-      if (response.ok) {
-        console.log('Texte sauvegardé avec succès');
+      // Essayer de sauvegarder sur le serveur
+      try {
+        const response = await fetch('/api/editor/save', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify(savedData),
+        });
+
+        if (response.ok) {
+          console.log('✅ Texte sauvegardé sur le serveur');
+          alert('✅ Texte sauvegardé avec succès !');
+        } else {
+          console.warn('⚠️ Sauvegarde serveur échouée, sauvegardé localement');
+          alert('✅ Texte sauvegardé localement');
+        }
+      } catch (serverError) {
+        console.warn('⚠️ Serveur non disponible, sauvegardé localement');
+        alert('✅ Texte sauvegardé localement');
       }
     } catch (error) {
-      console.error('Erreur sauvegarde:', error);
+      console.error('❌ Erreur sauvegarde:', error);
+      alert('❌ Erreur lors de la sauvegarde');
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleExport = () => {
-    // Logique d'export
-    const blob = new Blob([text], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'mon-texte.txt';
-    a.click();
-    URL.revokeObjectURL(url);
+    if (!text || text.trim().length === 0) {
+      alert('⚠️ Aucun texte à exporter');
+      return;
+    }
+
+    try {
+      // Créer le contenu avec métadonnées
+      const exportContent = `
+========================================
+Français Fluide - Export de texte
+========================================
+Date: ${new Date().toLocaleString('fr-FR')}
+Mode: ${mode}
+Mots écrits: ${metrics?.wordsWritten || 0}
+Précision: ${metrics?.accuracyRate || 0}%
+========================================
+
+${text}
+
+========================================
+Statistiques:
+- Caractères: ${text.length}
+- Mots: ${text.split(/\s+/).filter(w => w.length > 0).length}
+- Lignes: ${text.split('\n').length}
+========================================
+      `.trim();
+
+      const blob = new Blob([exportContent], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      
+      // Nom de fichier avec date
+      const date = new Date().toISOString().split('T')[0];
+      a.download = `francais-fluide-${date}.txt`;
+      
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      console.log('✅ Texte exporté avec succès');
+      alert('✅ Texte exporté avec succès !');
+    } catch (error) {
+      console.error('❌ Erreur export:', error);
+      alert('❌ Erreur lors de l\'export');
+    }
   };
 
   const handleReset = () => {
-    setText('');
-    setMetrics(null);
+    if (confirm('Êtes-vous sûr de vouloir réinitialiser l\'éditeur ? Tout le texte sera perdu.')) {
+      setText('');
+      setMetrics(null);
+      console.log('✅ Éditeur réinitialisé');
+    }
+  };
+
+  const handleShare = async () => {
+    if (!text || text.trim().length === 0) {
+      alert('⚠️ Aucun texte à partager');
+      return;
+    }
+
+    try {
+      // Créer un résumé du texte
+      const summary = text.length > 100 ? text.substring(0, 100) + '...' : text;
+      const shareData = {
+        title: 'Mon texte - Français Fluide',
+        text: `${summary}\n\nÉcrit avec Français Fluide - ${metrics?.wordsWritten || 0} mots, ${metrics?.accuracyRate || 0}% de précision`,
+        url: window.location.href,
+      };
+
+      // Vérifier si l'API Web Share est disponible
+      if (navigator.share) {
+        await navigator.share(shareData);
+        console.log('✅ Texte partagé avec succès');
+      } else {
+        // Fallback : Copier dans le presse-papiers
+        const shareText = `${shareData.title}\n\n${shareData.text}\n\n${shareData.url}`;
+        await navigator.clipboard.writeText(shareText);
+        alert('✅ Lien copié dans le presse-papiers !');
+        console.log('✅ Lien copié dans le presse-papiers');
+      }
+    } catch (error: any) {
+      if (error.name !== 'AbortError') {
+        console.error('❌ Erreur partage:', error);
+        // Fallback : Copier le texte
+        try {
+          await navigator.clipboard.writeText(text);
+          alert('✅ Texte copié dans le presse-papiers !');
+        } catch (clipboardError) {
+          alert('❌ Erreur lors du partage');
+        }
+      }
+    }
   };
 
   return (
@@ -210,7 +338,8 @@ export default function EditorPage() {
 
                   <Button 
                     variant="outline" 
-                    size="sm" 
+                    size="sm"
+                    onClick={handleShare}
                     className="hidden items-center gap-2 md:flex"
                   >
                     <Share2 className="size-4" />

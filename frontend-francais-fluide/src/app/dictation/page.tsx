@@ -1,7 +1,7 @@
 // src/app/dictation/page.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Volume2, BookOpen, Clock, Target, Lock, Crown, Sparkles } from 'lucide-react';
 import Navigation from '@/components/layout/Navigation';
@@ -13,42 +13,21 @@ interface DictationText {
   id: string;
   title: string;
   text: string;
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'easy' | 'medium' | 'hard';
   estimatedTime: number;
   description: string;
+  audioUrl?: string;
+  duration?: number;
+  category?: string;
 }
-
-const DICTATION_TEXTS: DictationText[] = [
-  {
-    id: '1',
-    title: 'Les saisons',
-    text: "Le printemps arrive avec ses fleurs colorées. Les oiseaux chantent dans les arbres. L'été apporte la chaleur et les longues journées. L'automne colore les feuilles en orange et rouge. L'hiver recouvre tout de blanc.",
-    difficulty: 'easy',
-    estimatedTime: 5,
-    description: 'Un texte simple sur les saisons pour débuter',
-  },
-  {
-    id: '2',
-    title: 'La technologie moderne',
-    text: "Les smartphones ont révolutionné notre façon de communiquer. Ils nous permettent de rester connectés en permanence. Cependant, il est important de savoir s'en détacher parfois. La technologie doit rester un outil, pas une dépendance.",
-    difficulty: 'medium',
-    estimatedTime: 8,
-    description: 'Un texte de niveau intermédiaire sur la technologie',
-  },
-  {
-    id: '3',
-    title: "L'art de la cuisine française",
-    text: "La gastronomie française est reconnue dans le monde entier pour sa sophistication et sa diversité. Chaque région possède ses spécialités culinaires uniques. Les chefs français maîtrisent l'art de marier les saveurs avec une précision remarquable.",
-    difficulty: 'hard',
-    estimatedTime: 12,
-    description: 'Un texte avancé sur la cuisine française',
-  },
-];
 
 export default function DictationPage() {
   const { user } = useAuth();
   const [selectedText, setSelectedText] = useState<DictationText | null>(null);
   const [completedDictations, setCompletedDictations] = useState<string[]>([]);
+  const [dictations, setDictations] = useState<DictationText[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<
     Array<{
       textId: string;
@@ -60,6 +39,99 @@ export default function DictationPage() {
   >([]);
 
   const userPlan = user?.subscription?.plan || 'demo';
+
+  // Charger les dictées depuis l'API
+  useEffect(() => {
+    loadDictations();
+  }, []);
+
+  const loadDictations = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/dictations', {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(localStorage.getItem('token') ? {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          } : {}),
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors du chargement des dictées');
+      }
+
+      const data = await response.json();
+      
+      if (data.success && data.data?.dictations) {
+        // Mapper les dictées du backend au format attendu
+        const mappedDictations = data.data.dictations.map((d: any) => ({
+          id: d.id,
+          title: d.title,
+          text: d.text,
+          difficulty: mapDifficulty(d.difficulty),
+          estimatedTime: d.duration || 5,
+          description: d.description || '',
+          audioUrl: d.audioUrl,
+          duration: d.duration,
+          category: d.category,
+        }));
+        setDictations(mappedDictations);
+      } else {
+        // Fallback sur les dictées par défaut si l'API ne retourne rien
+        setDictations(getDefaultDictations());
+      }
+    } catch (err: any) {
+      console.error('Erreur chargement dictées:', err);
+      setError(err.message);
+      // Fallback sur les dictées par défaut en cas d'erreur
+      setDictations(getDefaultDictations());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Mapper les difficultés du backend vers le format frontend
+  const mapDifficulty = (difficulty: string): 'easy' | 'medium' | 'hard' => {
+    const mapping: Record<string, 'easy' | 'medium' | 'hard'> = {
+      beginner: 'easy',
+      intermediate: 'medium',
+      advanced: 'hard',
+      easy: 'easy',
+      medium: 'medium',
+      hard: 'hard',
+    };
+    return mapping[difficulty] || 'medium';
+  };
+
+  // Dictées par défaut (fallback)
+  const getDefaultDictations = (): DictationText[] => [
+    {
+      id: '1',
+      title: 'Les saisons',
+      text: "Le printemps arrive avec ses fleurs colorées. Les oiseaux chantent dans les arbres. L'été apporte la chaleur et les longues journées. L'automne colore les feuilles en orange et rouge. L'hiver recouvre tout de blanc.",
+      difficulty: 'easy',
+      estimatedTime: 5,
+      description: 'Un texte simple sur les saisons pour débuter',
+    },
+    {
+      id: '2',
+      title: 'La technologie moderne',
+      text: "Les smartphones ont révolutionné notre façon de communiquer. Ils nous permettent de rester connectés en permanence. Cependant, il est important de savoir s'en détacher parfois. La technologie doit rester un outil, pas une dépendance.",
+      difficulty: 'medium',
+      estimatedTime: 8,
+      description: 'Un texte de niveau intermédiaire sur la technologie',
+    },
+    {
+      id: '3',
+      title: "L'art de la cuisine française",
+      text: "La gastronomie française est reconnue dans le monde entier pour sa sophistication et sa diversité. Chaque région possède ses spécialités culinaires uniques. Les chefs français maîtrisent l'art de marier les saveurs avec une précision remarquable.",
+      difficulty: 'hard',
+      estimatedTime: 12,
+      description: 'Un texte avancé sur la cuisine française',
+    },
+  ];
 
   const handleDictationComplete = (
     textId: string,
@@ -238,7 +310,7 @@ export default function DictationPage() {
           </h3>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {DICTATION_TEXTS.map((dictation, index) => (
+            {dictations.map((dictation, index) => (
               <div
                 key={dictation.id}
                 className="rounded-xl border border-blue-200 bg-white p-6 opacity-75 shadow-lg"
@@ -363,7 +435,27 @@ export default function DictationPage() {
 
           {/* Liste des dictées */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {DICTATION_TEXTS.map((dictation, index) => (
+            {loading ? (
+              <div className="col-span-full text-center py-12">
+                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+                <p className="mt-4 text-gray-600">Chargement des dictées...</p>
+              </div>
+            ) : error ? (
+              <div className="col-span-full text-center py-12">
+                <p className="text-red-600">❌ {error}</p>
+                <button
+                  onClick={loadDictations}
+                  className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                >
+                  Réessayer
+                </button>
+              </div>
+            ) : dictations.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-600">Aucune dictée disponible pour le moment.</p>
+              </div>
+            ) : (
+              dictations.map((dictation, index) => (
               <motion.div
                 key={dictation.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -413,7 +505,8 @@ export default function DictationPage() {
                     : 'Commencer la dictée'}
                 </button>
               </motion.div>
-            ))}
+              ))
+            )}
           </div>
 
           {/* Instructions */}

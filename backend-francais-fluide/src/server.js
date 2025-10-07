@@ -47,6 +47,7 @@ const adminRoutes = require('./routes/admin');
 const adminSubscriptionsRoutes = require('./routes/admin-subscriptions');
 const adminSupportRoutes = require('./routes/admin-support');
 const adminDictationsRoutes = require('./routes/admin-dictations');
+const adminDictationsUploadRoutes = require('./routes/admin-dictations-upload');
 const dissertationRoutes = require('./routes/dissertation');
 
 // Import des middlewares
@@ -176,6 +177,7 @@ app.use('/api/achievements', achievementsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/subscriptions', adminSubscriptionsRoutes);
 app.use('/api/admin/support', adminSupportRoutes);
+app.use('/api/admin/dictations', adminDictationsUploadRoutes); // Upload routes (doit être avant adminDictationsRoutes)
 app.use('/api/admin/dictations', adminDictationsRoutes);
 app.use('/api/dissertation', dissertationRoutes);
 

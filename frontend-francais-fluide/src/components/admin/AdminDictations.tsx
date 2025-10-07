@@ -14,6 +14,7 @@ import {
   BarChart3,
   Filter,
 } from 'lucide-react';
+import AudioUploader from './AudioUploader';
 
 export default function AdminDictations() {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -285,12 +286,45 @@ export default function AdminDictations() {
             onChange={e => setForm({ ...form, text: e.target.value })}
             className="h-32 w-full rounded border px-2 py-1"
           />
-          <input
-            placeholder="URL Audio (optionnel)"
-            value={form.audioUrl}
-            onChange={e => setForm({ ...form, audioUrl: e.target.value })}
-            className="w-full rounded border px-2 py-1"
-          />
+          
+          {/* Téléversement audio */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Fichier Audio
+            </label>
+            <AudioUploader
+              onUploadSuccess={(audioUrl, duration) => {
+                setForm({ 
+                  ...form, 
+                  audioUrl, 
+                  duration: Math.ceil(duration / 60) // Convertir secondes en minutes
+                });
+              }}
+              onUploadError={(error) => {
+                alert(`Erreur: ${error}`);
+              }}
+            />
+            {form.audioUrl && (
+              <div className="mt-2 rounded-lg bg-green-50 p-3">
+                <p className="text-sm text-green-800">
+                  ✅ Audio téléversé : {form.audioUrl}
+                </p>
+              </div>
+            )}
+          </div>
+          
+          {/* OU saisir une URL manuellement */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Ou saisir une URL audio manuellement
+            </label>
+            <input
+              placeholder="https://exemple.com/audio.mp3"
+              value={form.audioUrl}
+              onChange={e => setForm({ ...form, audioUrl: e.target.value })}
+              className="w-full rounded border px-2 py-1"
+            />
+          </div>
           <div className="flex gap-2">
             <button onClick={create} className="rounded bg-green-600 px-3 py-2 text-white">
               Enregistrer
