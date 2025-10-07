@@ -1,5 +1,6 @@
 // src/lib/subscription/subscriptionService.ts
 import { SUBSCRIPTION_PLANS, SubscriptionPlan } from './plans';
+import { SubscriptionExpirationManager } from './expiration-manager';
 
 // Mapping entre les IDs de la base de données et les plans frontend
 const PLAN_MAPPING: Record<string, string> = {
@@ -72,10 +73,15 @@ export class SubscriptionService {
 
     if (subscription.status !== 'active') return false;
 
-    const now = new Date();
-    const endDate = new Date(subscription.endDate);
+    // Utiliser le gestionnaire d'expiration pour vérifier
+    const expirationStatus = SubscriptionExpirationManager.checkExpiration(subscription);
+    
+    // Permettre l'accès pendant la période de grâce
+    if (expirationStatus.isExpired) {
+      return SubscriptionExpirationManager.isInGracePeriod(subscription);
+    }
 
-    return endDate > now;
+    return !expirationStatus.isExpired;
   }
 
   static getSubscriptionStatus(subscription: UserSubscription | null): {

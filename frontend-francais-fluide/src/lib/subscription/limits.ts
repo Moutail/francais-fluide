@@ -1,4 +1,5 @@
 // src/lib/subscription/limits.ts
+import React from 'react';
 import { SUBSCRIPTION_PLANS, type SubscriptionPlan } from './plans';
 
 export interface UsageStats {
@@ -131,20 +132,99 @@ export class SubscriptionLimiter {
   }
 }
 
-// Hook React pour utiliser les limites
-export function useSubscriptionLimits(userPlan: string = 'free') {
-  const usage: UsageStats = {
-    aiCorrections: 2, // Simulé
-    exercisesCompleted: 1, // Simulé
+/**
+ * Récupère l'usage réel depuis le backend
+ */
+export async function getRealUsage(userId: string): Promise<UsageStats> {
+  try {
+    const response = await fetch(`/api/usage/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur récupération usage');
+    }
+
+    const data = await response.json();
+    return data.usage;
+  } catch (error) {
+    console.error('Erreur getRealUsage:', error);
+    // Fallback sur valeurs par défaut
+    return {
+      aiCorrections: 0,
+      exercisesCompleted: 0,
+      lastResetDate: new Date().toISOString(),
+      planId: 'demo',
+    };
+  }
+}
+
+/**
+ * Incrémente l'usage côté backend
+ */
+export async function incrementUsage(
+  userId: string,
+  feature: 'aiCorrections' | 'exercisesCompleted'
+): Promise<boolean> {
+  try {
+    const response = await fetch('/api/usage/increment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: JSON.stringify({ userId, feature }),
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error('Erreur incrementUsage:', error);
+    return false;
+  }
+}
+
+// Hook React pour utiliser les limites avec données réelles
+export function useSubscriptionLimits(userPlan: string = 'free', userId?: string) {
+  const [usage, setUsage] = React.useState<UsageStats>({
+    aiCorrections: 0,
+    exercisesCompleted: 0,
     lastResetDate: new Date().toISOString(),
     planId: userPlan,
-  };
+  });
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    if (userId) {
+      getRealUsage(userId).then(realUsage => {
+        setUsage(realUsage);
+        setLoading(false);
+      });
+    } else {
+      setLoading(false);
+    }
+  }, [userId]);
 
   const limiter = new SubscriptionLimiter(usage);
+
+  const useFeature = async (feature: 'aiCorrections' | 'exercisesCompleted') => {
+    if (userId) {
+      const success = await incrementUsage(userId, feature);
+      if (success) {
+        // Rafraîchir l'usage
+        const newUsage = await getRealUsage(userId);
+        setUsage(newUsage);
+      }
+      return success;
+    }
+    return false;
+  };
 
   return {
     limiter,
     usage,
+    loading,
     canUseAI: limiter.checkAICorrections().allowed,
     canUseExercises: limiter.checkExercises().allowed,
     hasAdvancedAnalytics: limiter.checkFeature('advancedAnalytics'),
@@ -152,6 +232,7 @@ export function useSubscriptionLimits(userPlan: string = 'free') {
     hasOfflineMode: limiter.checkFeature('offlineMode'),
     hasCustomExercises: limiter.checkFeature('customExercises'),
     getUpgradePrompt: (feature: string) => limiter.getUpgradePrompt(feature),
+    useFeature, // Nouvelle fonction pour incrémenter l'usage
   };
 }
 

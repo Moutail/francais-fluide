@@ -1,5 +1,5 @@
 // src/components/editor/SmartEditor.tsx
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { AlertCircle, CheckCircle, Lightbulb, Wand2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
@@ -8,6 +8,7 @@ import {
   type GrammarError,
   type GrammarCheckResult,
 } from '@/lib/grammar-check';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface SmartEditorProps {
   initialValue?: string;
@@ -42,11 +43,16 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
   const [showCorrections, setShowCorrections] = useState(false);
   const [isFallbackMode, setIsFallbackMode] = useState(false);
   const [serviceUsed, setServiceUsed] = useState('');
+  
+  // Debounce du texte pour la vérification automatique
+  const debouncedText = useDebounce(text, 2000); // 2 secondes après arrêt de frappe
+  const lastCheckedTextRef = useRef('');
 
   const handleTextChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const newText = e.target.value;
       setText(newText);
+      setIsAnalyzing(realTimeCorrection && newText.trim().length > 10);
 
       if (onProgressUpdate) {
         const metrics: ProgressMetrics = {
@@ -60,15 +66,16 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
         onProgressUpdate(metrics);
       }
     },
-    [grammarErrors.length, onProgressUpdate]
+    [grammarErrors.length, onProgressUpdate, realTimeCorrection]
   );
 
-  const checkGrammar = useCallback(async () => {
-    if (!text.trim()) return;
+  const checkGrammar = useCallback(async (textToCheck?: string) => {
+    const targetText = textToCheck || text;
+    if (!targetText.trim()) return;
 
     setIsCheckingGrammar(true);
     try {
-      const result = await GrammarCheckService.checkText(text);
+      const result = await GrammarCheckService.checkText(targetText);
 
       if (result.success && result.data) {
         setGrammarErrors(result.data.errors);
@@ -76,10 +83,11 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
         setShowCorrections(true);
         setIsFallbackMode((result.fallback ?? result.data?.fallback) || false);
         setServiceUsed(result.service || 'fallback');
+        lastCheckedTextRef.current = targetText;
 
         if (onProgressUpdate) {
           const metrics: ProgressMetrics = {
-            wordsWritten: text.trim().split(/\s+/).length,
+            wordsWritten: targetText.trim().split(/\s+/).length,
             errorsDetected: result.data.errors.length,
             errorsCorrected: 0,
             accuracyRate:
@@ -97,6 +105,7 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
       console.error('Erreur correction grammaticale:', error);
     } finally {
       setIsCheckingGrammar(false);
+      setIsAnalyzing(false);
     }
   }, [onProgressUpdate, text]);
 
@@ -137,6 +146,16 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
     }
   };
 
+  // Vérification automatique en temps réel avec debounce
+  useEffect(() => {
+    if (realTimeCorrection && debouncedText.trim().length > 10) {
+      // Ne vérifier que si le texte a changé depuis la dernière vérification
+      if (debouncedText !== lastCheckedTextRef.current) {
+        checkGrammar(debouncedText);
+      }
+    }
+  }, [debouncedText, realTimeCorrection, checkGrammar]);
+
   return (
     <div className={cn('w-full', className)}>
       <div className="relative">
@@ -168,7 +187,7 @@ export const SmartEditor: React.FC<SmartEditorProps> = ({
       <div className="mt-3 flex flex-col gap-2 md:mt-4 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-wrap items-center gap-2 md:gap-3">
           <button
-            onClick={checkGrammar}
+            onClick={() => checkGrammar()}
             disabled={!text.trim() || isCheckingGrammar}
             className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-2 text-sm text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 md:gap-2 md:px-4 md:text-base"
           >

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { SmartEditor } from '@/components/editor/SmartEditor';
 // import { EditorToolbar } from '@/components/editor/EditorToolbar';
@@ -10,6 +10,7 @@ import { Card, Button } from '@/components/ui';
 import { Save, Download, Share2, Settings, RotateCcw, User, Target, Award } from 'lucide-react';
 import type { ProgressMetrics } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export default function EditorPage() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -18,6 +19,11 @@ export default function EditorPage() {
   const [mode, setMode] = useState<'practice' | 'exam' | 'creative'>('practice');
   const [userProgress, setUserProgress] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [lastSavedMetrics, setLastSavedMetrics] = useState<ProgressMetrics | null>(null);
+  
+  // Debounce des métriques pour éviter trop de requêtes
+  const debouncedMetrics = useDebounce(metrics, 3000); // 3 secondes de délai
+  const saveInProgressRef = useRef(false);
 
   // Charger les données utilisateur
   useEffect(() => {
@@ -47,34 +53,50 @@ export default function EditorPage() {
 
   const handleProgressUpdate = (newMetrics: ProgressMetrics) => {
     setMetrics(newMetrics);
-
-    // Sauvegarder automatiquement la progression
-    if (isAuthenticated) {
-      saveProgress(newMetrics);
-    }
+    // La sauvegarde se fera automatiquement via useEffect avec debounce
   };
 
-  const saveProgress = async (newMetrics: ProgressMetrics) => {
-    try {
-      await fetch('/api/progress', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({
-          wordsWritten: newMetrics.wordsWritten,
-          accuracy: newMetrics.accuracyRate,
-          // Champs non présents dans ProgressMetrics côté éditeur : valeurs par défaut
-          timeSpent: 0,
-          exercisesCompleted: 0,
-          currentStreak: newMetrics.streakCount,
-        }),
-      });
-    } catch (error) {
-      console.error('Erreur sauvegarde progression:', error);
-    }
-  };
+  // Sauvegarder automatiquement avec debounce
+  useEffect(() => {
+    const saveProgress = async () => {
+      // Ne pas sauvegarder si pas authentifié, pas de métriques, ou sauvegarde en cours
+      if (!isAuthenticated || !debouncedMetrics || saveInProgressRef.current) {
+        return;
+      }
+
+      // Ne sauvegarder que si les métriques ont changé
+      if (lastSavedMetrics && 
+          lastSavedMetrics.wordsWritten === debouncedMetrics.wordsWritten &&
+          lastSavedMetrics.accuracyRate === debouncedMetrics.accuracyRate) {
+        return;
+      }
+
+      saveInProgressRef.current = true;
+      try {
+        await fetch('/api/progress', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({
+            wordsWritten: debouncedMetrics.wordsWritten,
+            accuracy: debouncedMetrics.accuracyRate,
+            timeSpent: 0,
+            exercisesCompleted: 0,
+            currentStreak: debouncedMetrics.streakCount,
+          }),
+        });
+        setLastSavedMetrics(debouncedMetrics);
+      } catch (error) {
+        console.error('Erreur sauvegarde progression:', error);
+      } finally {
+        saveInProgressRef.current = false;
+      }
+    };
+
+    saveProgress();
+  }, [debouncedMetrics, isAuthenticated, lastSavedMetrics]);
   const handleSave = async () => {
     setIsSaving(true);
     try {
