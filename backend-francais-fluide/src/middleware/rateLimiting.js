@@ -76,6 +76,13 @@ const submissionLimiter = createRateLimiter({
   message: 'Trop de soumissions en peu de temps. Veuillez patienter.'
 });
 
+// Rate limiter spécifique pour /api/progress (plus permissif car debounced côté frontend)
+const progressLimiter = createRateLimiter({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: process.env.NODE_ENV === 'production' ? 20 : 200, // 20 par minute en prod
+  message: 'Trop de mises à jour de progression. Veuillez patienter.'
+});
+
 // Middleware pour appliquer différents limiters selon la route
 const smartRateLimiter = (req, res, next) => {
   const path = req.path.toLowerCase();
@@ -99,8 +106,18 @@ const smartRateLimiter = (req, res, next) => {
     return creationLimiter(req, res, next);
   }
   
-  // Routes de soumission
-  if (path.includes('/submit') || path.includes('/attempt') || req.method === 'PUT') {
+  // Routes de soumission (EXCLURE /progress qui a son propre debouncing)
+  if (path.includes('/submit') || path.includes('/attempt')) {
+    return submissionLimiter(req, res, next);
+  }
+  
+  // PUT sur /progress avec rate limiting plus permissif
+  if (req.method === 'PUT' && path.includes('/progress')) {
+    return progressLimiter(req, res, next);
+  }
+  
+  // Autres PUT
+  if (req.method === 'PUT') {
     return submissionLimiter(req, res, next);
   }
   
@@ -193,6 +210,7 @@ module.exports = {
   heavyOperationsLimiter,
   creationLimiter,
   submissionLimiter,
+  progressLimiter,
   smartRateLimiter,
   suspiciousActivityLogger,
   bruteForcePrevention,
