@@ -149,6 +149,24 @@ const checkQuota = async (req, res, next) => {
   }
 };
 
+// Middleware pour vérifier que l'utilisateur est admin
+const requireAdmin = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({
+      error: 'Authentification requise'
+    });
+  }
+
+  if (req.user.role !== 'super_admin' && req.user.role !== 'admin') {
+    return res.status(403).json({
+      error: 'Accès refusé. Droits administrateur requis.',
+      userRole: req.user.role
+    });
+  }
+
+  next();
+};
+
 // Middleware spécifique pour les dictées
 const checkDictationQuota = async (req, res, next) => {
   try {
@@ -219,6 +237,7 @@ const checkDictationQuota = async (req, res, next) => {
 module.exports = {
   authenticateToken,
   requireSubscription,
+  requireAdmin,
   checkQuota,
   checkDictationQuota
 };
