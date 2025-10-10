@@ -1,16 +1,20 @@
 // src/lib/security/input-validator.ts
-import DOMPurify from 'isomorphic-dompurify';
 import { z } from 'zod';
 
 export class InputValidator {
   /**
    * Nettoyer le HTML pour éviter les injections XSS
+   * Version simplifiée sans dépendance externe
    */
   static sanitizeHTML(html: string): string {
-    return DOMPurify.sanitize(html, {
-      ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p', 'br', 'span'],
-      ALLOWED_ATTR: ['class'],
-    });
+    // Échapper les caractères HTML dangereux
+    return html
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;')
+      .replace(/\//g, '&#x2F;');
   }
 
   /**
