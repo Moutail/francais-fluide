@@ -159,6 +159,9 @@ export default function ExercicesPage() {
 
         const data = await response.json();
 
+        // Charger les données de localStorage
+        const completedExercises = JSON.parse(localStorage.getItem('completedExercises') || '{}');
+
         if (data.success) {
           const exercisesWithIcons = data.data.map((exercise: any) => {
             const hasSubmissions =
@@ -167,22 +170,42 @@ export default function ExercicesPage() {
               typeof exercise._count?.submissions === 'number' ? exercise._count.submissions : 0;
             const completed = hasSubmissions || countSubmissions > 0;
             const lastScore = hasSubmissions ? exercise.submissions[0]?.score : undefined;
+            
+            // Fusionner avec localStorage
+            const localData = completedExercises[exercise.id];
+            const isCompleted = completed || (localData && localData.completed);
+            const finalScore = lastScore ?? (localData && localData.score);
+            
             return {
               ...exercise,
               estimatedTime: normalizeEstimatedMinutes(exercise),
               icon: getTypeIcon(exercise.type),
-              completed,
-              score: lastScore,
+              completed: isCompleted,
+              score: finalScore,
             };
           });
           if (!exercisesWithIcons || exercisesWithIcons.length === 0) {
-            const defaults = EXERCISES_BANK.slice(0, 6).map(mapBankToExerciseCard);
+            const defaults = EXERCISES_BANK.slice(0, 6).map((ex) => {
+              const localData = completedExercises[ex.id];
+              return {
+                ...mapBankToExerciseCard(ex),
+                completed: localData?.completed || false,
+                score: localData?.score,
+              };
+            });
             setExercises(defaults);
           } else {
             setExercises(exercisesWithIcons);
           }
         } else {
-          const defaults = EXERCISES_BANK.slice(0, 6).map(mapBankToExerciseCard);
+          const defaults = EXERCISES_BANK.slice(0, 6).map((ex) => {
+            const localData = completedExercises[ex.id];
+            return {
+              ...mapBankToExerciseCard(ex),
+              completed: localData?.completed || false,
+              score: localData?.score,
+            };
+          });
           setExercises(defaults);
         }
       } catch (error) {
@@ -563,6 +586,15 @@ export default function ExercicesPage() {
                 : ex
             )
           );
+          
+          // Sauvegarder aussi dans localStorage pour persistance immédiate
+          const completedExercises = JSON.parse(localStorage.getItem('completedExercises') || '{}');
+          completedExercises[selectedExercise.id] = {
+            completed: true,
+            score: data.data?.score ?? finalScore,
+            timestamp: Date.now(),
+          };
+          localStorage.setItem('completedExercises', JSON.stringify(completedExercises));
         } else {
           // Marquer comme complété localement même si la sauvegarde échoue
           setExercises(prev =>
@@ -570,6 +602,15 @@ export default function ExercicesPage() {
               ex.id === selectedExercise.id ? { ...ex, completed: true, score: finalScore } : ex
             )
           );
+          
+          // Sauvegarder dans localStorage
+          const completedExercises = JSON.parse(localStorage.getItem('completedExercises') || '{}');
+          completedExercises[selectedExercise.id] = {
+            completed: true,
+            score: finalScore,
+            timestamp: Date.now(),
+          };
+          localStorage.setItem('completedExercises', JSON.stringify(completedExercises));
         }
       } catch (error) {
         console.error('Erreur sauvegarde exercice:', error);
@@ -579,6 +620,15 @@ export default function ExercicesPage() {
             ex.id === selectedExercise.id ? { ...ex, completed: true, score: finalScore } : ex
           )
         );
+        
+        // Sauvegarder dans localStorage
+        const completedExercises = JSON.parse(localStorage.getItem('completedExercises') || '{}');
+        completedExercises[selectedExercise.id] = {
+          completed: true,
+          score: finalScore,
+          timestamp: Date.now(),
+        };
+        localStorage.setItem('completedExercises', JSON.stringify(completedExercises));
       }
     }
 

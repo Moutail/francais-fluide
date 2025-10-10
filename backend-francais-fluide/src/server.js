@@ -26,6 +26,10 @@ console.log('🔧 Variables d\'environnement chargées:');
 console.log('DATABASE_URL:', process.env.DATABASE_URL ? '✅ Définie' : '❌ Manquante');
 console.log('JWT_SECRET:', process.env.JWT_SECRET ? '✅ Défini' : '❌ Manquant');
 console.log('PORT:', process.env.PORT);
+console.log('\n🤖 Clés API IA:');
+console.log('OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? `✅ Définie (${process.env.OPENAI_API_KEY.substring(0, 20)}...)` : '❌ Manquante');
+console.log('ANTHROPIC_API_KEY:', process.env.ANTHROPIC_API_KEY ? `✅ Définie (${process.env.ANTHROPIC_API_KEY.substring(0, 20)}...)` : '❌ Manquante');
+console.log('AI_PROVIDER:', process.env.AI_PROVIDER || 'non défini (utilisera openai par défaut)');
 
 // Import des routes
 const authRoutes = require('./routes/auth');

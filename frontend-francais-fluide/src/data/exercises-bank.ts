@@ -202,19 +202,28 @@ export const EXERCISES_BANK: Exercise[] = [
       {
         id: 'q1',
         type: 'fill-blank',
-        text: 'Hier, quand je ___ à la gare, le train ___ déjà.',
-        correctAnswer: 'suis arrivé, était parti',
-        options: ['suis arrivé, était parti', 'arrivais, partait', 'arrivai, partit'],
+        text: 'Conjuguez le verbe "arriver" : Hier, quand je ___ à la gare...',
+        correctAnswer: 'suis arrivé',
+        options: ['suis arrivé', 'arrivais', 'arrivai', 'suis arrivée'],
         explanation:
-          'Action passée (arriver) + action antérieure (partir) = passé composé + plus-que-parfait.',
+          'Action ponctuelle dans le passé = passé composé. "Je suis arrivé" (ou "suis arrivée" selon le genre).',
       },
       {
         id: 'q2',
         type: 'fill-blank',
-        text: "Je ___ déçu car j'avais espéré le prendre.",
+        text: 'Conjuguez le verbe "partir" : ...le train ___ déjà.',
+        correctAnswer: 'était parti',
+        options: ['était parti', 'partait', 'partit', 'est parti'],
+        explanation:
+          'Action antérieure à une autre action passée = plus-que-parfait. "Le train était parti".',
+      },
+      {
+        id: 'q3',
+        type: 'fill-blank',
+        text: "Conjuguez le verbe \"être\" : Je ___ déçu car j'avais espéré le prendre.",
         correctAnswer: 'étais',
-        options: ['étais', 'ai été', 'serais'],
-        explanation: 'État dans le passé = imparfait.',
+        options: ['étais', 'ai été', 'serais', 'fus'],
+        explanation: 'État dans le passé = imparfait. "J\'étais déçu".',
       },
     ],
     scoring: {

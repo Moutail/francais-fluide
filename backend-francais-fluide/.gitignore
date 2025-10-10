@@ -107,3 +107,10 @@ Thumbs.db
 
 # Prisma
 prisma/migrations/
+
+# Scripts de test avec clés API
+test-final.js
+test-api-*.js
+create-env.js
+verify-env*.js
+INSTRUCTIONS-ENV.md
