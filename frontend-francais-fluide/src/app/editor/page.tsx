@@ -376,7 +376,6 @@ Statistiques:
                     <SmartEditor
                       initialValue={text}
                       onProgressUpdate={handleProgressUpdate}
-                      onChange={(newText) => setText(newText)}
                       mode={mode}
                       realTimeCorrection={true}
                       className="h-full"
