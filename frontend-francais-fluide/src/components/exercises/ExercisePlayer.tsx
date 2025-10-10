@@ -289,6 +289,21 @@ export default function ExercisePlayer({
           </div>
         </div>
 
+        {/* Texte de l'exercice */}
+        {exercise.content?.text && (
+          <div className="mb-8 rounded-lg border-2 border-blue-200 bg-blue-50 p-6">
+            <h3 className="mb-3 text-lg font-semibold text-blue-900">📖 Texte à analyser</h3>
+            <p className="whitespace-pre-wrap text-base leading-relaxed text-gray-800">
+              {exercise.content.text}
+            </p>
+            {exercise.content.instructions && (
+              <p className="mt-4 text-sm italic text-blue-700">
+                💡 {exercise.content.instructions}
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Barre de progression */}
         <div className="mb-8">
           <div className="mb-2 flex justify-between text-sm text-gray-600">
