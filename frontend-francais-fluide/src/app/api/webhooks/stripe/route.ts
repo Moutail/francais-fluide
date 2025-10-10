@@ -48,9 +48,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Désactiver le body parsing pour les webhooks Stripe
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// Configuration Next.js 14+ pour désactiver le body parsing
+// Remplace l'ancien export const config
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
