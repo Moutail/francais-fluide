@@ -1,6 +1,6 @@
 // src/services/aiService.js
 const OpenAI = require('openai');
-const Anthropic = require('@anthropic-ai/sdk');
+const { Anthropic } = require('@anthropic-ai/sdk');
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
@@ -16,6 +16,13 @@ class AIService {
     }) : null;
     
     this.provider = process.env.AI_PROVIDER || 'openai';
+    
+    // Log pour debug
+    console.log('🤖 AIService initialisé:', {
+      hasOpenAI: !!this.openai,
+      hasAnthropic: !!this.anthropic,
+      provider: this.provider
+    });
   }
 
   async generateResponse(message, options = {}) {

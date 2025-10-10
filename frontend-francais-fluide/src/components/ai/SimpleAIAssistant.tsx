@@ -14,6 +14,7 @@ export const SimpleAIAssistant: React.FC<SimpleAIAssistantProps> = ({ userPlan =
   const [messages, setMessages] = useState<Array<{ id: string; text: string; isUser: boolean }>>(
     []
   );
+  const [isLoading, setIsLoading] = useState(false);
 
   // Mapping des plans backend vers frontend
   const getFrontendPlanId = (backendPlan: string) => {
@@ -36,23 +37,57 @@ export const SimpleAIAssistant: React.FC<SimpleAIAssistantProps> = ({ userPlan =
     canUseAI,
   });
 
-  const handleSend = () => {
-    if (!message.trim() || !canUseAI) return;
+  const handleSend = async () => {
+    if (!message.trim() || !canUseAI || isLoading) return;
 
     const userMsg = { id: Date.now().toString(), text: message, isUser: true };
     setMessages(prev => [...prev, userMsg]);
+    const currentMessage = message;
+    setMessage('');
+    setIsLoading(true);
 
-    // Simulation de réponse IA
-    setTimeout(() => {
+    // Appeler l'API backend
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || '';
+      const response = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          message: currentMessage,
+          context: 'Assistant IA pour l\'apprentissage du français',
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const aiMsg = {
+          id: (Date.now() + 1).toString(),
+          text: data.data?.response || data.data || 'Désolé, je n\'ai pas pu générer une réponse.',
+          isUser: false,
+        };
+        setMessages(prev => [...prev, aiMsg]);
+      } else {
+        const aiMsg = {
+          id: (Date.now() + 1).toString(),
+          text: 'Désolé, une erreur est survenue. Veuillez réessayer.',
+          isUser: false,
+        };
+        setMessages(prev => [...prev, aiMsg]);
+      }
+    } catch (error) {
+      console.error('Erreur assistant IA:', error);
       const aiMsg = {
         id: (Date.now() + 1).toString(),
-        text: "Je suis votre assistant IA pour l'apprentissage du français. Comment puis-je vous aider ?",
+        text: 'Désolé, je ne peux pas me connecter au serveur. Vérifiez votre connexion.',
         isUser: false,
       };
       setMessages(prev => [...prev, aiMsg]);
-    }, 1000);
-
-    setMessage('');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -146,6 +181,21 @@ export const SimpleAIAssistant: React.FC<SimpleAIAssistantProps> = ({ userPlan =
                   )}
                 </div>
               ))}
+
+              {isLoading && (
+                <div className="flex gap-2 justify-start">
+                  <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-500">
+                    <Sparkles className="h-3 w-3 text-white animate-pulse" />
+                  </div>
+                  <div className="max-w-[80%] rounded-2xl p-3 text-xs bg-gray-100 text-gray-900">
+                    <div className="flex gap-1">
+                      <span className="animate-bounce">●</span>
+                      <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>●</span>
+                      <span className="animate-bounce" style={{ animationDelay: '0.4s' }}>●</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Input */}

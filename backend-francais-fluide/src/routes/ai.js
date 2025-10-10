@@ -88,10 +88,10 @@ router.post('/chat', authenticateToken, checkQuota, validateChatMessage, async (
       data: {
         userId,
         type: 'ai_chat',
-        details: {
+        details: JSON.stringify({
           messageLength: message.length,
           conversationId: conversation.id
-        }
+        })
       }
     });
 
