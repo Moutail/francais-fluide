@@ -44,10 +44,10 @@ interface Exercise {
 interface Question {
   id: string;
   question: string;
-  options: string[];
-  correctAnswer: number;
+  options?: string[];
+  correctAnswer: number | string;
   explanation: string;
-  type: 'multiple-choice' | 'fill-blank' | 'true-false';
+  type: 'multiple-choice' | 'fill-blank' | 'true-false' | 'correction';
 }
 
 export default function ExercicesPage() {
@@ -57,7 +57,7 @@ export default function ExercicesPage() {
 
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [selectedAnswer, setSelectedAnswer] = useState<number | string | null>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
@@ -308,6 +308,19 @@ export default function ExercicesPage() {
       const bankExercise = EXERCISES_BANK.find(ex => ex.id === exerciseId);
       if (bankExercise) {
         const questionsFromBank = (bankExercise.questions || []).map((q: any) => {
+          // Pour les questions de type correction ou fill-blank, garder la réponse en string
+          if (q.type === 'correction' || q.type === 'fill-blank') {
+            return {
+              id: q.id,
+              question: q.text || '',
+              options: [], // Pas d'options pour ces types
+              correctAnswer: q.correctAnswer, // ✅ Garder en string
+              explanation: q.explanation || '',
+              type: q.type as 'correction' | 'fill-blank',
+            };
+          }
+          
+          // Pour les choix multiples, convertir en index
           const options = Array.isArray(q.options) ? q.options : [];
           const correctIndex = Math.max(0, options.indexOf(q.correctAnswer));
           return {
@@ -316,11 +329,7 @@ export default function ExercicesPage() {
             options,
             correctAnswer: correctIndex,
             explanation: q.explanation || '',
-            type: (q.type === 'true-false'
-              ? 'true-false'
-              : q.type === 'fill-blank'
-                ? 'fill-blank'
-                : 'multiple-choice') as 'multiple-choice' | 'fill-blank' | 'true-false',
+            type: (q.type === 'true-false' ? 'true-false' : 'multiple-choice') as 'multiple-choice' | 'true-false',
           };
         });
         setQuestions(questionsFromBank);
@@ -436,9 +445,20 @@ export default function ExercicesPage() {
   };
 
   const submitAnswer = async () => {
-    if (selectedAnswer === null) return;
+    if (selectedAnswer === null || selectedAnswer === '') return;
 
-    const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+    // Vérifier la réponse selon le type de question
+    let isCorrect = false;
+    if (currentQuestion.type === 'correction' || currentQuestion.type === 'fill-blank') {
+      // Pour les questions textuelles, comparer en ignorant la casse et les espaces
+      const userAnswer = typeof selectedAnswer === 'string' ? selectedAnswer : String(selectedAnswer);
+      const correctAnswer = typeof currentQuestion.correctAnswer === 'string' ? currentQuestion.correctAnswer : String(currentQuestion.correctAnswer);
+      isCorrect = userAnswer.toLowerCase().trim() === correctAnswer.toLowerCase().trim();
+    } else {
+      // Pour les choix multiples, comparer l'index
+      isCorrect = Number(selectedAnswer) === Number(currentQuestion.correctAnswer);
+    }
+
     const responseTime = Date.now() - questionStartTime;
     const attempts = answerAttempts[currentQuestionIndex] || 0;
 
@@ -675,6 +695,30 @@ export default function ExercicesPage() {
             </div>
           )}
 
+          {/* Texte de l'exercice */}
+          {selectedExercise && EXERCISES_BANK.find(ex => ex.id === selectedExercise.id)?.content?.text && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="mb-6 rounded-2xl border-2 border-blue-200 bg-blue-50 p-6 shadow-lg"
+            >
+              <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-blue-900">
+                <BookOpen className="h-5 w-5" />
+                Texte à analyser
+              </h3>
+              <p className="mb-4 whitespace-pre-wrap text-base leading-relaxed text-gray-800">
+                {EXERCISES_BANK.find(ex => ex.id === selectedExercise.id)?.content?.text}
+              </p>
+              {EXERCISES_BANK.find(ex => ex.id === selectedExercise.id)?.content?.instructions && (
+                <p className="flex items-start gap-2 text-sm italic text-blue-700">
+                  <Sparkles className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                  {EXERCISES_BANK.find(ex => ex.id === selectedExercise.id)?.content?.instructions}
+                </p>
+              )}
+            </motion.div>
+          )}
+
           {/* Question */}
           {currentQuestion ? (
             <motion.div
@@ -685,8 +729,53 @@ export default function ExercicesPage() {
             >
               <h2 className="mb-6 text-2xl font-bold text-gray-900">{currentQuestion.question}</h2>
 
-              <div className="space-y-3">
-                {(currentQuestion.options || []).map((option: string, index: number) => (
+              {/* Champ de saisie pour les questions de type "correction" */}
+              {currentQuestion.type === 'correction' || currentQuestion.type === 'fill-blank' ? (
+                <div className="space-y-4">
+                  <textarea
+                    value={selectedAnswer !== null ? String(selectedAnswer) : ''}
+                    onChange={(e) => {
+                      setSelectedAnswer(e.target.value as any);
+                    }}
+                    placeholder="Votre réponse..."
+                    disabled={showResult}
+                    className={cn(
+                      'min-h-[100px] w-full rounded-xl border-2 p-4 text-base transition-all',
+                      'focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200',
+                      (() => {
+                        if (!showResult) return 'border-gray-300';
+                        const userAnswer = typeof selectedAnswer === 'string' ? selectedAnswer : String(selectedAnswer || '');
+                        const correctAnswer = typeof currentQuestion.correctAnswer === 'string' ? currentQuestion.correctAnswer : String(currentQuestion.correctAnswer);
+                        return userAnswer.toLowerCase().trim() === correctAnswer.toLowerCase().trim()
+                          ? 'border-green-500 bg-green-50'
+                          : 'border-red-500 bg-red-50';
+                      })()
+                    )}
+                  />
+                  {showResult && (() => {
+                    const userAnswer = typeof selectedAnswer === 'string' ? selectedAnswer : String(selectedAnswer || '');
+                    const correctAnswer = typeof currentQuestion.correctAnswer === 'string' ? currentQuestion.correctAnswer : String(currentQuestion.correctAnswer);
+                    const isCorrect = userAnswer.toLowerCase().trim() === correctAnswer.toLowerCase().trim();
+                    
+                    return (
+                      <div className={cn(
+                        'rounded-xl border-2 p-4',
+                        isCorrect ? 'border-green-500 bg-green-50' : 'border-blue-500 bg-blue-50'
+                      )}>
+                        <p className="mb-2 font-semibold text-gray-900">
+                          {isCorrect ? '✅ Correct !' : '❌ Incorrect'}
+                        </p>
+                        <p className="text-sm text-gray-700">
+                          <strong>Réponse correcte :</strong> {currentQuestion.correctAnswer}
+                        </p>
+                      </div>
+                    );
+                  })()}
+                </div>
+              ) : (
+                /* Boutons à choix multiples pour les autres types */
+                <div className="space-y-3">
+                  {(currentQuestion.options || []).map((option: string, index: number) => (
                   <motion.button
                     key={index}
                     whileHover={{ scale: 1.02 }}
@@ -705,7 +794,7 @@ export default function ExercicesPage() {
                       );
 
                       // Télémétrie: changement de réponse
-                      if (previousAnswer !== null && previousAnswer !== index) {
+                      if (previousAnswer !== null && typeof previousAnswer === 'number' && previousAnswer !== index) {
                         telemetry.trackAnswerChanged(
                           selectedExercise!.id,
                           currentQuestion.id,
@@ -768,9 +857,23 @@ export default function ExercicesPage() {
                     </div>
                   </motion.button>
                 ))}
-              </div>
+                </div>
+              )}
 
-              {showResult && (
+              {/* Explication (pour tous les types) */}
+              {showResult && currentQuestion.explanation && currentQuestion.type !== 'correction' && currentQuestion.type !== 'fill-blank' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-4"
+                >
+                  <h3 className="mb-2 font-semibold text-blue-900">Explication :</h3>
+                  <p className="text-blue-800">{currentQuestion.explanation}</p>
+                </motion.div>
+              )}
+
+              {/* Explication pour les questions de type correction/fill-blank */}
+              {showResult && currentQuestion.explanation && (currentQuestion.type === 'correction' || currentQuestion.type === 'fill-blank') && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
