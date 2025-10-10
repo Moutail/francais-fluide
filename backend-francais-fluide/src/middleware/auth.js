@@ -170,17 +170,40 @@ const requireAdmin = (req, res, next) => {
 // Middleware spécifique pour les dictées
 const checkDictationQuota = async (req, res, next) => {
   try {
-    const userId = req.user.userId;
+    console.log('🔍 checkDictationQuota - Vérification quota dictées');
+    console.log('📋 req.user:', req.user);
+    const userId = req.user?.userId;
+    
+    if (!userId) {
+      console.log('❌ Pas d\'userId dans req.user');
+      return res.status(401).json({ 
+        success: false,
+        error: 'Non authentifié' 
+      });
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     // Récupérer les quotas de l'utilisateur
+    console.log('📊 Récupération utilisateur:', userId);
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: { subscription: true }
     });
 
+    if (!user) {
+      console.log('❌ Utilisateur non trouvé:', userId);
+      return res.status(404).json({ 
+        success: false,
+        error: 'Utilisateur non trouvé' 
+      });
+    }
+
     const plan = user.subscription?.plan || 'demo';
+    console.log('✅ Plan utilisateur:', plan);
+    console.log('📦 Subscription complète:', user.subscription);
+    
     const quotas = {
       'demo': { dictations: 0 }, // 0 dictées pour le plan gratuit
       'etudiant': { dictations: 10 },
@@ -192,7 +215,9 @@ const checkDictationQuota = async (req, res, next) => {
     
     // Vérifier si l'utilisateur a accès aux dictées
     if (userQuota.dictations === 0) {
+      console.log('🚫 Accès refusé - Plan gratuit');
       return res.status(403).json({
+        success: false,
         error: 'Les dictées ne sont pas disponibles avec le plan gratuit',
         type: 'feature_not_available',
         currentPlan: plan,
@@ -213,8 +238,12 @@ const checkDictationQuota = async (req, res, next) => {
         }
       });
 
+      console.log(`📊 Usage dictées aujourd'hui: ${todayUsage}/${userQuota.dictations}`);
+
       if (todayUsage >= userQuota.dictations) {
+        console.log('🚫 Quota de dictées atteint');
         return res.status(429).json({
+          success: false,
           error: 'Quota de dictées atteint',
           quota: userQuota.dictations,
           used: todayUsage,
@@ -225,11 +254,15 @@ const checkDictationQuota = async (req, res, next) => {
     }
 
     req.userQuota = userQuota;
+    console.log('✅ Quota dictée OK, passage au handler');
     next();
   } catch (error) {
-    console.error('Erreur de vérification des quotas de dictée:', error);
+    console.error('❌ Erreur checkDictationQuota:', error);
+    console.error('Stack:', error.stack);
     res.status(500).json({ 
-      error: 'Erreur de vérification des quotas' 
+      success: false,
+      error: 'Erreur de vérification des quotas',
+      details: error.message
     });
   }
 };

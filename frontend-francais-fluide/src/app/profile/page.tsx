@@ -222,19 +222,19 @@ export default function ProfilePage() {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Exercices complétés</span>
-                  <span className="font-semibold">0</span>
+                  <span className="font-semibold">{user?.progress?.exercisesCompleted || 0}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Score moyen</span>
-                  <span className="font-semibold">0%</span>
+                  <span className="font-semibold">{user?.progress?.accuracy || 0}%</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Série actuelle</span>
-                  <span className="font-semibold">0 jours</span>
+                  <span className="font-semibold">{user?.progress?.currentStreak || 0} jours</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Meilleure série</span>
-                  <span className="font-semibold">0 jours</span>
+                  <span className="font-semibold">{user?.progress?.longestStreak || 0} jours</span>
                 </div>
               </div>
             </div>
@@ -246,14 +246,64 @@ export default function ProfilePage() {
                 Plan d'abonnement
               </h3>
               <div className="text-center">
-                <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
-                  <Award className="h-8 w-8 text-blue-600" />
-                </div>
-                <h4 className="mb-1 font-semibold text-gray-900">Plan Gratuit</h4>
-                <p className="mb-4 text-sm text-gray-600">Accès aux fonctionnalités de base</p>
-                <button className="w-full rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700">
-                  Passer au Premium
-                </button>
+                {(() => {
+                  const plan = user?.subscription?.plan || 'demo';
+                  const planNames: Record<string, string> = {
+                    demo: 'Plan Gratuit',
+                    etudiant: 'Plan Étudiant',
+                    premium: 'Plan Premium',
+                    etablissement: 'Plan Établissement',
+                  };
+                  const planDescriptions: Record<string, string> = {
+                    demo: 'Accès aux fonctionnalités de base',
+                    etudiant: '100 corrections/jour, 50 exercices/jour',
+                    premium: 'Accès illimité à toutes les fonctionnalités',
+                    etablissement: 'Accès complet + fonctionnalités établissement',
+                  };
+                  const planColors: Record<string, string> = {
+                    demo: 'bg-gray-100',
+                    etudiant: 'bg-blue-100',
+                    premium: 'bg-purple-100',
+                    etablissement: 'bg-green-100',
+                  };
+                  const planIconColors: Record<string, string> = {
+                    demo: 'text-gray-600',
+                    etudiant: 'text-blue-600',
+                    premium: 'text-purple-600',
+                    etablissement: 'text-green-600',
+                  };
+
+                  return (
+                    <>
+                      <div className={`mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full ${planColors[plan]}`}>
+                        <Award className={`h-8 w-8 ${planIconColors[plan]}`} />
+                      </div>
+                      <h4 className="mb-1 font-semibold text-gray-900">{planNames[plan]}</h4>
+                      <p className="mb-2 text-sm text-gray-600">{planDescriptions[plan]}</p>
+                      {user?.subscription?.endDate && (
+                        <p className="mb-4 text-xs text-gray-500">
+                          Expire le: {new Date(user.subscription.endDate).toLocaleDateString('fr-FR')}
+                        </p>
+                      )}
+                      {plan === 'demo' && (
+                        <button 
+                          onClick={() => window.location.href = '/subscription'}
+                          className="w-full rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
+                        >
+                          Passer au Premium
+                        </button>
+                      )}
+                      {plan !== 'demo' && (
+                        <button 
+                          onClick={() => window.location.href = '/subscription'}
+                          className="w-full rounded-lg bg-gray-100 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-200"
+                        >
+                          Gérer l'abonnement
+                        </button>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </div>

@@ -76,6 +76,7 @@ export default function ProgressionPage() {
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('week');
   const [isClient, setIsClient] = useState(false);
   const [progressData, setProgressData] = useState<ProgressData[]>([]);
+  const [allProgressData, setAllProgressData] = useState<ProgressData[]>([]); // Toutes les données
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [weeklyGoals, setWeeklyGoals] = useState<WeeklyGoal[]>([]);
   const [currentStats, setCurrentStats] = useState<UserProgress>({
@@ -159,7 +160,8 @@ export default function ProgressionPage() {
                 Math.floor(Math.random() * 3),
             });
           }
-          setProgressData(mockProgressData);
+          setAllProgressData(mockProgressData); // Sauvegarder toutes les données
+          setProgressData(mockProgressData); // Afficher initialement toutes les données
 
           // Générer les objectifs hebdomadaires basés sur les données réelles
           setWeeklyGoals([
@@ -237,6 +239,70 @@ export default function ProgressionPage() {
     setIsClient(true);
     loadProgressData();
   }, []);
+
+  // Filtrer les données selon la période sélectionnée
+  useEffect(() => {
+    if (allProgressData.length === 0) return;
+
+    const now = new Date();
+    now.setHours(23, 59, 59, 999); // Fin de la journée actuelle
+    
+    const filtered = allProgressData.filter(item => {
+      const itemDate = new Date(item.date);
+      itemDate.setHours(0, 0, 0, 0); // Début de la journée de l'item
+      
+      const diffMs = now.getTime() - itemDate.getTime();
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+      // Ignorer les dates futures
+      if (diffMs < 0) return false;
+
+      if (selectedPeriod === 'week') {
+        return diffDays < 7; // Derniers 7 jours (0-6)
+      } else if (selectedPeriod === 'month') {
+        return diffDays < 30; // Derniers 30 jours (0-29)
+      } else {
+        return diffDays < 365; // Derniers 365 jours (0-364)
+      }
+    });
+
+    // Trier par date décroissante (plus récent en premier)
+    const sorted = filtered.sort((a, b) => {
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+
+    console.log(`📊 Filtrage progression - Période: ${selectedPeriod}`);
+    console.log(`   Total données: ${allProgressData.length}`);
+    console.log(`   Filtrées: ${sorted.length}`);
+    console.log(`   Dates:`, sorted.map(d => d.date).slice(0, 5));
+
+    setProgressData(sorted);
+
+    // Recalculer les statistiques pour la période
+    if (sorted.length > 0) {
+      const totalWords = sorted.reduce((sum, item) => sum + item.wordsWritten, 0);
+      const avgAccuracy = sorted.reduce((sum, item) => sum + item.accuracy, 0) / sorted.length;
+      const totalTime = sorted.reduce((sum, item) => sum + item.timeSpent, 0);
+      const totalExercises = sorted.reduce((sum, item) => sum + item.exercisesCompleted, 0);
+
+      console.log(`   Stats calculées:`, {
+        totalWords,
+        avgAccuracy: avgAccuracy.toFixed(1),
+        totalTime,
+        totalExercises
+      });
+
+      setCurrentStats(prev => ({
+        ...prev,
+        wordsWritten: totalWords,
+        averageAccuracy: avgAccuracy,
+        timeSpent: totalTime,
+        exercisesCompleted: totalExercises,
+      }));
+    } else {
+      console.log(`   ⚠️ Aucune donnée pour cette période`);
+    }
+  }, [selectedPeriod, allProgressData]);
 
   const getTrendIcon = (current: number, previous: number) => {
     if (current > previous) return <ArrowUp className="h-4 w-4 text-green-500" />;

@@ -58,11 +58,20 @@ export default function DictationPage() {
         },
       });
 
-      if (!response.ok) {
-        throw new Error('Erreur lors du chargement des dictées');
+      const data = await response.json();
+
+      // Gérer le cas où l'utilisateur n'a pas accès (plan gratuit)
+      if (response.status === 403 && data.type === 'feature_not_available') {
+        console.log('⚠️ Accès refusé aux dictées - Plan gratuit');
+        setError('upgrade_required');
+        setDictations([]);
+        return;
       }
 
-      const data = await response.json();
+      if (!response.ok) {
+        console.error('Erreur API dictations:', response.status, data);
+        throw new Error(data.error || 'Erreur lors du chargement des dictées');
+      }
       
       if (data.success && data.data?.dictations) {
         // Mapper les dictées du backend au format attendu
@@ -200,7 +209,8 @@ export default function DictationPage() {
   };
 
   // Durée réaliste depuis le nombre de mots (approx. 2 mots/sec à rate TTS 0.7)
-  const getDurationSecondsFromText = (text: string) => {
+  const getDurationSecondsFromText = (text: string | undefined) => {
+    if (!text) return 30; // Durée par défaut si pas de texte
     const words = text.trim().split(/\s+/).filter(Boolean).length;
     return Math.max(5, Math.ceil(words / 2)); // minimum 5s pour l'UX
   };
@@ -209,7 +219,7 @@ export default function DictationPage() {
     return seconds < 60 ? `${seconds} s` : `${Math.round(seconds / 60)} min`;
   };
 
-  const getTimeLimitMinutesFromText = (text: string) => {
+  const getTimeLimitMinutesFromText = (text: string | undefined) => {
     const seconds = getDurationSecondsFromText(text);
     return Math.max(1, Math.round(seconds / 60));
   };
@@ -332,12 +342,14 @@ export default function DictationPage() {
                 <div className="mb-4 flex items-center gap-4 text-xs text-gray-500">
                   <div className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
-                    {formatDurationLabel(getDurationSecondsFromText(dictation.text))}
+                    {dictation.duration ? `${dictation.duration} min` : formatDurationLabel(getDurationSecondsFromText(dictation.text))}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Target className="h-3 w-3" />
-                    {dictation.text.split(' ').length} mots
-                  </div>
+                  {dictation.text && (
+                    <div className="flex items-center gap-1">
+                      <Target className="h-3 w-3" />
+                      {dictation.text.split(' ').length} mots
+                    </div>
+                  )}
                 </div>
 
                 <div className="py-2 text-center text-sm font-medium text-blue-600">
@@ -440,6 +452,41 @@ export default function DictationPage() {
                 <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
                 <p className="mt-4 text-gray-600">Chargement des dictées...</p>
               </div>
+            ) : error === 'upgrade_required' ? (
+              <div className="col-span-full">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 p-8 text-center shadow-lg"
+                >
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+                    <Lock className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <h3 className="mb-2 text-2xl font-bold text-gray-900">
+                    Fonctionnalité Premium
+                  </h3>
+                  <p className="mb-6 text-gray-600">
+                    Les dictées audio ne sont pas disponibles avec le plan gratuit.
+                    <br />
+                    Passez à un plan payant pour accéder à cette fonctionnalité.
+                  </p>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                    <a
+                      href="/subscription"
+                      className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
+                    >
+                      <Crown className="h-5 w-5" />
+                      Voir les plans
+                    </a>
+                    <a
+                      href="/exercises"
+                      className="inline-flex items-center gap-2 rounded-lg bg-gray-100 px-6 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-200"
+                    >
+                      Exercices gratuits
+                    </a>
+                  </div>
+                </motion.div>
+              </div>
             ) : error ? (
               <div className="col-span-full text-center py-12">
                 <p className="text-red-600">❌ {error}</p>
@@ -488,12 +535,14 @@ export default function DictationPage() {
                 <div className="mb-6 flex items-center gap-4 text-sm text-gray-500">
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
-                    {formatDurationLabel(getDurationSecondsFromText(dictation.text))}
+                    {dictation.duration ? `${dictation.duration} min` : formatDurationLabel(getDurationSecondsFromText(dictation.text))}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Target className="h-4 w-4" />
-                    {dictation.text.split(' ').length} mots
-                  </div>
+                  {dictation.text && (
+                    <div className="flex items-center gap-1">
+                      <Target className="h-4 w-4" />
+                      {dictation.text.split(' ').length} mots
+                    </div>
+                  )}
                 </div>
 
                 <button

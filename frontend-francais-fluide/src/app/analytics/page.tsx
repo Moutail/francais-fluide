@@ -75,27 +75,40 @@ export default function AnalyticsPage() {
   const loadAnalyticsData = async () => {
     setIsLoading(true);
     try {
-      // Simulation de chargement de données
-      // Dans une vraie app, ceci ferait un appel API
+      // Générer des données selon la période sélectionnée
+      const now = new Date();
+      const daysToGenerate = selectedPeriod === 'week' ? 7 : selectedPeriod === 'month' ? 30 : 365;
+      
+      const weeklyProgress = [];
+      for (let i = daysToGenerate - 1; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        weeklyProgress.push({
+          date: date.toISOString().split('T')[0],
+          words: Math.floor(Math.random() * 1000) + 800,
+          accuracy: Math.floor(Math.random() * 15) + 80,
+          time: Math.floor(Math.random() * 30) + 30,
+          exercises: Math.floor(Math.random() * 8) + 5,
+        });
+      }
+
+      // Calculer les totaux basés sur la période
+      const totalWords = weeklyProgress.reduce((sum, day) => sum + day.words, 0);
+      const totalTime = weeklyProgress.reduce((sum, day) => sum + day.time, 0);
+      const avgAccuracy = weeklyProgress.reduce((sum, day) => sum + day.accuracy, 0) / weeklyProgress.length;
+      const totalExercises = weeklyProgress.reduce((sum, day) => sum + day.exercises, 0);
+
       const mockData: AnalyticsData = {
         overview: {
-          totalWords: 15420,
-          totalTime: 2840, // minutes
-          accuracyRate: 87.5,
-          exercisesCompleted: 156,
+          totalWords,
+          totalTime,
+          accuracyRate: Math.round(avgAccuracy * 10) / 10,
+          exercisesCompleted: totalExercises,
           currentStreak: 12,
           level: 8,
           xp: 2340,
         },
-        weeklyProgress: [
-          { date: '2024-01-15', words: 1200, accuracy: 85, time: 45, exercises: 8 },
-          { date: '2024-01-16', words: 980, accuracy: 88, time: 38, exercises: 6 },
-          { date: '2024-01-17', words: 1450, accuracy: 90, time: 52, exercises: 10 },
-          { date: '2024-01-18', words: 1100, accuracy: 86, time: 41, exercises: 7 },
-          { date: '2024-01-19', words: 1300, accuracy: 89, time: 48, exercises: 9 },
-          { date: '2024-01-20', words: 800, accuracy: 84, time: 32, exercises: 5 },
-          { date: '2024-01-21', words: 1600, accuracy: 92, time: 58, exercises: 12 },
-        ],
+        weeklyProgress,
         skillBreakdown: [
           { skill: 'Grammaire', accuracy: 89, attempts: 45, improvement: 12 },
           { skill: 'Vocabulaire', accuracy: 85, attempts: 38, improvement: 8 },

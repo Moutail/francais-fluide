@@ -3,10 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 // POST /api/dictations/submit - Proxy vers backend
 export async function POST(request: NextRequest) {
   try {
-    const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const backend = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
     if (!backend) {
       return NextResponse.json(
-        { success: false, error: 'NEXT_PUBLIC_BACKEND_URL non configuré' },
+        { success: false, error: 'NEXT_PUBLIC_API_URL non configuré' },
         { status: 500 }
       );
     }

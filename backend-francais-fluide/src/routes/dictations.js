@@ -23,6 +23,7 @@ const validateDictationAttempt = [
 // GET /api/dictations - Récupérer toutes les dictées
 router.get('/', authenticateToken, checkDictationQuota, async (req, res) => {
   try {
+    console.log('📚 GET /api/dictations - Requête reçue');
     const { difficulty, limit = 10, page = 1 } = req.query;
     
     const whereClause = {};
@@ -30,6 +31,7 @@ router.get('/', authenticateToken, checkDictationQuota, async (req, res) => {
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
+    console.log('🔍 Recherche dictées:', { whereClause, limit, skip });
     const dictations = await prisma.dictation.findMany({
       where: whereClause,
       take: parseInt(limit),
@@ -51,6 +53,62 @@ router.get('/', authenticateToken, checkDictationQuota, async (req, res) => {
     });
 
     const total = await prisma.dictation.count({ where: whereClause });
+
+    console.log('✅ Dictées trouvées:', dictations.length);
+
+    // Si aucune dictée n'existe, retourner des données mockées
+    if (dictations.length === 0) {
+      console.log('⚠️ Aucune dictée en base, retour de données mockées');
+      const mockDictations = [
+        {
+          id: 'mock-1',
+          title: 'Le Petit Prince - Extrait',
+          description: 'Un extrait du célèbre roman de Saint-Exupéry',
+          difficulty: 'beginner',
+          duration: 5,
+          category: 'Littérature',
+          tags: ['classique', 'français'],
+          attempts: 0,
+          createdAt: new Date()
+        },
+        {
+          id: 'mock-2',
+          title: 'Les Misérables - Extrait',
+          description: 'Un passage de Victor Hugo',
+          difficulty: 'intermediate',
+          duration: 10,
+          category: 'Littérature',
+          tags: ['classique', 'histoire'],
+          attempts: 0,
+          createdAt: new Date()
+        },
+        {
+          id: 'mock-3',
+          title: 'Discours philosophique',
+          description: 'Un texte de Descartes',
+          difficulty: 'advanced',
+          duration: 15,
+          category: 'Philosophie',
+          tags: ['philosophie', 'réflexion'],
+          attempts: 0,
+          createdAt: new Date()
+        }
+      ];
+
+      return res.json({
+        success: true,
+        data: {
+          dictations: mockDictations,
+          pagination: {
+            page: 1,
+            limit: 10,
+            total: mockDictations.length,
+            pages: 1
+          }
+        },
+        mock: true
+      });
+    }
 
     res.json({
       success: true,
