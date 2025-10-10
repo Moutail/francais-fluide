@@ -1,6 +1,6 @@
 // src/services/aiService.js
 const OpenAI = require('openai');
-const { Anthropic } = require('@anthropic-ai/sdk');
+const Anthropic = require('@anthropic-ai/sdk').default || require('@anthropic-ai/sdk');
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
@@ -11,9 +11,17 @@ class AIService {
       apiKey: process.env.OPENAI_API_KEY
     }) : null;
     
-    this.anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY
-    }) : null;
+    // Initialisation Anthropic avec gestion d'erreur
+    this.anthropic = null;
+    if (process.env.ANTHROPIC_API_KEY) {
+      try {
+        this.anthropic = new Anthropic({
+          apiKey: process.env.ANTHROPIC_API_KEY
+        });
+      } catch (error) {
+        console.error('❌ Erreur initialisation Anthropic:', error.message);
+      }
+    }
     
     this.provider = process.env.AI_PROVIDER || 'openai';
     
@@ -21,7 +29,8 @@ class AIService {
     console.log('🤖 AIService initialisé:', {
       hasOpenAI: !!this.openai,
       hasAnthropic: !!this.anthropic,
-      provider: this.provider
+      provider: this.provider,
+      anthropicVersion: this.anthropic ? 'OK' : 'FAILED'
     });
   }
 
@@ -96,7 +105,7 @@ class AIService {
       : message;
 
     const response = await this.anthropic.messages.create({
-      model: "claude-3-sonnet-20240229",
+      model: "claude-3-5-sonnet-20241022",
       max_tokens: 1000,
       system: systemPrompt,
       messages: [{ role: "user", content: fullMessage }]

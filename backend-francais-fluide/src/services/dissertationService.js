@@ -187,7 +187,7 @@ Répondez UNIQUEMENT avec le JSON valide.`;
 
   async generatePlanWithAnthropic(prompt, dissertationType) {
     const response = await this.anthropic.messages.create({
-      model: "claude-3-sonnet-20240229",
+      model: "claude-3-5-sonnet-20241022",
       max_tokens: 2000,
       messages: [{ role: "user", content: prompt }]
     });
@@ -404,7 +404,7 @@ Répondez UNIQUEMENT avec le JSON valide.`;
 
   async analyzeWithAnthropic(prompt) {
     const response = await this.anthropic.messages.create({
-      model: "claude-3-sonnet-20240229",
+      model: "claude-3-5-sonnet-20241022",
       max_tokens: 3000,
       messages: [{ role: "user", content: prompt }]
     });
@@ -510,7 +510,7 @@ FORMAT JSON:
 
       if (this.provider === 'anthropic' && this.anthropic) {
         const response = await this.anthropic.messages.create({
-          model: "claude-3-sonnet-20240229",
+          model: "claude-3-5-sonnet-20241022",
           max_tokens: 1500,
           messages: [{ role: "user", content: prompt }]
         });

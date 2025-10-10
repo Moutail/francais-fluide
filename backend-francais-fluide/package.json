@@ -30,7 +30,7 @@
     "docker:run": "docker run -p 3001:3001 francais-fluide-backend"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.9.1",
+    "@anthropic-ai/sdk": "^0.65.0",
     "@prisma/client": "^5.22.0",
     "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^3.0.0",
