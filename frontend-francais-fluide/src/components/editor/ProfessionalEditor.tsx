@@ -9,6 +9,7 @@ interface ProfessionalEditorProps {
   placeholder?: string;
   onContentChange?: (content: string) => void;
   onSave?: (content: string) => void;
+  onExport?: (content: string) => void;
   className?: string;
 }
 
@@ -17,6 +18,7 @@ export const ProfessionalEditor: React.FC<ProfessionalEditorProps> = ({
   placeholder = 'Commencez à écrire votre texte...',
   onContentChange,
   onSave,
+  onExport,
   className,
 }) => {
   const [content, setContent] = useState(initialValue);
@@ -58,6 +60,10 @@ export const ProfessionalEditor: React.FC<ProfessionalEditorProps> = ({
     onSave?.(content);
   };
 
+  const handleExport = () => {
+    onExport?.(content);
+  };
+
   const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
   const characterCount = content.length;
 
@@ -77,7 +83,12 @@ export const ProfessionalEditor: React.FC<ProfessionalEditorProps> = ({
                 <Save className="size-4" />
                 Sauvegarder
               </Button>
-              <Button variant="ghost" size="sm" className="flex items-center gap-2">
+              <Button
+                onClick={handleExport}
+                variant="ghost"
+                size="sm"
+                className="flex items-center gap-2"
+              >
                 <Download className="size-4" />
                 Exporter
               </Button>

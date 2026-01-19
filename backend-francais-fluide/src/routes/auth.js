@@ -152,7 +152,8 @@ router.post('/login', validateLogin, async (req, res) => {
     if (!user) {
       return res.status(401).json({ 
         success: false,
-        error: 'Email ou mot de passe incorrect' 
+        error: 'Email incorrect',
+        code: 'INVALID_EMAIL'
       });
     }
 
@@ -162,7 +163,8 @@ router.post('/login', validateLogin, async (req, res) => {
     if (!isValidPassword) {
       return res.status(401).json({ 
         success: false,
-        error: 'Email ou mot de passe incorrect' 
+        error: 'Mot de passe incorrect',
+        code: 'INVALID_PASSWORD'
       });
     }
 

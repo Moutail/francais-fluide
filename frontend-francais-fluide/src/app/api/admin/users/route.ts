@@ -3,7 +3,11 @@ import { NextRequest, NextResponse } from 'next/server';
 // GET /api/admin/users - Proxy vers backend
 export async function GET(request: NextRequest) {
   try {
-    const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const backend =
+      process.env.BACKEND_URL ||
+      process.env.NEXT_PUBLIC_BACKEND_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      'http://localhost:3001';
     if (!backend) {
       return NextResponse.json(
         { success: false, error: 'NEXT_PUBLIC_BACKEND_URL non configuré' },
@@ -12,7 +16,12 @@ export async function GET(request: NextRequest) {
     }
 
     const authHeader = request.headers.get('authorization') || '';
-    const res = await fetch(`${backend}/api/admin/users`, {
+    const url = new URL('/api/admin/users', backend);
+    request.nextUrl.searchParams.forEach((value, key) => {
+      url.searchParams.set(key, value);
+    });
+
+    const res = await fetch(url.toString(), {
       method: 'GET',
       headers: {
         authorization: authHeader,

@@ -153,11 +153,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: true };
       } else {
         errorLogger.warn('AUTH', 'Échec de connexion', { email });
-        return { success: false, error: 'Erreur de connexion' };
+        return { success: false, error: response.error || 'Erreur de connexion' };
       }
     } catch (error) {
       logAuthError('login_error', error, { email });
-      return { success: false, error: 'Erreur de connexion' };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erreur de connexion',
+      };
     }
   };
 

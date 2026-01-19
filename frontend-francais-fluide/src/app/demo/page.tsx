@@ -11,6 +11,8 @@ import { CheckCircle, AlertCircle, Info, BarChart3, Clock, Target } from 'lucide
 export default function DemoPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [demoContent, setDemoContent] = useState('');
+  const [exerciseAnswer, setExerciseAnswer] = useState<string | null>(null);
+  const [exerciseIsCorrect, setExerciseIsCorrect] = useState<boolean | null>(null);
 
   const steps = [
     {
@@ -36,7 +38,57 @@ export default function DemoPage() {
   };
 
   const handleSave = (content: string) => {
-    console.log('Saving content:', content);
+    try {
+      const savedData = {
+        content,
+        timestamp: new Date().toISOString(),
+        source: 'demo',
+      };
+      localStorage.setItem('demo_editor_draft', JSON.stringify(savedData));
+      alert('✅ Texte sauvegardé avec succès !');
+    } catch (error) {
+      console.error('❌ Erreur sauvegarde:', error);
+      alert('❌ Erreur lors de la sauvegarde');
+    }
+  };
+
+  const handleExerciseAnswer = (answer: string) => {
+    const correctAnswer = 'écrites';
+    setExerciseAnswer(answer);
+    setExerciseIsCorrect(answer === correctAnswer);
+  };
+
+  const handleExport = (content: string) => {
+    if (!content || content.trim().length === 0) {
+      alert('⚠️ Aucun texte à exporter');
+      return;
+    }
+
+    try {
+      const exportContent = `
+========================================
+Français Fluide - Export de démonstration
+========================================
+Date: ${new Date().toLocaleString('fr-FR')}
+========================================
+
+${content}
+      `.trim();
+
+      const blob = new Blob([exportContent], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const date = new Date().toISOString().split('T')[0];
+      a.download = `francais-fluide-demo-${date}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      alert('✅ Texte exporté avec succès !');
+    } catch (error) {
+      console.error('❌ Erreur export:', error);
+      alert("❌ Erreur lors de l'export");
+    }
   };
 
   return (
@@ -84,6 +136,7 @@ export default function DemoPage() {
                   initialValue={steps[0].content}
                   onContentChange={handleContentChange}
                   onSave={handleSave}
+                  onExport={handleExport}
                   placeholder="Commencez à écrire votre texte..."
                 />
               )}
@@ -135,16 +188,41 @@ export default function DemoPage() {
                           "Les lettres que j'ai _____ hier sont arrivées."
                         </p>
                         <div className="mt-3 flex gap-2">
-                          <Button size="sm" variant="secondary">
+                          <Button
+                            size="sm"
+                            variant={exerciseAnswer === 'écrites' ? 'secondary' : 'ghost'}
+                            onClick={() => handleExerciseAnswer('écrites')}
+                          >
                             écrites
                           </Button>
-                          <Button size="sm" variant="ghost">
+                          <Button
+                            size="sm"
+                            variant={exerciseAnswer === 'écrit' ? 'secondary' : 'ghost'}
+                            onClick={() => handleExerciseAnswer('écrit')}
+                          >
                             écrit
                           </Button>
-                          <Button size="sm" variant="ghost">
+                          <Button
+                            size="sm"
+                            variant={exerciseAnswer === 'écrite' ? 'secondary' : 'ghost'}
+                            onClick={() => handleExerciseAnswer('écrite')}
+                          >
                             écrite
                           </Button>
                         </div>
+
+                        {exerciseIsCorrect === true && (
+                          <div className="mt-3 flex items-center gap-2 rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+                            <CheckCircle className="h-4 w-4" />
+                            Bonne réponse ! Ici, "lettres" est féminin pluriel.
+                          </div>
+                        )}
+                        {exerciseIsCorrect === false && (
+                          <div className="mt-3 flex items-center gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                            <AlertCircle className="h-4 w-4" />
+                            Pas tout à fait. La bonne réponse est "écrites".
+                          </div>
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -162,12 +240,16 @@ export default function DemoPage() {
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
                       <CheckCircle className="mt-0.5 h-5 w-5 text-green-600" />
-                      <div>
+                      <button
+                        type="button"
+                        onClick={() => setCurrentStep(0)}
+                        className="text-left"
+                      >
                         <h4 className="font-medium text-gray-900">Corrections en temps réel</h4>
                         <p className="text-sm text-gray-600">
                           Obtenez des suggestions instantanées pendant que vous écrivez
                         </p>
-                      </div>
+                      </button>
                     </div>
 
                     <div className="flex items-start gap-3">

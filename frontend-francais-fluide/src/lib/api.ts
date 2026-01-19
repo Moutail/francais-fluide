@@ -33,7 +33,20 @@ class ApiClient {
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`;
+    // Avoid double '/api' when baseURL is '/api' and endpoint is already prefixed with '/api'
+    let normalizedEndpoint = endpoint;
+    if (this.baseURL.endsWith('/api') && normalizedEndpoint.startsWith('/api/')) {
+      normalizedEndpoint = normalizedEndpoint.slice('/api'.length);
+    }
+
+    const baseHasTrailingSlash = this.baseURL.endsWith('/');
+    const endpointHasLeadingSlash = normalizedEndpoint.startsWith('/');
+
+    const url = baseHasTrailingSlash && endpointHasLeadingSlash
+      ? `${this.baseURL.slice(0, -1)}${normalizedEndpoint}`
+      : !baseHasTrailingSlash && !endpointHasLeadingSlash
+        ? `${this.baseURL}/${normalizedEndpoint}`
+        : `${this.baseURL}${normalizedEndpoint}`;
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -115,21 +128,56 @@ class ApiClient {
   }
 
   async login(data: { email: string; password: string }) {
-    const response = await this.request<{
+    // Login should not throw on 401; return structured errors for the UI.
+    const endpoint = '/api/auth/login';
+    let normalizedEndpoint = endpoint;
+    if (this.baseURL.endsWith('/api') && normalizedEndpoint.startsWith('/api/')) {
+      normalizedEndpoint = normalizedEndpoint.slice('/api'.length);
+    }
+
+    const baseHasTrailingSlash = this.baseURL.endsWith('/');
+    const endpointHasLeadingSlash = normalizedEndpoint.startsWith('/');
+
+    const url = baseHasTrailingSlash && endpointHasLeadingSlash
+      ? `${this.baseURL.slice(0, -1)}${normalizedEndpoint}`
+      : !baseHasTrailingSlash && !endpointHasLeadingSlash
+        ? `${this.baseURL}/${normalizedEndpoint}`
+        : `${this.baseURL}${normalizedEndpoint}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    const payload = (await response.json().catch(() => ({}))) as {
+      success?: boolean;
+      user?: any;
+      token?: string;
+      error?: string;
+      code?: string;
+    };
+
+    if (!response.ok) {
+      return {
+        success: false,
+        user: null,
+        token: '',
+        error: payload.error || `HTTP ${response.status}`,
+        code: payload.code,
+      };
+    }
+
+    if (payload.success && payload.token) {
+      this.setToken(payload.token);
+    }
+
+    return payload as {
       success: boolean;
       user: any;
       token: string;
       error?: string;
-    }>('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-
-    if (response.success && response.token) {
-      this.setToken(response.token);
-    }
-
-    return response;
+      code?: string;
+    };
   }
 
   // Profil utilisateur
