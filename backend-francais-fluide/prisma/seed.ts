@@ -36,6 +36,46 @@ async function main() {
 
   console.log('✅ Utilisateurs créés');
 
+  // Créer des abonnements (nécessaires pour les fonctionnalités IA avancées)
+  const startDate = new Date();
+  const endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+  await prisma.subscription.upsert({
+    where: { userId: user1.id },
+    update: {
+      plan: 'demo',
+      status: 'active',
+      startDate,
+      endDate,
+    },
+    create: {
+      userId: user1.id,
+      plan: 'demo',
+      status: 'active',
+      startDate,
+      endDate,
+    },
+  });
+
+  await prisma.subscription.upsert({
+    where: { userId: user2.id },
+    update: {
+      plan: 'demo',
+      status: 'active',
+      startDate,
+      endDate,
+    },
+    create: {
+      userId: user2.id,
+      plan: 'demo',
+      status: 'active',
+      startDate,
+      endDate,
+    },
+  });
+
+  console.log('✅ Abonnements créés');
+
   // Créer des progressions
   await prisma.userProgress.upsert({
     where: { userId: user1.id },
