@@ -46,9 +46,10 @@ export default function DissertationPage() {
   }
 
   // Subscription check
-  const hasSubscription = user?.subscription?.status === 'active';
-  const isPremium =
-    hasSubscription && ['premium', 'etablissement'].includes(user?.subscription?.plan || '');
+  const subscriptionStatus = String(user?.subscription?.status || 'active').toLowerCase();
+  const subscriptionPlan = String(user?.subscription?.plan || '').toLowerCase();
+  const hasSubscription = !!user?.subscription && subscriptionStatus === 'active';
+  const isPremium = hasSubscription && ['premium', 'etablissement'].includes(subscriptionPlan);
 
   // Non-premium: show premium prompt
   if (!isPremium) {

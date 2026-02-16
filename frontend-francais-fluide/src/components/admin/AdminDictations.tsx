@@ -36,6 +36,8 @@ export default function AdminDictations() {
   const [difficulty, setDifficulty] = useState('');
   const [category, setCategory] = useState('');
   const [creating, setCreating] = useState(false);
+  const [aiCreating, setAiCreating] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   const [form, setForm] = useState<any>({
     title: '',
     description: '',
@@ -45,6 +47,13 @@ export default function AdminDictations() {
     audioUrl: '',
     category: '',
     tags: [],
+  });
+  const [aiForm, setAiForm] = useState<any>({
+    difficulty: 'beginner',
+    theme: '',
+    category: '',
+    targetMinutes: 3,
+    withAudio: false,
   });
   const [editing, setEditing] = useState<any | null>(null);
   const [audioDurations, setAudioDurations] = useState<Record<string, number>>({}); // seconds by id
@@ -71,6 +80,36 @@ export default function AdminDictations() {
       console.error('Erreur chargement dictées:', e);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function generateWithAI() {
+    try {
+      setAiLoading(true);
+      const res = await fetch('/api/admin/dictations/generate', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(aiForm),
+      });
+      if (!res.ok) {
+        let e: any = null;
+        const text = await res.text();
+        try {
+          e = text ? JSON.parse(text) : null;
+        } catch {
+          e = null;
+        }
+        const details = e?.details ? `\n\nDétails:\n${JSON.stringify(e.details, null, 2)}` : '';
+        alert((e?.error || `Erreur génération IA (HTTP ${res.status})`) + (details || (text && !e ? `\n\nRéponse:\n${text}` : '')));
+        return;
+      }
+
+      setAiCreating(false);
+      await load();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setAiLoading(false);
     }
   }
 
@@ -129,8 +168,15 @@ export default function AdminDictations() {
         body: JSON.stringify(form),
       });
       if (!res.ok) {
-        const e = await res.json();
-        alert(e?.error || 'Erreur création dictée');
+        let e: any = null;
+        const text = await res.text();
+        try {
+          e = text ? JSON.parse(text) : null;
+        } catch {
+          e = null;
+        }
+        const details = e?.details ? `\n\nDétails:\n${JSON.stringify(e.details, null, 2)}` : '';
+        alert((e?.error || `Erreur création dictée (HTTP ${res.status})`) + (details || (text && !e ? `\n\nRéponse:\n${text}` : '')));
       } else {
         setCreating(false);
         setForm({
@@ -158,8 +204,15 @@ export default function AdminDictations() {
         body: JSON.stringify(patch),
       });
       if (!res.ok) {
-        const e = await res.json();
-        alert(e?.error || 'Erreur modification');
+        let e: any = null;
+        const text = await res.text();
+        try {
+          e = text ? JSON.parse(text) : null;
+        } catch {
+          e = null;
+        }
+        const details = e?.details ? `\n\nDétails:\n${JSON.stringify(e.details, null, 2)}` : '';
+        alert((e?.error || `Erreur modification (HTTP ${res.status})`) + (details || (text && !e ? `\n\nRéponse:\n${text}` : '')));
       } else {
         setEditing(null);
         await load();
@@ -203,14 +256,115 @@ export default function AdminDictations() {
           <h1 className="text-2xl font-bold text-gray-900">Gestion des dictées</h1>
           <p className="text-gray-600">Créez et gérez le contenu pédagogique de la plateforme</p>
         </div>
-        <button
-          onClick={() => setCreating(true)}
-          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
-        >
-          <Plus className="h-4 w-4" />
-          Nouvelle dictée
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setAiCreating(true)}
+            className="flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700"
+          >
+            <BookOpen className="h-4 w-4" />
+            Générer avec IA
+          </button>
+          <button
+            onClick={() => setCreating(true)}
+            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
+          >
+            <Plus className="h-4 w-4" />
+            Nouvelle dictée
+          </button>
+        </div>
       </div>
+
+      {/* Modal génération IA */}
+      {aiCreating && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-lg">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900">Générer une dictée avec l'IA</h2>
+              <button
+                onClick={() => setAiCreating(false)}
+                className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Difficulté</label>
+                <select
+                  value={aiForm.difficulty}
+                  onChange={e => setAiForm({ ...aiForm, difficulty: e.target.value })}
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="beginner">Débutant</option>
+                  <option value="intermediate">Intermédiaire</option>
+                  <option value="advanced">Avancé</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Durée cible (minutes)</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={aiForm.targetMinutes}
+                  onChange={e => setAiForm({ ...aiForm, targetMinutes: Number(e.target.value || 3) })}
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700">Thème (optionnel)</label>
+                <input
+                  value={aiForm.theme}
+                  onChange={e => setAiForm({ ...aiForm, theme: e.target.value })}
+                  placeholder="Ex: école, voyage, écologie..."
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700">Catégorie (optionnel)</label>
+                <input
+                  value={aiForm.category}
+                  onChange={e => setAiForm({ ...aiForm, category: e.target.value })}
+                  placeholder="Ex: Littérature, Actualité..."
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="flex items-center gap-2 text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={!!aiForm.withAudio}
+                    onChange={e => setAiForm({ ...aiForm, withAudio: e.target.checked })}
+                  />
+                  Générer aussi l'audio (ElevenLabs)
+                </label>
+              </div>
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-2">
+              <button
+                onClick={() => setAiCreating(false)}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                disabled={aiLoading}
+              >
+                Annuler
+              </button>
+              <button
+                onClick={generateWithAI}
+                className="rounded-lg bg-purple-600 px-4 py-2 text-white hover:bg-purple-700 disabled:opacity-50"
+                disabled={aiLoading}
+              >
+                {aiLoading ? 'Génération...' : 'Générer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Filtres */}
       <div className="rounded-xl border bg-white p-6 shadow-sm">

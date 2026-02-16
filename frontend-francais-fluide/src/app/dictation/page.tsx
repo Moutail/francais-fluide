@@ -383,7 +383,11 @@ export default function DictationPage() {
               handleDictationComplete(selectedText.id, userText, isCorrect, timeSpent)
             }
             onNext={() => setSelectedText(null)}
-            timeLimit={getTimeLimitMinutesFromText(selectedText.text)}
+            timeLimit={
+              selectedText.duration ||
+              selectedText.estimatedTime ||
+              getTimeLimitMinutesFromText(selectedText.text)
+            }
           />
         </div>
       </div>

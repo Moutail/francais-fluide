@@ -34,6 +34,40 @@ async function main() {
     },
   });
 
+  const premiumSeedUsers = [
+    {
+      email: 'premium@example.com',
+      name: 'Compte Premium',
+      plan: 'premium',
+      status: 'active',
+    },
+    {
+      email: 'etablissement@example.com',
+      name: 'Compte Établissement',
+      plan: 'etablissement',
+      status: 'active',
+    },
+  ];
+
+  const createdPremiumUsers = [] as Array<{ id: string; email: string; plan: string }>;
+
+  for (const u of premiumSeedUsers) {
+    const createdUser = await prisma.user.upsert({
+      where: { email: u.email },
+      update: {
+        name: u.name,
+        password: hashedPassword,
+      },
+      create: {
+        email: u.email,
+        name: u.name,
+        password: hashedPassword,
+      },
+    });
+
+    createdPremiumUsers.push({ id: createdUser.id, email: createdUser.email, plan: u.plan });
+  }
+
   console.log('✅ Utilisateurs créés');
 
   // Créer des abonnements (nécessaires pour les fonctionnalités IA avancées)
@@ -73,6 +107,25 @@ async function main() {
       endDate,
     },
   });
+
+  for (const u of createdPremiumUsers) {
+    await prisma.subscription.upsert({
+      where: { userId: u.id },
+      update: {
+        plan: u.plan,
+        status: 'active',
+        startDate,
+        endDate,
+      },
+      create: {
+        userId: u.id,
+        plan: u.plan,
+        status: 'active',
+        startDate,
+        endDate,
+      },
+    });
+  }
 
   console.log('✅ Abonnements créés');
 

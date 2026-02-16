@@ -43,10 +43,10 @@ router.get('/', authenticateToken, checkDictationQuota, async (req, res) => {
         description: true,
         difficulty: true,
         duration: true,
+        audioUrl: true,
+        text: true,
         category: true,
         tags: true,
-        completed: false, // Ne pas exposer le texte complet
-        score: false,
         attempts: true,
         createdAt: true
       }

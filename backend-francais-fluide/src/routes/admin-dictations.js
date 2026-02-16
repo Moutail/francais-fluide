@@ -3,9 +3,110 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { PrismaClient } = require('@prisma/client');
 const { authenticateToken } = require('../middleware/auth');
+const path = require('path');
+const fs = require('fs').promises;
+const fetch = require('node-fetch');
+const OpenAI = require('openai');
+const { Anthropic } = require('@anthropic-ai/sdk');
 
 const router = express.Router();
 const prisma = new PrismaClient();
+
+let anthropicClient = null;
+function getAnthropicClient() {
+  if (anthropicClient) return anthropicClient;
+  if (!process.env.ANTHROPIC_API_KEY) return null;
+  anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  return anthropicClient;
+}
+
+function getAnthropicModel() {
+  return process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest';
+}
+
+let openaiClient = null;
+function getOpenAIClient() {
+  if (openaiClient) return openaiClient;
+  if (!process.env.OPENAI_API_KEY) return null;
+  openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  return openaiClient;
+}
+
+function getOpenAIModel() {
+  return process.env.OPENAI_MODEL || 'gpt-4o-mini';
+}
+
+async function generateDictationJsonWithOpenAI({ prompt }) {
+  const openai = getOpenAIClient();
+  if (!openai) {
+    throw new Error('OpenAI non configuré (OPENAI_API_KEY manquante)');
+  }
+
+  const response = await openai.chat.completions.create({
+    model: getOpenAIModel(),
+    messages: [{ role: 'user', content: prompt }],
+    max_tokens: 1800,
+    temperature: 0.7
+  });
+
+  return response?.choices?.[0]?.message?.content || '';
+}
+
+function estimateDurationMinutesFromText(text) {
+  const words = String(text || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+  // Hypothèse ~130 mots/min
+  const minutes = Math.max(1, Math.ceil(words / 130));
+  return Math.min(60, minutes);
+}
+
+async function synthesizeElevenLabsToFile({ text, filename }) {
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!apiKey) {
+    throw new Error('ELEVENLABS_API_KEY manquante');
+  }
+
+  const voiceId = process.env.ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM';
+  const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
+
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'xi-api-key': apiKey,
+      'Content-Type': 'application/json',
+      Accept: 'audio/mpeg'
+    },
+    body: JSON.stringify({
+      text,
+      model_id: 'eleven_multilingual_v2',
+      voice_settings: {
+        stability: 0.35,
+        similarity_boost: 0.75
+      }
+    })
+  });
+
+  if (!resp.ok) {
+    const errText = await resp.text().catch(() => '');
+    throw new Error(`Erreur ElevenLabs (HTTP ${resp.status})${errText ? `: ${errText}` : ''}`);
+  }
+
+  const arrayBuffer = await resp.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  const uploadDir = path.join(__dirname, '../../public/audio/dictations');
+  await fs.mkdir(uploadDir, { recursive: true });
+
+  const outPath = path.join(uploadDir, filename);
+  await fs.writeFile(outPath, buffer);
+
+  return {
+    audioUrl: `/audio/dictations/${filename}`,
+    size: buffer.length
+  };
+}
 
 // Middleware admin
 const requireAdmin = async (req, res, next) => {
@@ -115,7 +216,22 @@ router.post('/',
     body('difficulty').isIn(['beginner', 'intermediate', 'advanced']).withMessage('Difficulté invalide'),
     body('duration').isInt({ min: 1, max: 60 }).withMessage('Durée invalide (1-60 minutes)'),
     body('text').trim().isLength({ min: 50, max: 5000 }).withMessage('Texte invalide'),
-    body('audioUrl').optional().isURL().withMessage('URL audio invalide'),
+    body('audioUrl').optional().custom((value) => {
+      if (!value) return true;
+      if (typeof value !== 'string') {
+        throw new Error('URL audio invalide');
+      }
+      // On accepte les URLs absolues (http/https) ou les chemins relatifs servis par l'app
+      // ex: /audio/dictations/mon-fichier.mp3
+      if (value.startsWith('/')) return true;
+      try {
+        // eslint-disable-next-line no-new
+        new URL(value);
+        return true;
+      } catch {
+        throw new Error('URL audio invalide');
+      }
+    }),
     body('category').optional().trim().isLength({ max: 50 }),
     body('tags').optional().isArray()
   ],
@@ -166,6 +282,154 @@ router.post('/',
         success: false,
         error: 'Erreur interne du serveur'
       });
+    }
+  }
+);
+
+// POST /api/admin/dictations/generate - Générer une dictée avec l'IA (admin)
+router.post('/generate',
+  authenticateToken,
+  requireAdmin,
+  [
+    body('difficulty').isIn(['beginner', 'intermediate', 'advanced']).withMessage('Difficulté invalide'),
+    body('theme').optional().isString().isLength({ max: 120 }).withMessage('Thème invalide'),
+    body('category').optional().isString().isLength({ max: 50 }).withMessage('Catégorie invalide'),
+    body('withAudio').optional().isBoolean().withMessage('withAudio invalide'),
+    body('targetMinutes').optional().isInt({ min: 1, max: 10 }).withMessage('targetMinutes invalide (1-10)')
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, error: 'Données invalides', details: errors.array() });
+      }
+
+      const anthropic = getAnthropicClient();
+      const openai = getOpenAIClient();
+      if (!anthropic && !openai) {
+        return res.status(500).json({
+          success: false,
+          error: 'Aucun provider IA configuré (ANTHROPIC_API_KEY ou OPENAI_API_KEY requis)'
+        });
+      }
+
+      const { difficulty, theme = 'général', category = '', withAudio = false, targetMinutes = 3 } = req.body;
+
+      const prompt = `Tu es un créateur de dictées en français.
+Génère UNE dictée originale adaptée au niveau: ${difficulty}.
+Thème: ${theme}.
+Durée cible: ${targetMinutes} minutes.
+
+Contraintes:
+- Le champ "text" doit être un texte continu (1 à 4 paragraphes max), entre 80 et 900 mots.
+- Le texte doit être parfaitement en français, sans listes ni puces.
+- Donne un "title" court.
+- Donne une "description" courte.
+- Donne "tags" comme tableau de 2 à 6 tags.
+
+Réponds UNIQUEMENT en JSON valide avec exactement ces clés:
+{ "title": string, "description": string, "text": string, "tags": string[] }`;
+
+      let raw = '';
+      let providerUsed = null;
+      // 1) Essayer Anthropic si disponible
+      if (anthropic) {
+        try {
+          const aiResp = await anthropic.messages.create({
+            model: getAnthropicModel(),
+            max_tokens: 1800,
+            temperature: 0.7,
+            messages: [{ role: 'user', content: prompt }]
+          });
+          raw = aiResp?.content?.[0]?.text || '';
+          providerUsed = 'anthropic';
+        } catch (err) {
+          const status = err?.status;
+          const message = err?.error?.error?.message || err?.message || '';
+          const isModelNotFound = status === 404 && String(message).toLowerCase().includes('model');
+          if (!isModelNotFound || !openai) {
+            throw err;
+          }
+          // 2) Fallback OpenAI si le modèle Anthropic est indisponible
+        }
+      }
+
+      if (!raw) {
+        raw = await generateDictationJsonWithOpenAI({ prompt });
+        providerUsed = 'openai';
+      }
+
+      let parsed;
+      try {
+        parsed = JSON.parse(raw);
+      } catch (e) {
+        return res.status(500).json({
+          success: false,
+          error: 'Réponse IA non-JSON',
+          provider: providerUsed,
+          raw
+        });
+      }
+
+      const title = String(parsed.title || '').trim();
+      const description = String(parsed.description || '').trim();
+      const text = String(parsed.text || '').trim();
+      const tags = Array.isArray(parsed.tags) ? parsed.tags.map(t => String(t).trim()).filter(Boolean) : [];
+
+      if (title.length < 2 || text.length < 50) {
+        return res.status(500).json({ success: false, error: 'Réponse IA invalide (title/text trop courts)', raw });
+      }
+
+      const duration = estimateDurationMinutesFromText(text);
+
+      let audioUrl = null;
+      let audioMeta = null;
+      if (withAudio) {
+        const safeBase = title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '')
+          .slice(0, 40) || 'dictee';
+        const filename = `${safeBase}-${Date.now()}.mp3`;
+        const audio = await synthesizeElevenLabsToFile({ text, filename });
+        audioUrl = audio.audioUrl;
+        audioMeta = { size: audio.size, provider: 'elevenlabs' };
+      }
+
+      const dictation = await prisma.dictation.create({
+        data: {
+          title,
+          description,
+          difficulty,
+          duration,
+          text,
+          audioUrl,
+          category: category || null,
+          tags: tags.length ? JSON.stringify(tags) : null
+        }
+      });
+
+      return res.status(201).json({
+        success: true,
+        data: dictation,
+        meta: {
+          generatedBy: providerUsed,
+          audio: audioMeta,
+          estimatedDurationMinutes: duration
+        }
+      });
+    } catch (error) {
+      console.error('Erreur génération dictée IA:', error);
+      const status = error?.status;
+      const message = error?.error?.error?.message || error?.message || 'Erreur interne du serveur';
+      if (status === 404 && String(message).toLowerCase().includes('model')) {
+        return res.status(500).json({
+          success: false,
+          error: `Modèle IA introuvable: ${message}`,
+          hint: 'Définissez ANTHROPIC_MODEL avec un modèle disponible sur votre compte, ou utilisez OPENAI_API_KEY/OPENAI_MODEL pour le fallback.'
+        });
+      }
+      return res.status(500).json({ success: false, error: message });
     }
   }
 );
@@ -246,7 +510,20 @@ router.put('/:id',
     body('difficulty').optional().isIn(['beginner', 'intermediate', 'advanced']),
     body('duration').optional().isInt({ min: 1, max: 60 }),
     body('text').optional().trim().isLength({ min: 50, max: 5000 }),
-    body('audioUrl').optional().isURL(),
+    body('audioUrl').optional().custom((value) => {
+      if (!value) return true;
+      if (typeof value !== 'string') {
+        throw new Error('Invalid value');
+      }
+      if (value.startsWith('/')) return true;
+      try {
+        // eslint-disable-next-line no-new
+        new URL(value);
+        return true;
+      } catch {
+        throw new Error('Invalid value');
+      }
+    }),
     body('category').optional().trim().isLength({ max: 50 }),
     body('tags').optional().isArray()
   ],
